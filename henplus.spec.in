@@ -1,4 +1,4 @@
-# $Id: henplus.spec.in,v 1.4 2002-04-22 16:17:54 hzeller Exp $
+# $Id: henplus.spec.in,v 1.5 2002-04-24 12:37:07 hzeller Exp $
 #
 %define version @HENPLUS_VERSION@
 
@@ -9,8 +9,8 @@ Name: henplus
 Prefix: /usr
 Packager: Henner Zeller <H.Zeller@acm.org>
 Release: 1
-Source: henplus-%{version}.tar.gz
-URL: http://www.vicdor.org/henplus
+Source: http://prdownloads.sourceforge.net/henplus/henplus-%{version}.tar.gz
+URL: http://sourceforge.net/projects/henplus/ 
 Version: %{version}
 Buildroot: /tmp/henplus
 Requires: libreadline-java >= 0.7.3
@@ -18,8 +18,9 @@ BuildRequires: libreadline-java >= 0.7.3
 BuildArchitectures: noarch
 
 %description
-A SQL commandline frontend with TAB-completion and history for any
-JDBC aware database.
+A SQL commandline frontend with TAB-completion  and history for any
+JDBC aware database. It supports multiple open database sessions in
+parallel.
 
 %prep
 %setup -q
