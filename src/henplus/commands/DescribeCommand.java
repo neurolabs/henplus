@@ -56,7 +56,7 @@ public class DescribeCommand
      * returns the command-strings this command can handle.
      */
     public String[] getCommandList() {
-	return new String[] { "describe" }; 
+	return new String[] { "describe", "idescribe" }; 
     }
 
     /**
@@ -171,6 +171,13 @@ public class DescribeCommand
 	     * build up actual describe table.
 	     */
             if (interrupted) return SUCCESS;
+            if ("describe".equals(cmd)) {
+                /*
+                 * no index describe
+                 */
+                return SUCCESS;
+            }
+
 	    rset = meta.getColumns(catalog, null, tabName, null);
 	    List rows = new ArrayList();
             int colNum = 0;
