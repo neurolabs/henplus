@@ -74,7 +74,7 @@ public class LoadCommand extends AbstractCommand {
      * @param  filename the filename to open
      * @return a file that represents the correct file name.
      */
-    private File openFile(String filename) {
+    File openFile(String filename) {
         File f = new File(filename);
         if (!f.isAbsolute()) {
             f = new File((File) _cwdStack.peek(), filename);
