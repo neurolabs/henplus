@@ -149,11 +149,11 @@ public class TreeCommand extends AbstractCommand {
             }
         }
 
-        System.out.println();
         try {
             long startTime = System.currentTimeMillis();
             DatabaseMetaData dbMeta = session.getConnection().getMetaData();
-            buildTree(dbMeta, new TreeMap(), tabName).print();
+            Node tree = buildTree(dbMeta, new TreeMap(), tabName);
+            tree.print();
             TimeRenderer.printTime(System.currentTimeMillis()-startTime,
                                    System.err);
             System.err.println();
@@ -166,6 +166,11 @@ public class TreeCommand extends AbstractCommand {
         return SUCCESS;
     }
     
+    /**
+     * build a subtree from the MetaData for the table with the given name.
+     * If this node already exists (because of a cyclic dependency), 
+     * return that. recursively called to build the whole tree.
+     */
     private Node buildTree(DatabaseMetaData meta,
                            Map knownNodes, String tabName) 
         throws SQLException
