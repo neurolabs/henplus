@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.11 2002-10-24 15:03:18 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.12 2002-11-03 11:31:57 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -126,6 +126,16 @@ public class DumpCommand
      * verify works without session.
      */
     public boolean requiresValidSession(String cmd) { return false; }
+
+    /**
+     * dump-in and verify-dump is complete as single-liner.
+     * dump-out and dump-conditional needs a semicolon.
+     */
+    public boolean isComplete(String command) {
+        if (command.startsWith("dump-in") || command.startsWith("verify-dump"))
+            return true;
+        return command.endsWith(";");
+    }
 
     /**
      * execute the command given.
