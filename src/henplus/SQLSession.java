@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.12 2002-10-06 09:09:13 hzeller Exp $
+ * $Id: SQLSession.java,v 1.13 2002-11-21 17:50:52 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -26,12 +26,13 @@ import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineCompleter;
 import org.gnu.readline.ReadlineLibrary;
 
+import henplus.util.Terminal;
 import henplus.commands.*;
 
 /**
  * document me.
  */
-public class SQLSession {
+public class SQLSession implements Interruptable {
     private long       _connectTime;
     private long       _statementCount;
     private String     _url;
@@ -41,6 +42,7 @@ public class SQLSession {
     private Connection _conn;
     private boolean    _terminated = false;
     private int        _showMessages;
+    private volatile boolean    _interrupted;
 
     /**
      * creates a new SQL session. Open the database connection, initializes
@@ -146,6 +148,7 @@ public class SQLSession {
 		_conn = DriverManager.getConnection(_url);
 	    }
 	    catch (SQLException e) {
+                System.err.println(e.getMessage());
 		authRequired = true;
 	    }
 	}
@@ -154,16 +157,38 @@ public class SQLSession {
 	if (authRequired) {
 	    System.err.println("============ authorization required ===");
 	    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-	    System.err.print("Username: ");
-	    _username = input.readLine();
-	    System.err.print("Password: ");
-	    _password = input.readLine();
+            _interrupted = false;
+            try {
+                SigIntHandler.getInstance().pushInterruptable(this);
+                HenPlus.getInstance();
+                System.err.print("Username: ");
+                _username = input.readLine();
+                if (_interrupted) {
+                    throw new IOException("connect interrupted ..");
+                }
+                System.err.print("Password: ");
+                _password = input.readLine();
+                if (_interrupted) {
+                    throw new IOException("connect interrupted ..");
+                }
+            }
+            finally {
+                SigIntHandler.getInstance().popInterruptable();
+            }
 	}
 	
 	_conn = DriverManager.getConnection(_url, _username, _password);
 	_connectTime = System.currentTimeMillis();
     }
     
+    // -- Interruptable interface
+    public void interrupt() { 
+        Terminal.boldface(System.err);
+	System.err.println(" interrupted; press [RETURN]");
+	Terminal.reset(System.err);
+	_interrupted = true; 
+    }
+
     /**
      * return username, if known.
      */

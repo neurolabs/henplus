@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.10 2002-10-05 08:47:44 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.11 2002-11-21 17:50:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -58,15 +58,16 @@ public class ResultSetRenderer implements Interruptable {
 	running = true;
 	try {
 	    while (running && rset.next()) {
-		if (firstRowTime < 0) {
-		    firstRowTime = System.currentTimeMillis();
-		}
 		Column[] currentRow = new Column[ columns ];
 		for (int i = 0 ; i < columns ; ++i) {
 		    int col = (showColumns != null) ? showColumns[i] : i+1;
 		    String colString = rset.getString( col );
 		    Column thisCol = new Column(colString); 
 		    currentRow[i] = thisCol;
+		}
+		if (firstRowTime < 0) {
+                    // read first row completely.
+		    firstRowTime = System.currentTimeMillis();
 		}
 		table.addRow(currentRow);
 		++rows;

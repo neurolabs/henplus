@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.12 2002-11-03 11:31:57 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.13 2002-11-21 17:50:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -856,7 +856,7 @@ public class DumpCommand
 			String msg = e.getMessage();
 			// oracle adds CR for some reason.
 			if (msg != null) msg = msg.trim();
-			System.err.println("Problem: " + msg);
+                        reportProblem(msg);
 			++problemRows;
 		    }
 		    
@@ -875,11 +875,23 @@ public class DumpCommand
 		expect(reader, ')');
 	    }
 	}
-	
+
+	// return final count.
+        finishProblemReports();
+        
 	// final commit, if commitPoints are enabled.
 	if (hot && commitPoint >= 0) {
 	    conn.commit();
 	}
+
+        // we're done.
+        if (stmt != null) {
+            try {
+                stmt.close();
+            }
+            catch (Exception e) {
+            }
+        }
 
 	if (expectedRows >= 0 && expectedRows != importedRows) {
 	    System.err.println("WARNING: expected " + expectedRows 
@@ -921,6 +933,32 @@ public class DumpCommand
 	}
 	expect(in, ')');
 	return result;
+    }
+
+    String lastProblem = null;
+    long problemCount = 0;
+    private void reportProblem(String msg) {
+        if (msg == null) return;
+        if (msg.equals(lastProblem)) {
+            ++problemCount;
+        }
+        else {
+            finishProblemReports();
+            problemCount = 1;
+            System.err.print("Problem: " + msg);
+            lastProblem = msg;
+        }
+    }
+
+    private void finishProblemReports() {
+        if (problemCount > 1) {
+            System.err.print("   (" + problemCount + " times)");
+        }
+        if (problemCount > 0) {
+            System.err.println();
+        }
+        lastProblem = null;
+        problemCount = 0;
     }
 
     public void checkSupported(int version) throws IllegalArgumentException {
