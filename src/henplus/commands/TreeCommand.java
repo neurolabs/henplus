@@ -134,8 +134,6 @@ public class TreeCommand extends AbstractCommand {
 	    return SYNTAX_ERROR;
 	}
 
-        Map/*<String,Entity>*/ globalEntityMap = new HashMap();
-        
         boolean correctName = true;
         String tabName = (String) st.nextElement();
         if (tabName.startsWith("\"")) {
@@ -173,20 +171,15 @@ public class TreeCommand extends AbstractCommand {
         if (knownNodes.containsKey(tabName)) {
             return (Node) knownNodes.get(tabName);
         }
+        
         Node n = new StringNode(tabName);
         knownNodes.put(tabName, n);
         ResultSet rset = null;
         try {
             rset = meta.getExportedKeys(null, null, tabName);
             while (rset.next()) {
-                String table = rset.getString(7);
-                /*
-                 * this may fail on stupid databases that do not
-                 * allows for multiple open ResultSets in parallel.
-                 * But until I know of such a database, I let it this
-                 * way..
-                 */
-                n.add(buildTree(meta, knownNodes, table));
+                String referencingTable = rset.getString(7);
+                n.add(buildTree(meta, knownNodes, referencingTable));
             }
         }
         finally {
