@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.19 2003-09-14 12:33:21 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.20 2004-02-01 18:46:40 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -160,8 +160,21 @@ with or without an jdbc-url on the command line.
 <pre>
 $ henplus jdbc:mysql://localhost/foobar
 </pre>
-The
-important commands you need to know to get it running are <code>help</code> and
+
+<p>
+<h5>Make sure, command line editing is enabled</h5>
+If the first line, henplus writes reads:
+<pre>
+no readline found (no JavaReadline in java.library.path). Using simple stdin.
+</pre>
+.. then, the JNI-part of the readline library could not be found, so command line
+editing is disabled because henplus then reads from stdin as fallback.
+This happens if the LD_LIBRARY_PATH does not point to the JNI library; edit the
+<code>/usr/bin/henplus</code> shellscript so that the LD_LIBRARY_PATH contains the
+directory where <code>libJavaReadline.so</code> resides.
+
+<h5>Getting started</h5>
+The important commands you need to know to get it running are <code>help</code> and
 <code>connect</code>. The help command gives an overview, what commands
 are supported:
 <hr>
@@ -484,13 +497,16 @@ sa@hsqldb> select * from FOO ;
 ---+---+---+
 1 row in result (first row: 4 msec; total: 7 msec)
 sa@hsqldb> set-property                      <b><font color="#3333FF">-- no parameters: show list</font></b>
-------------------+-------+------------------------------------------+
-       <b>Name</b>       | <b>Value</b> |               <b>Description</b>                |
-------------------+-------+------------------------------------------+
- column-delimiter | |     | modify column separator in query results |
- comments-remove  | on    | switches the removal of SQL-comments     |
- sql-result-limit | 2000  | set the maximum number of rows printed   |
-------------------+-------+------------------------------------------+
+-----------------------+-------+-------------------------------------------------------+
+         <b>Name</b>          | <b>Value</b> |                      <b>Description</b>                      |
+-----------------------+-------+-------------------------------------------------------+
+ column-delimiter      | |     | modify column separator in query results              |
+ comments-remove       | on    | switches the removal of SQL-comments                  |
+ echo-commands         | off   | echo commands prior to execution.                     |
+ sql-result-limit      | 2000  | set the maximum number of rows printed                |
+ sql-result-showfooter | on    | switches if footer in selected tables should be shown |
+ sql-result-showheader | on    | switches if header in selected tables should be shown |
+-----------------------+-------+-------------------------------------------------------+
 sa@hsqldb> set-property column-delimiter <b><font color="#3333FF">-- property name parameter: show detailed description</font></b>
 <b>DESCRIPTION</b>
         Set another string that is used to separate columns in
@@ -553,11 +569,39 @@ some Swing-window to do database record editing <!-- Armin H. --> ?
 <p>
 HenPlus does not limit you to the features already provided.
 It is very simple to write
-plug-ins, that can be added and removed at run time. See <code>plug-in</code>,
-<code>plug-out</code> and <code>list-plugins</code> for details.
+plug-ins, that can be added and removed at run time. See the help for
+<code>plug-in</code>, <code>plug-out</code> and <code>list-plugins</code> for details.
 Basically, you just need to write a class that implements 
-the <code>henplus.Command</code> interface.
+the <code>henplus.Command</code> interface. A plugin will register one (or a set of)
+new commands that behave just like internal commands. They are, for instance,
+available in the <code>help</code> command.
+</p>
 <p>
+<p>There is one cool plugin shipped with version 0.9.4, provided by
+<a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>. It resides in the
+henplus.jar, so if you have installed henplus, it is already there, but you have
+to plug-in this command yourself; after plugging it in, HenPlus will 
+<a href="#per-project-config">remember</a> this for future starts.
+
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; plug-in henplus.plugins.tablediff.TableDiffCommand
+adding commands: tablediff
+Hen*Plus&gt; list-plugins
+loaded plugins are marked with '*'
+----------------------------------------------+-----------+
+                 plugin class                 | commands  |
+----------------------------------------------+-----------+
+ * henplus.plugins.tablediff.TableDiffCommand | tablediff |
+----------------------------------------------+-----------+
+</table>
+What does this command do ? By providing two session names and a list of tables, 
+you get the meta difference for corresponding tables in both sessions. So you
+get whether columns have been added/removed or datatypes that are different for columns 
+with the same name. This is particularly useful if you have multiple installations of
+database schemas and wonder if they match (e.g. for test/productive environments);
+a way to automatically create 'alter table'-scripts is planned.
+</p><p>
+
 <em>(TODO: This feature needs a way to load the classes from an URLClassloader,
  so its possible to dynamically reload the classes when they changed. Anyone?)</em>
 
@@ -689,4 +733,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.19 2003-09-14 12:33:21 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.20 2004-02-01 18:46:40 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>

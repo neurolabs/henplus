@@ -2,6 +2,8 @@ henplus (0.9.4-1) unstable; urgency=low
   
   * implement spool command
   * add tablediff plugin by Martin Grotzke
+  * add echo-commands property
+  * add sql-result-showheader, sql-result-showfooter properties
   * small fixes
 
  -- Henner Zeller <H.Zeller@acm.org>  Sun, 01 Feb 2004 18:28:04 +0100

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SpoolCommand.java,v 1.3 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: SpoolCommand.java,v 1.4 2004-02-01 18:46:40 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -107,12 +107,23 @@ public final class SpoolCommand extends AbstractCommand {
         return true;
     }
 
+    public String getShortDescription() {
+        return "log output to a file";
+    }
+
+    public String getSynopsis(String cmd) {
+        return "spool <filename>|off";
+    }
+
     public String getLongDescription(String cmd) { 
 	String dsc;
-	dsc= "\tThis command does nothing (yet). For now, it is only\n"
-	    +"\tthere to work with Oracle SQLplus scripts. But you are\n"
-	    +"\tfree to implement it; be part of the henplus team:\n"
-	    +"\thttp://www.sourceforge.net/projects/henplus";
+	dsc= "\tIf command is followed by a filename, opens a file\n"
+            +"\tand writes all subsequent output not only to the terminal\n"
+            +"\tbut as well to this file. With\n"
+            +"\t spool off\n"
+            +"\tspooling is stopped and the file is closed. The spool\n"
+            +"\tcommand works recursivly, i.e. you can open more than one \n"
+            +"\tfile, and you have to close each of them with 'spool off'\n";
 	return dsc;
     }
 
