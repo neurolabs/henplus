@@ -1,5 +1,9 @@
-<!-- $Id: build.xml,v 1.18 2002-03-01 14:34:53 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.19 2002-03-11 09:26:08 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
+     <!-- installation properties -->
+     <property name="prefix"               value="/usr" />
+     <property name="DESTDIR"              value="/" />
+
      <!-- properties -->
      <property name="version"              value="0.3.1" />
      <property name="src"                  value="src" />
@@ -15,8 +19,8 @@
         <tstamp>
           <format property="COMPTIME" pattern="MMMM dd yyyy HH:mm"/>
         </tstamp>
-        <mkdir dir="${build}"/>
-        <mkdir dir="${classes}"/>
+        <mkdir dir="${build}" />
+        <mkdir dir="${classes}" />
      </target>
 
      <target name="Version.java">
@@ -40,7 +44,18 @@
         </jar>
      </target>
 
-     <target name="henplus.spec">
+     <target name="install" depends="jar" 
+             description="create jar and install it">
+	  <mkdir dir="${DESTDIR}/${prefix}/bin" />
+	  <mkdir dir="${DESTDIR}/${prefix}/share/henplus" />
+          <copy file="${bin}/henplus"
+	        todir="${DESTDIR}/${prefix}/bin/" />
+	  <chmod file="${DESTDIR}/${prefix}/bin/henplus" perm="ugo+x" />
+          <copy file="${build}/henplus.jar"
+	        todir="${DESTDIR}/${prefix}/share/henplus" />
+     </target>
+
+     <target name="henplus.spec" description="create RPM spec file">
        <filter token="HENPLUS_VERSION" value="${version}"/>
        <copy file="henplus.spec.in"
              tofile="henplus.spec"
@@ -48,7 +63,7 @@
      </target>
 
      <target name="dist" depends="clean,henplus.spec"
-	     description="create distribution tar">
+	     description="create distribution tar and spec file">
        <mkdir dir="${tarbase}" />
        <copy todir="${tarbase}">
           <fileset dir=".">
@@ -78,6 +93,18 @@
 
        <delete file="${tarbase}.tar" />
        <delete dir="${tarbase}"/>
+     </target>
+
+     <target name="rpm" depends="dist" description="create distribution rpm">
+        <mkdir dir="${build}" />
+        <mkdir dir="${build}/SPECS" />
+        <mkdir dir="${build}/SOURCES" />
+        <mkdir dir="${build}/BUILD" />
+        <mkdir dir="${build}/SRPMS" />
+        <mkdir dir="${build}/RPMS" />
+	<copy file="${tarbase}.tar.gz" todir="${build}/SOURCES" />
+	<copy file="henplus.spec" todir="${build}/SPECS" />
+        <rpm specFile="henplus.spec" topDir="${build}" command="-ba" />
      </target>
 
      <target name="clean" description="remove">
