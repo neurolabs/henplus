@@ -147,8 +147,6 @@ public class ShellCommand extends AbstractCommand {
 	    try { stdoutThread.join(); } catch(InterruptedException e) {}
 	    try { stderrThread.join(); } catch(InterruptedException e) {}
 	    //try { stdinThread.join();  } catch(InterruptedException e) {}
-	    System.out.flush();
-	    System.err.flush();
 	    try { process.getInputStream().close(); } catch (IOException e) {}
 	    try { process.getErrorStream().close(); } catch (IOException e) {}
 	}
@@ -170,9 +168,11 @@ public class ShellCommand extends AbstractCommand {
 		byte[] buf = new byte [ 256 ];
 		int r;
 		try {
-		    while (running && (r = source.read(buf)) > 0) {
+		    while ((running || source.available() > 0)
+			   && (r = source.read(buf)) > 0) {
 			dest.write(buf, 0, r);
 		    }
+		    dest.flush();
 		}
 		catch (IOException ignore_me) {
 		}

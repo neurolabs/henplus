@@ -9,7 +9,7 @@ package henplus;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
@@ -31,7 +31,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 
     public CommandDispatcher(SetCommand sc) {
 	commandMap = new TreeMap();
-	commands = new Vector();
+	commands = new ArrayList();
 	setCommand = sc;
 	_batchCount = 0;
     }

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.31 2002-02-26 17:58:15 hzeller Exp $
+ * $Id: HenPlus.java,v 1.32 2002-03-01 09:51:19 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -291,9 +291,9 @@ public class HenPlus {
 	    tmp.append(' ');
 	}
 	emptyPrompt = tmp.toString();
-	if (_fromTerminal) {
-	    prompt = Terminal.BOLD + prompt + Terminal.NORMAL;
-	}
+//  	if (_fromTerminal) {
+//  	    prompt = Terminal.BOLD + prompt + Terminal.NORMAL;
+//  	}
     }
     
     public void setDefaultPrompt() {

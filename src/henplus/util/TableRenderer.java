@@ -1,12 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.4 2002-02-26 17:58:19 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.5 2002-03-01 09:51:22 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.PrintStream;
 
@@ -18,7 +18,7 @@ public class TableRenderer {
 
     private final ColumnMetaData meta[];
     private final PrintStream    out;
-    private final Vector         cacheRows;
+    private final ArrayList      cacheRows;
     private boolean              alreadyFlushed;
     private int                  writtenRows;
 
@@ -29,7 +29,7 @@ public class TableRenderer {
 	 * we cache the rows in order to dynamically determine the
 	 * output width of each column.
 	 */
-	this.cacheRows   = new Vector();
+	this.cacheRows   = new ArrayList( MAX_CACHE_ELEMENTS );
 	this.alreadyFlushed = false;
 	this.writtenRows = 0;
     }
@@ -39,7 +39,7 @@ public class TableRenderer {
 	    meta[i].updateWidth(row[i].getWidth());
 	}
 	cacheRows.add(row);
-	if (cacheRows.size() > MAX_CACHE_ELEMENTS) {
+	if (cacheRows.size() >= MAX_CACHE_ELEMENTS) {
 	    flush();
 	    cacheRows.clear();
 	}
