@@ -67,10 +67,14 @@ public class SQLCommand extends AbstractCommand {
 	    long startTime = System.currentTimeMillis();
 	    long execTime = -1;
 	    if (command.startsWith("commit")) {
+		System.err.print("commit..");
 		session.getConnection().commit();
+		System.err.println(".done.");
 	    }
 	    else if (command.startsWith("rollback")) {
+		System.err.print("rollback..");
 		session.getConnection().rollback();
+		System.err.println(".done.");
 	    }
 	    else {
 		stmt = session.getConnection().createStatement();

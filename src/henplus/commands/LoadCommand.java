@@ -46,47 +46,53 @@ public class LoadCommand extends AbstractCommand {
 	StringTokenizer st = new StringTokenizer(command);
 	st.nextElement(); // remove load.
 	int argc = st.countTokens();
-	if (argc != 1) {
+	if (argc < 1) {
 	    return SYNTAX_ERROR;
 	}
-	long startTime = System.currentTimeMillis();
-	int  commandCount = 0;
-
 	HenPlus henplus = HenPlus.getInstance();
-	try {
-	    henplus.pushBuffer();
-	    henplus.getDispatcher().startBatch();
-	    File f = new File((String) st.nextElement());
-	    System.err.println(f.getName());
-	    BufferedReader reader = new BufferedReader(new FileReader(f));
-	    String line;
-	    while ((line = reader.readLine()) != null) {
-		if (henplus.addLine(line) == HenPlus.LINE_EXECUTED) {
-		    ++commandCount;
+	while (st.hasMoreElements()) {
+	    int  commandCount = 0;
+	    String filename = (String) st.nextElement();
+	    long startTime = System.currentTimeMillis();
+	    try {
+		henplus.pushBuffer();
+		henplus.getDispatcher().startBatch();
+		File f = new File(filename);
+		System.err.println(f.getName());
+		BufferedReader reader = new BufferedReader(new FileReader(f));
+		String line;
+		while ((line = reader.readLine()) != null) {
+		    if (henplus.addLine(line) == HenPlus.LINE_EXECUTED) {
+			++commandCount;
+		    }
 		}
 	    }
+	    catch (Exception e) {
+		System.err.println(e.getMessage());
+		if (st.hasMoreElements()) {
+		    System.err.println("..skipping to next file.");
+		    continue;
+		}
+		return EXEC_FAILED;
+	    }
+	    finally {
+		henplus.popBuffer(); // no open state ..
+		henplus.getDispatcher().endBatch();
+	    }
+	    long execTime = System.currentTimeMillis() - startTime;
+	    System.err.print(commandCount + " commands in ");
+	    TimeRenderer.printTime(execTime, System.err);
+	    if (commandCount != 0) {
+		System.err.print("; avg. time ");
+		TimeRenderer.printTime(execTime / commandCount, System.err);
+	    }
+	    if (execTime != 0 && commandCount > 0) {
+		System.err.print("; " + 
+				 (1000 * commandCount / execTime) 
+				 + " per second");
+	    }
+	    System.err.println();
 	}
-	catch (Exception e) {
-	    System.err.println(e.getMessage());
-	    return EXEC_FAILED;
-	}
-	finally {
-	    henplus.popBuffer(); // no open state ..
-	    henplus.getDispatcher().endBatch();
-	}
-	long execTime = System.currentTimeMillis() - startTime;
-	System.err.print(commandCount + " commands in ");
-	TimeRenderer.printTime(execTime, System.err);
-	if (commandCount != 0) {
-	    System.err.print("; avg. time ");
-	    TimeRenderer.printTime(execTime / commandCount, System.err);
-	}
-	if (execTime != 0 && commandCount > 0) {
-	    System.err.print("; " + 
-			     (1000 * commandCount / execTime) 
-			     + " per second");
-	}
-	System.err.println();
 	return SUCCESS;
     }
 
@@ -100,11 +106,12 @@ public class LoadCommand extends AbstractCommand {
     }
 
     public String getSynopsis(String cmd) {
-	return cmd + " <filename>";
+	return cmd + " <filename> [<filename> ..]";
     }
 
     public String getLongDescription(String cmd) {
-	return "\topens the file and reads the sql-commands line by line.\n"
+	return "\topens one file or a sequence of files and and reads the\n"
+	    +  "\tcontained sql-commands line by line.\n"
 	    +  "\tThe commands 'load' and 'start' do exaclty the same;\n"
 	    +  "\t'start' is provided for compatibility with oracle SQLPLUS.";
     }

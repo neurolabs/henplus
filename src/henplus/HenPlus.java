@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.12 2002-01-26 21:33:24 hzeller Exp $
+ * $Id: HenPlus.java,v 1.13 2002-01-27 20:19:49 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -446,7 +446,7 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"-------------------------------------------------------------------------\n";
++"-----------------------------------------------------$Revision 1.12 $---\n";
 	System.err.println(cpy);
 
 	instance = new HenPlus(properties, argv);
