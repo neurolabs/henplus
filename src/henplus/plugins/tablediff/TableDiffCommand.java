@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: TableDiffCommand.java,v 1.7 2004-09-22 11:49:31 magrokosmos Exp $ 
+ * @version $Id: TableDiffCommand.java,v 1.8 2004-10-06 11:11:29 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
@@ -32,8 +32,7 @@ public final class TableDiffCommand implements Command, Interruptable {
     
     protected static final String _command = "tablediff";
     protected static final String COMMAND_DELIMITER = ";";
-    protected static final String OPTION_PREFIX = "-";
-    protected static final String OPTION_CASESENSITIVE = "c";
+    protected static final String OPTION_SINGLE_DB = "-singledb";
     
     private volatile boolean _interrupted = false;
 
@@ -67,8 +66,55 @@ public final class TableDiffCommand implements Command, Interruptable {
     public int execute(SQLSession session, String command, String parameters) {
         // first set the option for case sensitive comparison of column names
         boolean colNameIgnoreCase = true;
-        StringTokenizer st = new StringTokenizer(parameters);
+        StringTokenizer st = new StringTokenizer( parameters );
         
+        // HenPlus.msg().println( "[execute] command: " + command + ", parameters: " + parameters );
+        
+        int result = SUCCESS;
+        
+        if ( parameters.indexOf( OPTION_SINGLE_DB ) != -1 ) {
+            
+            // required: session
+            if (session == null) {
+                HenPlus.msg().println("You need a valid session for this command.");
+                return EXEC_FAILED;
+            }
+            
+            // required: option, table1, table2
+            if ( st.countTokens() != 3 ) {
+                return SYNTAX_ERROR;
+            }
+            
+            // push the tokenizer to skip the option
+            st.nextToken();
+            String table1 = st.nextToken();
+            String table2 = st.nextToken();
+            
+            try {
+                long start = System.currentTimeMillis();
+                
+                diffTable(session, table1, table2, colNameIgnoreCase);
+                
+                StringBuffer msg = new StringBuffer();
+                msg.append("Diffing ").append(" tables ").append(table1)
+                .append(" and ").append(table2).append( " took ").
+                append(System.currentTimeMillis() - start).append(" ms.");
+                
+                HenPlus.msg().println(msg.toString());
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+        }
+        else {
+            result = executeDoubleDb( st, colNameIgnoreCase );
+        }
+        
+        return result;
+    }
+    
+    private int executeDoubleDb( StringTokenizer st, boolean colNameIgnoreCase) {
         if (st.countTokens() < 3) {
             return SYNTAX_ERROR;
         }
@@ -156,7 +202,8 @@ public final class TableDiffCommand implements Command, Interruptable {
             // if there were tables found via wildcards but not contained in both sessions then let
             // the user know this.
             if ( missedFromWildcards.size() > 0 ) {
-                msg.append( "\nTables which matched a given wildcard in your first\n" +                    "session but were not found in your second session:\n");
+                msg.append( "\nTables which matched a given wildcard in your first\n" +
+                    "session but were not found in your second session:\n");
                 Iterator iter = missedFromWildcards.iterator();
                 while ( iter.hasNext() ) {
                     msg.append( iter.next() ).append( ", " );
@@ -171,6 +218,7 @@ public final class TableDiffCommand implements Command, Interruptable {
             e.printStackTrace();
         }
         
+
         return SUCCESS;
     }
 
@@ -210,6 +258,23 @@ public final class TableDiffCommand implements Command, Interruptable {
         }
         else {
             HenPlus.msg().println("Diff result for table " + tableName + ":");
+            ResultTablePrinter.printResult(diffResult);
+        }
+    }
+
+    private void diffTable(
+        SQLSession session,
+        String tableName1,
+        String tableName2,
+        boolean colNameIgnoreCase) {
+        Table ref = session.getTable( tableName1 );
+        Table diff = session.getTable( tableName2 );
+        TableDiffResult diffResult = TableDiffer.diffTables(ref, diff, colNameIgnoreCase);
+        if (diffResult == null) {
+            HenPlus.msg().println("No diff for tables " + tableName1 + " and " + tableName2 + ".");
+        }
+        else {
+            HenPlus.msg().println("Diff result for tables " + tableName1 + " and " + tableName2 + ":");
             ResultTablePrinter.printResult(diffResult);
         }
     }
@@ -277,12 +342,65 @@ public final class TableDiffCommand implements Command, Interruptable {
             argIndex--;
         }
         
-        // process the first session
-        if (argIndex == 0) {
+        //  =========================  singledb  =======================
+        
+        // check completion for --singledb
+        if ( argIndex == 0 && lastWord.startsWith( "-" ) ) {
+            return new Iterator() {
+                private boolean _next = true; 
+                public boolean hasNext() {
+                    return _next;
+                }
+                public Object next() {
+                    _next = false;
+                    return OPTION_SINGLE_DB;
+                }
+                public void remove() { /* do nothing */ }
+            };
+        }
+        else if ( partialCommand.indexOf( OPTION_SINGLE_DB ) != -1 &&
+                argIndex > 0 ) {
+
+            SessionManager sessionManager = HenPlus.getInstance().getSessionManager();
+            SQLSession session = sessionManager.getCurrentSession();
+            
+            final HashSet  alreadyGiven = new HashSet();
+            while (st.hasMoreElements()) {
+                alreadyGiven.add(st.nextToken());
+            }
+            ListUserObjectsCommand objectList = HenPlus.getInstance().getObjectLister();
+            final Iterator iter = objectList.completeTableName(session, lastWord);
+            return new Iterator() {
+                String table = null;
+                public boolean hasNext() {
+                    while (iter.hasNext()) {
+                        table = (String) iter.next();
+                        if (alreadyGiven.contains(table) && !lastWord.equals(table)) {
+                            continue;
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+                public Object  next() { return table; }
+                public void remove() { 
+                    throw new UnsupportedOperationException("no!");
+                }
+            };
+            
+        }
+        
+
+        //  ========================= !singledb  =======================
+        
+        // !singledb && process the first session
+        else if ( partialCommand.indexOf( OPTION_SINGLE_DB ) == -1
+                && argIndex == 0) {
             return HenPlus.getInstance().getSessionManager().completeSessionName(lastWord);
         }
-        // process the second session
-        else if (argIndex == 1) {
+        // !singledb && process the second session
+        else if ( partialCommand.indexOf( OPTION_SINGLE_DB ) == -1
+                && argIndex == 1 ) {
             final String firstSession = st.nextToken();
             return getSecondSessionCompleter(lastWord, firstSession);
         }
@@ -364,6 +482,7 @@ public final class TableDiffCommand implements Command, Interruptable {
      * @see henplus.Command#isComplete(java.lang.String)
      */
     public boolean isComplete(String command) {
+        // HenPlus.msg().println( "[isComplete] command: " + command );
         if ( command.trim().endsWith(COMMAND_DELIMITER) ) {
             return true;
             /*
@@ -396,14 +515,16 @@ public final class TableDiffCommand implements Command, Interruptable {
      * @see henplus.Command#getShortDescription()
      */
     public String getShortDescription() {
-        return "perform a diff on meta data of tables from two sessions";
+        return "perform a diff on different tables";
     }
 
     /* (non-Javadoc)
      * @see henplus.Command#getSynopsis(java.lang.String)
      */
     public String getSynopsis(String cmd) {
-        return _command + " <sessionname-1> <sessionname-2> (<tablename> | <prefix>* | *)+;";
+        return "\n" + _command + " <sessionname-1> <sessionname-2> (<tablename> | <prefix>* | *)+;\n" +
+        		"or\n" +
+        		_command + " " + OPTION_SINGLE_DB + " <table1> <table2>;\n";
     }
 
     /* (non-Javadoc)
@@ -412,11 +533,20 @@ public final class TableDiffCommand implements Command, Interruptable {
     public String getLongDescription(String cmd) {
         return "\tCompare one or more tables by their meta data.\n"
             +"\n"
+            +"\tThere are basically two use cases for comparing tables:\n"
+            +"\t1. Compare tables with equal names from different databases and\n"
+            +"\t2. Compare two tables with different names in the same database.\n"
+            +"\n"
+            +"\tFor the first use case you must specify two session names and one\n"
+            +"\tor more tables that exist in both sessions.\n"
             +"\tYou are able to use wildcards (*) to match all tables or\n"
             +"\ta specific set of tables.\n"
             +"\tE.g. you might specify \"*\" to match all tables which are contained\n"
             +"\tin both sessions, or\"tb_*\" to match all tables from your sessions\n"
             +"\tstarting with \"tb_\".\n"
+            +"\n"
+            +"\tFor the second use case you must specifiy the option " + OPTION_SINGLE_DB + "\n"
+            +"\tand two tables.\n"
             +"\n"
             +"\tThe following is a list of compared column related\n" 
             +"\tproperties, with a \"c\" for a case sensitive and an \"i\" for\n" 
