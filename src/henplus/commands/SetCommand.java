@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.1 2002-01-26 14:06:08 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.2 2002-01-26 21:33:26 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package commands;
@@ -127,6 +127,42 @@ public final class SetCommand extends AbstractCommand {
 	    return SYNTAX_ERROR;
 	}
 	return SUCCESS;
+    }
+
+    /**
+     * used, if the command dispatcher notices the attempt to expand
+     * a variable. This is a partial variable name, that starts with '$'
+     * or '${'.
+     */
+    public Iterator completeUserVar(String variable) {
+	if (!variable.startsWith("$")) {
+	    return null; // strange, shouldn't happen.
+	}
+	final boolean hasBrace = variable.startsWith("${");
+	final String prefix = (hasBrace ? "${" : "$");
+	final String name   =  variable.substring(prefix.length());
+	final Iterator it   = _variables.tailMap(name).keySet().iterator();
+	//System.err.println("VAR: " + variable);
+	//System.err.println("NAME: " + name);
+	return new Iterator() {
+		String current = null;
+		public boolean hasNext() {
+		    while (it.hasNext()) {
+			current = (String) it.next();
+			if (!current.startsWith(name)) {
+			    return false;
+			}
+			return true;
+		    }
+		    return false;
+		}
+		public Object  next() { 
+		    return prefix + current + (hasBrace ? "}" : "");
+		}
+		public void remove() { 
+		    throw new UnsupportedOperationException("no!");
+		}
+	    };
     }
 
     /**

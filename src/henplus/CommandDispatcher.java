@@ -16,16 +16,20 @@ import java.util.StringTokenizer;
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineCompleter;
 
+import commands.SetCommand;
+
 /**
  * document me.
  */
 public class CommandDispatcher implements ReadlineCompleter {
     private final List commands;  // commands in sequence of addition.
     private final SortedMap commandMap;
+    private final SetCommand setCommand;
 
-    public CommandDispatcher() {
+    public CommandDispatcher(SetCommand sc) {
 	commandMap = new TreeMap();
 	commands = new Vector();
+	setCommand = sc;
     }
 
     /**
@@ -137,13 +141,50 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     private Iterator possibleValues;
+    private Iterator variableNames;
+    private String   variablePrefix;
+
     //-- Readline completer ..
     public String completer(String text, int state) {
 	String completeCommandString = Readline.getLineBuffer().trim();
+	boolean variableExpansion = false;
+
+	/*
+	 * ok, do we have a variable expansion ?
+	 */
+	int pos = text.length()-1;
+	while (pos > 0
+	       && (text.charAt(pos) != '$')
+	       && Character
+	       .isJavaIdentifierPart(text.charAt(pos))) {
+	    --pos;
+	}
+	// either $... or ${...
+	if ((pos >= 0 && text.charAt(pos) == '$')) {
+	    variableExpansion = true;
+	}
+	else if ((pos >= 1) 
+		 && text.charAt(pos-1) == '$'
+		 && text.charAt(pos) == '{') {
+	    variableExpansion = true;
+	    --pos;
+	}
+	
+	if (variableExpansion) {
+	    if (state == 0) {
+		variablePrefix = text.substring(0, pos);
+		String varname = text.substring(pos);
+		variableNames = setCommand.completeUserVar(varname);
+	    }
+	    if (variableNames.hasNext()) {
+		return variablePrefix + ((String) variableNames.next());
+	    }
+	    return null;
+	}
 	/*
 	 * the first word.. the command.
 	 */
-	if (completeCommandString.equals(text)) {
+	else if (completeCommandString.equals(text)) {
 	    if (state == 0) {
 		possibleValues = getRegisteredCommandNames(text);
 	    }
