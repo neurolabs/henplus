@@ -1,4 +1,4 @@
-# $Id: henplus.spec.in,v 1.6 2002-05-06 06:56:57 hzeller Exp $
+# $Id: henplus.spec.in,v 1.7 2002-05-14 06:52:49 hzeller Exp $
 #
 %define version @HENPLUS_VERSION@
 
@@ -26,7 +26,7 @@ parallel.
 %setup -q
 
 %build
-CLASSPATH=$CLASSPATH:`rpm -ql libreadline-java | grep readline-java.jar`
+export CLASSPATH=$CLASSPATH:`rpm -ql libreadline-java | grep readline-java.jar`
 ant -Dbuild.compiler=modern -Dprefix=%{prefix} jar
 
 %install
