@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.1 2002-02-14 17:08:51 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.2 2002-02-22 09:11:04 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -154,71 +154,82 @@ public class SQLStatementSeparator {
 
 	while (state != POTENTIAL_END_FOUND && pos < input.length()) {
 	    boolean vetoAppend = false;
+	    boolean reIterate;
 	    current = input.charAt(pos);
 	    //System.out.print ("Pos: " + pos + "\t");
-	    switch (state) {
-	    case STATEMENT :
-		if (current == '\n' || current == '\r')
-		    state = POTENTIAL_END_FOUND;
-		else if (current == ';')  state = POTENTIAL_END_FOUND;
-		else if (current == '/')  state = START_COMMENT;
-		else if (current == '"')  state = STRING;
-		else if (current == '\'') state = SQLSTRING;
-		else if (current == '-')  state = START_ANSI;
-		// sqlplus uses a single backslash as endseparator.
-		//else if (current == '\\') state = POTENTIAL_END_FOUND;
-		else if (current == '\\') state = STATEMENT_QUOTE;
-		break;
-	    case STATEMENT_QUOTE:
-		state = STATEMENT;
-		break;
-	    case START_COMMENT:
-		if (current == '*')         state = COMMENT;
-		/*
-		 * Endline comment in the style '// comment' is not a
-		 * good idea, since many JDBC-urls contain the '//' as
-		 * part of the URL .. and this should _not_ be regarded as
-		 * commend of course.
-		 */
-		//else if (current == '/')    state = ENDLINE_COMMENT;
-		else { parsed.append ('/'); state = STATEMENT; }
-		break;
-	    case COMMENT:
-		if (current == '*') state = PRE_END_COMMENT;
-		break;
-	    case PRE_END_COMMENT:
-		if (current == '/')      state = STATEMENT;
-		else if (current == '*') state = PRE_END_COMMENT;
-		else state = COMMENT;
-		break;
-	    case START_ANSI:
-		if (current == '-')        state = ENDLINE_COMMENT;
-		else { parsed.append('-'); state = STATEMENT; }
-		break;
-	    case ENDLINE_COMMENT:
-		if (current == '\n')      state = POTENTIAL_END_FOUND;
-		else if (current == '\r') state = POTENTIAL_END_FOUND;
-		break;
-	    case STRING:     
-		if (current == '\\') state = STRING_QUOTE;
-		else if (current == '"') state = STATEMENT;
-		break;
-	    case SQLSTRING:
-		if (current == '\\') state = SQLSTRING_QUOTE;
-		if (current == '\'') state = STATEMENT;
-		break;
-	    case STRING_QUOTE:
-		if (current == '\"') parsed.append("\"");
-		vetoAppend = (current == '\n');
-		state = STRING;
-		break;
-	    case SQLSTRING_QUOTE:
-		if (current == '\'') parsed.append("'");
-		vetoAppend = (current == '\n');
-		state = SQLSTRING;
-		break;
+	    do {
+		reIterate = false;
+		switch (state) {
+		case STATEMENT :
+		    if (current == '\n' || current == '\r')
+			state = POTENTIAL_END_FOUND;
+		    else if (current == ';')  state = POTENTIAL_END_FOUND;
+		    else if (current == '/')  state = START_COMMENT;
+		    else if (current == '"')  state = STRING;
+		    else if (current == '\'') state = SQLSTRING;
+		    else if (current == '-')  state = START_ANSI;
+		    else if (current == '\\') state = STATEMENT_QUOTE;
+		    break;
+		case STATEMENT_QUOTE:
+		    state = STATEMENT;
+		    break;
+		case START_COMMENT:
+		    if (current == '*')         state = COMMENT;
+		    /*
+		     * Endline comment in the style '// comment' is not a
+		     * good idea, since many JDBC-urls contain the '//' as
+		     * part of the URL .. and this should _not_ be regarded as
+		     * commend of course.
+		     */
+		    //else if (current == '/')    state = ENDLINE_COMMENT;
+		    else { 
+			parsed.append ('/'); 
+			state = STATEMENT; 
+			reIterate = true;
+		    }
+		    break;
+		case COMMENT:
+		    if (current == '*') state = PRE_END_COMMENT;
+		    break;
+		case PRE_END_COMMENT:
+		    if (current == '/')      state = STATEMENT;
+		    else if (current == '*') state = PRE_END_COMMENT;
+		    else state = COMMENT;
+		    break;
+		case START_ANSI:
+		    if (current == '-')        state = ENDLINE_COMMENT;
+		    else { 
+			parsed.append('-'); 
+			state = STATEMENT; 
+			reIterate = true;
+		    }
+		    break;
+		case ENDLINE_COMMENT:
+		    if (current == '\n')      state = POTENTIAL_END_FOUND;
+		    else if (current == '\r') state = POTENTIAL_END_FOUND;
+		    break;
+		case STRING:     
+		    if (current == '\\') state = STRING_QUOTE;
+		    else if (current == '"') state = STATEMENT;
+		    break;
+		case SQLSTRING:
+		    if (current == '\\') state = SQLSTRING_QUOTE;
+		    if (current == '\'') state = STATEMENT;
+		    break;
+		case STRING_QUOTE:
+		    if (current == '\"') parsed.append("\"");
+		    vetoAppend = (current == '\n');
+		    state = STRING;
+		    break;
+		case SQLSTRING_QUOTE:
+		    if (current == '\'') parsed.append("'");
+		    vetoAppend = (current == '\n');
+		    state = SQLSTRING;
+		    break;
+		}
 	    }
-	    
+	    while (reIterate);
+
 	    /* append to parsed; ignore comments */
 	    if (!vetoAppend
 		&& ((state == STATEMENT && oldstate != PRE_END_COMMENT)

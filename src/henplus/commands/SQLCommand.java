@@ -68,7 +68,16 @@ public class SQLCommand extends AbstractCommand {
 	    || command.startsWith("ROLLBACK"))
 	    return true;
 	// this will be wrong if and when we support stored procedures.
-	return (command.endsWith(";"));
+	if (command.endsWith(";")) return true;
+	// sqlplus is complete on a single '/' on a line.
+	if (command.length() >= 3) {
+	    int lastPos = command.length()-1;
+	    if (command.charAt(lastPos) == '\n'
+		&& command.charAt(lastPos-1) == '/'
+		&& command.charAt(lastPos-2) == '\n')
+		return true;
+	}
+	return false;
     }
 
     /**
@@ -77,6 +86,9 @@ public class SQLCommand extends AbstractCommand {
     public int execute(SQLSession session, String command) {
 	Statement stmt = null;
 	ResultSet rset = null;
+	if (command.endsWith("/")) {
+	    command = command.substring(0, command.length()-1);
+	}
 	try {
 	    long startTime = System.currentTimeMillis();
 	    long lapTime  = -1;
