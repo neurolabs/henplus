@@ -35,8 +35,10 @@ public class CommandDispatcher implements ReadlineCompleter {
 	commandMap = new TreeMap();
 	commands = new ArrayList();
         executionListeners = new ArrayList();
-	setCommand = sc;
 	_batchCount = 0;
+	setCommand = sc;
+        // FIXME: remove cyclic dependency..
+        setCommand.registerLastCommandListener(this);
     }
 
     /**

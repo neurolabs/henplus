@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.67 2004-03-07 14:22:02 hzeller Exp $
+ * $Id: HenPlus.java,v 1.68 2004-03-07 15:29:04 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -108,11 +108,11 @@ public class HenPlus implements Interruptable {
                               _commandSeparator.getRemoveCommentsProperty());
 
         _sessionManager = SessionManager.getInstance(); 
-        
+
         // FIXME: to many cross dependencies of commands now. clean up.
 	_settingStore = new SetCommand(this);
+        _dispatcher = new CommandDispatcher(_settingStore);
 	_objectLister = new ListUserObjectsCommand(this);
-	_dispatcher = new CommandDispatcher(_settingStore);
         _henplusProperties
             .registerProperty("echo-commands", 
                               new EchoCommandProperty(_dispatcher));

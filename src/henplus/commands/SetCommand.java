@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.21 2004-03-07 11:59:29 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.22 2004-03-07 15:29:04 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -13,6 +13,7 @@ import henplus.view.util.SortedMatchIterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -30,19 +31,23 @@ import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 
+import henplus.event.ExecutionListener;
+
 /**
  * document me.
  */
 public final class SetCommand extends AbstractCommand {
     private final static String SETTINGS_FILENAME = "settings";
+    private final static String SPECIAL_LAST_COMMAND="_HENPLUS_LAST_COMMAND";
     private final static ColumnMetaData[] SET_META;
-    
+
     static {
 	SET_META = new ColumnMetaData[2];
 	SET_META[0] = new ColumnMetaData("Name");
 	SET_META[1] = new ColumnMetaData("Value");
     }
 
+    private final Set _specialVariables;
     private final SortedMap _variables;
     private final HenPlus   _henplus;
 
@@ -58,6 +63,7 @@ public final class SetCommand extends AbstractCommand {
     public SetCommand(HenPlus henplus) {
 	_henplus = henplus;
 	_variables = new TreeMap();
+        _specialVariables = new HashSet();
 	try {
 	    File settingsFile = new File(henplus.getConfigDir(),
 					 SETTINGS_FILENAME);
@@ -67,7 +73,19 @@ public final class SetCommand extends AbstractCommand {
 	    _variables.putAll(p);
 	}
 	catch (IOException dont_care) {}
+    }
 
+    public void registerLastCommandListener(CommandDispatcher dispatcher) {
+        _specialVariables.add(SPECIAL_LAST_COMMAND);
+        dispatcher.addExecutionListener(new ExecutionListener() {
+                public void beforeExecution(SQLSession session, 
+                                            String command) { }
+                
+                public void afterExecution(SQLSession session, String command, 
+                                           int result) {
+                    setVariable(SPECIAL_LAST_COMMAND, command.trim());
+                }
+            });
     }
 
     public boolean requiresValidSession(String cmd) { return false; }
@@ -133,7 +151,7 @@ public final class SetCommand extends AbstractCommand {
 		else if (value.startsWith("\'") && value.endsWith("\'")) {
 		    value = value.substring(1, value.length()-1);
 		}
-		_variables.put(varname, value);
+                setVariable(varname, value);
 		return SUCCESS;
 	    }
 	    return SYNTAX_ERROR;
@@ -157,6 +175,10 @@ public final class SetCommand extends AbstractCommand {
 	return SUCCESS;
     }
 
+    private void setVariable(String name, String value) {
+        _variables.put(name, value);
+    }
+    
     /**
      * used, if the command dispatcher notices the attempt to expand
      * a variable. This is a partial variable name, that starts with '$'
@@ -217,6 +239,11 @@ public final class SetCommand extends AbstractCommand {
 	    OutputStream stream = new FileOutputStream(settingsFile);
 	    Properties p = new Properties();
 	    p.putAll(_variables);
+            Iterator toRemove = _specialVariables.iterator();
+            while (toRemove.hasNext()) {
+                String varname = (String) toRemove.next();
+                p.remove(varname);
+            }
 	    p.store(stream, "user variables");
             stream.close();
 	}
