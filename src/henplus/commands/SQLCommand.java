@@ -81,9 +81,9 @@ public class SQLCommand extends AbstractCommand {
 	boolean anyProcedure = ((command.startsWith("CREATE")
 				 || command.startsWith("REPLACE"))
 				&&
-				((command.indexOf("PROCEDURE") >= 0)
-				 || (command.indexOf("FUNCTION") >= 0)
-				 || (command.indexOf("TRIGGER") >= 0)));
+				((containsWord(command, "PROCEDURE")
+				 || (containsWord(command, "FUNCTION"))
+                                  || (containsWord(command, "TRIGGER")))));
 	if (!anyProcedure && command.endsWith(";")) return true;
 	// sqlplus is complete on a single '/' on a line.
 	if (command.length() >= 3) {
@@ -94,6 +94,18 @@ public class SQLCommand extends AbstractCommand {
 		return true;
 	}
 	return false;
+    }
+
+    /**
+     * looks, if this word is contained in 'all', preceeded and followed by
+     * a whitespace.
+     */
+    private boolean containsWord(String all, String word) {
+        int wordLen = word.length();
+        int index = all.indexOf( word );
+        return (index >= 0
+                && (index == 0 || Character.isWhitespace(all.charAt(index-1)))
+                && (Character.isWhitespace(all.charAt(index+wordLen))));
     }
 
     /**
