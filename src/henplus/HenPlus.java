@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.9 2002-01-26 14:06:51 hzeller Exp $
+ * $Id: HenPlus.java,v 1.10 2002-01-26 14:23:21 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -35,9 +35,9 @@ public class HenPlus {
     private static final byte SQLSTRING       = 9;
     private static final byte POTENTIAL_END_FOUND = 10;
 
-    private static final byte LINE_EXECUTED   = 1;
-    private static final byte LINE_EMPTY      = 2;
-    private static final byte LINE_INCOMPLETE = 3;
+    public static final byte LINE_EXECUTED   = 1;
+    public static final byte LINE_EMPTY      = 2;
+    public static final byte LINE_INCOMPLETE = 3;
 
     private static HenPlus instance = null; // singleton.
     
@@ -127,7 +127,9 @@ public class HenPlus {
 	    parsePartialInput(lineBuf, _commandBuffer);
 	    if (_parseState == POTENTIAL_END_FOUND) {
 		//System.err.println(">'" + _commandBuffer.toString() + "'<");
-		String completeCommand = _commandBuffer.toString();
+		String completeCommand;
+		completeCommand = varsubst(_commandBuffer.toString(),
+					   _settingStore.getVariableMap());
 		Command c = dispatcher.getCommandFrom(completeCommand);
 		if (c == null) {
 		    _parseState = START;
@@ -138,8 +140,6 @@ public class HenPlus {
 		    result = LINE_INCOMPLETE;
 		}
 		else {
-		    completeCommand = varsubst(completeCommand,
-					       _settingStore.getVariableMap());
 		    //System.err.println("SUBST: " + completeCommand);
 		    dispatcher.execute(session, completeCommand);
 		    resetBuffer();

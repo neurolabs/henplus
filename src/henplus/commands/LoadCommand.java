@@ -50,8 +50,7 @@ public class LoadCommand extends AbstractCommand {
 	    BufferedReader reader = new BufferedReader(new FileReader(f));
 	    String line;
 	    while ((line = reader.readLine()) != null) {
-		boolean isComplete = henplus.addLine(line);
-		if (isComplete) {
+		if (henplus.addLine(line) == HenPlus.LINE_EXECUTED) {
 		    ++commandCount;
 		}
 	    }
