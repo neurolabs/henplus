@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: Table.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: Table.java,v 1.3 2004-03-07 14:22:03 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.sqlmodel;
@@ -22,16 +22,10 @@ public final class Table {
         _columns = new ListMap();
     }
 
-    /**
-     * @return
-     */
     public String getName() {
         return _name;
     }
 
-    /**
-     * @param string
-     */
     public void setName(String string) {
         _name = string;
     }

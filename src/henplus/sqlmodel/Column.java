@@ -1,14 +1,17 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: Column.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: Column.java,v 1.3 2004-03-07 14:22:02 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.sqlmodel;
 
-
+/**
+ * Represents the meta data for a telational table Column
+ *
+ * @author Martin Grotzke
+ */
 public final class Column implements Comparable {
-     
      private String _name;
      private int _position; // starting at 1
      private String _type;
@@ -22,93 +25,58 @@ public final class Column implements Comparable {
          _name = name;
      }
 
-    /**
-     * @return
-     */
     public String getName() {
         return _name;
     }
 
-    /**
-     * @param string
-     */
     public void setName(String string) {
         _name = string;
     }
 
-    /**
-     * @return
-     */
     public String getDefault() {
         return _default;
     }
 
-    /**
-     * @return
-     */
     public String getType() {
         return _type;
     }
 
     /**
-     * @param string
+     * Set the default value for this Column.
+     * @param defaultValue
      */
-    public void setDefault(String string) {
-        _default = string;
+    public void setDefault(String defaultValue) {
+        _default = defaultValue;
     }
 
-    /**
-     * @param string
-     */
     public void setType(String string) {
         _type = string;
     }
 
-    /**
-     * @return
-     */
     public int getSize() {
         return _size;
     }
 
-    /**
-     * @param i
-     */
     public void setSize(int i) {
         _size = i;
     }
 
-    /**
-     * @return
-     */
     public boolean isNullable() {
         return _nullable;
     }
 
-    /**
-     * @param b
-     */
     public void setNullable(boolean b) {
         _nullable = b;
     }
 
-    /**
-     * @return
-     */
     public int getPosition() {
         return _position;
     }
 
-    /**
-     * @param i
-     */
     public void setPosition(int i) {
         _position = i;
     }
 
-    /**
-     * @return
-     */
     public boolean isPartOfPk() {
         return _pkInfo != null;
     }
@@ -125,16 +93,10 @@ public final class Column implements Comparable {
         return _fkInfo != null;
     }
 
-    /**
-     * @return
-     */
     public ColumnFkInfo getFkInfo() {
         return _fkInfo;
     }
 
-    /**
-     * @param info
-     */
     public void setFkInfo(ColumnFkInfo info) {
         _fkInfo = info;
     }
@@ -157,7 +119,7 @@ public final class Column implements Comparable {
      * 
      * @param o
      * @param colNameIgnoreCase  specifies if column names shall be compared in a case insensitive way.
-     * @return
+     * @return if the columns are equal
      */
     public boolean equals(Object o, boolean colNameIgnoreCase) {
         if (o instanceof Column) {

@@ -22,7 +22,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 /**
- * document me.
+ * The Load command loads scripts; it implemnts the
+ * commands 'load', 'start', '@' and '@@'.
  */
 public class LoadCommand extends AbstractCommand {
     /**
@@ -31,7 +32,7 @@ public class LoadCommand extends AbstractCommand {
     private final Set/*<File>*/   _openFiles;
 
     /**
-     *  current working directory stack - to always open files relative to
+     * current working directory stack - to always open files relative to
      * the currently open file.
      */
     private final Stack/*<File>*/ _cwdStack;
@@ -69,10 +70,11 @@ public class LoadCommand extends AbstractCommand {
     /**
      * open a file. If this is a relative filename, then open according
      * to current working directory.
-     * @param  String filename
+     *
+     * @param  filename the filename to open
      * @return a file that represents the correct file name.
      */
-    public File openFile(String filename) {
+    private File openFile(String filename) {
         File f = new File(filename);
         if (!f.isAbsolute()) {
             f = new File((File) _cwdStack.peek(), filename);

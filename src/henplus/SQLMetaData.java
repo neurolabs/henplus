@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SQLMetaData.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: SQLMetaData.java,v 1.3 2004-03-07 14:22:02 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus;
@@ -21,9 +21,6 @@ public final class SQLMetaData {
         _tables = new TreeSet();
     }
 
-    /**
-     * @return
-     */
     public SortedSet getTables() {
         return _tables;
     }
@@ -31,5 +28,4 @@ public final class SQLMetaData {
     public void addTable(Table table) {
         _tables.add(table);
     }
-
 }

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyHolder.java,v 1.3 2003-05-01 23:21:17 hzeller Exp $ 
+ * $Id: PropertyHolder.java,v 1.4 2004-03-07 14:22:02 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
@@ -39,7 +39,7 @@ public abstract class PropertyHolder {
      * throw an Exception and the property is <em>not</em> set.
      * Also, after calling setValue(), the internal value of the property
      * might not exactly the value given, but some canonicalized form
-     * returned by the {@link propertyChanged(String)} listener method.
+     * returned by the {@link #propertyChanged(String)} listener method.
      *
      * @param newValue the new value to be set.
      */
@@ -66,7 +66,7 @@ public abstract class PropertyHolder {
      * throw an Exception.
      *
      * @param newValue a new value of the property. The old value
-     *        is still accessible with the {@link getValue()}
+     *        is still accessible with the {@link #getValue()}
      *        method.
      * @return the canonicalized value. e.g. for a Property taking
      *         boolean values, it returns all '1', '0', 'on', 'off' as

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EchoCommandProperty.java,v 1.3 2004-03-07 12:04:15 hzeller Exp $
+ * $Id: EchoCommandProperty.java,v 1.4 2004-03-07 14:22:02 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -45,7 +45,7 @@ public final class EchoCommandProperty
     //-- Execution listener
 
     public void beforeExecution(SQLSession session, String command) {
-        HenPlus.msg().println(command);
+        HenPlus.msg().println(command.trim());
     }
     public void afterExecution(SQLSession session, String command, int result){
         /* don't care */

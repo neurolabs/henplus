@@ -9,7 +9,7 @@ package henplus.view;
  * <p>Title: ExtendedColumn</p>
  * <p>Description:<br>
  * Created on: 25.07.2003</p>
- * @version $Id: ExtendedColumn.java,v 1.3 2004-02-01 14:12:52 hzeller Exp $ 
+ * @version $Id: ExtendedColumn.java,v 1.4 2004-03-07 14:22:03 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class ExtendedColumn extends Column {
@@ -50,26 +50,18 @@ public final class ExtendedColumn extends Column {
         return _colspan;
     }
 
-    /**
-     * @return
-     */
     public int getAlignment() {
         return _alignment;
     }
     
     /**
      * Call this to test if there's a special output mode set.
-     * @return
      */
     public boolean isBoldRequested() {
         return _outputBold;
     }
 
-    /**
-     * @param stream
-     */
     public void setBoldRequested(boolean bold) {
         _outputBold = bold;
     }
-
 }

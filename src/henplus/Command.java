@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Command.java,v 1.8 2002-05-29 18:55:43 hzeller Exp $
+ * $Id: Command.java,v 1.9 2004-03-07 14:22:02 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -9,25 +9,32 @@ package henplus;
 import java.util.Iterator;
 
 /**
- * interface to be implemented for user level commands. The CommandDispatcher
+ * Interface to be implemented for user level commands.
+ * <p>The CommandDispatcher
  * and the HelpCommand operate on this interface. This interface needs
  * to be implemented by your own Commands or Plugins that should be
  * supported by HenPlus. If the documenation given here is not enough
  * (though I hope it is), just read some of the implementations given
  * in henplus.commands.
+ * </p>
+ * <p>
+ * If you are writing Plugins, consider extending the
+ * {@link AbstractCommand} as it provides a default implementation
+ * and you are immune to NoSuchMethodErrors if this interface changes
+ * but not yet your plugin...</p>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @author Henner Zeller
  */
 public interface Command {
     /**
-     * constant returned by the {@link execute(SQLSession,String,String)}
+     * constant returned by the {@link #execute(SQLSession,String,String)}
      * method, if everything went fine.
      */
     public final static int SUCCESS      = 0;
 
     /**
-     * constant returned by the {@link execute(SQLSession,String,String)}
+     * constant returned by the {@link #execute(SQLSession,String,String)}
      * if the command could not be executed because of an syntax error.
      * In that case, the CommandDispatcher will display the synopsis of
      * that command.
@@ -35,7 +42,7 @@ public interface Command {
     public final static int SYNTAX_ERROR = 1;
 
     /**
-     * constant returned by the {@link execute(SQLSession,String,String)}
+     * constant returned by the {@link #execute(SQLSession,String,String)}
      * if the command could not be executed because of some problem, that
      * is not a syntax error.
      */
@@ -135,7 +142,7 @@ public interface Command {
      * execute a command without session.
      *
      * @param cmd the subcommand this is requested for; one of the
-     *            commands returned by {@link getCommandList()}.
+     *            commands returned by {@link #getCommandList()}.
      */
     boolean requiresValidSession(String cmd);
 
@@ -168,7 +175,7 @@ public interface Command {
      * execute()-method returned a SYNTAX_ERROR.
      *
      * @param cmd the command the synopsis is for. This is one of the possible
-     *            commands returned by {@link getCommandList()}.
+     *            commands returned by {@link #getCommandList()}.
      */
     String getSynopsis(String cmd);
 
@@ -180,7 +187,7 @@ public interface Command {
      *
      * @param cmd The command the long description is asked for. This
      *            is one of the possible commands returned by 
-     *            {@link getCommandList()}.
+     *            {@link #getCommandList()}.
      */
     String getLongDescription(String cmd);
 }

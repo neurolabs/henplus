@@ -115,7 +115,10 @@ public class ShellCommand
 	    +  "\tcommands,  that do  not expect  anything  from  stdin: the\n"
 	    +  "\tinteractive  input  from HenPlus  is disconnected from the\n"
 	    +  "\tsubprocess' stdin. But this is useful to call some small\n"
-	    +  "\tcommands in the middle of the sesion. Like 'ls':\n"
+	    +  "\tcommands in the middle of the session. There are two syntaxes\n"
+            +  "\tsupported: system <command> or even shorter with the\n"
+            +  "\texclamation mark: !<command>.\n"
+            +  "\tExample:\n"
 	    +  "\t!ls";
     }
     

@@ -21,7 +21,7 @@ import java.util.TreeMap;
 import org.gnu.readline.ReadlineCompleter;
 
 /**
- * document me.
+ * The Command Dispatcher for all commands.
  */
 public class CommandDispatcher implements ReadlineCompleter {
     private final static boolean verbose = false; // debug

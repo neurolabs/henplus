@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.29 2004-03-06 15:37:18 hzeller Exp $
+ * $Id: SQLSession.java,v 1.30 2004-03-07 14:22:02 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -203,9 +203,14 @@ public class SQLSession implements Interruptable {
         }
 
         if (_conn != null && _username == null) {
-            DatabaseMetaData meta = _conn.getMetaData();
-            if (meta != null) {
-                _username = meta.getUserName();
+            try {
+                DatabaseMetaData meta = _conn.getMetaData();
+                if (meta != null) {
+                    _username = meta.getUserName();
+                }
+            }
+            catch (Exception e) {
+                /* ok .. at least I tried */
             }
         }
 	_connectTime = System.currentTimeMillis();

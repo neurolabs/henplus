@@ -15,11 +15,10 @@ import java.util.TreeSet;
  * <p>Title: TableDiffResult</p>
  * <p>Description: Represents the result of two diffed tables.<br>
  * Created on: 24.07.2003</p>
- * @version $Id: TableDiffResult.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: TableDiffResult.java,v 1.3 2004-03-07 14:22:02 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
-public final class TableDiffResult {
-    
+public final class TableDiffResult {    
     private Table _table;
     private SortedSet/*<Column>*/ _removedColumns;
     private SortedSet/*<Column>*/ _addedColumns;
@@ -30,13 +29,10 @@ public final class TableDiffResult {
     
     public boolean hasDiffs() {
         return (_addedColumns != null
-                    || _removedColumns != null
-                    || _modifiedColumns != null);
+                || _removedColumns != null
+                || _modifiedColumns != null);
     }
 
-    /**
-     * @return
-     */
     public SortedSet getAddedColumns() {
         return _addedColumns;
     }
@@ -47,9 +43,6 @@ public final class TableDiffResult {
         return _addedColumns.add( column );
     }
 
-    /**
-     * @return
-     */
     public ListMap getModifiedColumns() {
         return _modifiedColumns;
     }
@@ -60,9 +53,6 @@ public final class TableDiffResult {
         return _modifiedColumns.put(reference, modified);
     }
 
-    /**
-     * @return
-     */
     public SortedSet getRemovedColumns() {
         return _removedColumns;
     }
@@ -72,5 +62,4 @@ public final class TableDiffResult {
             _removedColumns = new TreeSet();
         return _removedColumns.add( column );
     }
-
 }

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EnumeratedPropertyHolder.java,v 1.5 2004-02-03 09:53:07 hzeller Exp $ 
+ * $Id: EnumeratedPropertyHolder.java,v 1.6 2004-03-07 14:22:02 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
@@ -39,7 +39,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
 
     /**
      * do not override this method but the 
-     * {@link enumeratedPropertyChanged(boolean)} method instead.
+     * {@link #enumeratedPropertyChanged(int, String)} method instead.
      */
     protected final String propertyChanged(String newValue) throws Exception {
         if (newValue == null) {
@@ -85,7 +85,11 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
     }
 
     /**
-     * to be overridden to get informed of the change.
+     * to be overridden to get informed of the change and veto
+     * it.
+     * @param index the index of the property that changed
+     * @param value the new value of that property
+     * @throws Exception to veto that change.
      */
     protected abstract void enumeratedPropertyChanged(int index, String value)
         throws Exception;

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.66 2004-03-06 11:04:31 hzeller Exp $
+ * $Id: HenPlus.java,v 1.67 2004-03-07 14:22:02 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -430,7 +430,7 @@ public class HenPlus implements Interruptable {
     /**
      * Provides access to the session manager. He maintains the list of opened
      * sessions with their names.
-     * @return
+     * @return the session manager.
      */
     public SessionManager getSessionManager() {
         return _sessionManager;

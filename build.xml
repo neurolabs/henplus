@@ -1,15 +1,16 @@
-<!-- $Id: build.xml,v 1.34 2004-03-05 23:34:38 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.35 2004-03-07 14:22:02 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
      <property name="DESTDIR"              value="/" />
 
      <!-- properties -->
-     <property name="version"              value="0.9.5" />
+     <property name="version"              value="0.9.6" />
      <property name="src"                  value="src" />
      <property name="bin"                  value="bin" />
      <property name="lib"                  value="lib" />
      <property name="build"                value="build" />
+     <property name="javadoc"              value="javadoc" />
      <property name="classes"              value="${build}/classes" />
      <property name="build.compiler"       value="modern" />
      <property name="build.compiler.emacs" value="true" />
@@ -60,6 +61,20 @@
        <copy file="henplus.spec.in"
              tofile="henplus.spec"
              filtering="yes"/>
+     </target>
+
+    <target name="javadoc"
+            description="Create Javadoc-API documentation">
+       <mkdir  dir="${javadoc}"/>
+       <javadoc destdir="${javadoc}/api"
+	        doctitle="HenPlus ${version}"
+	        bottom="&#169; 1997..2004 Henner Zeller">
+
+         <fileset dir="." defaultexcludes="yes">
+           <include name="src/henplus/**/*.java" />
+         </fileset>
+         <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
+       </javadoc>
      </target>
 
      <target name="dist" depends="clean,henplus.spec"

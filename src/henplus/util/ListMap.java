@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: ListMap.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: ListMap.java,v 1.3 2004-03-07 14:22:03 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.util;
@@ -15,6 +15,13 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This provides the functionality of LinkedHashMap. However, that
+ * Collection became available at 1.4. So provide this for backward
+ * compatibility.
+ *
+ * @author Martin Grotzke
+ */
 public final class ListMap implements Map, Serializable {
 
     private List keys;
@@ -66,7 +73,7 @@ public final class ListMap implements Map, Serializable {
     }
     /**
      * Returns a <code>List</code> containing all keys.
-     * @return
+     * @return a <code>List</code> containing all keys.
      */
     public List keys() {
         return keys;

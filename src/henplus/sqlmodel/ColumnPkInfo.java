@@ -8,7 +8,7 @@ package henplus.sqlmodel;
  * <p>Title: ColumnPkInfo</p>
  * <p>Description:<br>
  * Created on: 30.07.2003</p>
- * @version $Id: ColumnPkInfo.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: ColumnPkInfo.java,v 1.3 2004-03-07 14:22:03 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class ColumnPkInfo {
@@ -21,16 +21,10 @@ public final class ColumnPkInfo {
         _columnIndex = columnIndex;
     }
         
-    /**
-     * @return
-     */
     public int getColumnIndex() {
         return _columnIndex;
     }
 
-    /**
-     * @return
-     */
     public String getPkName() {
         return _pkName;
     }
@@ -40,7 +34,7 @@ public final class ColumnPkInfo {
         if (other != null && other instanceof ColumnPkInfo) {
             ColumnPkInfo o = (ColumnPkInfo)other;
             if ( _pkName != null && _pkName.equals(o.getPkName())
-                    || _pkName == null && o.getPkName() == null ) {
+                 || _pkName == null && o.getPkName() == null ) {
                 result = true;
             }
         }
