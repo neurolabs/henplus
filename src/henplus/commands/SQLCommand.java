@@ -7,6 +7,7 @@
 package henplus.commands;
 
 import henplus.AbstractCommand;
+import henplus.Interruptable;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.PropertyRegistry;
@@ -15,6 +16,7 @@ import henplus.SigIntHandler;
 import henplus.property.PropertyHolder;
 import henplus.property.BooleanPropertyHolder;
 import henplus.view.util.NameCompleter;
+import henplus.view.util.CancelWriter;
 
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
@@ -32,7 +34,7 @@ import java.util.StringTokenizer;
 /**
  * document me.
  */
-public class SQLCommand extends AbstractCommand {
+public class SQLCommand extends AbstractCommand implements Interruptable {
     private static final boolean verbose = false; // debug.
     private final static String[] TABLE_COMPLETER_KEYWORD = {
 	"FROM", "INTO", "UPDATE", "TABLE", /*create index*/"ON"
@@ -48,7 +50,7 @@ public class SQLCommand extends AbstractCommand {
 	    "insert", "update", "delete",
 	    "create", "alter",  "drop",
 	    "commit", "rollback",
-            "call-procedure",
+            /*"call-procedure", test */
 	    // we support _any_ string, that is not part of the
 	    // henplus buildin-stuff; the following empty string flags this.
 	    ""
@@ -56,10 +58,12 @@ public class SQLCommand extends AbstractCommand {
     }
 
     private final ListUserObjectsCommand tableCompleter;
+    private final SQLExecutorThread _sqlExecutor;
     private String _columnDelimiter;
     private int    _rowLimit;
     private boolean _showHeader;
     private boolean _showFooter;
+    private volatile boolean _running;
 
     public SQLCommand(ListUserObjectsCommand tc, PropertyRegistry registry) {
 	tableCompleter = tc;
@@ -75,6 +79,8 @@ public class SQLCommand extends AbstractCommand {
                                   new ShowHeaderProperty());
         registry.registerProperty("sql-result-showfooter",
                                   new ShowFooterProperty());
+        _sqlExecutor = new SQLExecutorThread();
+        new Thread(_sqlExecutor).start();
     }
 
     /**
@@ -166,8 +172,6 @@ public class SQLCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String cmd, String param) {
-	Statement stmt = null;
-	ResultSet rset = null;
 	String command = cmd + " " + param;
         boolean background = false;
 
@@ -184,9 +188,9 @@ public class SQLCommand extends AbstractCommand {
 	final long startTime = System.currentTimeMillis();
 	long lapTime  = -1;
 	long execTime = -1;
+        _running = true;
+        SigIntHandler.getInstance().pushInterruptable(this);
 	try {
-// 	    SigIntHandler.getInstance()
-// 		.registerInterrupt(Thread.currentThread());
 	    if (command.startsWith("commit")) {
 		session.print("commit..");
 		session.getConnection().commit();
@@ -198,57 +202,39 @@ public class SQLCommand extends AbstractCommand {
 		session.println(".done.");
 	    }
 	    else {
-		boolean hasResultSet = false;
-		boolean hasSingleResult = false;
+                _sqlExecutor.executeAsync(session, command);
+                synchronized (_sqlExecutor) {
+                    // check every once in a while the running flag.
+                    while (_running && _sqlExecutor.isExecuting()) {
+                        _sqlExecutor.wait(300);
+                    }
+                }
 
-		/* this is basically a hack around SAP-DB's tendency to
-		 * throw NullPointerExceptions, if the session timed out.
-		 */
-		for (int retry=2; retry > 0; --retry) {
-		    try {
-                        if ("call-procedure".equals(cmd)) {
-                            CallableStatement pstmt;
-                            command = "{? = call " + param + "}";
-                            pstmt = session.getConnection()
-                                .prepareCall(command);
-                            //pstmt.registerOutParameter(1, Types.REF);
-                            pstmt.registerOutParameter(1, Types.VARCHAR);
-                            pstmt.execute();
-                            //HenPlus.msg().println("call this .." + command);
-                            //pstmt.setR
-                            hasResultSet = false;
-                            hasSingleResult = true;
-                            stmt = pstmt;
-                        }
-                        else {
-                            stmt = session.createStatement();
-                            try {
-                                // Postgres and MySQL try to load the
-                                // whole result set at once :-(
-                                stmt.setFetchSize(200);
-                            }
-                            catch (Exception e) {
-                                // ignore
-                            }
-                            hasResultSet = stmt.execute(command);
-                        }
-			break;
-		    }
-		    catch (SQLException e) { throw e; }
-		    catch (Throwable e) {
-			if (retry == 1) {
-			    return EXEC_FAILED;
-			}
-			HenPlus.msg().println("Problem: " + e.getMessage()
-					   + "; trying reconnect...");
-			session.connect();
-		    }
-		}
-		
-		if (hasResultSet) {
-		    rset = stmt.getResultSet();
+                if (!_running) {
+                    HenPlus.msg().print("cancel statement...");
+                    HenPlus.msg().flush();
+                    CancelWriter info = new CancelWriter(HenPlus.msg());
+                    info.print("please wait");
+                    _sqlExecutor.cancel();
+                    info.cancel();
+                    HenPlus.msg().println("done.");
+                    return SUCCESS;
+                }
+
+                if (_sqlExecutor.getException() != null) {
+                    final Exception e = _sqlExecutor.getException(); 
+                    String msg = e.getMessage();
+                    if (msg != null) {
+                        // oracle appends a newline to the message for some reason.
+                        HenPlus.msg().println("FAILURE: " + msg.trim());
+                    }
+                    if (verbose) e.printStackTrace();
+                    return EXEC_FAILED;
+                }
+                
+		if (_sqlExecutor.getResult() != null) {
 		    ResultSetRenderer renderer;
-		    renderer = new ResultSetRenderer(rset, 
+		    renderer = new ResultSetRenderer(_sqlExecutor.getResult(),
                                                      getColumnDelimiter(),
                                                      isShowHeader(),
                                                      isShowFooter(),
@@ -256,21 +242,19 @@ public class SQLCommand extends AbstractCommand {
                                                      HenPlus.out());
 		    SigIntHandler.getInstance().pushInterruptable(renderer);
 		    int rows = renderer.execute();
+		    SigIntHandler.getInstance().popInterruptable();
 		    if (renderer.limitReached()) {
 			session.println("limit of " + getRowLimit() + 
                                         " rows reached ..");
 			session.print("> ");
 		    }
 		    session.print(rows + " row" + 
-				     ((rows == 1)? "" : "s")
-				     + " in result");
+                                  ((rows == 1)? "" : "s")
+                                  + " in result");
 		    lapTime = renderer.getFirstRowTime() - startTime;
 		}
-                else if (hasSingleResult) {
-                    HenPlus.msg().println(((CallableStatement)stmt).getString(1));
-                }
 		else {
-		    int updateCount = stmt.getUpdateCount();
+		    int updateCount = _sqlExecutor.getUpdateCount();
 		    if (updateCount >= 0) {
 			session.print("affected "+updateCount+" rows");
 		    }
@@ -319,8 +303,7 @@ public class SQLCommand extends AbstractCommand {
 	    return EXEC_FAILED;
 	}
 	finally {
-	    try { if (rset != null) rset.close(); } catch (Exception e) {}
-	    try { if (stmt != null) stmt.close(); } catch (Exception e) {}
+            SigIntHandler.getInstance().popInterruptable();
 	}
     }
 
@@ -482,7 +465,15 @@ public class SQLCommand extends AbstractCommand {
 	}
 	return result;
     }
-    
+
+    public void shutdown() {
+        _sqlExecutor.stopThread();
+    }
+
+    public void interrupt() {
+        _running = false;
+    }
+
     public String getSynopsis(String cmd) { 
 	cmd = cmd.toLowerCase();
 	String syn = null;
