@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.5 2002-12-29 10:37:28 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.6 2002-12-29 10:48:17 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -312,10 +312,27 @@ public final class AliasCommand extends AbstractCommand {
     public String getLongDescription(String cmd) {
 	String dsc = null;
         if ("list-aliases".equals(cmd)) {
+            dsc= "\tList all aliases, that have been stored with the\n"
+                +"\t'alias' command";
         }
         else if ("alias".equals(cmd)) {
+            dsc= "\tAdd an alias for a command. This means, that you\n"
+                +"\tcan give a short name for a command you often use. This\n"
+                +"\tmight be as simple as\n"
+                +"\t   alias ls tables\n"
+                +"\tto execute the tables command with a short 'ls' or\n"
+                +"\tsomething like\n"
+                +"\t   alias size select count(*) from\n"
+                +"\t; this command needs a table name as a paramter to\n"
+                +"\texpand to a complete command. So 'size students' expands\n"
+                +"\tto 'select count(*) from students' and returns the\n"
+                +"\texpected result. To make life easier, HenPlus tries to\n"
+                +"\tdetermine the command to be executed so that the\n"
+                +"\ttab-completion works even here; in this case it would\n"
+                +"\thelp complete table names.";
         }
         else if ("unalias".equals(cmd)) {
+            dsc= "\tremove an alias name";
         }
         else {
 	    // not session-proof:
