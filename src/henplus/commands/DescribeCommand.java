@@ -80,6 +80,7 @@ public class DescribeCommand extends AbstractCommand {
 	try {
 	    boolean anyLeftArrow  = false;
 	    boolean anyRightArrow = false;
+            long startTime = System.currentTimeMillis();
             String catalog = session.getConnection().getCatalog();
 	    DatabaseMetaData meta = session.getConnection().getMetaData();
 	    for (int i=0; i < DESC_META.length; ++i) {
@@ -221,10 +222,14 @@ public class DescribeCommand extends AbstractCommand {
 	    if (!anyIndex) {
 		System.out.println("\t<none>");
 	    }
+            TimeRenderer.printTime(System.currentTimeMillis() - startTime,
+                                   System.out);
+            System.out.println();
 	}
 	catch (Exception e) {
 	    if (verbose) e.printStackTrace();
-            System.err.println("Database problem reading meta data.");
+            System.err.println("Database problem reading meta data: "+
+                               e.getMessage().trim());
 	    return EXEC_FAILED;
 	}
 	finally {

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.44 2002-11-03 17:32:28 hzeller Exp $
+ * $Id: HenPlus.java,v 1.45 2002-12-20 14:19:58 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -113,7 +113,7 @@ public class HenPlus implements Interruptable {
 	dispatcher.register(new DescribeCommand(objectLister));
         
         /*** experimental ***/
-	dispatcher.register(new DependencyCommand(objectLister));
+	dispatcher.register(new TreeCommand(objectLister));
 
 	dispatcher.register(new SQLCommand(objectLister));
 
