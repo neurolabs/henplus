@@ -11,7 +11,10 @@ import java.util.Iterator;
 
 /**
  * Implementation of a Command with default settings. Override
- * what is necessary in your Command.
+ * what is necessary in your Command. It makes sense to derive plug-ins
+ * from this AbstractCommand - this makes the plug-in more robust
+ * with regard to newly added methods.
+ * @author Henner Zeller
  */
 public abstract class AbstractCommand implements Command {
     // no description by default.

@@ -228,7 +228,7 @@ public class SQLCommand extends AbstractCommand {
     }
 
     // very simple completer: try to determine wether we can complete a
-    // table name. that is: if some keyword has been found before, go to
+    // table name. that is: if some keyword has been found before, switch to
     // table-completer-mode :-)
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) 

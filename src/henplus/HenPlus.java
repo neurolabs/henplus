@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.45 2002-12-20 14:19:58 hzeller Exp $
+ * $Id: HenPlus.java,v 1.46 2002-12-28 11:59:48 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -62,7 +62,8 @@ public class HenPlus implements Interruptable {
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
 	    readlineLoaded = true;
-	} catch (UnsatisfiedLinkError ignore_me) {
+	} 
+        catch (UnsatisfiedLinkError ignore_me) {
 	    System.err.println("no readline found ("
 			       + ignore_me.getMessage()
 			       + "). Using simple stdin.");
@@ -87,7 +88,7 @@ public class HenPlus implements Interruptable {
 	}
 	catch (Exception ignore) {}
 	
-	Readline.setWordBreakCharacters(" ");
+	Readline.setWordBreakCharacters(" ,/()<>=\t\n");
 	setDefaultPrompt();
 
         // fixme: to many cross dependencies of commands now. clean up.

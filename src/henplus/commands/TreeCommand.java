@@ -29,7 +29,7 @@ import henplus.CommandDispatcher;
  * foo
  * |-- bar
  * |   |-- blubber
- * |   `-- [foo]            <-- cylic reference
+ * |   `-- (foo)            <-- cylic reference
  * |-- baz
  * `-- blub
  */
@@ -45,13 +45,13 @@ public class TreeCommand extends AbstractCommand {
      * A node in a cyclic graph.
      */
     private static abstract class Node implements Comparable {
-        private final Set/*<Node>*/ nodeSet;
+        private final Set/*<Node>*/ _nodeSet;
         protected Node() {
-            nodeSet = new TreeSet();
+            _nodeSet = new TreeSet();
         }
         
         public Node add(Node n) {
-            nodeSet.add(n);
+            _nodeSet.add(n);
             return n;
         }
 
@@ -78,15 +78,15 @@ public class TreeCommand extends AbstractCommand {
                 return;
             }
             alreadyPrinted.add(name);
-            int remaining = nodeSet.size();
+            int remaining = _nodeSet.size();
             if (remaining > 0) {
                 int previousLength = currentIndent.length();
                 currentIndent.append(indentString);
-                Iterator it = nodeSet.iterator();
+                Iterator it = _nodeSet.iterator();
                 while (it.hasNext()) {
+                    Node n = (Node) it.next();
                     System.out.print(currentIndent);
                     System.out.print((remaining == 1) ? '`' : '|');
-                    Node n = (Node) it.next();
                     n.print(alreadyPrinted, currentIndent,
                             (remaining == 1) ? "    " : "|   ");
                     --remaining;
@@ -106,10 +106,13 @@ public class TreeCommand extends AbstractCommand {
         public abstract String getName();
     }
 
+    /**
+     * the entity is simply represented as String.
+     */
     private static class StringNode extends Node {
-        private final String name;
-        public StringNode(String s) { name = s; }
-        public String getName() { return name; }
+        private final String _name;
+        public StringNode(String s) { _name = s; }
+        public String getName() { return _name; }
     }
 
 
