@@ -4,6 +4,7 @@
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
+package henplus;
 
 import java.util.StringTokenizer;
 import java.util.Iterator;

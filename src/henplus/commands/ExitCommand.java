@@ -4,11 +4,11 @@
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
-import HenPlus;
-import SQLSession;
-import AbstractCommand;
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.AbstractCommand;
 
 /**
  * document me.

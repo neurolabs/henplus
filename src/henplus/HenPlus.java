@@ -1,9 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.18 2002-02-07 11:02:04 hzeller Exp $
+ * $Id: HenPlus.java,v 1.19 2002-02-09 12:21:52 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
+package henplus;
 
 import java.util.Properties;
 import java.util.Enumeration;
@@ -17,7 +18,7 @@ import java.io.EOFException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import commands.*;
+import henplus.commands.*;
 
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
@@ -498,7 +499,7 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.18 $]--\n";
++"----------------------------------------------------[$Revision: 1.19 $]--\n";
 	System.err.println(cpy);
 
 	instance = new HenPlus(properties, argv);

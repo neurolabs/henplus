@@ -1,10 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TimeRenderer.java,v 1.1 2002-01-26 14:06:52 hzeller Exp $ 
+ * $Id: TimeRenderer.java,v 1.2 2002-02-09 12:21:56 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
 import java.io.PrintStream;
 

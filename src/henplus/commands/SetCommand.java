@@ -1,12 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.5 2002-02-09 12:09:59 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.6 2002-02-09 12:21:56 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
-import util.*;
+import henplus.util.*;
 
 import java.util.Map;
 import java.util.SortedMap;
@@ -23,10 +23,10 @@ import java.io.OutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import HenPlus;
-import SQLSession;
-import AbstractCommand;
-import CommandDispatcher;
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.AbstractCommand;
+import henplus.CommandDispatcher;
 
 /**
  * document me.

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: henplus,v 1.1 2002-01-22 09:01:57 hzeller Exp $
+# $Id: henplus,v 1.2 2002-02-09 12:21:50 hzeller Exp $
 ##
 HENPLUSDIR=/usr/local/share/henplus
 LD_LIBRARY_PATH=$HENPLUSDIR
@@ -10,4 +10,4 @@ done
 
 export CLASSPATH LD_LIBRARY_PATH
 
-exec java HenPlus "$@"
+exec java henplus.HenPlus "$@"

@@ -1,10 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.1 2002-02-09 12:10:00 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.2 2002-02-09 12:21:58 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package util;
+package henplus.util;
 
 import java.util.Vector;
 import java.util.Iterator;

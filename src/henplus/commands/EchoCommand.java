@@ -1,13 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EchoCommand.java,v 1.2 2002-01-27 13:44:06 hzeller Exp $ 
+ * $Id: EchoCommand.java,v 1.3 2002-02-09 12:21:56 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
-import SQLSession;
-import AbstractCommand;
+import henplus.SQLSession;
+import henplus.AbstractCommand;
 
 /**
  * document me.

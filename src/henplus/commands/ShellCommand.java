@@ -4,16 +4,16 @@
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
-import SQLSession;
-import AbstractCommand;
-import CommandDispatcher;
+import henplus.SQLSession;
+import henplus.AbstractCommand;
+import henplus.CommandDispatcher;
 
 /**
  * This command executes stuff on the shell. Supports the most common

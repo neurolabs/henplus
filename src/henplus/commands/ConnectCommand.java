@@ -4,7 +4,7 @@
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
 import java.util.Map;
 import java.util.SortedMap;
@@ -22,10 +22,10 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 
-import HenPlus;
-import SQLSession;
-import AbstractCommand;
-import CommandDispatcher;
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.AbstractCommand;
+import henplus.CommandDispatcher;
 
 /**
  * document me.

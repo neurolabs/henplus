@@ -4,6 +4,7 @@
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
+package henplus;
 
 import java.util.List;
 import java.util.SortedMap;
@@ -16,7 +17,7 @@ import java.util.StringTokenizer;
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineCompleter;
 
-import commands.SetCommand;
+import henplus.commands.SetCommand;
 
 /**
  * document me.

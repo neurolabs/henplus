@@ -1,12 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.4 2002-02-09 12:09:59 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.5 2002-02-09 12:21:56 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
-import util.*;
+import henplus.util.*;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

@@ -4,17 +4,17 @@
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 
-import HenPlus;
-import SQLSession;
-import CommandDispatcher;
-import Command;
-import AbstractCommand;
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.CommandDispatcher;
+import henplus.Command;
+import henplus.AbstractCommand;
 
 /**
  * document me.

@@ -1,9 +1,11 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.4 2002-01-28 11:32:00 hzeller Exp $
+ * $Id: SQLSession.java,v 1.5 2002-02-09 12:21:52 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
+package henplus;
+
 import java.util.*;
 import java.io.File;
 import java.io.BufferedReader;
@@ -23,7 +25,7 @@ import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineCompleter;
 import org.gnu.readline.ReadlineLibrary;
 
-import commands.*;
+import henplus.commands.*;
 
 /**
  * document me.

@@ -4,10 +4,10 @@
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package commands;
+package henplus.commands;
 
-import SQLSession;
-import AbstractCommand;
+import henplus.SQLSession;
+import henplus.AbstractCommand;
 import java.util.StringTokenizer;
 import java.io.PrintStream;
 import java.sql.*;
