@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EnumeratedPropertyHolder.java,v 1.4 2004-01-27 18:16:33 hzeller Exp $ 
+ * $Id: EnumeratedPropertyHolder.java,v 1.5 2004-02-03 09:53:07 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
@@ -39,9 +39,9 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
 
     /**
      * do not override this method but the 
-     * {@link booleanPropertyChanged(boolean)} method instead.
+     * {@link enumeratedPropertyChanged(boolean)} method instead.
      */
-    protected String propertyChanged(String newValue) throws Exception {
+    protected final String propertyChanged(String newValue) throws Exception {
         if (newValue == null) {
             throw new Exception("'null' not a valid value");
         }

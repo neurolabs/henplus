@@ -95,7 +95,7 @@ public class DescribeCommand
 	    if (alternative != null && !alternative.equals(tabName)) {
 		tabName = alternative;
 		HenPlus.out().println("describing table: '" + tabName 
-				   + "' (corrected name)");
+                                      + "' (corrected name)");
 	    }
 	}
         
@@ -128,7 +128,7 @@ public class DescribeCommand
 		String pkname = rset.getString(6);
 		String desc = (pkname != null) ? pkname : "*";
 		if (pkseq > 1) {
-            desc = StringAppender.getInstance().append( desc ).append( "{" ).append( pkseq ).append( "}" ).toString();
+                    desc = StringAppender.getInstance().append( desc ).append( "{" ).append( pkseq ).append( "}" ).toString();
 		    // desc += "{" + pkseq + "}";
 		}
 		pks.put(col, desc);
@@ -160,29 +160,29 @@ public class DescribeCommand
             if (interrupted) return SUCCESS;
 	    Map fks = new HashMap();
         
-        // some jdbc version 2 drivers (connector/j) have problems with foreign keys...
-        try {
-            rset = meta.getImportedKeys(null, schema, tabName);
-        } catch ( NoSuchElementException e ) {
-            if (verbose)
-                HenPlus.msg().println("Database problem reading meta data: " + e);
-        }
-	    if (rset != null) {
-            while (!interrupted && rset.next()) {
-                String table = rset.getString(3);
-                String pkcolumn  = rset.getString(4);
-                table = table + "(" + pkcolumn + ")";
-                String col = rset.getString(8);
-                String fkname = rset.getString(12);
-                String desc = (fkname != null) ? StringAppender.start(fkname).append("\n -> ").toString() : " -> ";
-                desc += table;
-                anyRightArrow = true;
-                fks.put(col, desc);
+            // some jdbc version 2 drivers (connector/j) have problems with foreign keys...
+            try {
+                rset = meta.getImportedKeys(null, schema, tabName);
+            } catch ( NoSuchElementException e ) {
+                if (verbose)
+                    HenPlus.msg().println("Database problem reading meta data: " + e);
             }
+	    if (rset != null) {
+                while (!interrupted && rset.next()) {
+                    String table = rset.getString(3);
+                    String pkcolumn  = rset.getString(4);
+                    table = table + "(" + pkcolumn + ")";
+                    String col = rset.getString(8);
+                    String fkname = rset.getString(12);
+                    String desc = (fkname != null) ? StringAppender.start(fkname).append("\n -> ").toString() : " -> ";
+                    desc += table;
+                    anyRightArrow = true;
+                    fks.put(col, desc);
+                }
 	    }
 	    rset.close();
 
-        if (catalog != null) HenPlus.msg().println("catalog: " + catalog);
+            if (catalog != null) HenPlus.msg().println("catalog: " + catalog);
 	    if (anyLeftArrow)  HenPlus.msg().println(" '<-' : referenced by");
 	    if (anyRightArrow) HenPlus.msg().println(" '->' : referencing");
 
@@ -200,38 +200,38 @@ public class DescribeCommand
 
 	    rset = meta.getColumns(catalog, schema, tabName, null);
 	    List rows = new ArrayList();
-        int colNum = 0;
+            int colNum = 0;
 	    if (rset != null) {
-            while (!interrupted && rset.next()) {
-                Column[] row = new Column[8];
-                row[0] = new Column( ++colNum );
-                String thisTabName = rset.getString(3);
-                row[1] = new Column( thisTabName );
-                allSameTableName &= tabName.equals(thisTabName);
-                String colname = rset.getString(4);
-                if (doubleCheck.contains(colname)) {
-                    continue;
-                }
-                doubleCheck.add(colname);
-                row[2] = new Column( colname );
-                String type = rset.getString(6);
-                int colSize = rset.getInt(7);
-                if (colSize > 0)
-                    type = StringAppender.start(type).append("(").append(colSize).append(")").toString();
+                while (!interrupted && rset.next()) {
+                    Column[] row = new Column[8];
+                    row[0] = new Column( ++colNum );
+                    String thisTabName = rset.getString(3);
+                    row[1] = new Column( thisTabName );
+                    allSameTableName &= tabName.equals(thisTabName);
+                    String colname = rset.getString(4);
+                    if (doubleCheck.contains(colname)) {
+                        continue;
+                    }
+                    doubleCheck.add(colname);
+                    row[2] = new Column( colname );
+                    String type = rset.getString(6);
+                    int colSize = rset.getInt(7);
+                    if (colSize > 0)
+                        type = StringAppender.start(type).append("(").append(colSize).append(")").toString();
                 
-                row[3] = new Column( type );
-                String defaultVal = rset.getString(13);
-                row[4] = new Column( rset.getString(18) );
-                // oracle appends newline to default values for some reason.
-                row[5] = new Column( ((defaultVal != null) 
-                                ? defaultVal.trim() 
-                                : null) );
-                String pkdesc = (String) pks.get(colname);
-                row[6] = new Column( (pkdesc != null) ? pkdesc : "");
-                String fkdesc = (String) fks.get(colname);
-                row[7] = new Column( (fkdesc != null) ? fkdesc : "");
-                rows.add(row);
-           }
+                    row[3] = new Column( type );
+                    String defaultVal = rset.getString(13);
+                    row[4] = new Column( rset.getString(18) );
+                    // oracle appends newline to default values for some reason.
+                    row[5] = new Column( ((defaultVal != null) 
+                                          ? defaultVal.trim() 
+                                          : null) );
+                    String pkdesc = (String) pks.get(colname);
+                    row[6] = new Column( (pkdesc != null) ? pkdesc : "");
+                    String fkdesc = (String) fks.get(colname);
+                    row[7] = new Column( (fkdesc != null) ? fkdesc : "");
+                    rows.add(row);
+                }
 	    }
 	    rset.close();
 
@@ -289,9 +289,9 @@ public class DescribeCommand
 	}
 	catch (Exception e) {
 	    if (verbose)
-            e.printStackTrace();
-        String ex = ( e.getMessage() != null ) ? e.getMessage().trim() : e.toString();
-        HenPlus.msg().println("Database problem reading meta data: " + ex);
+                e.printStackTrace();
+            String ex = ( e.getMessage() != null ) ? e.getMessage().trim() : e.toString();
+            HenPlus.msg().println("Database problem reading meta data: " + ex);
 	    return EXEC_FAILED;
 	}
 	finally {

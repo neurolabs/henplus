@@ -17,10 +17,13 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Iterator;
 
 import henplus.OutputDevice;
 
@@ -36,6 +39,10 @@ import henplus.OutputDevice;
  * creates a dependency graph.
  */
 public class TreeCommand extends AbstractCommand {
+    private final static int IMP_PRIMARY_KEY_TABLE = 3;
+    /** reference in exported/imported key */
+    private final static int EXP_FOREIGN_KEY_TABLE = 7;
+
     static final boolean verbose     = false;
     private final ListUserObjectsCommand tableCompleter;
 
@@ -149,12 +156,38 @@ public class TreeCommand extends AbstractCommand {
                 tabName = alternative;
             }
         }
+        String schema = null; // fixme: determine
 
         try {
             long startTime = System.currentTimeMillis();
-            DatabaseMetaData dbMeta = session.getConnection().getMetaData();
-            Node tree = buildTree(dbMeta, new TreeMap(), tabName);
-            tree.print(HenPlus.out());
+            final DatabaseMetaData dbMeta = 
+                session.getConnection().getMetaData();
+
+            // build a tree of all tables I depend on ..
+            Node myParents = buildTree(new ReferenceMetaDataSource() {
+                    public ResultSet getReferenceMetaData(String schema, 
+                                                          String table) 
+                        throws SQLException {
+                        return dbMeta.getImportedKeys(null, schema, table);
+                    }
+                }, IMP_PRIMARY_KEY_TABLE, new TreeMap(), schema, tabName);
+            
+            // build a tree of all tables that depend on me ...
+            Node myChilds = buildTree(new ReferenceMetaDataSource() {
+                    public ResultSet getReferenceMetaData(String schema, 
+                                                          String table) 
+                        throws SQLException {
+                        return dbMeta.getExportedKeys(null, schema, table);
+                    }
+                }, EXP_FOREIGN_KEY_TABLE, new TreeMap(), schema, tabName);
+
+            HenPlus.out().println("I depend on ..");
+            myParents.print(HenPlus.out());
+
+            HenPlus.out().println();
+            HenPlus.out().println("these depend on me ..");
+            myChilds.print(HenPlus.out());
+
             TimeRenderer.printTime(System.currentTimeMillis()-startTime,
                                    HenPlus.msg());
             HenPlus.msg().println();
@@ -167,13 +200,23 @@ public class TreeCommand extends AbstractCommand {
         return SUCCESS;
     }
     
+    private interface ReferenceMetaDataSource {
+        ResultSet getReferenceMetaData(String schema, String table)
+            throws SQLException;
+    }
+
     /**
      * build a subtree from the MetaData for the table with the given name.
      * If this node already exists (because of a cyclic dependency), 
      * return that. recursively called to build the whole tree.
+     * This determines its refernece data from the ReferenceMetaDataSource
+     * 'lambda' that either wraps getImportedKeys() or getExportedKeys().
+     * The 'sourceColumn' defines the column in which the appropriate
+     * table name is.
      */
-    private Node buildTree(DatabaseMetaData meta,
-                           Map knownNodes, String tabName) 
+    private Node buildTree(ReferenceMetaDataSource source,
+                           int sourceColumn,
+                           Map knownNodes, String schema, String tabName) 
         throws SQLException
     {
         if (knownNodes.containsKey(tabName)) {
@@ -184,10 +227,20 @@ public class TreeCommand extends AbstractCommand {
         knownNodes.put(tabName, n);
         ResultSet rset = null;
         try {
-            rset = meta.getExportedKeys(null, null, tabName);
+            rset = source.getReferenceMetaData(schema, tabName);
+            // read this into a list to avoid recursive calls to MetaData
+            // which some JDBC-drivers don't like..
+            List refTables = new ArrayList();
             while (rset.next()) {
-                String referencingTable = rset.getString(7);
-                n.add(buildTree(meta, knownNodes, referencingTable));
+                String referencingTable = rset.getString( sourceColumn );
+                refTables.add(referencingTable);
+            }
+
+            Iterator it = refTables.iterator();
+            while (it.hasNext()) {
+                String referencingTable = (String) it.next();
+                n.add(buildTree(source, sourceColumn,
+                                knownNodes, schema, referencingTable));
             }
         }
         finally {
