@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.49 2003-01-25 10:44:06 hzeller Exp $
+ * $Id: HenPlus.java,v 1.50 2003-01-25 11:03:51 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -517,6 +517,11 @@ public class HenPlus implements Interruptable {
 	instance = new HenPlus(argv);
 	instance.run();
 	instance.shutdown();
+        /*
+         * hsqldb does not always stop its log-thread. So do an
+         * explicit exit() here.
+         */
+        System.exit(0);
     }
 
     public File getConfigDir() {
