@@ -1,12 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SQLMetaDataBuilder.java,v 1.5 2004-09-22 11:49:31 magrokosmos Exp $ 
+ * @version $Id: SQLMetaDataBuilder.java,v 1.6 2004-10-06 10:44:50 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus;
-
-import henplus.HenPlus;
 
 import henplus.sqlmodel.Column;
 import henplus.sqlmodel.ColumnFkInfo;
@@ -16,13 +14,13 @@ import henplus.sqlmodel.Table;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Collection;
-import java.util.List;
-import java.util.ArrayList;
 
 public final class SQLMetaDataBuilder {
     final private static String[] LIST_TABLES = { "TABLE" };
