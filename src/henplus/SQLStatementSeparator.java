@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.11 2002-10-06 09:09:13 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.12 2002-11-21 18:41:26 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -177,6 +177,7 @@ public class SQLStatementSeparator {
 	    /* skip leading whitespaces of next statement .. */
 	    while (pos < input.length()
 		   && Character.isWhitespace (input.charAt(pos))) {
+                _currentState.setNewlineSeen( input.charAt(pos) == '\n' );
 		++pos;
 	    }
 	    input.delete(0, pos);
@@ -187,6 +188,8 @@ public class SQLStatementSeparator {
 	    state = POTENTIAL_END_FOUND;
 	}
 
+        //System.err.println("Startstate: " + state + "; LEOL: " + lastEoline);
+
 	while (state != POTENTIAL_END_FOUND && pos < input.length()) {
 	    boolean vetoAppend = false;
 	    boolean reIterate;
@@ -194,6 +197,11 @@ public class SQLStatementSeparator {
 	    if (current == '\r') {
 		current = '\n'; // canonicalize.
 	    }
+
+            if (current == '\n') {
+                _currentState.setNewlineSeen( true );
+            }
+
 	    //System.out.print ("Pos: " + pos + "\t");
 	    do {
 		reIterate = false;
@@ -205,6 +213,7 @@ public class SQLStatementSeparator {
 			state = POTENTIAL_END_FOUND;
 			_currentState.setNewlineSeen(true);
 		    }
+
                     /*
                      * special handling of the 'first-two-semicolons-after
                      * a-newline-comment'.
@@ -217,7 +226,14 @@ public class SQLStatementSeparator {
 			state = POTENTIAL_END_FOUND;
 		    }
 		    else if (current == '/')  state = START_COMMENT;
-		    else if (current == '#')  state = ENDLINE_COMMENT;
+
+                    /*
+                     * only if '#' this is the first character, make it
+                     * a comment..
+                     */
+		    else if (lastEoline && current == '#') {
+                        state = ENDLINE_COMMENT;
+                    }
 		    else if (current == '"')  state = STRING;
 		    else if (current == '\'') state = SQLSTRING;
 		    else if (current == '-')  state = START_ANSI;
