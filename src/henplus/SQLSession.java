@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.11 2002-06-24 15:07:28 hzeller Exp $
+ * $Id: SQLSession.java,v 1.12 2002-10-06 09:09:13 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -118,14 +118,9 @@ public class SQLSession {
 	return _url;
     }
     
-    // maybe this should go to HenPlus ..
-    public void hideMessages() {
-	--_showMessages;
+    public boolean printMessages() { 
+        return !(HenPlus.getInstance().getDispatcher().isInBatch());
     }
-    public void showMessages() {
-	++_showMessages;
-    }
-    public boolean printMessages() { return _showMessages > 0; }
 
     public void print(String msg) {
 	if (printMessages()) System.err.print(msg);

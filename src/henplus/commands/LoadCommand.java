@@ -82,7 +82,6 @@ public class LoadCommand extends AbstractCommand {
 	    long startTime = System.currentTimeMillis();
 	    File currentFile = null;
 	    try {
-		session.hideMessages();
 		henplus.pushBuffer();
 		henplus.getDispatcher().startBatch();
 		File f = new File(filename);
@@ -117,7 +116,6 @@ public class LoadCommand extends AbstractCommand {
 	    }
 	    finally {
 		henplus.popBuffer(); // no open state ..
-		session.showMessages();
 		henplus.getDispatcher().endBatch();
 		if (currentFile != null) {
 		    _openFiles.remove(currentFile);

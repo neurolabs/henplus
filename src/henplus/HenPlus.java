@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.39 2002-07-23 06:38:29 hzeller Exp $
+ * $Id: HenPlus.java,v 1.40 2002-10-06 09:09:13 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -48,7 +48,7 @@ public class HenPlus implements Interruptable {
     private SQLStatementSeparator _commandSeparator;
     private final StringBuffer    _historyLine;
     private boolean            _quiet;
-    private boolean            _interrupted;
+    private volatile boolean   _interrupted;
 
     private HenPlus(String argv[]) throws IOException {
 	terminated = false;
@@ -67,6 +67,7 @@ public class HenPlus implements Interruptable {
 			       + ignore_me.getMessage()
 			       + "). Using simple stdin.");
 	}
+
 
 	_fromTerminal = Readline.hasTerminal();
 	if (!_fromTerminal && !_quiet) {
@@ -153,7 +154,7 @@ public class HenPlus implements Interruptable {
     }
 
     public void popBuffer() {
-	_commandSeparator.pop();
+        _commandSeparator.pop();
     }
 
     public String readlineFromFile() throws IOException {
@@ -191,7 +192,7 @@ public class HenPlus implements Interruptable {
 	    }
 
 	StringBuffer lineBuf = new StringBuffer(line);
-	lineBuf.append('\n');
+        lineBuf.append('\n');
 	_commandSeparator.append(lineBuf.toString());
 	result = LINE_INCOMPLETE;
 	while (_commandSeparator.hasNext()) {
@@ -202,7 +203,16 @@ public class HenPlus implements Interruptable {
 	    Command c = dispatcher.getCommandFrom(completeCommand);
 	    if (c == null) {
 		_commandSeparator.consumed();
-		result = LINE_EMPTY;
+                /*
+                 * do not shadow successful executions with the 'line-empty'
+                 * message. Background is: when we consumed a command, that
+                 * is complete with a trailing ';', then the following newline
+                 * would be considered as empty command. So return only the
+                 * LINE_EMPTY, if we haven't got a succesfully executed line.
+                 */
+                if (result != LINE_EXECUTED) {
+                    result = LINE_EMPTY;
+                }
 	    }
 	    else if (!c.isComplete(completeCommand)) {
 		_commandSeparator.cont();

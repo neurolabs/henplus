@@ -65,6 +65,7 @@ public class CommandDispatcher implements ReadlineCompleter {
      */
     public void startBatch() { ++_batchCount; }
     public void endBatch() { --_batchCount; }
+    public boolean isInBatch() { return _batchCount > 0; }
 
     public void register(Command c) {
 	commands.add(c);
@@ -199,7 +200,13 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    break;
 		}
 		case Command.EXEC_FAILED: {
-		    if (_batchCount > 0) {
+                    /*
+                     * if we are in batch mode, then no message is written
+                     * to the screen by default. Thus we don't know, _what_
+                     * command actually failed. So in this case, write out
+                     * the offending command.
+                     */
+		    if ( isInBatch() ) {
 			System.err.println("-- failed command: ");
 			System.err.println(cmdStr + " " + cmd);
 		    }

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.10 2002-07-23 06:38:29 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.11 2002-10-06 09:09:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -205,6 +205,10 @@ public class SQLStatementSeparator {
 			state = POTENTIAL_END_FOUND;
 			_currentState.setNewlineSeen(true);
 		    }
+                    /*
+                     * special handling of the 'first-two-semicolons-after
+                     * a-newline-comment'.
+                     */
 		    else if (lastEoline && current== ';' ) {
 			state = FIRST_SEMICOLON_ON_LINE_SEEN;
 		    }
