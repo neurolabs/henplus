@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.42 2002-10-10 18:03:11 hzeller Exp $
+ * $Id: HenPlus.java,v 1.43 2002-10-24 15:03:18 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -90,6 +90,7 @@ public class HenPlus implements Interruptable {
 	Readline.setWordBreakCharacters(" ");
 	setDefaultPrompt();
 
+        // fixme: to many cross dependencies of commands now. clean up.
 	_settingStore = new SetCommand(this);
 	ListUserObjectsCommand objectLister = new ListUserObjectsCommand(this);
 	dispatcher = new CommandDispatcher(_settingStore);
@@ -102,7 +103,8 @@ public class HenPlus implements Interruptable {
 	dispatcher.register(new DriverCommand(this));
 	AliasCommand aliasCommand = new AliasCommand(this);
 	dispatcher.register(aliasCommand);
-	dispatcher.register(new LoadCommand());
+        LoadCommand loadCommand = new LoadCommand();
+	dispatcher.register(loadCommand);
 
 	dispatcher.register(new ConnectCommand( argv, this ));
 	dispatcher.register(new StatusCommand());
@@ -113,7 +115,7 @@ public class HenPlus implements Interruptable {
 
 	//dispatcher.register(new ImportCommand());
 	//dispatcher.register(new ExportCommand());
-	dispatcher.register(new DumpCommand(objectLister));
+	dispatcher.register(new DumpCommand(objectLister, loadCommand));
 
 	dispatcher.register(new AutocommitCommand()); // replace with 'set'
 	dispatcher.register(new ShellCommand());

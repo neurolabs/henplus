@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.10 2002-10-11 14:07:24 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.11 2002-10-24 15:03:18 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -103,11 +103,13 @@ public class DumpCommand
 	JDBCTYPE2TYPENAME.put(new Integer(Types.TIMESTAMP),TYPES[ HP_TIMESTAMP ]);
     }
 
-    private final ListUserObjectsCommand tableCompleter;
+    private final ListUserObjectsCommand _tableCompleter;
+    private final LoadCommand _fileOpener;
     private volatile boolean _running;
 
-    public DumpCommand(ListUserObjectsCommand tc) {
-	tableCompleter = tc;
+    public DumpCommand(ListUserObjectsCommand tc, LoadCommand lc) {
+	_tableCompleter = tc;
+        _fileOpener = lc;
 	_running = false;
     }
 
@@ -285,7 +287,8 @@ public class DumpCommand
     private PrintStream openOutputStream(String fileName, 
 					 String encoding)
 	throws IOException {
-	OutputStream outStream = new FileOutputStream(new File(fileName));
+        File f = _fileOpener.openFile(fileName);
+	OutputStream outStream = new FileOutputStream(f);
 	if (fileName.endsWith(".gz")) {
 	    outStream = new GZIPOutputStream(outStream, 4096);
 	}
@@ -295,7 +298,8 @@ public class DumpCommand
     private LineNumberReader openInputReader(String fileName, 
 					     String fileEncoding) 
 	throws IOException {
-	InputStream inStream = new FileInputStream(fileName);
+        File f = _fileOpener.openFile(fileName);
+	InputStream inStream = new FileInputStream(f);
 	if (fileName.endsWith(".gz")) {
 	    inStream = new GZIPInputStream(inStream);
 	}
@@ -328,7 +332,7 @@ public class DumpCommand
 	    correctName = false;
 	}
 	if (correctName) {
-	    String alternative = tableCompleter.correctTableName(tabName);
+	    String alternative = _tableCompleter.correctTableName(tabName);
 	    if (alternative != null && !alternative.equals(tabName)) {
 		tabName = alternative;
 		System.out.println("dumping table: '" + tabName 
@@ -1045,12 +1049,12 @@ public class DumpCommand
 		if (lastWord.startsWith("\"")) {
 		    lastWord = lastWord.substring(1);
 		}
-		return tableCompleter.completeTableName(lastWord);
+		return _tableCompleter.completeTableName(lastWord);
 	    }
 	    else if (argc > 1) {
 		st.nextElement(); // discard filename.
 		String table = (String) st.nextElement();
-		Collection columns = tableCompleter.columnsFor(table);
+		Collection columns = _tableCompleter.columnsFor(table);
 		NameCompleter compl = new NameCompleter(columns);
 		return compl.getAlternatives(lastWord);
 	    }
@@ -1072,7 +1076,7 @@ public class DumpCommand
 		while (st.hasMoreElements()) {
 		    alreadyGiven.add((String) st.nextElement());
 		}
-		final Iterator it = tableCompleter.completeTableName(lastWord);
+		final Iterator it = _tableCompleter.completeTableName(lastWord);
 		return new Iterator() {
 			String table = null;
 			public boolean hasNext() {

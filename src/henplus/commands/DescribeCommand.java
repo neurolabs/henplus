@@ -224,6 +224,7 @@ public class DescribeCommand extends AbstractCommand {
 	}
 	catch (Exception e) {
 	    if (verbose) e.printStackTrace();
+            System.err.println("Database problem reading meta data.");
 	    return EXEC_FAILED;
 	}
 	finally {

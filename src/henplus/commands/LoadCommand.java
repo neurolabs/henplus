@@ -65,6 +65,20 @@ public class LoadCommand extends AbstractCommand {
 			     String lastWord) {
 	return new FileCompletionIterator(partialCommand, lastWord);
     }
+    
+    /**
+     * open a file. If this is a relative filename, then open according
+     * to current working directory.
+     * @param  String filename
+     * @return a file that represents the correct file name.
+     */
+    public File openFile(String filename) {
+        File f = new File(filename);
+        if (!f.isAbsolute()) {
+            f = new File((File) _cwdStack.peek(), filename);
+        }
+        return f;
+    }
 
     /**
      * execute the command given.
@@ -84,10 +98,7 @@ public class LoadCommand extends AbstractCommand {
 	    try {
 		henplus.pushBuffer();
 		henplus.getDispatcher().startBatch();
-		File f = new File(filename);
-		if (!f.isAbsolute()) {
-		    f = new File((File)_cwdStack.peek(), filename);
-		}
+                File f = openFile(filename);
 		f = f.getCanonicalFile();
 		if (_openFiles.contains(f)) {
 		    throw new IOException("recursive inclusion alert: skipping file " + f.getName());
