@@ -1,12 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EnumeratedPropertyHolder.java,v 1.2 2003-05-01 18:26:29 hzeller Exp $ 
+ * $Id: EnumeratedPropertyHolder.java,v 1.3 2003-05-01 19:53:10 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
 
 import java.util.Iterator;
+import java.util.Collection;
 import henplus.util.NameCompleter;
 
 /**
@@ -29,6 +30,13 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
     }
 
     /**
+     * same with collection as Input.
+     */
+    public EnumeratedPropertyHolder(Collection values) {
+        this((String[])values.toArray(new String[ values.size() ]));
+    }
+
+    /**
      * do not override this method but the 
      * {@link booleanPropertyChanged(boolean)} method instead.
      */
@@ -45,7 +53,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
                 if (i != 0) expected.append(", ");
                 expected.append(_values[i]);
             }
-            throw new Exception(newValue + " does not match any of ["
+            throw new Exception("'" + newValue + "' does not match any of ["
                                 + expected.toString() + "]");
         }
 
@@ -58,7 +66,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
             } 
             while (possibleValues.hasNext());
             
-            throw new Exception(newValue + " ambiguous. Matches ["
+            throw new Exception("'" + newValue + "' ambiguous. Matches ["
                                 + matching.toString() + "]");
         }
 
@@ -78,7 +86,8 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
     /**
      * to be overridden to get informed of the change.
      */
-    protected abstract void enumeratedPropertyChanged(int index, String value);
+    protected abstract void enumeratedPropertyChanged(int index, String value)
+        throws Exception;
 
     public Iterator completeValue(String partialValue) {
         return _completer.getAlternatives(partialValue);

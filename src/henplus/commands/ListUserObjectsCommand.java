@@ -79,7 +79,8 @@ public class ListUserObjectsCommand
 		/**/
                   System.err.println("catalog: " + catalog);
                   ResultSetRenderer catalogrenderer = 
-                  new ResultSetRenderer(meta.getCatalogs(), "|", System.out);
+                  new ResultSetRenderer(meta.getCatalogs(), "|", 
+                                        2000, System.out);
                   catalogrenderer.execute();
                   /**/
 		ResultSetRenderer renderer;
@@ -104,7 +105,7 @@ public class ListUserObjectsCommand
                     columnDef = TABLE_DISP_COLS;
                 }
                 
-		renderer = new ResultSetRenderer(rset, "|", System.out,
+		renderer = new ResultSetRenderer(rset, "|", 2000, System.out,
 						 columnDef);
 		int tables = renderer.execute();
 		if (tables > 0) {

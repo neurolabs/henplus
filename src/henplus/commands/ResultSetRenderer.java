@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.14 2003-05-01 18:26:29 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.15 2003-05-01 19:53:10 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -23,8 +23,6 @@ import java.util.StringTokenizer;
  * document me.
  */
 public class ResultSetRenderer implements Interruptable {
-    private static final int LIMIT = 2000;
-
     private final ResultSet rset;
     private final ResultSetMetaData meta;
     private final TableRenderer table;
@@ -33,25 +31,29 @@ public class ResultSetRenderer implements Interruptable {
 
     private boolean beyondLimit;
     private long    firstRowTime;
-    private long    clobLimit = 8192;
+    private final long    clobLimit = 8192;
+    private final int     rowLimit;
     private volatile boolean running;
 
     public ResultSetRenderer(ResultSet rset, String columnDelimiter,
+                             int limit,
                              PrintStream out, int[] show) 
 	throws SQLException {
 	this.rset = rset;
 	beyondLimit = false;
 	firstRowTime = -1;
 	showColumns = show;
+        rowLimit = limit;
 	meta = rset.getMetaData();
 	columns = (show != null) ? show.length : meta.getColumnCount();
 	table = new TableRenderer(getDisplayMeta(meta),  out, columnDelimiter);
     }
 
     public ResultSetRenderer(ResultSet rset, String columnDelimiter,
+                             int limit,
                              PrintStream out) 
 	throws SQLException {
-	this(rset, columnDelimiter, out, null);
+	this(rset, columnDelimiter, limit, out, null);
     }
     
     // Interruptable interface.
@@ -110,7 +112,7 @@ public class ResultSetRenderer implements Interruptable {
 		}
 		table.addRow(currentRow);
 		++rows;
-		if (rows >= LIMIT) {
+		if (rows >= rowLimit) {
 		    beyondLimit = true;
 		    break;
 		}

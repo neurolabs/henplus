@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.17 2003-01-27 20:51:46 hzeller Exp $
+ * $Id: SQLSession.java,v 1.18 2003-05-01 19:53:08 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -28,9 +28,12 @@ import org.gnu.readline.ReadlineLibrary;
 
 import henplus.util.Terminal;
 import henplus.commands.*;
+import henplus.PropertyRegistry;
+import henplus.property.BooleanPropertyHolder;
+import henplus.property.EnumeratedPropertyHolder;
 
 /**
- * document me.
+ * a SQL session.
  */
 public class SQLSession implements Interruptable {
     private long       _connectTime;
@@ -42,6 +45,7 @@ public class SQLSession implements Interruptable {
     private Connection _conn;
     private boolean    _terminated = false;
     private int        _showMessages;
+    private final PropertyRegistry _propertyRegistry;
     private volatile boolean    _interrupted;
 
     /**
@@ -60,7 +64,8 @@ public class SQLSession implements Interruptable {
 	_url = url;
 	_username = user;
 	_password = password;
-	
+	_propertyRegistry = new PropertyRegistry();
+
 	Driver driver = null;
 	//System.err.println("connect to '" + url + "'");
 	driver = DriverManager.getDriver(url);
@@ -73,14 +78,14 @@ public class SQLSession implements Interruptable {
 			 + driver.getMinorVersion());
 	connect();
 	
-	int transactionIsolation = Connection.TRANSACTION_NONE;
+	int currentIsolation = Connection.TRANSACTION_NONE;
 	DatabaseMetaData meta = _conn.getMetaData();
 	_databaseInfo = (meta.getDatabaseProductName()
 			 + " - " + meta.getDatabaseProductVersion());
 	System.err.println(" " + _databaseInfo);
 	try {
 	    if (meta.supportsTransactions()) {
-		transactionIsolation = _conn.getTransactionIsolation();
+		currentIsolation = _conn.getTransactionIsolation();
 	    }
 	    else {
 		System.err.println("no transactions.");
@@ -91,16 +96,39 @@ public class SQLSession implements Interruptable {
 	}
 
 	printTransactionIsolation(meta,Connection.TRANSACTION_NONE, 
-				  "No Transaction", transactionIsolation);
+				  "No Transaction", currentIsolation);
 	printTransactionIsolation(meta, 
 				  Connection.TRANSACTION_READ_UNCOMMITTED,
-				  "read uncommitted", transactionIsolation);
+				  "read uncommitted", currentIsolation);
 	printTransactionIsolation(meta, Connection.TRANSACTION_READ_COMMITTED,
-				  "read committed", transactionIsolation);
+				  "read committed", currentIsolation);
 	printTransactionIsolation(meta, Connection.TRANSACTION_REPEATABLE_READ,
-				  "repeatable read", transactionIsolation);
+				  "repeatable read", currentIsolation);
 	printTransactionIsolation(meta, Connection.TRANSACTION_SERIALIZABLE, 
-				  "serializable", transactionIsolation);
+				  "serializable", currentIsolation);
+
+        Map availableIsolations = new HashMap();
+        addAvailableIsolation(availableIsolations,
+                              meta, Connection.TRANSACTION_NONE, "none");
+        addAvailableIsolation(availableIsolations,
+                              meta, Connection.TRANSACTION_READ_UNCOMMITTED,
+                              "read-uncommited");
+        addAvailableIsolation(availableIsolations,
+                              meta, Connection.TRANSACTION_READ_COMMITTED,
+                              "read-commited");
+        addAvailableIsolation(availableIsolations,
+                              meta, Connection.TRANSACTION_REPEATABLE_READ,
+                              "repeatable-read");
+        addAvailableIsolation(availableIsolations,
+                              meta, Connection.TRANSACTION_SERIALIZABLE,
+                              "serializable");
+
+        _propertyRegistry.registerProperty("auto-commit", 
+                                           new AutoCommitProperty());
+        _propertyRegistry
+            .registerProperty("isolation-level",
+                              new IsolationLevelProperty(availableIsolations,
+                                                         currentIsolation));
     }
     
     private void printTransactionIsolation(DatabaseMetaData meta,
@@ -110,6 +138,18 @@ public class SQLSession implements Interruptable {
 	    System.err.println(" " + descript
 			       + ((current == iLevel) ? " *" : " "));
 	}
+    }
+    
+    private void addAvailableIsolation(Map result, DatabaseMetaData meta,
+                                       int iLevel, String key) 
+	throws SQLException {
+	if (meta.supportsTransactionIsolationLevel(iLevel)) {
+            result.put(key, new Integer(iLevel));
+        }
+    }
+
+    public PropertyRegistry getPropertyRegistry() {
+        return _propertyRegistry;
     }
 
     public String getDatabaseInfo() {
@@ -282,6 +322,62 @@ public class SQLSession implements Interruptable {
 	    --retries;
 	}
 	return result;
+    }
+
+    private class AutoCommitProperty extends BooleanPropertyHolder {
+
+        AutoCommitProperty() {
+            super(false);
+        }
+
+        public void booleanPropertyChanged(boolean switchOn) throws Exception {
+            /*
+             * due to a bug in Sybase, we have to close the
+             * transaction first before setting autcommit.
+             * This is probably a save choice to do.
+             */
+            if (switchOn) {
+                getConnection().commit();
+            }
+            getConnection().setAutoCommit(switchOn);
+        }
+
+        public String getShortDescription() {
+            return "Switches auto commit";
+        }
+    }
+
+    private class IsolationLevelProperty extends EnumeratedPropertyHolder {
+        private final Map _availableValues;
+
+        IsolationLevelProperty(Map availableValues, int currentValue) {
+            super(availableValues.keySet());
+            _availableValues = availableValues;
+
+            // sequential search .. doesn't matter, not much do do
+            Iterator it = availableValues.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry entry = (Map.Entry) it.next();
+                Integer isolationLevel = (Integer) entry.getValue();
+                if (isolationLevel.intValue() == currentValue) {
+                    _propertyValue = (String) entry.getKey();
+                    break;
+                }
+            }
+        }
+
+        protected void enumeratedPropertyChanged(int index, String value)
+            throws Exception {
+            Integer isolationLevel = (Integer) _availableValues.get(value);
+            if (isolationLevel == null) {
+                throw new IllegalArgumentException("invalid value");
+            }
+            getConnection().setTransactionIsolation(isolationLevel.intValue());
+        }
+
+        public String getShortDescription() {
+            return "sets the transaction isolation level";
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.1 2003-05-01 18:26:28 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.2 2003-05-01 19:53:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -43,14 +43,10 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
         final String setCmd = getSetCommand();
-        final String hlpCmd = getHelpCommand();
-	return new String[] {
-            setCmd, hlpCmd
-	};
+	return new String[] { setCmd };
     }
     
     protected abstract String getSetCommand();
-    protected abstract String getHelpCommand();
     protected abstract PropertyRegistry getRegistry();
 
     /**
@@ -60,84 +56,84 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
 	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 	
-	if (getSetCommand().equals(cmd)) {
-            /*
-             * no args. only show.
-             */
-	    if (argc == 0) {
-		PROP_META[0].resetWidth();
-		PROP_META[1].resetWidth();
-		TableRenderer table = new TableRenderer(PROP_META, System.out);
-		Iterator propIt = (getRegistry()
-                                   .getPropertyMap()
-                                   .entrySet().iterator());
-		while (propIt.hasNext()) {
-		    Map.Entry entry = (Map.Entry) propIt.next();
-		    Column[] row = new Column[3];
-                    PropertyHolder holder = (PropertyHolder) entry.getValue();
-		    row[0] = new Column((String) entry.getKey());
-		    row[1] = new Column(holder.getValue());
-		    row[2] = new Column(holder.getShortDescription());
-		    table.addRow(row);
-		}
-		table.closeTable();
-		return SUCCESS;
-	    }
-            /*
-             * more than one arg
-             */
-	    else if (argc >= 2) {
-		String varname = (String) st.nextElement();
-		int pos = 0;
-                int paramLength = param.length();
-		// skip whitespace after 'set'
-		while (pos < paramLength
-		       && Character.isWhitespace(param.charAt(pos))) {
-		    ++pos;
-		}
-		// skip non-whitespace after 'set  ': variable name
-		while (pos < paramLength
-		       && !Character.isWhitespace(param.charAt(pos))) {
-		    ++pos;
-		}
-		// skip whitespace before vlue..
-		while (pos < paramLength
-		       && Character.isWhitespace(param.charAt(pos))) {
-		    ++pos;
-		}
-		String value = param.substring(pos);
-		if (value.startsWith("\"") && value.endsWith("\"")) {
-		    value = value.substring(1, value.length()-1);
-		}
-		else if (value.startsWith("\'") && value.endsWith("\'")) {
-		    value = value.substring(1, value.length()-1);
-		}
-
-                try {
-                    getRegistry().setProperty(varname, value);
-                }
-                catch (Exception e) {
-                    System.err.println(e.getMessage());
-                    return EXEC_FAILED;
-                }
-		return SUCCESS;
-	    }
-	    return SYNTAX_ERROR;
-	}
-	else if (getHelpCommand().equals(cmd)) {
-	    if (argc == 1) {
-                String name = st.nextToken();
-                PropertyHolder holder;
-                holder = (PropertyHolder) (getRegistry()
-                                           .getPropertyMap().get(name));
-                if (holder == null) {
-                    return EXEC_FAILED;
-                }
-                printDescription(name, holder);
-                return SUCCESS;
+        /*
+         * no args. show available properties
+         */
+        if (argc == 0) {
+            PROP_META[0].resetWidth();
+            PROP_META[1].resetWidth();
+            TableRenderer table = new TableRenderer(PROP_META, System.out);
+            Iterator propIt = (getRegistry()
+                               .getPropertyMap()
+                               .entrySet().iterator());
+            while (propIt.hasNext()) {
+                Map.Entry entry = (Map.Entry) propIt.next();
+                Column[] row = new Column[3];
+                PropertyHolder holder = (PropertyHolder) entry.getValue();
+                row[0] = new Column((String) entry.getKey());
+                row[1] = new Column(holder.getValue());
+                row[2] = new Column(holder.getShortDescription());
+                table.addRow(row);
             }
-	    return SYNTAX_ERROR;
-	}
+            table.closeTable();
+            return SUCCESS;
+        }
+
+        /*
+         * one arg: show help
+         */
+        else if (argc == 1) {
+            String name = st.nextToken();
+            PropertyHolder holder;
+            holder = (PropertyHolder) (getRegistry()
+                                       .getPropertyMap().get(name));
+            if (holder == null) {
+                return EXEC_FAILED;
+            }
+            printDescription(name, holder);
+            return SUCCESS;
+        }
+
+        /*
+         * more than one arg
+         */
+        else if (argc >= 2) {
+            String varname = (String) st.nextElement();
+            int pos = 0;
+            int paramLength = param.length();
+            // skip whitespace after 'set'
+            while (pos < paramLength
+                   && Character.isWhitespace(param.charAt(pos))) {
+                ++pos;
+            }
+            // skip non-whitespace after 'set  ': variable name
+            while (pos < paramLength
+                   && !Character.isWhitespace(param.charAt(pos))) {
+                ++pos;
+            }
+            // skip whitespace before vlue..
+            while (pos < paramLength
+                   && Character.isWhitespace(param.charAt(pos))) {
+                ++pos;
+            }
+            String value = param.substring(pos);
+            if (value.startsWith("\"") && value.endsWith("\"")) {
+                value = value.substring(1, value.length()-1);
+            }
+            else if (value.startsWith("\'") && value.endsWith("\'")) {
+                value = value.substring(1, value.length()-1);
+            }
+
+            try {
+                getRegistry().setProperty(varname, value);
+            }
+            catch (Exception e) {
+                System.err.println(e.getMessage());
+                return EXEC_FAILED;
+            }
+            return SUCCESS;
+        }
+
 	return SUCCESS;
     }
 
@@ -205,22 +201,29 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
 		}
 	    };
     }
+
+    protected abstract String getHelpHeader();
 	
     /**
      * return a descriptive string.
      */
     public String getShortDescription() {
-	return "set properties";
+	return "set " + getHelpHeader() + " properties";
     }
 
     public String getSynopsis(String cmd) {
-	if (getSetCommand().equals(cmd)) {
-	    return cmd + " [<property-name> <value>]"; 
-	}
-	else if (getHelpCommand().equals(cmd)) {
-	    return cmd + " <property-name>";
-	}
-	return cmd;
+        return cmd + " [<property-name> [<value>]]"; 
+    }
+    
+    public String getLongDescription(String cmd) { 
+	String dsc = null;
+        dsc= "\twithout parameters, show available " + getHelpHeader() + "\n"
+            +"\tproperties and their settings.\n\n"
+            +"\tWith only the property name given as parameter,\n"
+            +"\tshow the long help associated with that property.\n\n"
+            +"\tIs the property name followed by a value, the property is\n"
+            +"\tset to that value\n";
+	return dsc;
     }
 }
 

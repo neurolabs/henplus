@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyCommand.java,v 1.1 2003-05-01 18:26:29 hzeller Exp $ 
+ * $Id: PropertyCommand.java,v 1.2 2003-05-01 19:53:10 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -36,7 +36,8 @@ public class PropertyCommand extends AbstractPropertyCommand {
     }
     
     protected String getSetCommand() { return "set-property"; }
-    protected String getHelpCommand() { return "property-help"; }
+    protected String getHelpHeader() { return "global HenPlus"; }
+
     protected PropertyRegistry getRegistry() {
         return _registry;
     }

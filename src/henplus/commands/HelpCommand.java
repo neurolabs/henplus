@@ -99,7 +99,8 @@ public class HelpCommand extends AbstractCommand {
 		    }
 		}
 		else {
-		    cmdPrint.append(firstSynopsis);
+                    cmdPrint.append(firstSynopsis.length() < INDENT ? 
+                                    firstSynopsis : cmds[0]);
 		}
 		System.err.print(cmdPrint.toString());
 		for (int i = cmdPrint.length(); i < INDENT; ++i) {

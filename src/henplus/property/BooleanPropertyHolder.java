@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: BooleanPropertyHolder.java,v 1.1 2003-05-01 16:50:45 hzeller Exp $ 
+ * $Id: BooleanPropertyHolder.java,v 1.2 2003-05-01 19:53:10 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
@@ -22,7 +22,9 @@ public abstract class BooleanPropertyHolder extends EnumeratedPropertyHolder {
         _propertyValue = initialValue ? "true" : "false";
     }
 
-    protected void enumeratedPropertyChanged(int index, String value) {
+    protected void enumeratedPropertyChanged(int index, String value) 
+        throws Exception 
+    {
         /*
          * the upper part of the array contains the 'true' values.
          */
@@ -32,7 +34,8 @@ public abstract class BooleanPropertyHolder extends EnumeratedPropertyHolder {
     /**
      * to be overridden to get informed of the boolean change
      */
-    public abstract void booleanPropertyChanged(boolean val);
+    public abstract void booleanPropertyChanged(boolean val) 
+        throws Exception;
 }
 /*
  * Local variables:

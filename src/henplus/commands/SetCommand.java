@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.15 2003-05-01 18:26:29 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.16 2003-05-01 19:53:10 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -271,7 +271,7 @@ public final class SetCommand extends AbstractCommand {
     public String getLongDescription(String cmd) { 
 	String dsc = null;
 	if ("set-var".equals(cmd)) {
-	    dsc= "\twithout parameters,  show all  variable settings.  With\n"
+	    dsc= "\tWithout parameters,  show all  variable settings.  With\n"
 		+"\tparameters, set variable with name <varname> to <value>.\n"
 		+"\tVariables are  expanded in any  command you issue on the\n"
 		+"\tcommandline.  Variable expansion works like on the shell\n"

@@ -57,13 +57,17 @@ public class SQLCommand extends AbstractCommand {
     }
 
     private final ListUserObjectsCommand tableCompleter;
-    private String columnDelimiter;
+    private String _columnDelimiter;
+    private int    _rowLimit;
 
     public SQLCommand(ListUserObjectsCommand tc, PropertyRegistry registry) {
 	tableCompleter = tc;
-        columnDelimiter = "|";
+        _columnDelimiter = "|";
+        _rowLimit = 2000;
         registry.registerProperty("column-delimiter",
                                   new SQLColumnDelimiterProperty());
+        registry.registerProperty("sql-result-limit",
+                                  new RowLimitProperty());
     }
 
     /**
@@ -108,11 +112,19 @@ public class SQLCommand extends AbstractCommand {
     }
 
     public void setColumnDelimiter(String value) {
-        columnDelimiter = value;
+        _columnDelimiter = value;
     }
     
     public String getColumnDelimiter() {
-        return columnDelimiter;
+        return _columnDelimiter;
+    }
+
+    public void setRowLimit(int rowLimit) {
+        _rowLimit = rowLimit;
+    }
+    
+    public int getRowLimit() {
+        return _rowLimit;
     }
 
     /**
@@ -205,12 +217,15 @@ public class SQLCommand extends AbstractCommand {
 		if (hasResultSet) {
 		    rset = stmt.getResultSet();
 		    ResultSetRenderer renderer;
-		    renderer = new ResultSetRenderer(rset, columnDelimiter,
+		    renderer = new ResultSetRenderer(rset, 
+                                                     getColumnDelimiter(),
+                                                     getRowLimit(),
                                                      System.out);
 		    SigIntHandler.getInstance().pushInterruptable(renderer);
 		    int rows = renderer.execute();
 		    if (renderer.limitReached()) {
-			session.println("limit reached ..");
+			session.println("limit of " + getRowLimit() + 
+                                        " rows reached ..");
 			session.print("> ");
 		    }
 		    session.print(rows + " row" + 
@@ -521,6 +536,33 @@ public class SQLCommand extends AbstractCommand {
                 +"\tSQL result sets. Usually this is a pipe-symbol '|', but\n"
                 +"\tmaybe you want to have an empty string ?";
             return dsc;
+        }
+    }
+
+    private class RowLimitProperty extends PropertyHolder {
+        public RowLimitProperty() {
+            super(String.valueOf(SQLCommand.this.getRowLimit()));
+        }
+
+        protected String propertyChanged(String newValue) throws Exception {
+            newValue = newValue.trim();
+            int newIntValue;
+            try {
+                newIntValue = Integer.parseInt(newValue);
+            }
+            catch (NumberFormatException e) {
+                throw new IllegalArgumentException("cannot parse '"
+                                                   + newValue +"' as integer");
+            }
+            if (newIntValue < 0) {
+                throw new IllegalArgumentException("value cannot be negative");
+            }
+            SQLCommand.this.setRowLimit(newIntValue);
+            return newValue;
+        }
+        
+        public String getShortDescription() {
+            return "set the maximum number of rows printed";
         }
     }
 }
