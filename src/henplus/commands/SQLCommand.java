@@ -23,6 +23,7 @@ import java.util.StringTokenizer;
 import java.sql.SQLException;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
 
@@ -45,6 +46,7 @@ public class SQLCommand extends AbstractCommand {
 	    "insert", "update", "delete",
 	    "create", "alter",  "drop",
 	    "commit", "rollback",
+            "call-procedure",
 	    // we support _any_ string, that is not part of the
 	    // henplus buildin-stuff; the following empty string flags this.
 	    ""
@@ -77,12 +79,14 @@ public class SQLCommand extends AbstractCommand {
 	if (command.startsWith("COMMIT")
 	    || command.startsWith("ROLLBACK"))
 	    return true;
-	// FIXME: this is a very dumb parser. Leave out string literals.
+	// FIXME: this is a very dumb parser. 
+        // i.e. string literals are not considered.
 	boolean anyProcedure = ((command.startsWith("CREATE")
 				 || command.startsWith("REPLACE"))
 				&&
 				((containsWord(command, "PROCEDURE")
 				 || (containsWord(command, "FUNCTION"))
+				 || (containsWord(command, "PACKAGE"))
                                   || (containsWord(command, "TRIGGER")))));
 	if (!anyProcedure && command.endsWith(";")) return true;
 	// sqlplus is complete on a single '/' on a line.
@@ -136,14 +140,31 @@ public class SQLCommand extends AbstractCommand {
 	    }
 	    else {
 		boolean hasResultSet = false;
-		
+		boolean hasSingleResult = false;
+
 		/* this is basically a hack around SAP-DB's tendency to
 		 * throw NullPointerExceptions, if the session timed out.
 		 */
 		for (int retry=2; retry > 0; --retry) {
 		    try {
-			stmt = session.createStatement();
-			hasResultSet = stmt.execute(command);
+                        if ("call-procedure".equals(cmd)) {
+                            CallableStatement pstmt;
+                            command = "{? = call " + param + "}";
+                            pstmt = session.getConnection()
+                                .prepareCall(command);
+                            //pstmt.registerOutParameter(1, Types.REF);
+                            pstmt.registerOutParameter(1, Types.VARCHAR);
+                            pstmt.execute();
+                            //System.err.println("call this .." + command);
+                            //pstmt.setR
+                            hasResultSet = false;
+                            hasSingleResult = true;
+                            stmt = pstmt;
+                        }
+                        else {
+                            stmt = session.createStatement();
+                            hasResultSet = stmt.execute(command);
+                        }
 			break;
 		    }
 		    catch (SQLException e) { throw e; }
@@ -172,6 +193,9 @@ public class SQLCommand extends AbstractCommand {
 				     + " in result");
 		    lapTime = renderer.getFirstRowTime() - startTime;
 		}
+                else if (hasSingleResult) {
+                    System.err.println(((CallableStatement)stmt).getString(1));
+                }
 		else {
 		    int updateCount = stmt.getUpdateCount();
 		    if (updateCount >= 0) {
@@ -443,6 +467,12 @@ public class SQLCommand extends AbstractCommand {
 	else if ("commit".equals(cmd)) {
 	    dsc="\tcommit transaction.";
 	}
+        else if ("call-procedure".equals(cmd)) {
+            dsc="\tcall a function that returns exactly one parameter\n"
+                +"\tthat can be gathered as string (EXPERIMENTAL)\n"
+                +"\texample:\n"
+                +"\t  call-procedure foobar(42);\n";
+        }
 	return dsc;
     }
 }

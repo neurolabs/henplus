@@ -28,14 +28,15 @@ public class DescribeCommand extends AbstractCommand {
     static final boolean verbose     = false;
     private final static ColumnMetaData[] DESC_META;
     static {
-	DESC_META = new ColumnMetaData[7];
-	DESC_META[0] = new ColumnMetaData("table");
-	DESC_META[1] = new ColumnMetaData("column");
-	DESC_META[2] = new ColumnMetaData("type");
-	DESC_META[3] = new ColumnMetaData("null");
-	DESC_META[4] = new ColumnMetaData("default");
-	DESC_META[5] = new ColumnMetaData("pk");
-	DESC_META[6] = new ColumnMetaData("fk");
+	DESC_META = new ColumnMetaData[8];
+        DESC_META[0] = new ColumnMetaData("#", ColumnMetaData.ALIGN_RIGHT);
+	DESC_META[1] = new ColumnMetaData("table");
+	DESC_META[2] = new ColumnMetaData("column");
+	DESC_META[3] = new ColumnMetaData("type");
+	DESC_META[4] = new ColumnMetaData("null");
+	DESC_META[5] = new ColumnMetaData("default");
+	DESC_META[6] = new ColumnMetaData("pk");
+	DESC_META[7] = new ColumnMetaData("fk");
     }
     
     private final ListUserObjectsCommand tableCompleter;
@@ -155,31 +156,33 @@ public class DescribeCommand extends AbstractCommand {
 	     */
 	    rset = meta.getColumns(catalog, null, tabName, null);
 	    List rows = new ArrayList();
+            int colNum = 0;
 	    if (rset != null) while (rset.next()) {
-		Column[] row = new Column[7];
+		Column[] row = new Column[8];
+                row[0] = new Column( ++colNum );
 		String thisTabName = rset.getString(3);
-		row[0] = new Column( thisTabName );
+		row[1] = new Column( thisTabName );
 		allSameTableName &= tabName.equals(thisTabName);
 		String colname = rset.getString(4);
                 if (doubleCheck.contains(colname)) {
                     continue;
                 }
                 doubleCheck.add(colname);
-		row[1] = new Column( colname );
+		row[2] = new Column( colname );
 		String type = rset.getString(6);
 		int colSize = rset.getInt(7);
 		if (colSize > 0) type = type + "(" + colSize + ")";
-		row[2] = new Column( type );
+		row[3] = new Column( type );
 		String defaultVal = rset.getString(13);
-		row[3] = new Column( rset.getString(18) );
+		row[4] = new Column( rset.getString(18) );
 		// oracle appends newline to default values for some reason.
-		row[4] = new Column( ((defaultVal != null) 
+		row[5] = new Column( ((defaultVal != null) 
 				      ? defaultVal.trim() 
 				      : null) );
 		String pkdesc = (String) pks.get(colname);
-		row[5] = new Column( (pkdesc != null) ? pkdesc : "");
+		row[6] = new Column( (pkdesc != null) ? pkdesc : "");
 		String fkdesc = (String) fks.get(colname);
-		row[6] = new Column( (fkdesc != null) ? fkdesc : "");
+		row[7] = new Column( (fkdesc != null) ? fkdesc : "");
 		rows.add(row);
 	    }
 	    rset.close();
@@ -188,7 +191,7 @@ public class DescribeCommand extends AbstractCommand {
 	     * we render the table now, since we only know know, whether we
 	     * will show the first column or not.
 	     */
-	    DESC_META[0].setDisplay(!allSameTableName);
+	    DESC_META[1].setDisplay(!allSameTableName);
 	    TableRenderer table = new TableRenderer(DESC_META, System.out);
 	    Iterator it = rows.iterator();
 	    while (it.hasNext()) table.addRow((Column[]) it.next());

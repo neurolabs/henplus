@@ -35,8 +35,9 @@ public class ListUserObjectsCommand
 {
     final private static String[] LIST_TABLES = { "TABLE" };
     final private static String[] LIST_VIEWS  = { "VIEW" };
-    final private static int[]    DISP_COLS   = { 2, 3, 5 };
-
+    final private static int[]    TABLE_DISP_COLS   = { 2, 3, 5 };
+    final private static int[]    PROC_DISP_COLS   = { 2, 3, 8 };
+    
     /**
      * all tables in one session.
      */
@@ -58,7 +59,7 @@ public class ListUserObjectsCommand
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "tables", "views", "rehash"
+	    "tables", "views", "procedures", "rehash"
 	};
     }
 
@@ -74,23 +75,36 @@ public class ListUserObjectsCommand
 		Connection conn = session.getConnection();  // use createStmt
 		DatabaseMetaData meta = conn.getMetaData();
 		String catalog = conn.getCatalog();
-		/*
+		/**/
                   System.err.println("catalog: " + catalog);
-                  ResultSetRenderer renderer = 
+                  ResultSetRenderer catalogrenderer = 
                   new ResultSetRenderer(meta.getCatalogs(), System.out);
-                  renderer.execute();
-		*/
+                  catalogrenderer.execute();
+                  /**/
 		ResultSetRenderer renderer;
-		boolean showViews = "views".equals(cmd);
-		String objectType = ((showViews) ? "Views" : "Tables");
-		System.err.println(objectType);
-		ResultSet rset = meta.getTables(catalog,
-						null, null,
-						(showViews)
-						? LIST_VIEWS
-						: LIST_TABLES);
+                ResultSet rset;
+                String objectType;
+                int[] columnDef;
+                if ("procedures".equals(cmd)) {
+                    objectType = "Procecdures";
+                    System.err.println(objectType);
+                    rset = meta.getProcedures(catalog, null, null);
+                    columnDef = PROC_DISP_COLS;
+                }
+                else {
+                    boolean showViews = "views".equals(cmd);
+                    objectType = ((showViews) ? "Views" : "Tables");
+                    System.err.println(objectType);
+                    rset = meta.getTables(catalog,
+                                          null, null,
+                                          (showViews)
+                                          ? LIST_VIEWS
+                                          : LIST_TABLES);
+                    columnDef = TABLE_DISP_COLS;
+                }
+                
 		renderer = new ResultSetRenderer(rset, System.out,
-						 DISP_COLS);
+						 columnDef);
 		int tables = renderer.execute();
 		if (tables > 0) {
 		    System.err.println(tables + " " + objectType + " found.");
