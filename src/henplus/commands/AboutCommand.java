@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AboutCommand.java,v 1.5 2002-03-01 14:34:56 hzeller Exp $ 
+ * $Id: AboutCommand.java,v 1.6 2003-01-26 10:26:33 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -19,7 +19,7 @@ public class AboutCommand extends AbstractCommand {
 
     final static String ABOUT = 
 "---------------------------------------------------------------------------\n"
-+" HenPlus II " + Version.getVersion() + " Copyright(C) 1997, 2001 Henner Zeller <H.Zeller@acm.org>\n"
++" HenPlus II " + Version.getVersion() + " Copyright(C) 1997, 2003 Henner Zeller <H.Zeller@acm.org>\n"
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the " + LICENSE + "\n"

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.51 2003-01-25 22:14:31 hzeller Exp $
+ * $Id: HenPlus.java,v 1.52 2003-01-26 10:26:33 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -97,7 +97,12 @@ public class HenPlus implements Interruptable {
 	ListUserObjectsCommand objectLister = new ListUserObjectsCommand(this);
 	dispatcher = new CommandDispatcher(_settingStore);
 	dispatcher.register(new HelpCommand());
+
+        /*
+         * this one prints as well the initial copyright header.
+         */
 	dispatcher.register(new AboutCommand(_quiet));
+
 	dispatcher.register(new ExitCommand());
 	dispatcher.register(new EchoCommand());
 	PluginCommand pluginCommand = new PluginCommand(this);
