@@ -29,12 +29,14 @@ public class CommandDispatcher implements ReadlineCompleter {
     private final SortedMap commandMap;
     private final SetCommand setCommand;
     private int   _batchCount;
+    private boolean _shutDown;
 
     public CommandDispatcher(SetCommand sc) {
 	commandMap = new TreeMap();
 	commands = new ArrayList();
 	setCommand = sc;
 	_batchCount = 0;
+        _shutDown = false;
     }
 
     /**
@@ -149,11 +151,20 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
     
     public void shutdown() {
-	Iterator i = commandMap.values().iterator();
+        if (_shutDown) {
+            return;
+        }
+	Iterator i = commands.iterator();
 	while (i.hasNext()) {
 	    Command c = (Command) i.next();
-	    c.shutdown();
+            try {
+                c.shutdown();
+            }
+            catch (Exception e) {
+                if (verbose) e.printStackTrace();
+            }
 	}
+        _shutDown = true;
     }
 
     /**
