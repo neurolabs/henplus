@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.4 2002-01-21 11:40:01 hzeller Exp $
+ * $Id: HenPlus.java,v 1.5 2002-01-21 13:00:15 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -28,6 +28,7 @@ public class HenPlus {
     private Properties        properties;
     private boolean           terminated;
     private String            prompt;
+    private String            emptyPrompt;
 
     private HenPlus(Properties properties, String argv[]) throws IOException {
 	terminated = false;
@@ -77,15 +78,17 @@ public class HenPlus {
     }
     
     public void run() {
-	StringBuffer cmd;
+	StringBuffer cmd = new StringBuffer();
 	String cmdLine = null;
+	String displayPrompt = prompt;
 	while (!terminated) {
 	    try {
-		cmdLine = Readline.readline( prompt );
+		cmdLine = Readline.readline( displayPrompt );
 	    }
 	    catch (EOFException e) {
 		if (session != null) {
 		    dispatcher.execute(session, "disconnect");
+		    displayPrompt = prompt;
 		    continue;
 		}
 		else {
@@ -95,7 +98,16 @@ public class HenPlus {
 	    catch (Exception e) { /* ignore */ }
 	    if (cmdLine == null)
 		continue;
-	    dispatcher.execute(session, cmdLine);
+	    cmd.append(cmdLine);
+	    String completeCommand = cmd.toString();
+	    Command c = dispatcher.getCommandFrom(completeCommand);
+	    if (c != null && !c.isComplete(completeCommand)) {
+		displayPrompt = emptyPrompt;
+		continue; // wait until we are complete
+	    }
+	    dispatcher.execute(session, completeCommand);
+	    cmd.setLength(0);
+	    displayPrompt = prompt;
 	}
 	
 	dispatcher.shutdown();
@@ -121,6 +133,11 @@ public class HenPlus {
 
     public void setPrompt(String prompt) {
 	this.prompt = prompt;
+	StringBuffer tmp = new StringBuffer();
+	for (int i=prompt.length(); i > 0; --i) {
+	    tmp.append(' ');
+	}
+	emptyPrompt = tmp.toString();
     }
     
     public void setDefaultPrompt() {

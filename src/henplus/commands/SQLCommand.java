@@ -49,7 +49,7 @@ public class SQLCommand extends AbstractCommand {
 	    || command.startsWith("rollback"))
 	    return true;
 	// this will be wrong if we support stored procedures.
-	return (command.endsWith(";"));
+	return (command.trim().endsWith(";"));
     }
 
     /**
