@@ -1,11 +1,11 @@
-<!-- $Id: build.xml,v 1.22 2002-04-22 16:17:54 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.23 2002-07-23 06:39:03 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
      <property name="DESTDIR"              value="/" />
 
      <!-- properties -->
-     <property name="version"              value="0.3.3" />
+     <property name="version"              value="0.3.4" />
      <property name="src"                  value="src" />
      <property name="bin"                  value="bin" />
      <property name="lib"                  value="lib" />
