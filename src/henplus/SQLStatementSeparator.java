@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.9 2002-05-22 10:23:21 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.10 2002-07-23 06:38:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -109,6 +109,14 @@ public class SQLStatementSeparator {
 	_currentState.getInputBuffer().append(s);
     }
     
+    /**
+     * discard any input.
+     */
+    public void discard() {
+	_currentState.getInputBuffer().setLength(0);
+	_currentState.setState( NEW_STATEMENT );
+    }
+
     /**
      * after having called next(), call cont(), if you are not yet
      * pleased with the result; the parser should read to the next

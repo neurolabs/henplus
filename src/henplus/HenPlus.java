@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.38 2002-06-09 11:02:47 hzeller Exp $
+ * $Id: HenPlus.java,v 1.39 2002-07-23 06:38:29 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -22,7 +22,7 @@ import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
 import henplus.util.Terminal;
 
-public class HenPlus {
+public class HenPlus implements Interruptable {
     public static final boolean verbose = false; // debug.
     private static final String EXIT_MSG   = "good bye.";
     private static final String HENPLUSDIR = ".henplus";
@@ -48,6 +48,7 @@ public class HenPlus {
     private SQLStatementSeparator _commandSeparator;
     private final StringBuffer    _historyLine;
     private boolean            _quiet;
+    private boolean            _interrupted;
 
     private HenPlus(String argv[]) throws IOException {
 	terminated = false;
@@ -81,7 +82,7 @@ public class HenPlus {
 	}
 	Readline.initReadline("HenPlus");
 	try {
-	    Readline.readHistoryFile(getHistoryLocation());
+	    HistoryWriter.readReadlineHistory(getHistoryLocation());
 	}
 	catch (Exception ignore) {}
 	
@@ -225,6 +226,17 @@ public class HenPlus {
 	String cmdLine = null;
 	String displayPrompt = prompt;
 	while (!terminated) {
+	    _interrupted = false;
+	    /*
+	     * a CTRL-C will not interrupt the current reading
+	     * thus it does not make much sense here to interrupt.
+	     * WORKAROUND: Print message in the interrupt() method.
+	     * TODO: find out, if we can do something that behaves
+	     *       like a shell. This requires, that CTRL-C makes
+	     *       Readline.readline() return..
+	     */
+	    SigIntHandler.getInstance().registerInterrupt(this);
+
 	    try {
 		cmdLine = (_fromTerminal)
 		    ? Readline.readline( displayPrompt, false )
@@ -244,9 +256,24 @@ public class HenPlus {
 	    catch (Exception e) {
 		if (verbose) e.printStackTrace();
 	    }
+
 	    SigIntHandler.getInstance().reset();
+
+	    // anyone pressed CTRL-C
+	    if (_interrupted) {
+		if ((cmdLine == null || cmdLine.trim().length() == 0) 
+		    &&  _historyLine.length() == 0) {
+		    terminated = true;  // terminate if we press CTRL on empty line.
+		}
+		_historyLine.setLength(0);
+		_commandSeparator.discard();
+		displayPrompt = prompt;
+		continue;
+	    }
+
 	    if (cmdLine == null)
 		continue;
+
 	    /*
 	     * if there is already some line in the history, then add
 	     * newline. But if the only thing we added was a delimiter (';'),
@@ -286,7 +313,7 @@ public class HenPlus {
 		dispatcher.shutdown();
 	    }
 	    try {
-		Readline.writeHistoryFile(getHistoryLocation());
+		HistoryWriter.writeReadlineHistory(getHistoryLocation());
 	    }
 	    catch (Exception ignore) {}
 	    Readline.cleanup();
@@ -299,6 +326,7 @@ public class HenPlus {
     public void terminate() {
 	terminated = true;
     }
+
     public CommandDispatcher getDispatcher() { return dispatcher; }
     
     /**
@@ -415,6 +443,16 @@ public class HenPlus {
 	}
         return result.toString();
     }
+
+    // -- Interruptable interface
+    public void interrupt() { 
+	// watchout: Readline.getLineBuffer() will cause a segmentation fault!
+	Terminal.boldface(System.err);
+	System.err.println(" ..discard current line; press [RETURN]");
+	Terminal.reset(System.err);
+	_interrupted = true; 
+    }
+
     
     //*****************************************************************
     public static HenPlus getInstance() {
