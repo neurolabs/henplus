@@ -119,9 +119,18 @@ public class SQLCommand extends AbstractCommand {
 	Statement stmt = null;
 	ResultSet rset = null;
 	String command = cmd + " " + param;
+        boolean background = false;
+
 	if (command.endsWith("/")) {
 	    command = command.substring(0, command.length()-1);
 	}
+
+        if (command.endsWith("&")) {
+            command = command.substring(0, command.length()-1);
+            System.err.println("## executing command in the background not yet supported");
+            background = true;
+        }
+
 	long startTime = System.currentTimeMillis();
 	long lapTime  = -1;
 	long execTime = -1;
