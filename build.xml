@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.38 2004-03-22 22:23:44 magrokosmos Exp $ -->
+<!-- $Id: build.xml,v 1.39 2004-03-22 23:42:48 magrokosmos Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
@@ -22,6 +22,21 @@
         </fileset>
      </path>
 
+     <path id="run.classpath">
+        <path refid="compile.classpath" />
+        <pathelement path="${classes}" />
+     </path>
+
+     <taskdef name="ant-server" classname="net.sweetohm.ant.server.ServerTask">
+        <classpath>
+           <pathelement location="${lib}/sat-0.7.jar" />
+        </classpath>
+     </taskdef>
+
+     <target name="server">
+        <ant-server/>
+     </target>
+
      <target name="prepare">
         <tstamp>
           <format property="COMPTIME" pattern="MMMM dd yyyy HH:mm"/>
@@ -44,6 +59,13 @@
            <classpath refid="compile.classpath" />
         </javac>
      </target>
+
+     <target name="run" depends="compile">
+        <java classname="henplus.HenPlus">
+           <classpath refid="run.classpath" />
+        </java>
+     </target>
+     
      
      <target name="jar" depends="compile" description="make jar">
         <jar jarfile="${build}/henplus.jar" manifest="manifest.txt">
