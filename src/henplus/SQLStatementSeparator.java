@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.8 2002-05-22 09:58:00 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.9 2002-05-22 10:23:21 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -175,6 +175,10 @@ public class SQLStatementSeparator {
 	    pos = 0;
 	}
 	
+	if (input.length() == 0) {
+	    state = POTENTIAL_END_FOUND;
+	}
+
 	while (state != POTENTIAL_END_FOUND && pos < input.length()) {
 	    boolean vetoAppend = false;
 	    boolean reIterate;
