@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.15 2003-05-01 18:26:27 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.16 2003-05-01 23:22:10 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -12,6 +12,7 @@
 <tr><td><a href="#getting-connected">Getting Connected</a></td></tr>
 <tr><td><a href="#multiple-open-sessions">Multiple Open Sessions</a></td></tr>
 <tr><td><a href="#variables">Using Variables</a></td></tr>
+<tr><td><a href="#properties">Setting Properties</a></td></tr>
 <tr><td><a href="#commandline-completion">Commandline Completion</a></td></tr>
 <tr><td><a href="#per-project-config">Per Project Configuration</a></td></tr>
 <tr><td><a href="#plugins">Plugins</a></td></tr>
@@ -162,10 +163,10 @@ Hen*Plus&gt; help
  describe &lt;tablename&gt;                     : describe a database object
  tree-view &lt;tablename&gt;                    : <a href="#tree-view">tree representation of connected tables</a>
  dump-out | dump-in | verify-dump | dump-conditional: <a href="#table-dumps">handle table dumps</a>
- autocommit-on | autocommit-off           : switches autocommit on/off
- remove-comments-on | remove-comments-off : <a href="#remove-comment">switches the implicit removal of comments on/off</a>
  system | !                               : execute system commands
- set | unset                              : <a href="#variables">set/unset variables</a>
+ set-var | unset-var                      : <a href="#variable">set/unset variables</a>
+ set-property | reset-property            : <a href="#properties">set global HenPlus properties</a>
+ set-session-property | reset-session-property: <a href="#properties">set SQL-connection specific properties</a>
 <a name="config-dir"/><a href="#per-project-config">config read from [/home/hzeller/.henplus]</a>
 </pre></td></tr></table>
 <hr>
@@ -282,15 +283,15 @@ supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
 <b>Switching off comment removal...</b><a name="remove-comment"/>
 The comment removal is done in HenPlus, since some JDBC-Drivers have problems
 to remove comments or do not remove the same set of comment types given here.
-Anyway, sometimes it is necessary <em>not</em> to remove comments, since some
+However, sometimes it is necessary <em>not</em> to remove comments, since some
 datases use comments to convey hinting in statements. In Oracle, for instance,
 you give hints to the query optimizer in the form
 <pre>
     select <b>/*+ index(foo,foo_a_idx) */</b> a from foo where ...
 </pre>
-For this reason, the command <code>remove-comments-off</code> is provided; it
-allows to swith of comment removal, so the string is sent to the
-database as-is. Switch it on with <code>remove-comments-on</code> again.
+For this reason, the <a href="#properties">property</a> <code>comments-remove</code>
+is provided; it allows to switch off comment removal, so the string is sent to the
+database as-is. The command is <code>set-property comments-remove off</code>.
 
 <h3><a name="getting-connected"/>Getting connected</h3>
 Getting connected to a database is simple: you need the JDBC driver
@@ -419,6 +420,14 @@ explicitly with the <code>set</code> command instead of a simple assignment:
 henman@oracle:localhost&gt; set-var tabname footab
 henman@oracle:localhost&gt; select count(*) from ${tabname};
 </pre></td></tr></table>
+
+<p><b><!-- remove this note in later versions again -->
+The command for setting variables has changed since Version 0.9 of HenPlus.
+Previously, this command was 'set'; it changed to 'set-var', since several
+Databases understand 'set' as a build in-command that otherwise would be
+shadowed by HenPlus' set.
+</b></p>
+
 Variables can be expanded with or without curly braces: $FOO and ${FOO} is the same.
 <p>
 If you don't want a variable to be expanded, double the dollar-sign: <code>$$FOO</code>.
@@ -433,16 +442,66 @@ same as in shellscripts.
 All variable settings can be shown with the <code>set-var</code> command 
 without any parameters. The settings are stored, so that they are 
 available on next startup.
-<p><em>
-(Note, that the <code>set-var</code> command used to be named <code>set</code>
- in henplus versions up to 0.9. However, since this is a very common word
- that might be a valid token in JDBC, it has been renamed to 
- <code>set-var</code>).</em>
+<p>
+
+
+
+<h3><a name="properties"/>Setting Properties</h3>
+There are some global properties, that can be modified by the <code>set-property</code>
+command. Connection session specific properties are handled with the 
+<code>set-session-property</code> command. Corresponding <code>reset-*</code> commands reset
+the property to its default.
+
+<p>The usage of these commands is simple. If you just type the set-* command, then the
+list of supported properties with short description is shown. With the property name given as
+single parameter, the detailed help for that property is given. With an additional parameter the
+property is actually set to that value:
+
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+sa@hsqldb> select * from FOO ;
+---+---+---+
+ <b>X</b> | <b>Y</b> | <b>Z</b> |
+---+---+---+
+ 1 | 2 | 3 |
+---+---+---+
+1 row in result (first row: 4 msec; total: 7 msec)
+sa@hsqldb> set-property                      <b><font color="#3333FF">-- no parameters: show list</font></b>
+------------------+-------+------------------------------------------+
+       <b>Name</b>       | <b>Value</b> |               <b>Description</b>                |
+------------------+-------+------------------------------------------+
+ column-delimiter | |     | modify column separator in query results |
+ comments-remove  | on    | switches the removal of SQL-comments     |
+ sql-result-limit | 2000  | set the maximum number of rows printed   |
+------------------+-------+------------------------------------------+
+sa@hsqldb> set-property column-delimiter <b><font color="#3333FF">-- property name parameter: show detailed description</font></b>
+<b>DESCRIPTION</b>
+        Set another string that is used to separate columns in
+        SQL result sets. Usually this is a pipe-symbol '|', but
+        maybe you want to have an empty string ?
+sa@hsqldb> set-property column-delimiter "****"       <b><font color="#3333FF">-- property name and value: set property</font></b>
+sa@hsqldb> select * from FOO ;
+------+------+------+
+ <b>X</b> **** <b>Y</b> **** <b>Z</b> ****
+------+------+------+
+ 1 **** 2 **** 3 ****
+------+------+------+
+1 row in result (3 msec)
+sa@hsqldb> reset-property column-delimiter
+</pre></td></tr></table>
+<p>
+Global properties are stored in your <a href="#per-project-config">project preferences</a>, so
+that you don't have to retype them on next startup.
+<p>
+For supported properties of the SQL-connection session just type 
+<code>set-session-property</code>. At present, the properties <code>auto-commit</code> and
+<code>isolation-level</code> are supported. Unlike the global properties, this set of properties
+is specific per session and is not stored.
 
 <h3><a name="commandline-completion"/>Commandline Completion</h3>
 HenPlus provides a commandline completion for virtually everything: tables in
 select statements, column-names in where-clauses, variable-names in set/unset command,
 variable names after typing '<code>$</code>'. Just try it ..
+
 
 <h3><a name="per-project-config"/>Per Project Configuration</h3>
 <em>HenPlus</em> stores the commandline history, the connection-URLs and
@@ -516,16 +575,24 @@ are available on next startup.
 You can dump out tables in a database independent format. See the online help for
 <code>dump-out</code> and <code>dump-in</code>. You even can dump only selected
 values of a certain table; see <code>dump-conditional</code> for this.
+</p><p>
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+henman@oracle:localhost&gt; dump-out mytables.dump.gz student addresses;
+</pre></td></tr></table>
+.. dumps out the tables <code>student</code> and <code>addresses</code> to the file
+<code>mytables.dump.gz</code>. The file is gzipped on-the-fly due to the <code>.gz</code>-suffix.
 <p>
 The format that is written must be database independent, thus it is not possible to store
-them as simple 'INSERT INTO..' statements, as the different databases have different
-assumption how different data types should be parsed :-( Thus the dump format is a
-canonical lisp like text format that is easily parseable for the human eye and external tools:
+them as simple <code>'INSERT INTO..'</code> statements, as the different databases have different
+assumption how some data types should be parsed :-( Thus the dump format is a
+canonical text format that resembles the original insert-statement arguments; it is easily
+parseable for the human eye and external tools:
 <hr noshade='noshade' size="1" />
 <pre>
 (tabledump 'student'
+   (file-encoding 'UTF-8')
    (dump-version 1 1)
-   (henplus-version 0.3.3)
+   (henplus-version '0.9.1')
    (database-info 'MySQL - 3.23.47')
    (meta ('name',   'sex',    'student_id')
          ('STRING', 'STRING', 'INTEGER'   ))
@@ -536,16 +603,28 @@ canonical lisp like text format that is easily parseable for the human eye and e
    (rows 4))
 </pre>
 <hr noshade='noshade' size="1" />
-Even though XML would be an idea here, I decided against it because it blows up the file size
-and is not very human readable due to the 'noise' 
-(But if you want to, just write a <a href="#plugins">plug-in</a> that does this..).
-[ "XML is readable but is not meant to be read" ]. It does as well not fit to the way, SQL-data
-is used; for instance it is possible to create simple <tt>INSERT INTO</tt>-scripts from
-the given file format with an editor or an awk-script. With XML you'd need an parser and
-generator or at least a stylesheet to achive something similar.
-<p>
-One interesting feature of these commands is, that they automatically can read/write
-gziped files if the filenames have the '.gz' suffix.
+</p>
+
+<h4>XML ?</h4>
+One could argue, that XML would be an idea here, since it is hype and should
+therefore be used everywhere :-) ... But seriously, I decided against it because it 
+blows up the file size (and database export tend not to be small) and is not 
+very human readable due to the 'noise'. The normal use-case of dumps like this is
+to 
+<ul>
+  <li>Process them with line oriented tools (like <code>awk</code>, <code>sed</code> .. or your
+      favourite editor)</li>
+  <li>Construct insert/update scripts for databases manually.
+</ul>
+Both use-cases are addressed with this format: each data record is on a single line and is almost
+compatible with the typical set-syntax of SQL. You can simply construct an insert-Statement
+with this with minimal editing required 
+(like <code>insert&nbsp;into&nbsp;student&nbsp;((name,&nbsp;sex,&nbsp;student_id)&nbsp;values&nbsp;('Joseph','M',2);</code>).
+</p><p>
+If you <em>want</em> XML export/import, just go ahead write a <a href='#plugins'>plugin</a>
+that does this -- this would be great for many tools, as long as humans 
+<a href="http://www.w3.org/XML/1999/XML-in-10-points#text">don't have to deal with it</a>.
+</p>
 
 <h3><a name="tree-view"/>Tree View of connected tables</h3>
 Know this ? To just find out the datastructure of foreign-key connected
@@ -582,8 +661,8 @@ This will eventually be the FAQ. But for now, there is only one question..
 	 This might be annoying if you run SQL-scripts -- if there is only
 	 one error, all subsequent commands are ignored. One solution
 	 might be to switch on autocommit 
-	 (HenPlus command: <code>autocommit-on</code>).
+	 (HenPlus command: <code>set-session-property auto-commit on</code>).
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.15 2003-05-01 18:26:27 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.16 2003-05-01 23:22:10 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
