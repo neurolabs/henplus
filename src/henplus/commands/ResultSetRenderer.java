@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.18 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.19 2004-02-01 16:39:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -37,7 +37,9 @@ public class ResultSetRenderer implements Interruptable {
     private final int     rowLimit;
     private volatile boolean running;
 
-    public ResultSetRenderer(ResultSet rset, String columnDelimiter,
+    public ResultSetRenderer(ResultSet rset, 
+                             String columnDelimiter,
+                             boolean enableHeader, boolean enableFooter,
                              int limit,
                              OutputDevice out, int[] show) 
 	throws SQLException {
@@ -48,14 +50,17 @@ public class ResultSetRenderer implements Interruptable {
         rowLimit = limit;
 	meta = rset.getMetaData();
 	columns = (show != null) ? show.length : meta.getColumnCount();
-	table = new TableRenderer(getDisplayMeta(meta),  out, columnDelimiter);
+	table = new TableRenderer(getDisplayMeta(meta),  out, 
+                                  columnDelimiter, enableHeader, enableFooter);
     }
 
     public ResultSetRenderer(ResultSet rset, String columnDelimiter,
+                             boolean enableHeader, boolean enableFooter, 
                              int limit,
                              OutputDevice out) 
 	throws SQLException {
-	this(rset, columnDelimiter, limit, out, null);
+	this(rset, columnDelimiter, enableHeader, enableFooter, 
+             limit, out, null);
     }
     
     // Interruptable interface.

@@ -42,7 +42,7 @@ public abstract class AbstractCommand implements Command {
      * convenience method: returns the number of elements in this
      * string, separated by whitespace.
      */
-    public int argumentCount(String command) {
+    protected int argumentCount(String command) {
 	return (new StringTokenizer(command)).countTokens();
     }
 }

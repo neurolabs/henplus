@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.62 2004-02-01 14:12:52 hzeller Exp $
+ * $Id: HenPlus.java,v 1.63 2004-02-01 16:39:09 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -110,13 +110,17 @@ public class HenPlus implements Interruptable {
         _henplusProperties
             .registerProperty("comments-remove",
                               _commandSeparator.getRemoveCommentsProperty());
-        
+
         _sessionManager = SessionManager.getInstance(this); 
         
         // FIXME: to many cross dependencies of commands now. clean up.
 	_settingStore = new SetCommand(this);
 	_objectLister = new ListUserObjectsCommand(this);
 	_dispatcher = new CommandDispatcher(_settingStore);
+        _henplusProperties
+            .registerProperty("echo-commands", 
+                              new EchoCommandProperty(_dispatcher));
+
 	_dispatcher.register(new HelpCommand());
 
         /*
@@ -158,7 +162,7 @@ public class HenPlus implements Interruptable {
         propertyCommand = new PropertyCommand(this, _henplusProperties);
         _dispatcher.register(propertyCommand);
         _dispatcher.register(new SessionPropertyCommand(this));
-
+        
 	pluginCommand.load();
 	aliasCommand.load();
         propertyCommand.load();

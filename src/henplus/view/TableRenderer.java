@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.3 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.4 2004-02-01 16:39:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
@@ -25,16 +25,25 @@ public class TableRenderer {
     private boolean alreadyFlushed;
     private int writtenRows;
     private int separatorWidth;
-    
+
+    private boolean enableHeader;
+    private boolean enableFooter;
+
     protected final ColumnMetaData meta[];
     protected final OutputDevice out;
     protected final String colSeparator;
-
+    
     public TableRenderer(ColumnMetaData[] meta,
                          OutputDevice out,
-                         String separator) {
+                         String separator, 
+                         boolean enableHeader,
+                         boolean enableFooter) 
+    {
         this.meta = meta;
         this.out = out;
+        this.enableHeader = enableHeader;
+        this.enableFooter = enableFooter;
+
         /*
          * we cache the rows in order to dynamically determine the
          * output width of each column.
@@ -47,7 +56,7 @@ public class TableRenderer {
     }
 
     public TableRenderer(ColumnMetaData[] meta, OutputDevice out) {
-        this(meta, out, "|");
+        this(meta, out, "|", true, true);
     }
 
     public void addRow(Column[] row) {
@@ -75,7 +84,7 @@ public class TableRenderer {
 
     public void closeTable() {
         flush();
-        if (writtenRows > 0) {
+        if (writtenRows > 0 && enableFooter) {
             printHorizontalLine();
         }
     }
@@ -85,7 +94,9 @@ public class TableRenderer {
      */
     public void flush() {
         if (!alreadyFlushed) {
-            printTableHeader();
+            if (enableHeader) {
+                printTableHeader();
+            }
             alreadyFlushed = true;
         }
         Iterator rowIterator = cacheRows.iterator();
@@ -112,14 +123,15 @@ public class TableRenderer {
     }
 
     protected boolean printColumn(Column col,
-                                                          boolean hasMoreLines,
-                                                          int i) {
+                                  boolean hasMoreLines,
+                                  int i) 
+    {
         String txt;
         out.print(" ");
         txt = formatString( col.getNextLine(),
-                                       ' ',
-                                       meta[i].getWidth(),
-                                       meta[i].getAlignment());
+                            ' ',
+                            meta[i].getWidth(),
+                            meta[i].getAlignment());
         hasMoreLines |= col.hasNextLine();
         if (col.isNull())
             out.attributeGrey();
@@ -135,12 +147,10 @@ public class TableRenderer {
             if (!meta[i].doDisplay())
                 continue;
             String txt;
-            txt =
-                formatString(
-                    "",
-                    '-',
-                    meta[i].getWidth() + separatorWidth + 1,
-                    ColumnMetaData.ALIGN_LEFT);
+            txt = formatString("",
+                               '-',
+                               meta[i].getWidth() + separatorWidth + 1,
+                               ColumnMetaData.ALIGN_LEFT);
             out.print(txt);
             out.print("+");
         }
@@ -153,12 +163,10 @@ public class TableRenderer {
             if (!meta[i].doDisplay())
                 continue;
             String txt;
-            txt =
-                formatString(
-                    meta[i].getLabel(),
-                    ' ',
-                    meta[i].getWidth() + 1,
-                    ColumnMetaData.ALIGN_CENTER);
+            txt = formatString(meta[i].getLabel(),
+                               ' ',
+                               meta[i].getWidth() + 1,
+                               ColumnMetaData.ALIGN_CENTER);
             out.attributeBold();
             out.print(txt);
             out.attributeReset();
@@ -168,11 +176,10 @@ public class TableRenderer {
         printHorizontalLine();
     }
 
-    protected String formatString(
-        String text,
-        char fillchar,
-        int len,
-        int alignment) {
+    protected String formatString(String text,
+                                  char fillchar,
+                                  int len,
+                                  int alignment) {
         // System.out.println("[formatString] len: " + len + ", text.length: " + text.length());
         // text = "hi";
         StringBuffer fillstr = new StringBuffer();

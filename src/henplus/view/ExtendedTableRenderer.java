@@ -12,19 +12,20 @@ import henplus.OutputDevice;
  * <p>Title: ExtendedTableRenderer</p>
  * <p>Description:<br>
  * Created on: 25.07.2003</p>
- * @version $Id: ExtendedTableRenderer.java,v 1.3 2004-02-01 14:12:52 hzeller Exp $ 
+ * @version $Id: ExtendedTableRenderer.java,v 1.4 2004-02-01 16:39:09 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public class ExtendedTableRenderer extends TableRenderer {
 
     public ExtendedTableRenderer(ColumnMetaData[] meta, OutputDevice out,
-                                 String separator) 
+                                 String separator, boolean showHeader,
+                                 boolean showFooter) 
     {
-        super (meta, out, separator);
+        super (meta, out, separator, showHeader, showFooter);
     }
 
     public ExtendedTableRenderer(ColumnMetaData[] meta, OutputDevice out) {
-        this(meta, out, "|");
+        this(meta, out, "|", true, true);
     }
     
     /**

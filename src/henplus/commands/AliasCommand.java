@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.12 2004-01-28 09:25:48 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.13 2004-02-01 16:39:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -168,7 +168,7 @@ public final class AliasCommand extends AbstractCommand {
 
 	else {
 	    String toExecute = (String) _aliases.get(cmd);
-            HenPlus.msg().println("key: '" + cmd + "' - exec: " + toExecute);
+            //HenPlus.msg().println("key: '" + cmd + "' - exec: " + toExecute);
 	    if (toExecute == null) {
 		return EXEC_FAILED;
 	    }

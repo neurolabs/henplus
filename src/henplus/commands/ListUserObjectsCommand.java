@@ -72,12 +72,12 @@ public class ListUserObjectsCommand
 		DatabaseMetaData meta = conn.getMetaData();
 		String catalog = conn.getCatalog();
 		/**/
-                  HenPlus.msg().println("catalog: " + catalog);
-                  ResultSetRenderer catalogrenderer = 
-                  new ResultSetRenderer(meta.getCatalogs(), "|", 
-                                        2000, HenPlus.out());
-                  catalogrenderer.execute();
-                  /**/
+                HenPlus.msg().println("catalog: " + catalog);
+                ResultSetRenderer catalogrenderer = 
+                    new ResultSetRenderer(meta.getCatalogs(), "|", true, true,
+                                          2000, HenPlus.out());
+                catalogrenderer.execute();
+                /**/
 		ResultSetRenderer renderer;
                 ResultSet rset;
                 String objectType;
@@ -100,7 +100,7 @@ public class ListUserObjectsCommand
                     columnDef = TABLE_DISP_COLS;
                 }
                 
-		renderer = new ResultSetRenderer(rset, "|", 2000, 
+		renderer = new ResultSetRenderer(rset, "|", true, true, 2000,
                                                  HenPlus.out(),
 						 columnDef);
 		int tables = renderer.execute();

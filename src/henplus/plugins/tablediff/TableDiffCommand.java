@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: TableDiffCommand.java,v 1.3 2004-01-28 09:25:49 hzeller Exp $ 
+ * @version $Id: TableDiffCommand.java,v 1.4 2004-02-01 16:39:09 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
@@ -32,7 +32,7 @@ public final class TableDiffCommand implements Command, Interruptable {
     protected static final String OPTION_PREFIX = "-";
     protected static final String OPTION_CASESENSITIVE = "c";
     
-    private boolean _interrupted = false;
+    private volatile boolean _interrupted = false;
 
     /**
      * 
@@ -66,6 +66,10 @@ public final class TableDiffCommand implements Command, Interruptable {
         boolean colNameIgnoreCase = true;
         StringTokenizer st = new StringTokenizer(parameters);
         
+        if (st.countTokens() < 3) {
+            return SYNTAX_ERROR;
+        }
+
         SessionManager sessionManager = HenPlus.getInstance().getSessionManager();
         
         if ( sessionManager.getSessionCount() < 2 ) {
@@ -77,16 +81,16 @@ public final class TableDiffCommand implements Command, Interruptable {
         SQLSession second = sessionManager.getSessionByName(st.nextToken());
         
         if (first == null || second == null) {
-            System.err.println("You need two valid sessions for this command.");
-            return SYNTAX_ERROR;
+            HenPlus.msg().println("You need two valid sessions for this command.");
+            return EXEC_FAILED;
         }
         else if (first == second) {
-            System.err.println("You should specify two different sessions for this command.");
-            return SYNTAX_ERROR;
+            HenPlus.msg().println("You should specify two different sessions for this command.");
+            return EXEC_FAILED;
         }
         else if (!st.hasMoreTokens()) {
-            System.err.println("You should specify at least one table.");
-            return SYNTAX_ERROR;
+            HenPlus.msg().println("You should specify at least one table.");
+            return EXEC_FAILED;
         }
         
         try {
@@ -300,22 +304,37 @@ public final class TableDiffCommand implements Command, Interruptable {
      * @see henplus.Command#getShortDescription()
      */
     public String getShortDescription() {
-        return "Perform a diff on tables from two sessions";
+        return "Perform a diff on meta data of tables from two sessions";
     }
 
     /* (non-Javadoc)
      * @see henplus.Command#getSynopsis(java.lang.String)
      */
     public String getSynopsis(String cmd) {
-        return _command + " <sessionname_1> <sessionname_2> <tablename> [<tablename> ..];";
+        return _command + " <sessionname-1> <sessionname-2> <tablename> [<tablename> ..];";
     }
 
     /* (non-Javadoc)
      * @see henplus.Command#getLongDescription(java.lang.String)
      */
     public String getLongDescription(String cmd) {
-        return "\tCompare one or more tables by their meta data.\n" +                    "\tThe following is a list of compared column related\n" +                    "\tproperties, with a \"c\" for a case sensitive and an \"i\" for\n" +                    "\ta case insensitive comparision by default. If you\n" +                    "\twonder what this is for, because you know that sql\n" +                    "\tshould behave case insensitive, then ask your\n" +                    "\tdatabase provider or the developer of the driver you use.\n" +                    "\n" +                    "\t - column name (i)\n" +
-                    "\t - type (c)\n" +                    "\t - nullable (-)\n" +                    "\t - default value (c)\n" +                    "\t - primary key definition (c)\n" +                    "\t - foreign key definition (c).\n" +                    "\n" +                    "\tIn the future indices migth be added to the comparison,\n" +                    "\tmoreover, an option \"o\" would be nice to get automatically\n" +                    "\t\"ALTER TABLE ...\" scripts generated to a given output file.";
+        return "\tCompare one or more tables by their meta data.\n" 
+            +"\tThe following is a list of compared column related\n" 
+            +"\tproperties, with a \"c\" for a case sensitive and an \"i\" for\n" 
+            +"\ta case insensitive comparision by default. If you\n" 
+            +"\twonder what this is for, because you know that sql\n" 
+            +"\tshould behave case insensitive, then ask your\n" 
+            +"\tdatabase provider or the developer of the driver you use.\n"
+            +"\n" 
+            +"\t - column name (i)\n" 
+            +"\t - type (c)\n" 
+            +"\t - nullable (-)\n" 
+            +"\t - default value (c)\n" 
+            +"\t - primary key definition (c)\n"
+            +"\t - foreign key definition (c).\n"
+            +"\n"
+            +"\tIn the future indices migth be added to the comparison,\n"
+            +"\tmoreover, an option \"o\" would be nice to get automatically\n"
+            +"\t\"ALTER TABLE ...\" scripts generated to a given output file.";
     }
-
 }

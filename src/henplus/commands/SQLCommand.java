@@ -13,6 +13,7 @@ import henplus.PropertyRegistry;
 import henplus.SQLSession;
 import henplus.SigIntHandler;
 import henplus.property.PropertyHolder;
+import henplus.property.BooleanPropertyHolder;
 import henplus.view.util.NameCompleter;
 
 import java.sql.CallableStatement;
@@ -57,15 +58,23 @@ public class SQLCommand extends AbstractCommand {
     private final ListUserObjectsCommand tableCompleter;
     private String _columnDelimiter;
     private int    _rowLimit;
+    private boolean _showHeader;
+    private boolean _showFooter;
 
     public SQLCommand(ListUserObjectsCommand tc, PropertyRegistry registry) {
 	tableCompleter = tc;
         _columnDelimiter = "|";
         _rowLimit = 2000;
+        _showHeader = true;
+        _showFooter = true;
         registry.registerProperty("column-delimiter",
                                   new SQLColumnDelimiterProperty());
         registry.registerProperty("sql-result-limit",
                                   new RowLimitProperty());
+        registry.registerProperty("sql-result-showheader",
+                                  new ShowHeaderProperty());
+        registry.registerProperty("sql-result-showfooter",
+                                  new ShowFooterProperty());
     }
 
     /**
@@ -123,6 +132,20 @@ public class SQLCommand extends AbstractCommand {
     
     public int getRowLimit() {
         return _rowLimit;
+    }
+
+    public void setShowHeader(boolean b) {
+        _showHeader = b;
+    }
+    public boolean isShowHeader() {
+        return _showHeader;
+    }
+
+    public void setShowFooter(boolean b) {
+        _showFooter = b;
+    }
+    public boolean isShowFooter() {
+        return _showFooter;
     }
 
     /**
@@ -217,6 +240,8 @@ public class SQLCommand extends AbstractCommand {
 		    ResultSetRenderer renderer;
 		    renderer = new ResultSetRenderer(rset, 
                                                      getColumnDelimiter(),
+                                                     isShowHeader(),
+                                                     isShowFooter(),
                                                      getRowLimit(),
                                                      HenPlus.out());
 		    SigIntHandler.getInstance().pushInterruptable(renderer);
@@ -569,6 +594,50 @@ public class SQLCommand extends AbstractCommand {
 
         public String getShortDescription() {
             return "set the maximum number of rows printed";
+        }
+    }
+
+    private class ShowHeaderProperty extends BooleanPropertyHolder {
+
+        public ShowHeaderProperty() {
+            super(true);
+        }
+
+        public void booleanPropertyChanged(boolean value){
+            setShowHeader( value );
+        }
+        
+        public String getDefaultValue() {
+            return "on";
+        }
+
+        /**
+         * return a short descriptive string.
+         */
+        public String getShortDescription() {
+            return "switches if header in selected tables should be shown";
+        }
+    }
+
+    private class ShowFooterProperty extends BooleanPropertyHolder {
+
+        public ShowFooterProperty() {
+            super(true);
+        }
+
+        public void booleanPropertyChanged(boolean value){
+            setShowFooter( value );
+        }
+        
+        public String getDefaultValue() {
+            return "on";
+        }
+
+        /**
+         * return a short descriptive string.
+         */
+        public String getShortDescription() {
+            return "switches if footer in selected tables should be shown";
         }
     }
 }
