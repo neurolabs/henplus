@@ -78,10 +78,10 @@ public class ShellCommand extends AbstractCommand {
 	    p.destroy();
 	    System.err.println("Shell command interrupted.");
 	}
+	ioHandler.stop();
 	Terminal.grey(System.err);
 	System.err.println("[exit "+ exitStatus + "]");
 	Terminal.reset(System.err);
-	ioHandler.stop();
 	return SUCCESS;
     }
 

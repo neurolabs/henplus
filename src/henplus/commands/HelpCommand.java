@@ -15,6 +15,7 @@ import henplus.SQLSession;
 import henplus.CommandDispatcher;
 import henplus.Command;
 import henplus.AbstractCommand;
+import henplus.util.Terminal;
 
 /**
  * document me.
@@ -68,14 +69,14 @@ public class HelpCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String cmdstr, String param) {
-	//System.err.println("invoked help: "  + command);
-	int argc = argumentCount(param);
-	if (argc > 1)
+	StringTokenizer st = new StringTokenizer(param);
+	if (st.countTokens() > 1)
 	    return SYNTAX_ERROR;
+	param = (st.hasMoreElements()) ? (String) st.nextElement() : null;
 	/*
 	 * nothing given: provide generic help.
 	 */
-	if (param == null || param.length() == 0) {
+	if (param == null) {
 	    Iterator it = HenPlus.getInstance()
 		.getDispatcher().getRegisteredCommands();
 	    while (it.hasNext()) {
@@ -132,12 +133,16 @@ public class HelpCommand extends AbstractCommand {
 	String synopsis = c.getSynopsis(cmdStr);
 	
 	if (synopsis != null) {
+	    Terminal.blue(System.err);
 	    System.err.println("SYNOPSIS");
+	    Terminal.reset(System.err);
 	    System.err.println("\t" + synopsis);
 	    System.err.println();
 	}
 	if (desc != null) {
+	    Terminal.blue(System.err);
 	    System.err.println("DESCRIPTION");
+	    Terminal.reset(System.err);
 	    System.err.println(desc);
 	    if (c.requiresValidSession(cmdStr)) {
 		System.err.println("\tRequires valid session.");
