@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.31 2004-09-25 18:09:14 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.32 2005-03-24 13:57:46 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -22,6 +22,9 @@ import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
 import henplus.view.util.NameCompleter;
+import henplus.view.util.CancelWriter;
+
+import henplus.view.util.ProgressWriter;
 
 import java.math.BigDecimal;
 import java.io.File;
@@ -36,6 +39,7 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSetMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,6 +55,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
@@ -169,7 +174,8 @@ public class DumpCommand
      */
     public String[] getCommandList() {
         return new String[] {
-            "dump-out", "dump-in", "verify-dump", "dump-conditional"
+            "dump-out", "dump-in", "verify-dump", "dump-conditional",
+            "dump-select"
         };
     }
 
@@ -196,7 +202,41 @@ public class DumpCommand
         StringTokenizer st = new StringTokenizer(param);
         int argc = st.countTokens();
 
-        if ("dump-conditional".equals(cmd)) {
+        if ("dump-select".equals(cmd)) {
+            if (session == null) {
+                HenPlus.msg().println("not connected.");
+                return EXEC_FAILED;
+            }
+            if ((argc < 4)) return SYNTAX_ERROR;
+            final String fileName = st.nextToken();
+            final String tabName = st.nextToken();
+            final String select = st.nextToken();
+            if (!select.toUpperCase().equals("SELECT")) {
+                HenPlus.msg().println("'select' expected..");
+                return SYNTAX_ERROR;
+            }
+            final StringBuffer statement = new StringBuffer("select");
+            while (st.hasMoreElements()) {
+                statement.append(" ").append(st.nextToken());
+            }
+            PrintStream out = null;
+            try {
+                out = openOutputStream(fileName, FILE_ENCODING);
+                int result = dumpSelect(session, tabName, statement.toString(), out,
+                                       FILE_ENCODING);
+                return result;
+            }
+            catch (Exception e) {
+                HenPlus.msg().println("failed: " + e.getMessage());
+                e.printStackTrace();
+                return EXEC_FAILED;
+            }
+            finally {
+                if (out != null) out.close(); 
+            }
+        }
+
+        else if ("dump-conditional".equals(cmd)) {
             if (session == null) {
                 HenPlus.msg().println("not connected.");
                 return EXEC_FAILED;
@@ -214,6 +254,7 @@ public class DumpCommand
                 }
             }
             PrintStream out = null;
+            beginInterruptableSection();
             try {
                 out = openOutputStream(fileName, FILE_ENCODING);
                 int result = dumpTable(session, tabName, whereClause, out,
@@ -227,6 +268,7 @@ public class DumpCommand
             }
             finally {
                 if (out != null) out.close(); 
+                endInterruptableSection();
             }
         }
   
@@ -239,76 +281,115 @@ public class DumpCommand
             String fileName = (String) st.nextElement();
             PrintStream out = null;
             String tabName = null;
+            beginInterruptableSection();
             try {
-
+                final long startTime = System.currentTimeMillis();
                 Set alreadyDumped = new HashSet();      // which tables got already dumped?
             
                 out = openOutputStream(fileName, FILE_ENCODING);
+                Set/*<String>*/ tableSet = new LinkedHashSet();
+
+                /* right now, we do only a sort, if there is any '*' found in tables. Probably
+                 * we might want to make this an option to dump-in */
+                boolean needsSort = false;
+
+                int dumpResult = SUCCESS;
+                
+                /* 1) collect tables */
                 while (st.hasMoreElements()) {
-                    int result = EXEC_FAILED;
                     String nextToken = st.nextToken();
             
                     if ( "*".equals( nextToken ) || nextToken.indexOf( '*' ) > -1 ) {
-                        long start = System.currentTimeMillis();
-                        HenPlus.msg().println( "Retrieving and sorting tables. This may take a while, please be patient." );
+                        needsSort = true;
                 
                         Iterator iter = null;
                 
-                        if ( "*".equals( nextToken ) )
+                        if ( "*".equals( nextToken ) ) {
                             iter = _tableCompleter.getTableNamesIteratorForSession( session );
+                        }
                         else if ( nextToken.indexOf( '*' ) > -1 ) {
                             String tablePrefix = nextToken.substring( 0, nextToken.length() -1 );
                             SortedSet tableNames = _tableCompleter.getTableNamesForSession( session );
                             NameCompleter compl = new NameCompleter( tableNames );
-                            iter = compl.getAlternatives( tablePrefix );
+                            iter = compl.getAlternatives( tablePrefix );                            
                         }
-                
-                        // get sorted tables
-                        SQLMetaData meta = new SQLMetaDataBuilder().getMetaData( session, iter );
-                        DependencyResolver dr = new DependencyResolver( meta.getTables() );
-                        ResolverResult rr = dr.sortTables();
-                        List tables= rr.getTables();
-                        HenPlus.msg().println( "Found " + tables.size() + " tables to dump." );
-                        if ( tables.size() > 0 ) {
-                            iter = tables.iterator();
-                            while ( iter.hasNext() ) {
-                                Table table = (Table)iter.next();
-                                if ( !alreadyDumped.contains( table.getName() ) ) {
-                                    result = dumpTable(session, table.getName(), null, out,
-                                                       FILE_ENCODING, alreadyDumped);
-                                }
-                            }
-                            HenPlus.msg().println( "Dumping " + tables.size() + " tables took " +
-                                                   (System.currentTimeMillis() - start) + " msec." );
-                            // print detected cyclic deps
-                            if ( rr.getCyclicDependencies() != null && rr.getCyclicDependencies().size() > 0 ) {
-                                HenPlus.msg().println( "NOTE: There were cyclic dependencies between several tables detected.\n" +
-                                                       "These may cause trouble when dumping in the currently dumped data." );
-                                iter = rr.getCyclicDependencies().iterator();
-                                int count = 0;
-                                StringBuffer sb = new StringBuffer();
-                                while ( iter.hasNext() ) {
-                                    Iterator iter2 = ((List)iter.next()).iterator();
-                                    sb.append( "Cycle " ).append( count ).append( ": " );;
-                                    while ( iter2.hasNext() ) {
-                                        sb.append( ((Table)iter2.next()).getName() ).append( " -> " );
-                                    }
-                                    sb.delete( sb.length() - 4 , sb.length() ).append( '\n' );
-                                }
-                                HenPlus.msg().print( sb.toString() );
-                            }
+                        while (iter.hasNext()) {
+                            tableSet.add(iter.next());
                         }
                     }
                     else {
-                        result = dumpTable(session, nextToken, null, out,
-                                           FILE_ENCODING);
-                    }
-            
-                    if (result != SUCCESS) {
-                        return result;
+                        tableSet.add(nextToken);
                     }
                 }
-                return SUCCESS;
+                
+                /* 2) resolve dependencies */
+                ResolverResult resolverResult = null;
+                List/*<String>*/ tableSequence;
+                if (needsSort) {
+                    tableSequence = new ArrayList();
+                    HenPlus.msg().println( "Retrieving and sorting tables. This may take a while, please be patient." );
+
+                    // get sorted tables
+                    SQLMetaData meta = new SQLMetaDataBuilder().getMetaData( session, 
+                                                                             tableSet.iterator() );
+                    DependencyResolver dr = new DependencyResolver( meta.getTables() );
+                    resolverResult = dr.sortTables();
+                    List/*<Table>*/ tabs = resolverResult.getTables();
+                    Iterator it = tabs.iterator();
+                    while (it.hasNext()) {
+                        tableSequence.add(((Table)it.next()).getName());
+                    }
+                }
+                else {
+                    tableSequence = new ArrayList(tableSet);
+                }
+                
+                /* 3) dump out */
+                if (tableSequence.size() > 1) {
+                    HenPlus.msg().println( tableSequence.size() + " tables to dump." );
+                }
+                Iterator it = tableSequence.iterator();
+                while ( _running && it.hasNext() ) {
+                    final String table = (String) it.next();
+                    if ( !alreadyDumped.contains( table ) ) {
+                        int result = dumpTable(session, table, null, out,
+                                               FILE_ENCODING, alreadyDumped);
+                        if (result != SUCCESS) {
+                            dumpResult = result;
+                        }
+                    }
+                }
+
+                if (tableSequence.size() > 1) {
+                    final long duration = System.currentTimeMillis() - startTime;
+                    HenPlus.msg().print("Dumping " + tableSequence.size() + " tables took ");
+                    TimeRenderer.printTime(duration, HenPlus.msg());
+                    HenPlus.msg().println();
+                }
+
+                /* 4) warn about cycles */
+                if ( resolverResult != null 
+                     && resolverResult.getCyclicDependencies() != null 
+                     && resolverResult.getCyclicDependencies().size() > 0 ) {
+                    HenPlus.msg().println( "-----------\n"
+                                           + "NOTE: There have been cyclic dependencies between several tables detected.\n" +
+                                           "These may cause trouble when dumping in the currently dumped data." );
+                    Iterator iter = resolverResult.getCyclicDependencies().iterator();
+                    int count = 0;
+                    StringBuffer sb = new StringBuffer();
+                    while ( iter.hasNext() ) {
+                        Iterator iter2 = ((List)iter.next()).iterator();
+                        sb.append( "Cycle " ).append( count ).append( ": " );;
+                        while ( iter2.hasNext() ) {
+                            sb.append( ((Table)iter2.next()).getName() ).append( " -> " );
+                        }
+                                sb.delete( sb.length() - 4 , sb.length() ).append( '\n' );
+                    }
+                    HenPlus.msg().print( sb.toString() );
+                    /* todo: print out, what constraint to disable */
+                }
+            
+                return dumpResult;
             }
             catch (Exception e) {
                 HenPlus.msg().println("dump table '" + tabName + "' failed: "
@@ -317,7 +398,8 @@ public class DumpCommand
                 return EXEC_FAILED;
             }
             finally {
-                if (out != null) out.close(); 
+                if (out != null) out.close();
+                endInterruptableSection();
             }
         }
 
@@ -357,8 +439,8 @@ public class DumpCommand
     private int retryReadDump(String fileName, SQLSession session, int commitPoint) {
         LineNumberReader in = null;
         boolean hot = (session != null);
+        beginInterruptableSection();
         try {
-            SigIntHandler.getInstance().pushInterruptable(this);
             String fileEncoding = FILE_ENCODING;
             boolean retryPossible = true;
             do {
@@ -369,7 +451,7 @@ public class DumpCommand
                                                    session, hot, commitPoint);
                         retryPossible = false;
                         if (!_running) {
-                            HenPlus.msg().print("interrupted.");
+                            HenPlus.msg().println("\ninterrupted.");
                             return result;
                         }
                         if (result != SUCCESS) {
@@ -401,6 +483,7 @@ public class DumpCommand
             catch (IOException e) {
                 HenPlus.msg().println("closing file failed.");
             }
+            endInterruptableSection();
         }
     }
 
@@ -431,10 +514,10 @@ public class DumpCommand
     private void printWidth(PrintStream out, String s, int width,
                             boolean comma) 
     {
+        if (comma) out.print(", ");
         out.print("'");
         out.print(s);
         out.print("'");
-        if (comma) out.print(", ");
         for (int i = s.length(); i < width; ++i) {
             out.print(' ');
         }
@@ -442,14 +525,26 @@ public class DumpCommand
     
     private int dumpTable(SQLSession session, String tabName, 
                           String whereClause,
-                          PrintStream dumpOut, String fileEncoding, Set/*<String>*/ alreadyDumped) throws Exception {
+                          PrintStream dumpOut, String fileEncoding, Set/*<String>*/ alreadyDumped) 
+        throws Exception 
+    {
         int result = dumpTable(session, tabName, whereClause, dumpOut,
                                fileEncoding);
         alreadyDumped.add( tabName );
         return result;
     }
 
-    private int dumpTable(SQLSession session, String tabName, 
+    private int dumpSelect(SQLSession session, String exportTable, String statement,
+                           PrintStream dumpOut, String fileEncoding) 
+        throws Exception 
+    {
+        return dumpTable(session, 
+                         new SelectDumpSource(session, exportTable, statement),
+                         dumpOut, fileEncoding);
+    }
+
+    private int dumpTable(SQLSession session, 
+                          String tabName, 
                           String whereClause,
                           PrintStream dumpOut, String fileEncoding)
         throws Exception {
@@ -458,7 +553,7 @@ public class DumpCommand
         // table name.
         boolean correctName = true;
         if (tabName.startsWith("\"")) {
-            tabName = stripQuotes(tabName);
+            //tabName = stripQuotes(tabName);
             correctName = false;
         }
 
@@ -478,48 +573,37 @@ public class DumpCommand
                                       + "' (corrected name)");
             }
         }
+        return dumpTable(session, 
+                         new TableDumpSource(schema, tabName, !correctName, session),
+                         dumpOut, fileEncoding);
+    }
 
-        List metaList = new ArrayList();
-        Connection conn = session.getConnection();
-        ResultSet rset = null;
-        Statement stmt = null;
-        try {
-            /*
-             * if the same column is in more than one schema defined, then
-             * oracle seems to write them out twice..
-             */
-            Set doubleCheck = new HashSet();
-            DatabaseMetaData meta = conn.getMetaData();
-            rset = meta.getColumns(conn.getCatalog(), schema, tabName, null);
-            while (rset.next()) {
-                String columnName = rset.getString(4);
-                if (doubleCheck.contains(columnName))
-                    continue;
-                doubleCheck.add(columnName);
-                metaList.add(new MetaProperty(columnName, rset.getInt(5)));
-            }
-        }
-        finally {
-            if (rset != null) {
-                try { rset.close(); } catch (Exception e) {}
-            }
-        }
-        MetaProperty[] metaProperty = (MetaProperty[]) metaList.toArray(new MetaProperty[metaList.size()]);
-        if (metaList.size() == 0) {
-            HenPlus.msg().println("No fields in table '" + tabName 
-                                  + "' found.");
+    private int dumpTable(SQLSession session, 
+                          DumpSource dumpSource,
+                          PrintStream dumpOut, String fileEncoding)
+        throws Exception {
+        final long startTime = System.currentTimeMillis();
+        MetaProperty[] metaProps = dumpSource.getMetaProperties();
+        if (metaProps.length == 0) {
+            HenPlus.msg().println("No fields in " 
+                                  + dumpSource.getDescription()
+                                  + " found.");
             return EXEC_FAILED;
         }
-  
-        dumpOut.println("(tabledump '" + tabName + "'");
+
+        HenPlus.msg().println("dump " + dumpSource.getTableName() + ":");
+
+        dumpOut.println("(tabledump '" + dumpSource.getTableName() + "'");
         dumpOut.println("  (file-encoding '" + fileEncoding + "')");
         dumpOut.println("  (dump-version " + DUMP_VERSION + " " 
                         + DUMP_VERSION + ")");
+        /*
         if (whereClause != null) {
             dumpOut.print("  (where-clause ");
             quoteString(dumpOut, whereClause);
             dumpOut.println(")");
         }
+        */
         dumpOut.println("  (henplus-version '" + Version.getVersion() 
                         + "')");
         dumpOut.println("  (time '" + new Timestamp(System.currentTimeMillis())
@@ -527,93 +611,44 @@ public class DumpCommand
         dumpOut.print("  (database-info ");
         quoteString(dumpOut, session.getDatabaseInfo());
         dumpOut.println(")");
+
+        final long expectedRows = dumpSource.getExpectedRows();        
+        dumpOut.println("  (estimated-rows '" + expectedRows + "')");
+
         dumpOut.print("  (meta (");
-        Iterator it = metaList.iterator();
-        while (it.hasNext()) {
-            MetaProperty p = (MetaProperty) it.next();
+        for (int i=0; i < metaProps.length; ++i) {
+            final MetaProperty p = metaProps[i];
             printWidth(dumpOut, p.fieldName, p.renderWidth(),
-                       it.hasNext());
+                       i != 0);
         }
         dumpOut.println(")");
         dumpOut.print("\t(");
-        it = metaList.iterator();
-        while (it.hasNext()) {
-            MetaProperty p = (MetaProperty) it.next();
+        for (int i=0; i < metaProps.length; ++i) {
+            final MetaProperty p = metaProps[i];
             printWidth(dumpOut, p.typeName, p.renderWidth(),
-                       it.hasNext());
+                       i != 0);
         }
         dumpOut.println("))");
   
-        long expectedRows = -1;
-        try {
-            stmt = session.createStatement();
-            StringBuffer countStmt = new StringBuffer("SELECT count(*) from ");
-            countStmt.append(tabName);
-            if (whereClause != null) {
-                countStmt.append(" WHERE ");
-                countStmt.append(whereClause);
-            }
-            rset = stmt.executeQuery(countStmt.toString());
-            rset.next();
-            expectedRows = rset.getLong(1);
-        }
-        catch (Exception e) { /* ignore - not important */ }
-        finally {
-            if (rset != null) {
-                try { rset.close(); } catch (Exception e) {}
-            }
-            if (stmt != null) {
-                try { stmt.close(); } catch (Exception e) {}
-            }
-        }
-
-        StringBuffer selectStmt = new StringBuffer("SELECT ");
-        it = metaList.iterator();
-        while (it.hasNext()) {
-            MetaProperty p = (MetaProperty) it.next();
-            selectStmt.append(p.fieldName);
-            if (it.hasNext()) selectStmt.append(", ");
-        }
-        selectStmt.append(" FROM ").append(tabName);
-        if (whereClause != null) {
-            selectStmt.append(" WHERE ").append(whereClause);
-        }
-        //HenPlus.msg().println(selectStmt.toString());
-
         dumpOut.print("  (data ");
-        stmt = null;
-        long startTime = System.currentTimeMillis();
+        ResultSet rset = null;
+        Statement stmt = null;
         try {
             long rows = 0;
-            long progressDots = 0;
-            stmt = session.createStatement();
-            try {
-                stmt.setFetchSize(1000);
-            }
-            catch (Exception e) {
-                // ignore
-            }
-            rset = stmt.executeQuery(selectStmt.toString());
+            ProgressWriter progressWriter = new ProgressWriter(expectedRows, HenPlus.msg());
+            rset = dumpSource.getResultSet();
+            stmt = dumpSource.getStatement();
             boolean isFirst = true;
-            while (rset.next()) {
+            while (_running && rset.next()) {
                 ++rows;
-                if (expectedRows > 0  && rows <= expectedRows) {
-                    long newDots = (PROGRESS_WIDTH * rows) / expectedRows;
-                    if (newDots > progressDots) {
-                        while (progressDots <= newDots) {
-                            HenPlus.msg().print(".");
-                            ++progressDots;
-                        }
-                        HenPlus.msg().flush();
-                    }
-                }
+                progressWriter.update(rows);
                 if (!isFirst) dumpOut.print("\n\t");
                 isFirst = false;
                 dumpOut.print("(");
         
-                for (int i=0; i < metaProperty.length; ++i) {
+                for (int i=0; i < metaProps.length; ++i) {
                     final int col = i+1;
-                    final int thisType = metaProperty[i].getType();
+                    final int thisType = metaProps[i].getType();
                     switch (thisType) {
                     case HP_INTEGER:
                     case HP_NUMERIC:
@@ -671,30 +706,38 @@ public class DumpCommand
                                                            TYPES[thisType]
                                                            + " not supported yet");
                     }
-                    if (metaProperty.length > col) 
+                    if (metaProps.length > col) 
                         dumpOut.print(",");
                     else
                         dumpOut.print(")");
                 }
             }
+            progressWriter.finish();
             dumpOut.println(")");
             dumpOut.println("  (rows " + rows + "))\n");
 
             HenPlus.msg().print("(" + rows + " rows)\n");
             long execTime = System.currentTimeMillis()-startTime;
+
+            HenPlus.msg().print("dumping '" + dumpSource.getTableName() + "' took ");
             TimeRenderer.printTime(execTime, HenPlus.msg());
             HenPlus.msg().print(" total; ");
             TimeRenderer.printFraction(execTime, rows, HenPlus.msg());
             HenPlus.msg().println(" / row");
             if (expectedRows >= 0 && rows != expectedRows) {
-                HenPlus.msg().println("\nWarning: 'select count(*)' in the"
+                HenPlus.msg().println(" == Warning: 'select count(*)' in the"
                                       + " beginning resulted in " + expectedRows
                                       + " but the dump exported " + rows 
-                                      + " rows");
+                                      + " rows == ");
+            }
+
+            if (!_running) {
+                HenPlus.msg().println(" == INTERRUPTED. Wait for statement to cancel.. ==");
+                if (stmt != null) stmt.cancel();
             }
         }
         catch (Exception e) {
-            HenPlus.msg().println(selectStmt.toString());
+            //HenPlus.msg().println(selectStmt.toString());
             throw e; // handle later.
         }
         finally {
@@ -754,6 +797,7 @@ public class DumpCommand
         String token;
         long importedRows = -1;
         long expectedRows = -1;
+        long estimatedRows = -1;
         long problemRows  = -1;
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -764,7 +808,6 @@ public class DumpCommand
                                                        "'tabledump' expected");
         tableName = readString(reader);
         long startTime = System.currentTimeMillis();
-        _running = true; // interruptable
         while (_running) {
             skipWhite(reader);
             int rawChar = reader.read();
@@ -812,6 +855,12 @@ public class DumpCommand
             else if ("rows".equals(token)) {
                 token = readToken(reader);
                 expectedRows = Integer.valueOf(token).intValue();
+                expect(reader, ')');
+            }
+
+            else if ("estimated-rows".equals(token)) {
+                token = readString(reader);
+                estimatedRows = Integer.valueOf(token).intValue();
                 expect(reader, ')');
             }
 
@@ -874,8 +923,8 @@ public class DumpCommand
                     HenPlus.msg().println("projection          : " + whereClause);
                 }
 
-                HenPlus.msg().print("reading rows..");
-                HenPlus.msg().flush();
+                ProgressWriter progressWriter = new ProgressWriter(estimatedRows,
+                                                                   HenPlus.msg());
                 boolean rowBefore = false;
                 importedRows = 0;
                 problemRows = 0;
@@ -889,6 +938,7 @@ public class DumpCommand
                     }
                     // we are now at the beginning of the row.
                     ++importedRows;
+                    progressWriter.update(importedRows);
                     for (int i=0; i < metaProperty.length; ++i) {
                         final int col = i+1;
                         final int type = metaProperty[i].type;
@@ -1007,6 +1057,7 @@ public class DumpCommand
                         conn.commit();
                     }
                 }
+                progressWriter.finish();
             }
       
             else {
@@ -1235,6 +1286,15 @@ public class DumpCommand
         _running = false;
     }
 
+    private void beginInterruptableSection() {
+        _running = true;
+        SigIntHandler.getInstance().pushInterruptable(this);
+    }
+    
+    private void endInterruptableSection() {
+        SigIntHandler.getInstance().popInterruptable();
+    }
+
     /**
      * complete the table name.
      */
@@ -1330,8 +1390,11 @@ public class DumpCommand
         if ("dump-out".equals(cmd)) {
             return cmd + " <filename> (<tablename> | <prefix>* | *)+;";
         }
-        if ("dump-conditional".equals(cmd)) {
+        else if ("dump-conditional".equals(cmd)) {
             return cmd + " <filename> <tablename> [<where-clause>]";
+        }
+        else if ("dump-select".equals(cmd)) {
+            return cmd + " <filename> <exported-tablename> select ...";
         }
         else if ("dump-in".equals(cmd)) {
             return cmd + " <filename> [<commitpoints>]";
@@ -1419,6 +1482,201 @@ public class DumpCommand
                 +"\tinstance) can not be determined, of course.";
         }
         return dsc;
+    }
+
+    /**
+     * A source for dumps.
+     */
+    private interface DumpSource {
+        MetaProperty[] getMetaProperties() throws SQLException;
+        String getDescription();
+        String getTableName();
+        Statement getStatement() throws SQLException;
+        ResultSet getResultSet() throws SQLException;
+        long getExpectedRows();
+    }
+
+    private static class SelectDumpSource implements DumpSource {
+        private final SQLSession _session;
+        private final String _sqlStat;
+        private final String _exportTable;
+        private MetaProperty[] _meta;
+        private Statement _workingStatement;
+        private ResultSet _resultSet;
+
+        SelectDumpSource(SQLSession session, String exportTable, 
+                         String sqlStat) 
+        {
+            _session = session;
+            _sqlStat = sqlStat;
+            _exportTable = exportTable;
+        }
+        
+        public MetaProperty[] getMetaProperties() throws SQLException {
+            if (_meta != null) return _meta;
+            ResultSet rset = getResultSet();
+
+            ResultSetMetaData rsMeta = rset.getMetaData();
+            final int cols = rsMeta.getColumnCount();
+            _meta = new MetaProperty[cols];
+            for (int i=0; i < cols; ++i) {
+                _meta[i] = new MetaProperty(rsMeta.getColumnName(i+1),
+                                            rsMeta.getColumnType(i+1));
+            }
+            return _meta;
+        }
+
+        public String getDescription() {
+            return _sqlStat;
+        }
+
+        public String getTableName() {
+            return _exportTable;
+        }
+
+        public Statement getStatement() throws SQLException {
+            return _workingStatement;
+        }
+
+        public ResultSet getResultSet() throws SQLException {
+            if (_resultSet != null) {
+                return _resultSet;
+            }
+            _workingStatement = _session.createStatement();
+            try {
+                _workingStatement.setFetchSize(1000);
+            }
+            catch (Exception e) {
+                // ignore
+            }
+            _resultSet =  _workingStatement.executeQuery(_sqlStat);
+            return _resultSet;
+        }
+
+        public long getExpectedRows() {
+            return -1;
+        }
+    }
+
+    private static class TableDumpSource implements DumpSource {
+        private final SQLSession _session;
+        private final String _table;
+        private final String _schema;
+        private final boolean _caseSensitive;
+        private MetaProperty[] _meta;
+        private Statement _workingStatement;
+        private String _whereClause;
+
+        TableDumpSource(String schema, String table, boolean caseSensitive,
+                        SQLSession session) 
+        {
+            _session = session;
+            _schema = schema;
+            _table = table;
+            _caseSensitive = caseSensitive;
+        }
+
+        public String getDescription() {
+            return "table '" + _table + "'";
+        }
+
+        public String getTableName() {
+            return _table;
+        }
+
+        public void setWhereClause(String whereClause) {
+            _whereClause = whereClause;
+        }
+
+        public Statement getStatement() {
+            return _workingStatement;
+        }
+
+        public MetaProperty[] getMetaProperties() throws SQLException {
+            if (_meta != null) return _meta;
+
+            List metaList = new ArrayList();
+            Connection conn = _session.getConnection();
+            ResultSet rset = null;
+            Statement stmt = null;
+            try {
+                /*
+                 * if the same column is in more than one schema defined, then
+                 * oracle seems to write them out twice..
+                 */
+                Set doubleCheck = new HashSet();
+                DatabaseMetaData meta = conn.getMetaData();
+                rset = meta.getColumns(conn.getCatalog(), _schema, 
+                                       _table, null);
+                while (rset.next()) {
+                    String columnName = rset.getString(4);
+                    if (doubleCheck.contains(columnName))
+                        continue;
+                    doubleCheck.add(columnName);
+                    metaList.add(new MetaProperty(columnName, rset.getInt(5)));
+                }
+            }
+            finally {
+                if (rset != null) {
+                    try { rset.close(); } catch (Exception e) {}
+                }
+            }
+            _meta = (MetaProperty[]) metaList.toArray(new MetaProperty[metaList.size()]);
+            return _meta;
+        }
+
+        public ResultSet getResultSet() throws SQLException {
+            final StringBuffer selectStmt = new StringBuffer("SELECT ");
+            for (int i=0; i < _meta.length; ++i) {
+                final MetaProperty p = _meta[i];
+                if (i != 0) selectStmt.append(", ");
+                selectStmt.append(p.fieldName);
+            }
+
+            selectStmt.append(" FROM ").append(_table);
+            if (_whereClause != null) {
+                selectStmt.append(" WHERE ").append(_whereClause);
+            }
+            _workingStatement = _session.createStatement();
+            try {
+                _workingStatement.setFetchSize(1000);
+            }
+            catch (Exception e) {
+                // ignore
+            }
+            return _workingStatement.executeQuery(selectStmt.toString());
+        }
+
+        public long getExpectedRows() {
+            CancelWriter selectInfo = new CancelWriter(HenPlus.msg());            
+            Statement stmt = null;
+            ResultSet rset = null;
+            try {
+                selectInfo.print("determining number of rows...");
+                stmt = _session.createStatement();
+                StringBuffer countStmt = new StringBuffer("SELECT count(*) from ");
+                countStmt.append(_table);
+                if (_whereClause != null) {
+                    countStmt.append(" WHERE ");
+                    countStmt.append(_whereClause);
+                }
+                rset = stmt.executeQuery(countStmt.toString());
+                rset.next();
+                return rset.getLong(1);
+            }
+            catch (Exception e) {
+                return -1;
+            }
+            finally {
+                if (rset != null) {
+                    try { rset.close(); } catch (Exception e) {}
+                }
+                if (stmt != null) {
+                    try { stmt.close(); } catch (Exception e) {}
+                }
+                selectInfo.cancel();
+            }
+        }
     }
 
     private static class MetaProperty {

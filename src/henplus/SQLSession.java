@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.32 2004-07-24 13:29:24 hzeller Exp $
+ * $Id: SQLSession.java,v 1.33 2005-03-24 13:57:46 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -209,7 +209,10 @@ public class SQLSession implements Interruptable {
 	    }
 	    catch (SQLException e) {
                 HenPlus.msg().println(e.getMessage());
-                promptUserPassword();
+                // only query terminals.
+                if (HenPlus.msg().isTerminal()) {
+                    promptUserPassword();
+                }
 	    }
 	}
         

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: OutputDevice.java,v 1.1 2004-02-01 14:12:52 hzeller Exp $
+ * $Id: OutputDevice.java,v 1.2 2005-03-24 13:57:46 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -19,6 +19,8 @@ public interface OutputDevice {
     void attributeBold();
     void attributeReset();
     void attributeGrey();
-
+    
     void close();
+
+    boolean isTerminal();
 }

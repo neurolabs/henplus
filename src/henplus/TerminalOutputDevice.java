@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TerminalOutputDevice.java,v 1.1 2004-02-01 14:12:52 hzeller Exp $
+ * $Id: TerminalOutputDevice.java,v 1.2 2005-03-24 13:57:46 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -29,5 +29,9 @@ public class TerminalOutputDevice extends PrintStreamOutputDevice {
 
     public void attributeReset() { 
         print( NORMAL );
+    }
+
+    public boolean isTerminal() {
+        return true;
     }
 }

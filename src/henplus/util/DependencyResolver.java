@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: DependencyResolver.java,v 1.1 2004-09-22 11:49:32 magrokosmos Exp $ 
+ * @version $Id: DependencyResolver.java,v 1.2 2005-03-24 13:57:46 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.util;
@@ -23,7 +23,7 @@ import java.util.SortedSet;
  * Created on: Sep 20, 2004<br>
  * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
- * @version $Id: DependencyResolver.java,v 1.1 2004-09-22 11:49:32 magrokosmos Exp $
+ * @version $Id: DependencyResolver.java,v 1.2 2005-03-24 13:57:46 hzeller Exp $
  */
 public final class DependencyResolver {
     
@@ -55,6 +55,9 @@ public final class DependencyResolver {
         // first run: separate tables with and without dependencies
         while( _tableIter.hasNext() ) {
             Table t = (Table) _tableIter.next();
+            if (t == null) {
+                continue;
+            }
             Set fks = t.getForeignKeys();
             
             // no dependency / foreign key?
