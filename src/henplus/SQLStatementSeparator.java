@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.7 2002-05-22 08:54:30 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.8 2002-05-22 09:58:00 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -36,6 +36,7 @@ import java.util.Stack;
  * @author Henner Zeller <H.Zeller@acm.org>
  */
 public class SQLStatementSeparator {
+    private static final byte NEW_STATEMENT   = 0;
     private static final byte START           = 1;  // statement == start
     private static final byte STATEMENT       = 1;
     private static final byte START_COMMENT   = 3;
@@ -64,7 +65,7 @@ public class SQLStatementSeparator {
 
 	public ParseState() {
 	    _eolineSeen = true; // we start with a new line.
-	    _state = START;
+	    _state = NEW_STATEMENT;
 	    _inputBuffer = new StringBuffer();
 	    _commandBuffer = new StringBuffer();
 	}
@@ -122,16 +123,7 @@ public class SQLStatementSeparator {
      * call this method to state, that you consumed it.
      */
     public void consumed() {
-	_currentState.setState( START );
-	_currentState.getCommandBuffer().setLength(0);
-	final StringBuffer input  = _currentState.getInputBuffer();
-	int pos = 0;
-        /* skip leading whitespaces of next statement .. */
-        while (pos < input.length()
-               && Character.isWhitespace (input.charAt(pos))) {
-            ++pos;
-        }
-	input.delete(0, pos);
+	_currentState.setState( NEW_STATEMENT );
     }
 
     /**
@@ -172,6 +164,17 @@ public class SQLStatementSeparator {
 	final StringBuffer input  = _currentState.getInputBuffer();
 	final StringBuffer parsed = _currentState.getCommandBuffer();
 
+	if (state == NEW_STATEMENT) {
+	    parsed.setLength(0);
+	    /* skip leading whitespaces of next statement .. */
+	    while (pos < input.length()
+		   && Character.isWhitespace (input.charAt(pos))) {
+		++pos;
+	    }
+	    input.delete(0, pos);
+	    pos = 0;
+	}
+	
 	while (state != POTENTIAL_END_FOUND && pos < input.length()) {
 	    boolean vetoAppend = false;
 	    boolean reIterate;
@@ -183,6 +186,8 @@ public class SQLStatementSeparator {
 	    do {
 		reIterate = false;
 		switch (state) {
+		case NEW_STATEMENT:
+		    //case START: START == STATEMENT.
 		case STATEMENT :
 		    if (current == '\n') {
 			state = POTENTIAL_END_FOUND;
@@ -275,6 +280,7 @@ public class SQLStatementSeparator {
 	    /* append to parsed; ignore comments */
 	    if (!vetoAppend
 		&& ((state == STATEMENT && oldstate != PRE_END_COMMENT)
+		    || state == NEW_STATEMENT
 		    || state == STATEMENT_QUOTE
 		    || state == STRING
 		    || state == SQLSTRING
