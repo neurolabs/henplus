@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.5 2002-02-09 12:21:56 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.6 2002-02-11 16:33:05 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
  * document me.
  */
 public class ResultSetRenderer {
-    private static final int LIMIT = 200;
+    private static final int LIMIT = 2000;
 
     private final ResultSet rset;
     private final TableRenderer table;

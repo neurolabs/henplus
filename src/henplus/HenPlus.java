@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.20 2002-02-10 09:35:28 hzeller Exp $
+ * $Id: HenPlus.java,v 1.21 2002-02-11 16:33:03 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -73,8 +73,9 @@ public class HenPlus {
 	    Readline.load(ReadlineLibrary.GnuReadline);
 	    System.err.println("using GNU readline.");
 	} catch (UnsatisfiedLinkError ignore_me) {
-	    if (verbose) System.err.println(ignore_me);
-	    System.err.println("no readline found. Using simple stdin.");
+	    System.err.println("no readline found ("
+			       + ignore_me.getMessage()
+			       + "). Using simple stdin.");
 	}
 	Readline.initReadline("HenPlus");
 	try {
@@ -475,11 +476,11 @@ public class HenPlus {
 	 * wenn auskommentieren, dann mal 'verbose' oben einstellen, denn
 	 * es scheint, dass das nicht richtig geladen wird.
 	 *
+	 */
 	properties.setProperty("driver.DB2.class",
 			       "COM.ibm.db2.jdbc.net.DB2Driver");
 	properties.setProperty("driver.DB2.example",
 			       "jdbc:db2://localhost:6789/foobar");
-	*/
 	properties.setProperty("driver.MySQL.class",
 			       "org.gjt.mm.mysql.Driver");
 	properties.setProperty("driver.MySQL.example",
@@ -494,7 +495,12 @@ public class HenPlus {
 			       "org.postgresql.Driver");
 	properties.setProperty("driver.Postgres.example",
 			       "jdbc:postgresql://localhost/foobar");
-	
+
+	properties.setProperty("driver.Adabas.class",
+			       "de.sag.jdbc.adabasd.ADriver");
+	properties.setProperty("driver.Adabas.example",
+			       "jdbc:adabasd://adabasdserver:7200/work");
+
 	String cpy;
 	cpy = 
 "-------------------------------------------------------------------------\n"
@@ -502,7 +508,7 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.20 $]--\n";
++"----------------------------------------------------[$Revision: 1.21 $]--\n";
 	System.err.println(cpy);
 
 	instance = new HenPlus(properties, argv);

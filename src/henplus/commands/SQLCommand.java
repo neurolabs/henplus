@@ -77,7 +77,7 @@ public class SQLCommand extends AbstractCommand {
 		System.err.println(".done.");
 	    }
 	    else {
-		stmt = session.getConnection().createStatement();
+		stmt = session.createStatement();
 		if (stmt.execute(command)) {
 		    ResultSetRenderer renderer;
 		    renderer = new ResultSetRenderer(stmt.getResultSet(),

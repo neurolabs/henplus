@@ -52,7 +52,7 @@ public class DescribeCommand extends AbstractCommand {
 				String owner,
 				Connection conn) 
 	throws SQLException {
-	Statement stmt = conn.createStatement();
+	Statement stmt = conn.createStatement(); // use SQLSession.createSt.()
 	ResultSet rset = null;
 	String ownerSelect;
 	// oracle: always uppercase
