@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EchoCommand.java,v 1.4 2002-02-22 09:30:34 hzeller Exp $ 
+ * $Id: EchoCommand.java,v 1.5 2002-02-22 12:10:37 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -56,7 +56,7 @@ public final class EchoCommand extends AbstractCommand {
     }
 
     public String getSynopsis(String cmd) {
-	return "echo <whatever>";
+	return cmd + " <whatever>";
     }
 
     public String getLongDescription(String cmd) { 

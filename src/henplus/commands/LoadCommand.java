@@ -27,7 +27,7 @@ public class LoadCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "load", "start"
+	    "load", "start", "@", "@@"
 	};
     }
     
