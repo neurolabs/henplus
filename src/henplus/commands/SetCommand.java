@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.12 2003-01-25 10:41:12 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.13 2003-04-29 21:49:53 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -84,6 +84,9 @@ public final class SetCommand extends AbstractCommand {
 	int argc = st.countTokens();
 	
 	if ("set-var".equals(cmd)) {
+            /*
+             * no args. only show.
+             */
 	    if (argc == 0) {
 		SET_META[0].reset();
 		SET_META[1].reset();
@@ -101,21 +104,25 @@ public final class SetCommand extends AbstractCommand {
 		table.closeTable();
 		return SUCCESS;
 	    }
+            /*
+             * more than one arg
+             */
 	    else if (argc >= 2) {
 		String varname = (String) st.nextElement();
-		int pos = "set-var".length();
+		int pos = 0;
+                int paramLength = param.length();
 		// skip whitespace after 'set'
-		while (pos < param.length() 
+		while (pos < paramLength
 		       && Character.isWhitespace(param.charAt(pos))) {
 		    ++pos;
 		}
 		// skip non-whitespace after 'set  ': variable name
-		while (pos < param.length() 
+		while (pos < paramLength
 		       && !Character.isWhitespace(param.charAt(pos))) {
 		    ++pos;
 		}
 		// skip whitespace before vlue..
-		while (pos < param.length() 
+		while (pos < paramLength
 		       && Character.isWhitespace(param.charAt(pos))) {
 		    ++pos;
 		}
