@@ -227,8 +227,14 @@ public class SQLCommand extends AbstractCommand {
 	if (canonCmd.indexOf("UPDATE") >= 0) {
 	    endTabMatch = canonCmd.indexOf ("SET");
 	}
+	else if (canonCmd.indexOf("INSERT") >= 0) {
+	    endTabMatch = canonCmd.indexOf ("(");
+	}
 	else {
 	    endTabMatch = canonCmd.indexOf ("WHERE");
+	    if (endTabMatch < 0) {
+		endTabMatch = canonCmd.indexOf (";");
+	    }
 	}
 	if (endTabMatch > tableMatch) {
 	    String tables = partialCommand.substring(tableMatch, endTabMatch);
