@@ -122,7 +122,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 		&& !Character.isWhitespace(c))
 		break;
 	}
-	if (i <= 0) {
+	if (i < 0) {
 	    return;
 	}
 	cmdBuf.setLength(i+1);
@@ -130,6 +130,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 	//System.err.println("## '" + cmd + "'");
 	String cmdStr = getCommandNameFrom(cmd);
 	Command c = getCommandFrom(cmd);
+	//System.err.println("name: "+  cmdStr + "; c=" + c);
 	if (c != null) {
 	    try {
 		if (session == null && c.requiresValidSession(cmdStr)) {

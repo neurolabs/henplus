@@ -25,7 +25,7 @@ public class HelpCommand extends AbstractCommand {
     /**
      * returns the command-string this command can handle.
      */
-    public String[] getCommandList() { return new String[]{"help"}; }
+    public String[] getCommandList() { return new String[]{"help", "?"}; }
     
     /**
      * extract the detail request from some help command. For
@@ -85,10 +85,14 @@ public class HelpCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String command) {
+	//System.err.println("invoked help: "  + command);
 	int argc = argumentCount(command);
 	if (argc > 2)
 	    return SYNTAX_ERROR;
 	String detailHelp = extractDetail(command);
+	/*
+	 * nothing given: provide generic help.
+	 */
 	if (detailHelp == null) {
 	    Iterator it = HenPlus.getInstance()
 		.getDispatcher().getRegisteredCommands();
@@ -163,9 +167,9 @@ public class HelpCommand extends AbstractCommand {
     /**
      * return a descriptive string.
      */
-    public String getShortDescription() { return "provides this help."; }
+    public String getShortDescription() { return "provides help for commands";}
     
-    public String getSynopsis(String cmd) { return "help [command]"; }
+    public String getSynopsis(String cmd) { return cmd + " [command]"; }
 
     public String getLongDescription(String cmd) {
 	String dsc;
