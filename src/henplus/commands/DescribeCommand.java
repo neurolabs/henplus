@@ -66,16 +66,7 @@ public class DescribeCommand extends AbstractCommand {
 	    correctName = false;
 	}
 	if (correctName) {
-	    /* see, if we find exactly one alternative, that is spelled
-	     * correctly.
-	     */
-	    Iterator it = tableCompleter.completeTableName(tabName);	
-	    String alternative = null;
-	    if (it.hasNext()) {
-		alternative = (String) it.next();
-		// more than one match is ambiguous. Leave it as it is:
-		if (it.hasNext()) alternative = null;
-	    }
+	    String alternative = tableCompleter.correctTableName(tabName);
 	    if (alternative != null && !alternative.equals(tabName)) {
 		tabName = alternative;
 		System.out.println("describing table: '" + tabName 

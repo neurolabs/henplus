@@ -150,6 +150,20 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	return result;
     }
 
+    public String correctTableName(String tabName) {
+	/* see, if we find exactly one alternative, that is spelled
+	 * correctly.
+	 */
+	Iterator it = completeTableName(tabName);	
+	String alternative = null;
+	if (it.hasNext()) {
+	    alternative = (String) it.next();
+	    // more than one match is ambiguous..
+	    if (it.hasNext()) alternative = null;
+	}
+	return alternative;
+    }
+
     /**
      * used from diverse commands that need table name completion.
      */

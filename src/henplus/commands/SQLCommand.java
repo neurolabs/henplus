@@ -227,6 +227,9 @@ public class SQLCommand extends AbstractCommand {
 		Map.Entry entry = (Map.Entry) it.next();
 		String alias   = (String) entry.getKey();
 		String tabName = (String) entry.getValue();
+		tabName = tableCompleter.correctTableName(tabName);
+		if (tabName == null)
+		    continue;
 		Collection columns = tableCompleter.columnsFor(tabName);
 		Iterator cit = columns.iterator();
 		while (cit.hasNext()) {
