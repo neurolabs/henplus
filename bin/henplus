@@ -1,14 +1,16 @@
 #!/bin/sh
-# $Id: henplus,v 1.4 2002-02-10 10:04:27 hzeller Exp $
+# $Id: henplus,v 1.5 2002-02-18 09:11:33 hzeller Exp $
 ##
 THISDIR=`dirname $0`
 HENPLUSDIR=$THISDIR/../share/henplus
 
 # location of the readline lib.
-LD_LIBRARY_PATH=$THISDIR/../lib
+LD_LIBRARY_PATH=$THISDIR/../lib:$LD_LIBRARY_PATH
 CLASSPATH=$CLASSPATH:$THISDIR/../share/java/libreadline-java.jar
 
 # you may just throw your own jar files in this dir.
+# (like additional JDBC-drivers, that are not in default
+# classpath)
 for f in $HENPLUSDIR/*.jar ; do
     CLASSPATH=$CLASSPATH:$f
 done
