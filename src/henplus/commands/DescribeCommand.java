@@ -59,7 +59,27 @@ public class DescribeCommand extends AbstractCommand {
 	if (argc != 1) {
 	    return SYNTAX_ERROR;
 	}
-	final String tabName = (String) st.nextElement();
+	boolean ignoreCase = true;
+	String tabName = (String) st.nextElement();
+	if (tabName.startsWith("\"")) {
+	    tabName = stripQuotes(tabName);
+	    ignoreCase = false;
+	}
+	if (ignoreCase) {
+	    // see, if we find an alternative, that matches _exactly_
+	    // the tablename.
+	    Iterator it = tableCompleter.completeTableName(tabName);	
+	    String alternative = null;
+	    if (it.hasNext()) {
+		alternative = (String) it.next();
+		if (it.hasNext()) alternative = null;
+	    }
+	    if (alternative != null && !alternative.equals(tabName)) {
+		tabName = alternative;
+		System.out.println("describing table: '" + tabName 
+				   + "' (corrected name)");
+	    }
+	}
 	ResultSet rset = null;
 	try {
 	    boolean anyLeftArrow  = false;
@@ -213,7 +233,7 @@ public class DescribeCommand extends AbstractCommand {
      * complete the table name.
      */
     public Iterator complete(CommandDispatcher disp,
-			     String partialCommand, final String lastWord) 
+			     String partialCommand, String lastWord) 
     {
 	StringTokenizer st = new StringTokenizer(partialCommand);
 	String cmd = (String) st.nextElement();
@@ -222,7 +242,17 @@ public class DescribeCommand extends AbstractCommand {
 	if (argc > ("".equals(lastWord) ? 0 : 1)) {
 	    return null;
 	}
+	if (lastWord.startsWith("\"")) {
+	    lastWord = lastWord.substring(1);
+	}
 	return tableCompleter.completeTableName(lastWord);
+    }
+
+    private String stripQuotes(String value) {
+	if (value.startsWith("\"") && value.endsWith("\"")) {
+	    value = value.substring(1, value.length()-1);
+	}
+	return value;
     }
     
     /**

@@ -139,6 +139,13 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	    //System.err.println("test upper case: " + partialTable);
 	}
 
+	// ok, and lower case ?
+	testIt = tableSet.tailSet(partialTable).iterator();
+	testMatch = (testIt.hasNext()) ? (String) testIt.next() : null;
+	if (testMatch == null || !testMatch.startsWith(partialTable)) {
+	    partialTable = partialTable.toLowerCase();
+	}
+
 	final Iterator tableIt = tableSet.tailSet(partialTable).iterator();
 	final String   tablePattern  = partialTable;
 
