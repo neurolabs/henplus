@@ -49,7 +49,7 @@ public class SQLCommand extends AbstractCommand {
      * 'commit' and 'rollback').
      */
     public boolean isComplete(String command) {
-	command = command.trim().toUpperCase(); // fixme: expensive.
+	command = command.toUpperCase(); // fixme: expensive.
 	if (command.startsWith("COMMIT")
 	    || command.startsWith("ROLLBACK"))
 	    return true;
@@ -98,7 +98,11 @@ public class SQLCommand extends AbstractCommand {
 	    return SUCCESS;
 	}
 	catch (SQLException e) {
-	    System.err.println(e.getMessage());
+	    String msg = e.getMessage();
+	    if (msg != null) {
+		// oracle appends a newline to the message for some reason.
+		System.err.println("FAILURE: " + msg.trim());
+	    }
 	    return EXEC_FAILED;
 	}
 	finally {

@@ -9,8 +9,10 @@ package commands;
 import HenPlus;
 import SQLSession;
 import AbstractCommand;
+import CommandDispatcher;
 
 import java.util.StringTokenizer;
+import java.util.Iterator;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -29,7 +31,13 @@ public class LoadCommand extends AbstractCommand {
 	};
     }
     
-    // complete: TODO: file name completion.
+    /**
+     * filename completion by default.
+     */
+    public Iterator complete(CommandDispatcher disp, String partialCommand, 
+			     String lastWord) {
+	return new FileCompletionIterator(lastWord);
+    }
 
     /**
      * execute the command given.
@@ -47,6 +55,7 @@ public class LoadCommand extends AbstractCommand {
 	HenPlus henplus = HenPlus.getInstance();
 	try {
 	    henplus.pushBuffer();
+	    henplus.getDispatcher().startBatch();
 	    File f = new File((String) st.nextElement());
 	    System.err.println(f.getName());
 	    BufferedReader reader = new BufferedReader(new FileReader(f));
@@ -63,14 +72,21 @@ public class LoadCommand extends AbstractCommand {
 	}
 	finally {
 	    henplus.popBuffer(); // no open state ..
+	    henplus.getDispatcher().endBatch();
 	}
 	long execTime = System.currentTimeMillis() - startTime;
 	System.err.print(commandCount + " commands in ");
 	TimeRenderer.printTime(execTime, System.err);
-	System.err.print("; avg. time ");
-	TimeRenderer.printTime(execTime / commandCount, System.err);
-	System.err.println("; " + 
-			   (1000 * commandCount / execTime) + " per second");
+	if (commandCount != 0) {
+	    System.err.print("; avg. time ");
+	    TimeRenderer.printTime(execTime / commandCount, System.err);
+	}
+	if (execTime != 0 && commandCount > 0) {
+	    System.err.print("; " + 
+			     (1000 * commandCount / execTime) 
+			     + " per second");
+	}
+	System.err.println();
 	return SUCCESS;
     }
 

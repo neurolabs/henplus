@@ -25,11 +25,13 @@ public class CommandDispatcher implements ReadlineCompleter {
     private final List commands;  // commands in sequence of addition.
     private final SortedMap commandMap;
     private final SetCommand setCommand;
+    private int   _batchCount;
 
     public CommandDispatcher(SetCommand sc) {
 	commandMap = new TreeMap();
 	commands = new Vector();
 	setCommand = sc;
+	_batchCount = 0;
     }
 
     /**
@@ -53,6 +55,13 @@ public class CommandDispatcher implements ReadlineCompleter {
     public Iterator getRegisteredCommandNames(String key) {
 	return commandMap.tailMap(key).keySet().iterator();
     }
+
+    /*
+     * if we start a batch (reading from file), the commands are not shown,
+     * except the commands that failed.
+     */
+    public void startBatch() { ++_batchCount; }
+    public void endBatch() { --_batchCount; }
 
     public void register(Command c) {
 	commands.add(c);
@@ -102,7 +111,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     public void execute(SQLSession session, String cmd) {
 	if (cmd == null)
 	    return;
-	// remove trailing ';'
+	// remove trailing ';' and whitespaces.
 	StringBuffer cmdBuf = new StringBuffer(cmd.trim());
 	int i = 0;
 	for (i = cmdBuf.length()-1; i > 0; --i) {
@@ -116,6 +125,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 	}
 	cmdBuf.setLength(i+1);
 	cmd = cmdBuf.toString();
+	//System.err.println("## '" + cmd + "'");
 	String cmdStr = getCommandNameFrom(cmd);
 	Command c = getCommandFrom(cmd);
 	if (c != null) {
@@ -124,7 +134,8 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    System.err.println("not connected.");
 		    return;
 		}
-		if (c.execute(session, cmd) == Command.SYNTAX_ERROR) {
+		switch (c.execute(session, cmd)) {
+		case Command.SYNTAX_ERROR: {
 		    String synopsis = c.getSynopsis(cmdStr);
 		    if (synopsis != null) {
 			System.err.println("usage: " + synopsis);
@@ -132,6 +143,14 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    else {
 			System.err.println("syntax error.");
 		    }
+		    break;
+		}
+		case Command.EXEC_FAILED: {
+		    if (_batchCount > 0) {
+			System.err.println("-- failed command: ");
+			System.err.println(cmd);
+		    }
+		}
 		}
 	    }
 	    catch (Exception e) {
@@ -141,7 +160,6 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     private Iterator possibleValues;
-    private Iterator variableNames;
     private String   variablePrefix;
 
     //-- Readline completer ..
@@ -174,10 +192,10 @@ public class CommandDispatcher implements ReadlineCompleter {
 	    if (state == 0) {
 		variablePrefix = text.substring(0, pos);
 		String varname = text.substring(pos);
-		variableNames = setCommand.completeUserVar(varname);
+		possibleValues = setCommand.completeUserVar(varname);
 	    }
-	    if (variableNames.hasNext()) {
-		return variablePrefix + ((String) variableNames.next());
+	    if (possibleValues.hasNext()) {
+		return variablePrefix + ((String) possibleValues.next());
 	    }
 	    return null;
 	}

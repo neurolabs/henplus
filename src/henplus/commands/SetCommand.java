@@ -1,13 +1,14 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.2 2002-01-26 21:33:26 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.3 2002-01-27 13:44:06 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package commands;
 
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -67,7 +68,6 @@ public final class SetCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession currentSession, String command) {
-	command = command.trim();
 	StringTokenizer st = new StringTokenizer(command);
 	String cmd = (String) st.nextElement();
 	int argc = st.countTokens();
@@ -78,8 +78,9 @@ public final class SetCommand extends AbstractCommand {
 		while (vars.hasNext()) {
 		    Map.Entry entry = (Map.Entry) vars.next();
 		    System.err.print(entry.getKey());
-		    System.err.print('\t');
-		    System.err.println(entry.getValue());
+		    System.err.print(" = '");
+		    System.err.print(entry.getValue());
+		    System.err.println("'");
 		}
 		return SUCCESS;
 	    }
@@ -114,13 +115,16 @@ public final class SetCommand extends AbstractCommand {
 	    return SYNTAX_ERROR;
 	}
 	else if ("unset".equals(cmd)) {
-	    if (argc == 1) {
-		String varname = (String) st.nextElement();
-		if (!_variables.containsKey(varname)) {
-		    System.err.println("unknown variable.");
-		}
-		else {
-		    _variables.remove(varname);
+	    if (argc >= 1) {
+		while (st.hasMoreElements()) {
+		    String varname = (String) st.nextElement();
+		    if (!_variables.containsKey(varname)) {
+			System.err.println("unknown variable '" 
+					   + varname + "'");
+		    }
+		    else {
+			_variables.remove(varname);
+		    }
 		}
 		return SUCCESS;
 	    }
@@ -171,9 +175,23 @@ public final class SetCommand extends AbstractCommand {
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) 
     {
-	if (argumentCount(partialCommand) >
-	    ("".equals(lastWord) ? 1 : 2)) {
-	    return null;
+	StringTokenizer st = new StringTokenizer(partialCommand);
+	String cmd = (String) st.nextElement();
+	int argc = st.countTokens();
+	final HashSet  alreadyGiven = new HashSet();
+	if ("set".equals(cmd)) {
+	    if (argc > ("".equals(lastWord) ? 0 : 1)) {
+		return null;
+	    }
+	}
+	else { // 'unset'
+	    /*
+	     * remember all variables, that have already been given on
+	     * the commandline and exclude from completion..
+	     */
+	    while (st.hasMoreElements()) {
+		alreadyGiven.add((String) st.nextElement());
+	    }
 	}
 	final Iterator it = _variables.tailMap(lastWord).keySet().iterator();
 	return new Iterator() {
@@ -183,6 +201,9 @@ public final class SetCommand extends AbstractCommand {
 			var = (String) it.next();
 			if (!var.startsWith(lastWord)) {
 			    return false;
+			}
+			if (alreadyGiven.contains(var)) {
+			    continue;
 			}
 			return true;
 		    }
@@ -220,7 +241,7 @@ public final class SetCommand extends AbstractCommand {
 	    return "set [<varname> <value>]"; 
 	}
 	else if ("unset".equals(cmd)) {
-	    return "unset <varname>";
+	    return "unset <varname> [<varname> ..]";
 	}
 	return cmd;
     }
@@ -232,7 +253,8 @@ public final class SetCommand extends AbstractCommand {
 		+"\tparameters, set variable with name <varname> to <value>";
 	}
 	else if ("unset".equals(cmd)) {
-	    dsc="\tunset the variable with name <varname>";
+	    dsc="\tunset the variable with name <varname>. You may provide\n"
+		+"\tmultiple variables to be unset.";
 	}
 	return dsc;
     }

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EchoCommand.java,v 1.1 2002-01-26 18:28:29 hzeller Exp $ 
+ * $Id: EchoCommand.java,v 1.2 2002-01-27 13:44:06 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package commands;
@@ -28,11 +28,21 @@ public final class EchoCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession currentSession, String command) {
-	command = command.trim();
-	System.out.println(command.substring("echo ".length()));
+	String outStr = command.substring("echo".length()).trim();
+	System.out.println(stripQuotes(outStr));
 	return SUCCESS;
     }
     
+    private String stripQuotes(String value) {
+	if (value.startsWith("\"") && value.endsWith("\"")) {
+	    value = value.substring(1, value.length()-1);
+	}
+	else if (value.startsWith("\'") && value.endsWith("\'")) {
+	    value = value.substring(1, value.length()-1);
+	}
+	return value;
+    }
+
     /**
      * return a descriptive string.
      */

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: FileCompletionIterator.java,v 1.1.1.1 2002-01-19 21:10:45 hzeller Exp $ 
+ * $Id: FileCompletionIterator.java,v 1.2 2002-01-27 13:44:06 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package commands;
@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * fixme.
+ * fixme. first simple implementation..
  */
 public class FileCompletionIterator implements Iterator {
     private String dirList[];
@@ -22,8 +22,11 @@ public class FileCompletionIterator implements Iterator {
     public FileCompletionIterator(String startFile) {
 	try {
 	    File f = (new File(startFile)).getCanonicalFile();
-	    matchName = f.getName(); // last element..
-	    dirList = f.getParentFile().list();
+	    boolean isDir = f.isDirectory();
+	    dirList = (isDir)
+		? f.list()
+		: f.getParentFile().list();
+	    matchName = startFile;
 	}
 	catch (IOException e) {
 	    dirList = null;
