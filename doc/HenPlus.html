@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.10 2003-01-06 11:59:22 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.11 2003-01-26 21:30:04 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -329,7 +329,7 @@ HenPlus II connecting
  driver version 1.0
 ============ authorization required ===
 Username: henman
-Password: foobar
+Password: 
  Oracle - Oracle8i Enterprise Edition Release 8.1.7.0.1 - Production
 JServer Release 8.1.7.0.1 - Production
  read committed *
@@ -337,10 +337,13 @@ JServer Release 8.1.7.0.1 - Production
 henman@oracle:localhost&gt;
 </pre></td></tr></table>
 This will then ask for the username and the password and you are
-connected. <b>The password is echoed on the console as plaintext</b> -- this
-is because its not possible with Java to switch the tty in non-echo mode (or
-is it? Please let <a href="mailto:H.Zeller@acm.org">me</a> know);
-this is a known misfeature and will be fixed sometime.
+connected.
+Since it is not possible to set the terminal to non-echo mode while
+typing the password, a thread constantly redraws the prompt (This 
+is after a hack
+<a href="http://java.sun.com/features/2002/09/pword_mask.html">found here</a>; 
+if the the redrawing causes trouble with your installation, please
+let <a href="mailto:H.Zeller@acm.org">me</a> know).
 <p>
 Typing JDBC-URLs is tedious ? That&apos;s right, so HenPlus remembers all the
 connection URLs you were connected to and provides it in the context
@@ -398,7 +401,7 @@ You can use Variables, that can be used as text replacement everywhere. The
 replacement works similar to shellscripts, however setting must be done
 explicitly with the <code>set</code> command instead of a simple assignment:
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
-henman@oracle:localhost&gt; set tabname footab
+henman@oracle:localhost&gt; set-var tabname footab
 henman@oracle:localhost&gt; select count(*) from ${tabname};
 </pre></td></tr></table>
 Variables can be expanded with or without curly braces: $FOO and ${FOO} is the same.
@@ -412,8 +415,14 @@ is, because some strange scripts (esp. Oracle scripts) contain names with
 dollar characters and thus would behave strange if the behaviour would be the
 same as in shellscripts.
 <p>
-All variable settings can be shown with the <code>set</code> command without
-any parameters. The settings are stored, so that they are available on next startup.
+All variable settings can be shown with the <code>set-var</code> command 
+without any parameters. The settings are stored, so that they are 
+available on next startup.
+<p><em>
+(Note, that the <code>set-var</code> command used to be named <code>set</code>
+ in henplus versions up to 0.9. However, since this is a very common word
+ that might be a valid token in JDBC, it has been renamed to 
+ <code>set-var</code>).</em>
 
 <h3><a name="commandline-completion"/>Commandline Completion</h3>
 HenPlus provides a commandline completion for virtually everything: tables in
@@ -559,4 +568,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.10 2003-01-06 11:59:22 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.11 2003-01-26 21:30:04 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
