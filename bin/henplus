@@ -1,8 +1,14 @@
 #!/bin/sh
-# $Id: henplus,v 1.3 2002-02-10 09:35:27 hzeller Exp $
+# $Id: henplus,v 1.4 2002-02-10 10:04:27 hzeller Exp $
 ##
-HENPLUSDIR=`dirname $0`/../share/henplus
-LD_LIBRARY_PATH=`dirname $0`/../lib
+THISDIR=`dirname $0`
+HENPLUSDIR=$THISDIR/../share/henplus
+
+# location of the readline lib.
+LD_LIBRARY_PATH=$THISDIR/../lib
+CLASSPATH=$CLASSPATH:$THISDIR/../share/java/libreadline-java.jar
+
+# you may just throw your own jar files in this dir.
 for f in $HENPLUSDIR/*.jar ; do
     CLASSPATH=$CLASSPATH:$f
 done

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.5 2002-02-10 09:35:26 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.6 2002-02-10 10:04:25 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- properties -->
      <property name="version"              value="0.2" />
@@ -45,8 +45,12 @@
        </copy>
 
        <tar tarfile="${tarbase}.tar">
+         <tarfileset dir="." mode="755">
+           <include name="${tarbase}/bin/henplus" />
+         </tarfileset>
          <tarfileset dir=".">
            <include name="${tarbase}/**"/>
+           <exclude name="${tarbase}/bin/henplus" />
          </tarfileset>
        </tar>
        <gzip zipfile="${tarbase}.tar.gz" src="${tarbase}.tar" />
@@ -56,6 +60,9 @@
      </target>
 
      <target name="clean" description="remove">
+        <delete file="${tarbase}.tar" />
+        <delete file="${tarbase}.tar.gz" />
+        <delete dir="${tarbase}"/>
         <delete dir="${classes}"/>
         <delete dir="${build}"/>
      </target>
