@@ -1,4 +1,4 @@
-# $Id: henplus.spec.in,v 1.3 2002-03-11 10:34:21 hzeller Exp $
+# $Id: henplus.spec.in,v 1.4 2002-04-22 16:17:54 hzeller Exp $
 #
 %define version @HENPLUS_VERSION@
 
@@ -13,8 +13,8 @@ Source: henplus-%{version}.tar.gz
 URL: http://www.vicdor.org/henplus
 Version: %{version}
 Buildroot: /tmp/henplus
-Requires: libreadline-java
-BuildRequires: libreadline-java
+Requires: libreadline-java >= 0.7.3
+BuildRequires: libreadline-java >= 0.7.3
 BuildArchitectures: noarch
 
 %description
@@ -38,3 +38,5 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/bin/henplus
 %dir %{prefix}/share/henplus
 %{prefix}/share/henplus/henplus.jar
+%doc doc/HenPlus.html
+
