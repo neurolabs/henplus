@@ -129,6 +129,11 @@ public class DependencyCommand extends AbstractCommand {
 	return new String[] { "dependency" }; 
     }
 
+    /**
+     * add new elements to the newElements. We cannot add this to the
+     * global map (that is the source in the first step), since we would
+     * otherwise modify our own iterator ..
+     */
     private boolean determineForeignKeys(SQLSession session,
                                          Map globalMap,
                                          Map source, Map newElements) 
@@ -150,13 +155,16 @@ public class DependencyCommand extends AbstractCommand {
                 while (rset.next()) {
                     String table = rset.getString(3);
                     Entity dep  = null;
-                    if (!globalMap.containsKey(table)) {
+                    if (anyNew && newElements.containsKey(table)) {
+                        dep = (Entity) newElements.get(table);
+                    }
+                    else if (globalMap.containsKey(table)) {
+                        dep = (Entity) globalMap.get(table);
+                    }
+                    else {
                         dep = new Entity(table);
                         anyNew = true;
                         newElements.put(table, dep);
-                    }
-                    else {
-                        dep = (Entity) globalMap.get(table);
                     }
                     entity.addDependsOn(dep);
                 }
@@ -213,13 +221,14 @@ public class DependencyCommand extends AbstractCommand {
             source = newElements;
             newElements = new HashMap();
         }
-        
-        Iterator it = globalEntityMap.values().iterator();
+
+        Iterator it;
+        it = globalEntityMap.values().iterator();
         while (it.hasNext()) {
             Entity e = (Entity) it.next();
             e.calcDepth();
         }
-        
+
         /*
          * write out depth.
          */
