@@ -5,12 +5,11 @@
 package henplus.view;
 
 
-
 /**
  * <p>Title: ExtendedColumn</p>
  * <p>Description:<br>
  * Created on: 25.07.2003</p>
- * @version $Id: ExtendedColumn.java,v 1.2 2004-01-27 18:16:34 hzeller Exp $ 
+ * @version $Id: ExtendedColumn.java,v 1.3 2004-02-01 14:12:52 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class ExtendedColumn extends Column {
@@ -21,7 +20,7 @@ public final class ExtendedColumn extends Column {
     
     private final int _colspan;
     private final int _alignment;
-    private String _outputMode;
+    private boolean _outputBold;
     
     public ExtendedColumn(int value, int alignment) {
         super(value);
@@ -62,22 +61,15 @@ public final class ExtendedColumn extends Column {
      * Call this to test if there's a special output mode set.
      * @return
      */
-    public boolean hasOutputMode() {
-        return ( _outputMode != null );
-    }
-
-    /**
-     * @return
-     */
-    public String getOutputMode() {
-        return _outputMode;
+    public boolean isBoldRequested() {
+        return _outputBold;
     }
 
     /**
      * @param stream
      */
-    public void setOutputMode(String stream) {
-        _outputMode = stream;
+    public void setBoldRequested(boolean bold) {
+        _outputBold = bold;
     }
 
 }

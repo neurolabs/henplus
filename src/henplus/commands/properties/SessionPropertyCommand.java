@@ -1,10 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SessionPropertyCommand.java,v 1.1 2003-05-01 19:54:00 hzeller Exp $ 
+ * $Id: SessionPropertyCommand.java,v 1.1 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package henplus.commands;
+package henplus.commands.properties;
 
 import henplus.HenPlus;
 import henplus.PropertyRegistry;

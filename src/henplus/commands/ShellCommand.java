@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import henplus.HenPlus;
+import henplus.OutputDevice;
 import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
@@ -91,9 +92,9 @@ public class ShellCommand
 	    HenPlus.msg().println("Shell command interrupted.");
 	}
 	ioHandler.stop();
-	Terminal.grey(HenPlus.msg());
+	HenPlus.msg().attributeGrey();
 	HenPlus.msg().println("[exit "+ exitStatus + "]");
-	Terminal.reset(HenPlus.msg());
+        HenPlus.msg().attributeReset();
 	return SUCCESS;
     }
 
@@ -173,9 +174,9 @@ public class ShellCommand
 	 */
 	private class CopyWorker implements Runnable {
 	    InputStream  source;
-	    OutputStream dest;
+	    OutputDevice dest;
 	    
-	    public CopyWorker(InputStream source, OutputStream dest) {
+	    public CopyWorker(InputStream source, OutputDevice dest) {
 		this.source = source;
 		this.dest   = dest;
 	    }

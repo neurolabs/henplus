@@ -283,7 +283,7 @@ public class ConnectCommand extends AbstractCommand {
         _sessionManager.setCurrentSession(session);
 	    }
 	    catch (Exception e) {
-		HenPlus.msg().println(e);
+		HenPlus.msg().println(e.toString());
 		return EXEC_FAILED;
 	    }
 	}

@@ -102,22 +102,22 @@ public class HelpCommand extends AbstractCommand {
                     cmdPrint.append(firstSynopsis.length() < INDENT ? 
                                     firstSynopsis : cmds[0]);
 		}
-		System.err.print(cmdPrint.toString());
+		HenPlus.msg().print(cmdPrint.toString());
 		for (int i = cmdPrint.length(); i < INDENT; ++i) {
-		    System.err.print(" ");
+		    HenPlus.msg().print(" ");
 		}
-		System.err.print(": ");
-		System.err.println(description);
+		HenPlus.msg().print(": ");
+		HenPlus.msg().println(description);
 	    }
-	    System.err.println("config read from [" 
-			       + HenPlus.getInstance().getConfigDir() + "]");
+	    HenPlus.msg().println("config read from [" 
+                                  + HenPlus.getInstance().getConfigDir() + "]");
 	}
 	else {
 	    CommandDispatcher disp = HenPlus.getInstance().getDispatcher();
 	    String cmdString = disp.getCommandNameFrom(param);
 	    Command c = disp.getCommandFrom(param);
 	    if (c == null) {
-		System.err.println("Help: unknown command '"+param+"'");
+		HenPlus.msg().println("Help: unknown command '"+param+"'");
 		return EXEC_FAILED;
 	    }
 	    printDescription(cmdString, c);
@@ -135,23 +135,23 @@ public class HelpCommand extends AbstractCommand {
 	String synopsis = c.getSynopsis(cmdStr);
 	
 	if (synopsis != null) {
-	    Terminal.boldface(System.err);
-	    System.err.println("SYNOPSIS");
-	    Terminal.reset(System.err);
-	    System.err.println("\t" + synopsis);
-	    System.err.println();
+            HenPlus.msg().attributeBold();
+	    HenPlus.msg().println("SYNOPSIS");
+            HenPlus.msg().attributeReset();
+	    HenPlus.msg().println("\t" + synopsis);
+	    HenPlus.msg().println();
 	}
 	if (desc != null) {
-	    Terminal.boldface(System.err);
-	    System.err.println("DESCRIPTION");
-	    Terminal.reset(System.err);
-	    System.err.println(desc);
+            HenPlus.msg().attributeBold();
+	    HenPlus.msg().println("DESCRIPTION");
+            HenPlus.msg().attributeReset();
+	    HenPlus.msg().println(desc);
 	    if (c.requiresValidSession(cmdStr)) {
-		System.err.println("\tRequires valid session.");
+		HenPlus.msg().println("\tRequires valid session.");
 	    }
 	}
 	if (desc == null && synopsis == null) {
-	    System.err.println("no detailed help for '" + cmdStr + "'");
+	    HenPlus.msg().println("no detailed help for '" + cmdStr + "'");
 	}
     }
 

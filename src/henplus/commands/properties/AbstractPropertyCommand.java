@@ -1,10 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.7 2004-01-28 09:25:48 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.1 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package henplus.commands;
+package henplus.commands.properties;
 
 import henplus.HenPlus;
 import henplus.AbstractCommand;
@@ -23,7 +23,8 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 
 /**
- * The command, that allows to set properties.
+ * The command, that allows to set properties. This abstract
+ * command is used for the session specific and global properties.
  */
 public abstract class AbstractPropertyCommand extends AbstractCommand {
     private final static ColumnMetaData[] PROP_META;
@@ -42,8 +43,15 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
         final String setCmd = getSetCommand();
 	return new String[] { setCmd, "re" + setCmd };
     }
-    
+
+    /**
+     * returns the name of the command this command reacts on.
+     */
     protected abstract String getSetCommand();
+
+    /**
+     * the PropertyRegistry associcaed with the current
+     */
     protected abstract PropertyRegistry getRegistry();
 
     /**
@@ -158,20 +166,24 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
     }
 
     private void printDescription(String propName, PropertyHolder prop) {
-	String desc = prop.getLongDescription();
-	if (desc == null) {
-	    if (prop.getShortDescription() != null) {
-		desc = "\t[short description]: " + prop.getShortDescription();
-	    }
-	}
 
+        if (prop.getShortDescription() != null) {
+	    HenPlus.msg().attributeBold();
+	    HenPlus.msg().println("PROPERTY");
+            HenPlus.msg().attributeReset();
+            HenPlus.msg().println("\t" + propName + " : " 
+                                  + prop.getShortDescription());
+            HenPlus.msg().println();
+        }
+
+	String desc = prop.getLongDescription();
 	if (desc != null) {
-	    Terminal.boldface(HenPlus.msg());
+	    HenPlus.msg().attributeBold();
 	    HenPlus.msg().println("DESCRIPTION");
-	    Terminal.reset(HenPlus.msg());
+            HenPlus.msg().attributeReset();
 	    HenPlus.msg().println(desc);
 	}
-	if (desc == null) {
+	else {
 	    HenPlus.msg().println("no detailed help for '" + propName + "'");
 	}
     }

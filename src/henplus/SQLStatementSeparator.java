@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.16 2003-05-01 23:21:16 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.17 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -349,7 +349,7 @@ public class SQLStatementSeparator {
 	    oldstate = state;
 	    pos++;
 	    /*
-8	     * we maintain the state of 'just seen newline' as long
+	     * we maintain the state of 'just seen newline' as long
 	     * as we only skip whitespaces..
 	     */
 	    lastEoline &= Character.isWhitespace(current);

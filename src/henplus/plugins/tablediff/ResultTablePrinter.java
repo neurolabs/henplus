@@ -24,7 +24,7 @@ import java.util.SortedSet;
  * <p>Title: ResultTablePrinter</p>
  * <p>Description:<br>
  * Created on: 24.07.2003</p>
- * @version $Id: ResultTablePrinter.java,v 1.3 2004-01-28 09:25:49 hzeller Exp $ 
+ * @version $Id: ResultTablePrinter.java,v 1.4 2004-02-01 14:12:52 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class ResultTablePrinter {
@@ -221,7 +221,7 @@ public final class ResultTablePrinter {
     }
     
     private static void markAsChanged(ExtendedColumn col) {
-        ((ExtendedColumn)col).setOutputMode(Terminal.BOLD);
+        col.setBoldRequested(true);
     }
 
     private static String getPkDesc(henplus.sqlmodel.Column col) {

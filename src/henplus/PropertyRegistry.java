@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyRegistry.java,v 1.3 2003-05-01 20:31:59 hzeller Exp $ 
+ * $Id: PropertyRegistry.java,v 1.4 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -22,6 +22,10 @@ public class PropertyRegistry {
         _namedProperties = new TreeMap();
     }
 
+    /**
+     * Every command or subsystem that needs to be able to set
+     * Properties, needs to register its property here.
+     */
     public void registerProperty(String name, PropertyHolder holder) 
         throws IllegalArgumentException {
         if (_namedProperties.containsKey(name)) {
@@ -29,6 +33,10 @@ public class PropertyRegistry {
                                                + "' already exists");
         }
         _namedProperties.put(name, holder);
+    }
+    
+    public void unregisterProperty(String name) {
+        _namedProperties.remove(name);
     }
 
     /**

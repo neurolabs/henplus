@@ -230,25 +230,25 @@ public class CommandDispatcher implements ReadlineCompleter {
 	//System.err.println("name: "+  cmdStr + "; c=" + c);
 	if (c != null) {
 	    try {
-		cmd = cmd.substring(cmdStr.length());
+		String params = cmd.substring(cmdStr.length());
 		if (session == null && c.requiresValidSession(cmdStr)) {
-		    System.err.println("not connected.");
+		    HenPlus.msg().println("not connected.");
 		    return;
 		}
                 
                 int result;
                 informBeforeListeners(session, givenCommand);
-                result = c.execute(session, cmdStr, cmd);
+                result = c.execute(session, cmdStr, params);
                 informAfterListeners(session, givenCommand, result);
 
 		switch ( result ) {
 		case Command.SYNTAX_ERROR: {
 		    String synopsis = c.getSynopsis(cmdStr);
 		    if (synopsis != null) {
-			System.err.println("usage: " + synopsis);
+			HenPlus.msg().println("usage: " + synopsis);
 		    }
 		    else {
-			System.err.println("syntax error.");
+			HenPlus.msg().println("syntax error.");
 		    }
 		}
 		    break;
@@ -260,8 +260,8 @@ public class CommandDispatcher implements ReadlineCompleter {
                      * the offending command.
                      */
 		    if ( isInBatch() ) {
-			System.err.println("-- failed command: ");
-			System.err.println(cmdStr + " " + cmd);
+			HenPlus.msg().println("-- failed command: ");
+			HenPlus.msg().println(givenCommand);
 		    }
 		}
 		    break;
@@ -271,7 +271,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 	    }
 	    catch (Throwable e) {
 		if (verbose) e.printStackTrace();
-		System.err.println(e);
+		HenPlus.msg().println(e.toString());
                 informAfterListeners(session, givenCommand, 
                                      Command.EXEC_FAILED);
 	    }

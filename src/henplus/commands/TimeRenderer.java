@@ -1,19 +1,19 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TimeRenderer.java,v 1.4 2002-07-01 09:30:42 hzeller Exp $ 
+ * $Id: TimeRenderer.java,v 1.5 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import java.io.PrintStream;
+import henplus.OutputDevice;
 
 /**
  * document me.
  */
 public class TimeRenderer {
     public static void printFraction(long execTime,
-				     long number, PrintStream out) {
+				     long number, OutputDevice out) {
 	if (number == 0) {
 	    out.print(" -- ");
 	    return;
@@ -23,15 +23,15 @@ public class TimeRenderer {
 	printTime(milli, micro, out);
     }
 
-    public static void printTime(long execTime, PrintStream out) {
+    public static void printTime(long execTime, OutputDevice out) {
 	printTime(execTime, 0, out);
     }
 
-    public static void printTime(long execTime, long usec, PrintStream out) {
+    public static void printTime(long execTime, long usec, OutputDevice out) {
 	final long totalTime = execTime;
 
 	if (execTime > 60000) {
-	    out.print(execTime/60000);
+	    out.print(String.valueOf(execTime/60000));
 	    out.print(":");
 	    execTime %= 60000;
 	    if (execTime < 10000) {
@@ -39,16 +39,16 @@ public class TimeRenderer {
 	    }
 	}
 	if (execTime >= 1000) {
-	    out.print(execTime / 1000);
+	    out.print(String.valueOf(execTime / 1000));
 	    out.print(".");
 	    execTime %= 1000;
 	    if (execTime < 100) out.print("0");
 	    if (execTime < 10)  out.print("0");
-	    out.print(execTime);
+	    out.print(String.valueOf(execTime));
 	    out.print(" ");
 	}
 	else if (execTime > 0) {
-	    out.print(execTime);
+	    out.print(String.valueOf(execTime));
 	}
 	
 	if (usec > 0) {
@@ -57,7 +57,7 @@ public class TimeRenderer {
 		if (usec < 100) out.print("0");
 		if (usec < 10)  out.print("0");
 	    }
-	    out.print(usec);
+	    out.print(String.valueOf(usec));
 	}
 	else if (execTime == 0) {
 	    out.print("0 ");

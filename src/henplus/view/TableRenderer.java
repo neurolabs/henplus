@@ -1,17 +1,18 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.2 2004-01-27 18:16:34 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.3 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
 
+import henplus.OutputDevice;
 import henplus.view.util.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
-import java.io.PrintStream;
+import henplus.OutputDevice;
 
 /**
  * document me.
@@ -26,13 +27,12 @@ public class TableRenderer {
     private int separatorWidth;
     
     protected final ColumnMetaData meta[];
-    protected final PrintStream out;
+    protected final OutputDevice out;
     protected final String colSeparator;
 
-    public TableRenderer(
-        ColumnMetaData[] meta,
-        PrintStream out,
-        String separator) {
+    public TableRenderer(ColumnMetaData[] meta,
+                         OutputDevice out,
+                         String separator) {
         this.meta = meta;
         this.out = out;
         /*
@@ -46,7 +46,7 @@ public class TableRenderer {
         this.separatorWidth = separator.length();
     }
 
-    public TableRenderer(ColumnMetaData[] meta, PrintStream out) {
+    public TableRenderer(ColumnMetaData[] meta, OutputDevice out) {
         this(meta, out, "|");
     }
 
@@ -122,10 +122,10 @@ public class TableRenderer {
                                        meta[i].getAlignment());
         hasMoreLines |= col.hasNextLine();
         if (col.isNull())
-            Terminal.grey(out);
+            out.attributeGrey();
         out.print(txt);
         if (col.isNull())
-            Terminal.reset(out);
+            out.attributeReset();
         out.print(colSeparator);
         return hasMoreLines;
     }
@@ -142,7 +142,7 @@ public class TableRenderer {
                     meta[i].getWidth() + separatorWidth + 1,
                     ColumnMetaData.ALIGN_LEFT);
             out.print(txt);
-            out.print('+');
+            out.print("+");
         }
         out.println();
     }
@@ -159,9 +159,9 @@ public class TableRenderer {
                     ' ',
                     meta[i].getWidth() + 1,
                     ColumnMetaData.ALIGN_CENTER);
-            Terminal.boldface(out);
+            out.attributeBold();
             out.print(txt);
-            Terminal.reset(out);
+            out.attributeReset();
             out.print(colSeparator);
         }
         out.println();

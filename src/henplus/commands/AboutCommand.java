@@ -1,12 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AboutCommand.java,v 1.6 2003-01-26 10:26:33 hzeller Exp $ 
+ * $Id: AboutCommand.java,v 1.7 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
 import henplus.SQLSession;
+import henplus.HenPlus;
 import henplus.AbstractCommand;
 import henplus.Version;
 
@@ -44,14 +45,14 @@ public class AboutCommand extends AbstractCommand {
      */
     public int execute(SQLSession session, String cmd, String param) {
 	if ("about".equals(cmd)) {
-	    System.err.print( ABOUT );
+	    HenPlus.msg().print( ABOUT );
 	}
 	else if ("version".equals(cmd)) {
-	    System.err.println(Version.getVersion() 
-			       + " / compiled " + Version.getCompileTime());
+	    HenPlus.msg().print(Version.getVersion() 
+                                + " / compiled " + Version.getCompileTime());
 	}
 	else if ("license".equals(cmd)) {
-	    System.err.println( LICENSE );
+	    HenPlus.msg().println( LICENSE );
 	}
 	return SUCCESS;
     }

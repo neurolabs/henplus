@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.24 2004-01-27 18:16:33 hzeller Exp $
+ * $Id: SQLSession.java,v 1.25 2004-02-01 14:12:52 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -61,12 +61,12 @@ public class SQLSession implements Interruptable {
 	_propertyRegistry = new PropertyRegistry();
 
 	Driver driver = null;
-	//System.err.println("connect to '" + url + "'");
+	//HenPlus.msg().println("connect to '" + url + "'");
 	driver = DriverManager.getDriver(url);
 
-	System.err.println ("HenPlus II connecting ");
-	System.err.println(" url '" + url + '\'');
-	System.err.println(" driver version " 
+	HenPlus.msg().println ("HenPlus II connecting ");
+	HenPlus.msg().println(" url '" + url + '\'');
+	HenPlus.msg().println(" driver version " 
 			 + driver.getMajorVersion()
 			 + "."
 			 + driver.getMinorVersion());
@@ -76,13 +76,13 @@ public class SQLSession implements Interruptable {
 	DatabaseMetaData meta = _conn.getMetaData();
 	_databaseInfo = (meta.getDatabaseProductName()
 			 + " - " + meta.getDatabaseProductVersion());
-	System.err.println(" " + _databaseInfo);
+	HenPlus.msg().println(" " + _databaseInfo);
 	try {
 	    if (meta.supportsTransactions()) {
 		currentIsolation = _conn.getTransactionIsolation();
 	    }
 	    else {
-		System.err.println("no transactions.");
+		HenPlus.msg().println("no transactions.");
 	    }
 	    _conn.setAutoCommit(false);
 	}
@@ -129,7 +129,7 @@ public class SQLSession implements Interruptable {
 			int iLevel, String descript, int current) 
 	throws SQLException {
 	if (meta.supportsTransactionIsolationLevel(iLevel)) {
-	    System.err.println(" " + descript
+	    HenPlus.msg().println(" " + descript
 			       + ((current == iLevel) ? " *" : " "));
 	}
     }
@@ -170,11 +170,11 @@ public class SQLSession implements Interruptable {
     }
 
     public void print(String msg) {
-	if (printMessages()) System.err.print(msg);
+	if (printMessages()) HenPlus.msg().print(msg);
     }
 
     public void println(String msg) {
-	if (printMessages()) System.err.println(msg);
+	if (printMessages()) HenPlus.msg().println(msg);
     }
 
     public void connect() throws SQLException, IOException {
@@ -193,20 +193,20 @@ public class SQLSession implements Interruptable {
 		_conn = DriverManager.getConnection(_url);
 	    }
 	    catch (SQLException e) {
-                System.err.println(e.getMessage());
+                HenPlus.msg().println(e.getMessage());
 		authRequired = true;
 	    }
 	}
 	
 	// read username, password
 	if (authRequired) {
-	    System.err.println("============ authorization required ===");
+	    HenPlus.msg().println("============ authorization required ===");
 	    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
             _interrupted = false;
             try {
                 SigIntHandler.getInstance().pushInterruptable(this);
                 HenPlus.getInstance();
-                System.err.print("Username: ");
+                HenPlus.msg().print("Username: ");
                 _username = input.readLine();
                 if (_interrupted) {
                     throw new IOException("connect interrupted ..");
@@ -278,9 +278,9 @@ public class SQLSession implements Interruptable {
     // -- Interruptable interface
     public void interrupt() {
 	_interrupted = true;
-        Terminal.boldface(System.err);
-	System.err.println(" interrupted; press [RETURN]");
-	Terminal.reset(System.err);
+        HenPlus.msg().attributeBold();
+	HenPlus.msg().println(" interrupted; press [RETURN]");
+        HenPlus.msg().attributeReset();
     }
 
     /**
@@ -304,7 +304,7 @@ public class SQLSession implements Interruptable {
             _conn = null;
 	}
 	catch (Exception e) {
-	    System.err.println(e); // don't care
+	    HenPlus.msg().println(e.toString()); // don't care
 	}
     }
 
@@ -318,7 +318,7 @@ public class SQLSession implements Interruptable {
 	int retries = 2;
 	try {
 	    if (_conn.isClosed()) { 
-		System.err.println("connection is closed; reconnect.");
+		HenPlus.msg().println("connection is closed; reconnect.");
 		connect();
 		--retries;
 	    }
@@ -332,7 +332,7 @@ public class SQLSession implements Interruptable {
 		break;
 	    }
 	    catch (Throwable t) {
-		System.err.println("connection failure. Try to reconnect.");
+		HenPlus.msg().println("connection failure. Try to reconnect.");
 		try { connect(); } catch (Exception e) {}
 	    }
 	    --retries;

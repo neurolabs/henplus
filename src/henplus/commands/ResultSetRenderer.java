@@ -1,13 +1,15 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.17 2004-01-28 09:25:48 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.18 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
 import henplus.util.*;
 import henplus.view.*;
+import henplus.OutputDevice;
+import henplus.HenPlus;
 import henplus.Interruptable;
 
 import java.sql.ResultSet;
@@ -15,7 +17,6 @@ import java.sql.Clob;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.io.PrintStream;
 import java.io.Reader;
 import java.io.IOException;
 import java.util.StringTokenizer;
@@ -38,7 +39,7 @@ public class ResultSetRenderer implements Interruptable {
 
     public ResultSetRenderer(ResultSet rset, String columnDelimiter,
                              int limit,
-                             PrintStream out, int[] show) 
+                             OutputDevice out, int[] show) 
 	throws SQLException {
 	this.rset = rset;
 	beyondLimit = false;
@@ -52,7 +53,7 @@ public class ResultSetRenderer implements Interruptable {
 
     public ResultSetRenderer(ResultSet rset, String columnDelimiter,
                              int limit,
-                             PrintStream out) 
+                             OutputDevice out) 
 	throws SQLException {
 	this(rset, columnDelimiter, limit, out, null);
     }
@@ -79,7 +80,7 @@ public class ResultSetRenderer implements Interruptable {
                 }
         }
         catch (Exception e) {
-            System.err.println(e);
+            HenPlus.msg().println(e.toString());
         }
         if (restLimit == 0) {
             result.append("...");

@@ -6,6 +6,7 @@
  */
 package henplus.commands;
 
+import henplus.HenPlus;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 
@@ -27,7 +28,7 @@ public class ExportCommand extends AbstractCommand {
      */
     public int execute(SQLSession session, String cmd, String param) {
 	int argc = argumentCount(param);
-	System.err.println("sorry, not implemented yet.");
+	HenPlus.msg().println("sorry, not implemented yet.");
 	return (argc == 3) ? SUCCESS : SYNTAX_ERROR;
     }
 

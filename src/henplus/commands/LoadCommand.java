@@ -53,8 +53,8 @@ public class LoadCommand extends AbstractCommand {
 	    _cwdStack.push(cwd.getCanonicalFile());
 	}
 	catch (IOException e) {
-	    System.err.println("cannot determine current working directory: " 
-			       + e);
+	    HenPlus.msg().println("cannot determine current working directory: " 
+                                  + e);
 	}
     }
 
@@ -103,7 +103,7 @@ public class LoadCommand extends AbstractCommand {
 		if (_openFiles.contains(f)) {
 		    throw new IOException("recursive inclusion alert: skipping file " + f.getName());
 		}
-		System.err.println(f.getName());
+		HenPlus.msg().println(f.getName());
 		currentFile = f;
 		_openFiles.add(currentFile);
 		_cwdStack.push(currentFile.getParentFile());
@@ -118,9 +118,9 @@ public class LoadCommand extends AbstractCommand {
 	    }
 	    catch (Exception e) {
 		//e.printStackTrace();
-		System.err.println(e.getMessage());
+		HenPlus.msg().println(e.getMessage());
 		if (st.hasMoreElements()) {
-		    System.err.println("..skipping to next file.");
+		    HenPlus.msg().println("..skipping to next file.");
 		    continue;
 		}
 		return EXEC_FAILED;
@@ -134,18 +134,19 @@ public class LoadCommand extends AbstractCommand {
 		}
 	    }
 	    long execTime = System.currentTimeMillis() - startTime;
-	    System.err.print(commandCount + " commands in ");
-	    TimeRenderer.printTime(execTime, System.err);
+	    HenPlus.msg().print(commandCount + " commands in ");
+	    TimeRenderer.printTime(execTime, HenPlus.msg());
 	    if (commandCount != 0) {
-		System.err.print("; avg. time ");
-		TimeRenderer.printFraction(execTime, commandCount, System.err);
+		HenPlus.msg().print("; avg. time ");
+		TimeRenderer.printFraction(execTime, commandCount, 
+                                           HenPlus.msg());
 	    }
 	    if (execTime != 0 && commandCount > 0) {
-		System.err.print("; " + 
-				 (1000 * commandCount / execTime) 
-				 + " per second");
+		HenPlus.msg().print("; " + 
+                                    (1000 * commandCount / execTime) 
+                                    + " per second");
 	    }
-	    System.err.println(" (" + filename + ")");
+	    HenPlus.msg().println(" (" + filename + ")");
 	}
 	return SUCCESS;
     }

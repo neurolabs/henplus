@@ -7,6 +7,7 @@
 package henplus.commands;
 
 import henplus.SQLSession;
+import henplus.HenPlus;
 import henplus.AbstractCommand;
 
 /**
@@ -26,7 +27,7 @@ public class ImportCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String cmd, String param) {
-	System.err.println("sorry, not implemented yet.");
+	HenPlus.msg().println("sorry, not implemented yet.");
 	return SUCCESS;
     }
 

@@ -1,12 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.61 2004-01-28 09:25:48 hzeller Exp $
+ * $Id: HenPlus.java,v 1.62 2004-02-01 14:12:52 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
 import henplus.commands.*;
+import henplus.commands.properties.*;
 import henplus.view.util.Terminal;
 
 import java.io.BufferedReader;
@@ -49,15 +50,14 @@ public class HenPlus implements Interruptable {
     private File              _configDir;
     private boolean           _alreadyShutDown;
     private BufferedReader    _fileReader;
-    private PrintStream       _output;
+    private OutputDevice      _output;
+    private OutputDevice      _msg;
 
     private volatile boolean   _interrupted;
 
     private HenPlus(String argv[]) throws IOException {
 	_terminated = false;
 	_alreadyShutDown = false;
-        setOutput(System.out);
-
 	boolean quiet = false;
 
 	_commandSeparator = new SQLStatementSeparator();
@@ -81,6 +81,15 @@ public class HenPlus implements Interruptable {
 	    System.err.println("reading from stdin");
 	}
 	_quiet = quiet || !_fromTerminal; // not from terminal: always quiet.
+        
+        if (_fromTerminal) {
+            setOutput(new TerminalOutputDevice(System.out),
+                      new TerminalOutputDevice(System.err));
+        } 
+        else {
+            setOutput(new PrintStreamOutputDevice(System.out),
+                      new PrintStreamOutputDevice(System.err));
+        }
 
 	// output of special characters.
 	Terminal.setTerminalAvailable(_fromTerminal);
@@ -548,9 +557,10 @@ public class HenPlus implements Interruptable {
     // -- Interruptable interface
     public void interrupt() { 
 	// watchout: Readline.getLineBuffer() will cause a segmentation fault!
-	Terminal.boldface(System.err);
-	System.err.println(" ..discard current line; press [RETURN]");
-	Terminal.reset(System.err);
+        getMessageDevice().attributeBold();
+	getMessageDevice().print(" ..discard current line; press [RETURN]");
+        getMessageDevice().attributeReset();
+
 	_interrupted = true; 
     }
 
@@ -560,22 +570,27 @@ public class HenPlus implements Interruptable {
 	return instance;
     }
     
-    public void setOutput(PrintStream out) {
+    public void setOutput(OutputDevice out, OutputDevice msg) {
         _output = out;
+        _msg = msg;
     }
     
-    public PrintStream getOutput() {
+    public OutputDevice getOutputDevice() {
         return _output;
     }
 
-    public static PrintStream out() {
-        return getInstance().getOutput();
-    }
-    
-    public static PrintStream msg() {
-        return System.err;
+    public OutputDevice getMessageDevice() {
+        return _msg;
     }
 
+    public static OutputDevice out() {
+        return getInstance().getOutputDevice();
+    }
+
+    public static OutputDevice msg() {
+        return getInstance().getMessageDevice();
+    }
+    
     public static final void main(String argv[]) throws Exception {
 	instance = new HenPlus(argv);
 	instance.run();

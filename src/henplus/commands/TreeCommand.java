@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import java.io.PrintStream;
+import henplus.OutputDevice;
 
 /*
  * foo
@@ -54,14 +54,14 @@ public class TreeCommand extends AbstractCommand {
             return n;
         }
 
-        public void print(PrintStream out) {
+        public void print(OutputDevice out) {
             print(new TreeSet(), new StringBuffer(), "", out);
         }
 
         private void print(SortedSet alreadyPrinted,
                            StringBuffer currentIndent,
                            String indentString,
-                           PrintStream out) 
+                           OutputDevice out) 
         {
             if (indentString.length() > 0) { // otherwise we are toplevel.
                 out.print("-- ");
@@ -85,8 +85,8 @@ public class TreeCommand extends AbstractCommand {
                 Iterator it = _children.iterator();
                 while (it.hasNext()) {
                     Node n = (Node) it.next();
-                    out.print(currentIndent);
-                    out.print((remaining == 1) ? '`' : '|');
+                    out.print(String.valueOf(currentIndent));
+                    out.print((remaining == 1) ? "`" : "|");
                     n.print(alreadyPrinted, currentIndent,
                             (remaining == 1) ? "    " : "|   ", out);
                     --remaining;

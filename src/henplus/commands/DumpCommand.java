@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.21 2004-01-29 22:31:53 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.22 2004-02-01 14:12:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -1289,9 +1289,9 @@ public class DumpCommand
 	    this.fieldName = fieldName;
 	    this.typeName = (String) JDBCTYPE2TYPENAME.get(new Integer(jdbcType));
 	    if (this.typeName == null) {
-		System.err.println("cannot handle type '"
-                                   + type 
-                                   + "' for field '" + this.fieldName + "'; trying String..");
+		HenPlus.msg().println("cannot handle type '"
+                                      + type 
+                                      + "' for field '" + this.fieldName + "'; trying String..");
                 this.type = HP_STRING;
                 this.typeName = TYPES[ this.type  ];
 	    }

@@ -1,10 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SQLMetaDataBuilder.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: SQLMetaDataBuilder.java,v 1.3 2004-02-01 14:12:52 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus;
+
+import henplus.HenPlus;
 
 import henplus.sqlmodel.Column;
 import henplus.sqlmodel.ColumnFkInfo;
@@ -25,19 +27,19 @@ public final class SQLMetaDataBuilder {
     private static final boolean _verbose = false;
 
     // column description
-    public static final int TABLE_NAME = 3; // String
+    public static final int TABLE_NAME  = 3; // String
     public static final int COLUMN_NAME = 4; // String
-    public static final int DATA_TYPE = 5; // int -> java.sql.Types
-    public static final int TYPE_NAME = 6; // String
+    public static final int DATA_TYPE   = 5; // int -> java.sql.Types
+    public static final int TYPE_NAME   = 6; // String
     public static final int COLUMN_SIZE = 7; // int
-    public static final int NULLABLE = 11; // int: 
-    public static final int COLUMN_DEF = 13; // String
+    public static final int NULLABLE    = 11; // int: 
+    public static final int COLUMN_DEF  = 13; // String
     public static final int ORDINAL_POSITION = 17; // int, starting at 1
     /*
-    * columnNoNulls - might not allow NULL values
-    * columnNullable - definitely allows NULL values
-    * columnNullableUnknown - nullability unknown 
-    */
+     * columnNoNulls - might not allow NULL values
+     * columnNullable - definitely allows NULL values
+     * columnNullableUnknown - nullability unknown 
+     */
     public static final int IS_NULLABLE = 17;
 
     // primary key description
@@ -61,7 +63,7 @@ public final class SQLMetaDataBuilder {
     }
 
     public SQLMetaData getMetaData(SQLSession session, SortedSet /*<String>*/
-    tableNames) {
+                                   tableNames) {
         SQLMetaData result = new SQLMetaData();
 
         ResultSet rset = null;
@@ -86,8 +88,8 @@ public final class SQLMetaDataBuilder {
         catch (Exception e) {
             if (_verbose)
                 e.printStackTrace();
-            System.err.println(
-                "Database problem reading meta data: " + e.getMessage().trim());
+            HenPlus.msg().println(
+                                  "Database problem reading meta data: " + e.getMessage().trim());
         }
         finally {
             if (rset != null) {
@@ -114,8 +116,8 @@ public final class SQLMetaDataBuilder {
         catch (Exception e) {
             if (_verbose)
                 e.printStackTrace();
-            System.err.println(
-                "Database problem reading meta data: " + e.getMessage().trim());
+            HenPlus.msg().println(
+                                  "Database problem reading meta data: " + e.getMessage().trim());
         }
         finally {
             if (rset != null) {
@@ -130,10 +132,10 @@ public final class SQLMetaDataBuilder {
     }
 
     private Table buildTable(
-        String catalog,
-        DatabaseMetaData meta,
-        String tableName,
-        ResultSet rset)
+                             String catalog,
+                             DatabaseMetaData meta,
+                             String tableName,
+                             ResultSet rset)
         throws SQLException {
 
         Table table = null;
@@ -148,8 +150,8 @@ public final class SQLMetaDataBuilder {
                 column.setType(rset.getString(TYPE_NAME));
                 column.setSize(rset.getInt(COLUMN_SIZE));
                 boolean nullable = (rset.getInt(NULLABLE) == DatabaseMetaData.columnNullable)
-                        ? true
-                        : false;
+                    ? true
+                    : false;
                 column.setNullable(nullable);
                 String defaultVal = rset.getString(COLUMN_DEF);
                 column.setDefault( (defaultVal != null) ? defaultVal.trim() : null );
@@ -165,7 +167,7 @@ public final class SQLMetaDataBuilder {
     }
 
     private PrimaryKey getPrimaryKey(DatabaseMetaData meta, String tabName)
-                throws SQLException {
+        throws SQLException {
         PrimaryKey result = null;
         ResultSet rset = meta.getPrimaryKeys(null, null, tabName);
         if (rset != null) {
@@ -183,7 +185,7 @@ public final class SQLMetaDataBuilder {
     }
 
     private Map getForeignKeys(DatabaseMetaData meta, String tabName)
-                throws SQLException {
+        throws SQLException {
         Map fks = new HashMap();
         
         ResultSet rset = null;
@@ -192,14 +194,14 @@ public final class SQLMetaDataBuilder {
             rset = meta.getImportedKeys(null, null, tabName);
         } catch ( NoSuchElementException e ) {
             if (_verbose)
-                System.err.println("Database problem reading meta data: " + e);
+                HenPlus.msg().println("Database problem reading meta data: " + e);
         }
         
         if (rset != null) {
             while (rset.next()) {
                 ColumnFkInfo fk = new ColumnFkInfo(rset.getString(FK_FK_NAME),
-                                                                                rset.getString(FK_PKTABLE_NAME),
-                                                                                rset.getString(FK_PKCOLUMN_NAME));
+                                                   rset.getString(FK_PKTABLE_NAME),
+                                                   rset.getString(FK_PKCOLUMN_NAME));
                 String col = rset.getString(FK_FKCOLUMN_NAME);
                 fks.put(col, fk);
             }

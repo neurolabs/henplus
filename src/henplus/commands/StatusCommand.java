@@ -6,6 +6,7 @@
  */
 package henplus.commands;
 
+import henplus.HenPlus;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 
@@ -26,11 +27,10 @@ public class StatusCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String cmd, String param) {
-	System.err.println("URL:    " + session.getURL());
-	System.err.print  ("uptime: ");
-	TimeRenderer.printTime(session.getUptime(), System.err);
-	System.err.print("; statements: " + session.getStatementCount());
-	System.err.println();
+	HenPlus.msg().println("URL:    " + session.getURL());
+	HenPlus.msg().print  ("uptime: ");
+	TimeRenderer.printTime(session.getUptime(), HenPlus.msg());
+	HenPlus.msg().println("; statements: " + session.getStatementCount());
 	return SUCCESS;
     }
 
