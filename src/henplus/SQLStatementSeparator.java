@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.2 2002-02-22 09:11:04 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.3 2002-04-03 07:08:25 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -156,13 +156,15 @@ public class SQLStatementSeparator {
 	    boolean vetoAppend = false;
 	    boolean reIterate;
 	    current = input.charAt(pos);
+	    if (current == '\r') {
+		current = '\n'; // canonicalize.
+	    }
 	    //System.out.print ("Pos: " + pos + "\t");
 	    do {
 		reIterate = false;
 		switch (state) {
 		case STATEMENT :
-		    if (current == '\n' || current == '\r')
-			state = POTENTIAL_END_FOUND;
+		    if (current == '\n')      state = POTENTIAL_END_FOUND;
 		    else if (current == ';')  state = POTENTIAL_END_FOUND;
 		    else if (current == '/')  state = START_COMMENT;
 		    else if (current == '"')  state = STRING;
@@ -206,7 +208,6 @@ public class SQLStatementSeparator {
 		    break;
 		case ENDLINE_COMMENT:
 		    if (current == '\n')      state = POTENTIAL_END_FOUND;
-		    else if (current == '\r') state = POTENTIAL_END_FOUND;
 		    break;
 		case STRING:     
 		    if (current == '\\') state = STRING_QUOTE;

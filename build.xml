@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.20 2002-03-11 10:34:19 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.21 2002-04-03 07:08:25 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
@@ -37,7 +37,7 @@
      </target>
      
      <target name="jar" depends="compile" description="make jar">
-        <jar file="${build}/henplus.jar" manifest="manifest.txt">
+        <jar jarfile="${build}/henplus.jar" manifest="manifest.txt">
            <fileset dir="${classes}">
               <include name="**/*.class"/>
            </fileset>

@@ -90,7 +90,7 @@ public class LoadCommand extends AbstractCommand {
 				 (1000 * commandCount / execTime) 
 				 + " per second");
 	    }
-	    System.err.println();
+	    System.err.println(" (" + filename + ")");
 	}
 	return SUCCESS;
     }

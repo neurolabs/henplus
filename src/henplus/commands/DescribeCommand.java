@@ -162,7 +162,10 @@ public class DescribeCommand extends AbstractCommand {
 		row[2] = new Column( type );
 		String defaultVal = rset.getString(13);
 		row[3] = new Column( rset.getString(18) );
-		row[4] = new Column( defaultVal );
+		// oracle appends newline to default values for some reason.
+		row[4] = new Column( ((defaultVal != null) 
+				      ? defaultVal.trim() 
+				      : null) );
 		String pkdesc = (String) pks.get(colname);
 		row[5] = new Column( (pkdesc != null) ? pkdesc : "");
 		String fkdesc = (String) fks.get(colname);
