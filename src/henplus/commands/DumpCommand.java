@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.14 2002-12-29 11:38:21 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.15 2003-02-01 21:41:42 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -1238,6 +1238,8 @@ public class DumpCommand
 		+"\tthen the content is assumed to be gzipped and is\n"
 		+"\tunpacked on the fly. The 'dump-in' command fills\n"
 		+"\texisting tables, it does not create missing ones!\n\n"
+                +"\tExisting content ist not deleted before, dump-in just\n"
+                +"\tinserts all data found in the dump.\n\n"
 		+"\tInternally, the import uses a prepared statement that is\n"
 		+"\tfed with the typed data according to the meta data (see\n"
 		+"\tdump-out for the file format). This evens out differences\n"
