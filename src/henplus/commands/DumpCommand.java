@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.27 2004-03-11 15:15:44 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.28 2004-06-13 10:01:20 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -499,6 +499,12 @@ public class DumpCommand
 	    long rows = 0;
 	    long progressDots = 0;
 	    stmt = session.createStatement();
+            try {
+                stmt.setFetchSize(1000);
+            }
+            catch (Exception e) {
+                // ignore
+            }
 	    rset = stmt.executeQuery(selectStmt.toString());
 	    boolean isFirst = true;
 	    while (rset.next()) {

@@ -181,7 +181,7 @@ public class SQLCommand extends AbstractCommand {
             background = true;
         }
 
-	long startTime = System.currentTimeMillis();
+	final long startTime = System.currentTimeMillis();
 	long lapTime  = -1;
 	long execTime = -1;
 	try {
@@ -223,7 +223,7 @@ public class SQLCommand extends AbstractCommand {
                         else {
                             stmt = session.createStatement();
                             try {
-                                // Postgres otherwise tries to load the
+                                // Postgres and MySQL try to load the
                                 // whole result set at once :-(
                                 stmt.setFetchSize(200);
                             }
