@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SigIntHandler.java,v 1.3 2002-04-22 16:16:54 hzeller Exp $ 
+ * $Id: SigIntHandler.java,v 1.4 2002-06-10 17:38:11 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -15,7 +15,7 @@ import sun.misc.SignalHandler;
 public class SigIntHandler implements SignalHandler {
     private boolean once;
     private static SigIntHandler instance = null;
-    private Thread toInterrupt = null;
+    private Interruptable toInterrupt = null;
 
     public static SigIntHandler install() {
 	Signal interruptSignal = new Signal("INT"); // Interrupt: Ctrl-C
@@ -33,7 +33,7 @@ public class SigIntHandler implements SignalHandler {
 	once = false;
     }
     
-    public void registerInterrupt(Thread t) {
+    public void registerInterrupt(Interruptable t) {
 	toInterrupt = t;
     }
     
@@ -45,7 +45,7 @@ public class SigIntHandler implements SignalHandler {
     public void handle(Signal sig) {
 	if (once) {
 	    // got the interrupt twice. Just exit.
-	    System.exit(2);
+	    return;
 	}
 	once = true;
 	System.err.println("[Ctrl-C ; interrupted]");
@@ -54,7 +54,6 @@ public class SigIntHandler implements SignalHandler {
 	    //System.err.println("try to interrupt: " + toInterrupt);
 	    toInterrupt.interrupt();
 	    toInterrupt = null;
-	    //System.exit(2);
 	}
 	else {
 	    System.exit(1);

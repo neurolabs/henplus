@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
@@ -21,7 +22,12 @@ import henplus.util.Terminal;
  * This command executes stuff on the shell. Supports the most common
  * shell commands for convenience.
  */
-public class ShellCommand extends AbstractCommand {
+public class ShellCommand 
+    extends AbstractCommand
+    implements Interruptable 
+{
+    Thread _myThread;
+
     /**
      * returns the command-strings this command can handle.
      */
@@ -50,6 +56,10 @@ public class ShellCommand extends AbstractCommand {
 	return new FileCompletionIterator(lastWord);
     }
 
+    public void interrupt() {
+	_myThread.interrupt();
+    }
+
     /**
      * execute the command given.
      */
@@ -60,7 +70,8 @@ public class ShellCommand extends AbstractCommand {
 	Process   p = null;
 	IOHandler ioHandler = null;
 	int exitStatus = -1;
-	SigIntHandler.getInstance().registerInterrupt(Thread.currentThread());
+	_myThread = Thread.currentThread();
+	SigIntHandler.getInstance().registerInterrupt(this);
 	try {
 	    try {
 		p = Runtime.getRuntime().exec(new String[] { "sh", "-c",

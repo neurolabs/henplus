@@ -1,12 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.8 2002-02-16 00:07:33 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.9 2002-06-10 17:38:11 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
 import henplus.util.*;
+import henplus.Interruptable;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -18,7 +19,7 @@ import java.util.StringTokenizer;
 /**
  * document me.
  */
-public class ResultSetRenderer {
+public class ResultSetRenderer implements Interruptable {
     private static final int LIMIT = 2000;
 
     private final ResultSet rset;
@@ -28,7 +29,8 @@ public class ResultSetRenderer {
 
     private boolean beyondLimit;
     private long    firstRowTime;
-    
+    private boolean running;
+
     public ResultSetRenderer(ResultSet rset, PrintStream out, int[] show) 
 	throws SQLException {
 	this.rset = rset;
@@ -44,12 +46,18 @@ public class ResultSetRenderer {
 	throws SQLException {
 	this(rset, out, null);
     }
+    
+    // Interruptable interface.
+    public void interrupt() {
+	running = false;
+    }
 
     public int execute() throws SQLException {
 	int rows = 0;
-	
+
+	running = true;
 	try {
-	    while (rset.next()) {
+	    while (running && rset.next()) {
 		if (firstRowTime < 0) {
 		    firstRowTime = System.currentTimeMillis();
 		}
