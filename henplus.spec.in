@@ -1,4 +1,4 @@
-# $Id: henplus.spec.in,v 1.2 2002-03-11 09:26:08 hzeller Exp $
+# $Id: henplus.spec.in,v 1.3 2002-03-11 10:34:21 hzeller Exp $
 #
 %define version @HENPLUS_VERSION@
 
@@ -26,7 +26,7 @@ JDBC aware database.
 
 %build
 CLASSPATH=$CLASSPATH:`rpm -ql libreadline-java | grep readline-java.jar`
-ant -Dprefix=%{prefix} jar
+ant -Dbuild.compiler=modern -Dprefix=%{prefix} jar
 
 %install
 ant -Dprefix=%{prefix} -DDESTDIR=$RPM_BUILD_ROOT install
