@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.6 2002-02-11 16:33:03 hzeller Exp $
+ * $Id: SQLSession.java,v 1.7 2002-02-11 20:53:23 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -111,6 +111,14 @@ public class SQLSession {
 
     public void connect() throws SQLException, IOException {
 	boolean authRequired = false;
+
+	/*
+	 * close old connection ..
+	 */
+	if (_conn != null) {
+	    try { _conn.close(); } catch (Throwable t) { /* ignore */ }
+	}
+
 	// try to connect directly with the url.
 	if (_username == null || _password == null) {
 	    try {
@@ -171,18 +179,13 @@ public class SQLSession {
 		++_statementCount;
 		break;
 	    }
-	    catch (Exception e) {
+	    catch (Throwable t) {
 		System.err.println("connection failure. Try to reconnect.");
-		try { connect(); } catch (Exception e1) {}
+		try { connect(); } catch (Exception e) {}
 	    }
 	}
 	return result;
     }
-
-    /**
-     * returns the command dispatcher.
-     */
-    //public CommandDispatcher getDispatcher() { return dispatcher; }
 }
 
 /*

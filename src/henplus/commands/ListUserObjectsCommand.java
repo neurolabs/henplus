@@ -31,7 +31,7 @@ public class ListUserObjectsCommand extends AbstractCommand {
      */
     public int execute(SQLSession session, String command) {
 	try {
-	    Connection conn = session.getConnection(); 
+	    Connection conn = session.getConnection();  // use createStmt
 	    DatabaseMetaData meta = conn.getMetaData();
 	    String catalog = conn.getCatalog();
 	    System.err.println("catalog: " + catalog);

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.21 2002-02-11 16:33:03 hzeller Exp $
+ * $Id: HenPlus.java,v 1.22 2002-02-11 20:53:23 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -245,7 +245,9 @@ public class HenPlus {
 		    break; // last session closed.
 		}
 	    }
-	    catch (Exception e) { /* ignore */ }
+	    catch (Exception e) {
+		if (verbose) e.printStackTrace();
+	    }
 	    if (cmdLine == null)
 		continue;
 	    if (addLine(cmdLine) == LINE_INCOMPLETE) {
@@ -508,7 +510,7 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.21 $]--\n";
++"----------------------------------------------------[$Revision: 1.22 $]--\n";
 	System.err.println(cpy);
 
 	instance = new HenPlus(properties, argv);

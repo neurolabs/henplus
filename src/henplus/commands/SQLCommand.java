@@ -77,8 +77,28 @@ public class SQLCommand extends AbstractCommand {
 		System.err.println(".done.");
 	    }
 	    else {
-		stmt = session.createStatement();
-		if (stmt.execute(command)) {
+		boolean hasResultSet = false;
+		
+		/* this is basically a hack around SAP-DB's tendency to
+		 * throw NullPointerExceptions, if the session timed out.
+		 */
+		for (int retry=2; retry > 0; --retry) {
+		    try {
+			stmt = session.createStatement();
+			hasResultSet = stmt.execute(command);
+		    }
+		    catch (SQLException e) { throw e; }
+		    catch (Throwable e) {
+			if (retry == 1) {
+			    return EXEC_FAILED;
+			}
+			System.err.println("Problem: " + e.getMessage()
+					   + "; trying reconnect...");
+			session.connect();
+		    }
+		}
+
+		if (hasResultSet) {
 		    ResultSetRenderer renderer;
 		    renderer = new ResultSetRenderer(stmt.getResultSet(),
 						     System.out);
@@ -103,12 +123,13 @@ public class SQLCommand extends AbstractCommand {
 	    }
 	    return SUCCESS;
 	}
-	catch (SQLException e) {
+	catch (Exception e) {
 	    String msg = e.getMessage();
 	    if (msg != null) {
 		// oracle appends a newline to the message for some reason.
 		System.err.println("FAILURE: " + msg.trim());
 	    }
+	    e.printStackTrace();
 	    return EXEC_FAILED;
 	}
 	finally {

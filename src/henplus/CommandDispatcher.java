@@ -23,6 +23,7 @@ import henplus.commands.SetCommand;
  * document me.
  */
 public class CommandDispatcher implements ReadlineCompleter {
+    private final static boolean verbose = false; // debug
     private final List commands;  // commands in sequence of addition.
     private final SortedMap commandMap;
     private final SetCommand setCommand;
@@ -154,7 +155,8 @@ public class CommandDispatcher implements ReadlineCompleter {
 		}
 		}
 	    }
-	    catch (Exception e) {
+	    catch (Throwable e) {
+		if (verbose) e.printStackTrace();
 		System.err.println(e);
 	    }
 	}
