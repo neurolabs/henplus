@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.52 2003-01-26 10:26:33 hzeller Exp $
+ * $Id: HenPlus.java,v 1.53 2003-01-27 17:50:13 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -129,6 +129,7 @@ public class HenPlus implements Interruptable {
 	dispatcher.register(new DumpCommand(objectLister, loadCommand));
 
 	dispatcher.register(new AutocommitCommand()); // replace with 'set'
+        dispatcher.register(new CommentRemoveCommand(this));
 	dispatcher.register(new ShellCommand());
 
 	dispatcher.register(new SpoolCommand()); // dummy command
@@ -418,6 +419,10 @@ public class HenPlus implements Interruptable {
     
     public void setDefaultPrompt() {
 	setPrompt( _fromTerminal ? PROMPT : "" );
+    }
+
+    public void removeComments(boolean rc) {
+        _commandSeparator.removeComments(rc);
     }
 
     /**

@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.12 2003-01-27 11:45:19 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.13 2003-01-27 17:50:13 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -277,6 +277,19 @@ these two slashes, and we don't want to comment these out, right ? ;-)
 <p>
 If you encounter some other reasonable style of comments you want that it is
 supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
+<p>
+<b>Switching off comment removal...</b>
+The comment removal is done in HenPlus, since some JDBC-Drivers have problems
+to remove comments or do not remove the same set of comment types given here.
+Anyway, sometimes it is necessary <em>not</em> to remove comments, since some
+datases use comments to convey hinting in statements. In Oracle, for instance,
+you give hints to the query optimizer in the form
+<pre>
+    select <b>/*+ index(foo,foo_a_idx) */</b> a from foo where ...
+</pre>
+For this reason, the command <code>remove-comments-off</code> is provided; it
+allows to swith of comment removal, so the string is sent to the
+database as-is. Switch it on with <code>remove-comments-on</code> again.
 
 <h3><a name="getting-connected"/>Getting connected</h3>
 Getting connected to a database is simple: you need the JDBC driver
@@ -569,4 +582,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.12 2003-01-27 11:45:19 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.13 2003-01-27 17:50:13 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>

@@ -6,6 +6,8 @@ henplus (0.9.1-1) unstable; urgency=low
   * rename session only, if a session with the given name does not already
     exist
   * add password-erase-while-typing hack.
+  * make removing of comments switchable. Oracle for instance conveys
+    hints in comments.
   
  -- Henner Zeller <H.Zeller@acm.org>  Sun, 26 Jan 2003 12:12:12 +0100
 

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PasswordEraserThread.java,v 1.1 2003-01-26 21:15:10 hzeller Exp $
+ * $Id: PasswordEraserThread.java,v 1.2 2003-01-27 17:50:14 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  * inspired by hack provided in 
  *  <http://java.sun.com/features/2002/09/pword_mask.html>
@@ -23,7 +23,7 @@ class PasswordEraserThread extends Thread {
          * we are erasing by writing the prompt followed by spaces
          * from the beginning of the line
          */
-        eraser = "\r" + prompt + "    \r" + prompt;
+        eraser = "\r" + prompt + "                \r" + prompt;
         running = true;
     }
 

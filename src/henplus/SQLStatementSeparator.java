@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.12 2002-11-21 18:41:26 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.13 2003-01-27 17:50:14 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -31,7 +31,7 @@ import java.util.Stack;
          }
       }
  }
- *-----------------------
+ *----------------------- 
  *</pre>
  * @author Henner Zeller <H.Zeller@acm.org>
  */
@@ -78,12 +78,14 @@ public class SQLStatementSeparator {
 	public StringBuffer getCommandBuffer() { return _commandBuffer; }
     };
 
+    private boolean      _removeComments;
     private ParseState   _currentState;
     private Stack        _stateStack;
 
     public SQLStatementSeparator() {
 	_currentState = new ParseState();
 	_stateStack = new Stack();
+        _removeComments = true;
     }
 
     /**
@@ -157,6 +159,13 @@ public class SQLStatementSeparator {
     }
 
     /**
+     * set, whether comments should be removed.
+     */
+    public void removeComments(boolean b) {
+        _removeComments = b;
+    }
+
+    /**
      * parse partial input and set state to POTENTIAL_END_FOUND if we
      * either reached end-of-line or a semicolon.
      */
@@ -218,20 +227,22 @@ public class SQLStatementSeparator {
                      * special handling of the 'first-two-semicolons-after
                      * a-newline-comment'.
                      */
-		    else if (lastEoline && current== ';' ) {
+		    else if (_removeComments && lastEoline && current== ';' ) {
 			state = FIRST_SEMICOLON_ON_LINE_SEEN;
 		    }
 		    else if (!lastEoline && current==';') {
 			_currentState.setNewlineSeen(false);
 			state = POTENTIAL_END_FOUND;
 		    }
-		    else if (current == '/')  state = START_COMMENT;
+		    else if (_removeComments && current == '/') {
+                        state = START_COMMENT;
+                    }
 
                     /*
                      * only if '#' this is the first character, make it
                      * a comment..
                      */
-		    else if (lastEoline && current == '#') {
+		    else if (_removeComments && lastEoline && current == '#') {
                         state = ENDLINE_COMMENT;
                     }
 		    else if (current == '"')  state = STRING;
