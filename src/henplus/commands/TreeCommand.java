@@ -28,10 +28,9 @@ import henplus.CommandDispatcher;
 /*
  * foo
  * |-- bar
- * |   |-- blubber
+ * |   |-- blah
  * |   `-- (foo)            <-- cylic reference
- * |-- baz
- * `-- blub
+ * `-- baz
  */
 
 /**
@@ -225,6 +224,30 @@ public class TreeCommand extends AbstractCommand {
     
     public String getSynopsis(String cmd) {
 	return cmd + " <tablename>";
+    }
+    
+    public String getLongDescription(String cmd) {
+	String dsc = null;
+        dsc= "\tShow tables, that are connected via foreign keys in a\n"
+            +"\ttree like manner. This is very helpful in exploring\n"
+            +"\tcomplicated data structures or simply check if all\n"
+            +"\tforeign keys are applied. This command works of course\n"
+            +"\tonly with databases that support foreign keys (so _not_\n"
+            +"\tMySQL). Invoke on the toplevel table you are interested in\n"
+            +"\tExample:\n"
+            +"\tConsider tables 'bar' and 'baz' that have a foreign key\n"
+            +"\ton the table 'foo'. Further a table 'blah', that references\n"
+            +"\t'bar'. The table 'foo' in turn references 'bar', thus\n"
+            +"\tcyclicly referencing itself. This would be represented as\n"
+            +"\t    foo\n"
+            +"\t    |-- bar\n"
+            +"\t    |   |-- blah\n"
+            +"\t    |   `-- (foo)            <-- cylic reference\n"
+            +"\t    `-- baz\n"
+            +"\tSo in order to limit the potential cyclic graph in the\n"
+            +"\ttree view from infinite to finite, cyclic nodes are shown\n"
+            +"\tin parenthesis.";
+        return dsc;
     }
 
     public boolean requiresValidSession(String cmd) { return false; }
