@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.2 2002-06-10 17:37:48 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.3 2002-06-10 18:11:49 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -157,11 +157,7 @@ public class DumpCommand
 		    }
 		}
 
-		long startTime = System.currentTimeMillis();
 		int result = dumpTable(session, tabName, fileName);
-		TimeRenderer.printTime(System.currentTimeMillis()-startTime,
-				       System.err);
-		System.err.println();
 		return result;
 	    }
 	    catch (Exception e) {
@@ -189,17 +185,13 @@ public class DumpCommand
 		}
 	    }
 	    
-	    long startTime = System.currentTimeMillis();
 	    try {
 		SigIntHandler.getInstance().registerInterrupt(this);
 		int result = readTableDump(session, fileName, true, 
 					   commitPoint);
 		if (!_running) {
-		    System.err.print("interrupted after ");
+		    System.err.print("interrupted.");
 		}
-		TimeRenderer.printTime(System.currentTimeMillis()-startTime,
-				       System.err);
-		System.err.println();
 		return result;
 	    }
 	    catch (Exception e) {
@@ -329,6 +321,7 @@ public class DumpCommand
 
 	dumpOut.print("  (data ");
 	stmt = null;
+	long startTime = System.currentTimeMillis();
 	try {
 	    long rows = 0;
 	    long progressDots = 0;
@@ -419,7 +412,12 @@ public class DumpCommand
 	    }
 	    dumpOut.println(")");
 	    dumpOut.println("  (rows " + rows + "))");
-	    System.err.println("(" + rows + " rows)");
+	    System.err.print("(" + rows + " rows; ");
+	    long execTime = System.currentTimeMillis()-startTime;
+	    TimeRenderer.printTime(execTime, System.err);
+	    System.err.print(" total; ");
+	    TimeRenderer.printFraction(execTime, rows, System.err);
+	    System.err.println(" / row)");
 	    if (expectedRows >= 0 && rows != expectedRows) {
 		System.err.println("\nWarning: 'select count(*)' in the"
 				   + " beginning resulted in " + expectedRows
@@ -495,6 +493,7 @@ public class DumpCommand
 	if (!"tabledump".equals(token)) raiseException(reader, 
 						       "'tabledump' expected");
 	tableName = readString(reader);
+	long startTime = System.currentTimeMillis();
 	_running = true; // interruptable
 	while (_running) {
 	    skipWhite(reader);
@@ -723,7 +722,12 @@ public class DumpCommand
 	}
 	System.err.print("(" + importedRows + " rows total");
 	if (hot) System.err.print(" / " + problemRows + " with errors");
-	System.err.println(")");
+	System.err.print("; ");
+	long execTime = System.currentTimeMillis()-startTime;
+	TimeRenderer.printTime(execTime, System.err);
+	System.err.print(" total; ");
+	TimeRenderer.printFraction(execTime, importedRows, System.err);
+	System.err.println(" / row)");
 	fileIn.close();
 	return SUCCESS;
     }
