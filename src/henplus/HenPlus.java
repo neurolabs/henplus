@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.16 2002-01-27 20:22:59 hzeller Exp $
+ * $Id: HenPlus.java,v 1.17 2002-01-28 11:32:00 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -21,6 +21,7 @@ import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
 
 public class HenPlus {
+    public static final boolean verbose = false; // debug.
     private static final String EXIT_MSG   = "good bye.";
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT     = "Hen*Plus> ";
@@ -39,7 +40,7 @@ public class HenPlus {
     public static final byte LINE_EXECUTED   = 1;
     public static final byte LINE_EMPTY      = 2;
     public static final byte LINE_INCOMPLETE = 3;
-
+    
     private static HenPlus instance = null; // singleton.
     
     private byte              _parseState;
@@ -84,9 +85,14 @@ public class HenPlus {
 	    String name = (String) props.nextElement();
 	    if (name.startsWith("driver.") && name.endsWith(".class")) {
 		try {
-		    Class.forName(properties.getProperty(name));
+		    String driverClass = properties.getProperty(name);
+		    if (verbose) System.err.print("loading .. '" + driverClass + "'");
+		    Class.forName(driverClass);
+		    if (verbose) System.err.println(" done.");
 		}
-		catch (Throwable t) {}
+		catch (Throwable t) {
+		    if (verbose) System.err.println(" failed: " + t.getMessage());
+		}
 	    }
 	}
 
@@ -280,7 +286,7 @@ public class HenPlus {
 		break;
 	    case START_COMMENT:
 		if (current == '*')         state = COMMENT;
-		else if (current == '/')    state = ENDLINE_COMMENT;
+		//else if (current == '/')    state = ENDLINE_COMMENT;
 		else { parsed.append ('/'); state = STATEMENT; }
 		break;
 	    case COMMENT:
@@ -418,12 +424,13 @@ public class HenPlus {
 			       "oracle.jdbc.driver.OracleDriver");
 	properties.setProperty("driver.Oracle.example",
 			       "jdbc:oracle:thin:@localhost:1521:ORCL");
-
+	/*
+	 * wenn auskommentieren, dann mal 'verbose' oben einstellen..
 	properties.setProperty("driver.DB2.class",
 			       "COM.ibm.db2.jdbc.net.DB2Driver");
 	properties.setProperty("driver.DB2.example",
 			       "jdbc:db2://localhost:6789/foobar");
-
+	*/
 	properties.setProperty("driver.MySQL.class",
 			       "org.gjt.mm.mysql.Driver");
 	properties.setProperty("driver.MySQL.example",
@@ -446,7 +453,7 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.16 $]--\n";
++"----------------------------------------------------[$Revision: 1.17 $]--\n";
 	System.err.println(cpy);
 
 	instance = new HenPlus(properties, argv);

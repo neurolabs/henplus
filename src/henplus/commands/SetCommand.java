@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.3 2002-01-27 13:44:06 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.4 2002-01-28 11:32:01 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package commands;
@@ -250,7 +250,17 @@ public final class SetCommand extends AbstractCommand {
 	String dsc = null;
 	if ("set".equals(cmd)) {
 	    dsc= "\twithout parameters, show all variable settings. With\n"
-		+"\tparameters, set variable with name <varname> to <value>";
+		+"\tparameters, set variable with name <varname> to <value>.\n"
+		+"\tVariables are expanded in any command you issue on the\n"
+		+"\tcommandline. Variable expansion works like on the shell\n"
+		+"\twith the dollarsign. Both forms, $VARNAME and ${VARNAME},\n"
+		+"\tare supported. If the variable is _not_ set, then the\n"
+		+"\ttext is left untouched. So if there is no variable\n"
+		+"\t$VARNAME, then it is not replaced by an empty string but\n"
+		+"\tstays '$VARNAME'. This is because some scripts use wierd\n"
+		+"\tidentifiers containting dollars (esp. Oracle scripts)\n"
+		+"\tIf you want to quote the dollarsign, write\n"
+		+"\ttwo dollars: $$FOO means $FOO\n";
 	}
 	else if ("unset".equals(cmd)) {
 	    dsc="\tunset the variable with name <varname>. You may provide\n"

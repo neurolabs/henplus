@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.3 2002-01-22 09:50:01 hzeller Exp $
+ * $Id: SQLSession.java,v 1.4 2002-01-28 11:32:00 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 import java.util.*;
@@ -51,7 +51,9 @@ public class SQLSession {
 	this.url = url;
 	this.username = user;
 	boolean authRequired = false;
-	Driver driver = DriverManager.getDriver(url);
+	Driver driver = null;
+	//System.err.println("connect to '" + url + "'");
+	driver = DriverManager.getDriver(url);
 
 	System.err.println ("HenPlus II connecting ");
 	System.err.println(" url '" + url + '\'');

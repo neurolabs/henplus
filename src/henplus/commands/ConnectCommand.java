@@ -81,6 +81,7 @@ public class ConnectCommand extends AbstractCommand {
 		henplus.setSession(session);
 	    }
 	    catch (Exception e) {
+		//e.printStackTrace();
 		System.err.println(e.getMessage());
 	    }
 	}
