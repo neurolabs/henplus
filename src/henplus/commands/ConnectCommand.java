@@ -378,7 +378,7 @@ public class ConnectCommand extends AbstractCommand {
 
     public String getSynopsis(String cmd) {
 	if ("connect".equals(cmd)) {
-	    return cmd + " <url> [session-name]"; 
+	    return cmd + " <jdbc-url> [session-name]"; 
 	}
 	else if ("switch".equals(cmd)) {
 	    return cmd + " <session-name>";
