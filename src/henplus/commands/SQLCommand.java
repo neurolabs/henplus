@@ -218,9 +218,15 @@ public class SQLCommand extends AbstractCommand {
 	}
 	if (tableMatch < 0) return null;
 
-	int whereMatch = canonCmd.indexOf ("WHERE");
-	if (whereMatch > tableMatch) {
-	    String tables = partialCommand.substring(tableMatch, whereMatch);
+	int endTabMatch = -1;  // where the table declaration ends.
+	if (canonCmd.indexOf("UPDATE") >= 0) {
+	    endTabMatch = canonCmd.indexOf ("SET");
+	}
+	else {
+	    endTabMatch = canonCmd.indexOf ("WHERE");
+	}
+	if (endTabMatch > tableMatch) {
+	    String tables = partialCommand.substring(tableMatch, endTabMatch);
 	    HashMap tmp = new HashMap();
 	    Iterator it = tableDeclParser(tables).entrySet().iterator();
 	    while (it.hasNext()) {
