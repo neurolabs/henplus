@@ -60,15 +60,21 @@ public class SQLCommand extends AbstractCommand {
     /**
      * complicated SQL statements are only complete with
      * semicolon. Simple commands may have no semicolon (like
-     * 'commit' and 'rollback').
+     * 'commit' and 'rollback'). Yet others are not complete even
+     * if there is a semicolon at the end (like triggers and stored
+     * procedures). We support the SQL*PLUS syntax in that we consider these
+     * kind of statements complete with a single slash ('/') at the
+     * beginning of a line.
      */
     public boolean isComplete(String command) {
 	command = command.toUpperCase(); // fixme: expensive.
 	if (command.startsWith("COMMIT")
 	    || command.startsWith("ROLLBACK"))
 	    return true;
-	// this will be wrong if and when we support stored procedures.
-	if (command.endsWith(";")) return true;
+	// FIXME: this is a very dumb parser. Leave out string literals.
+	boolean anyProcedure = ((command.indexOf("PROCEDURE") >= 0)
+				|| (command.indexOf("TRIGGER") >= 0));
+	if (!anyProcedure && command.endsWith(";")) return true;
 	// sqlplus is complete on a single '/' on a line.
 	if (command.length() >= 3) {
 	    int lastPos = command.length()-1;
@@ -217,8 +223,8 @@ public class SQLCommand extends AbstractCommand {
     public String getLongDescription(String cmd) {
 	String dsc;
 	dsc="\t'" + cmd + "': this is not a build-in command, so would be\n"
-	    + "\thandled as SQL-command.\n"
-	    + "\tHowever, I don't know anything about it. RTFSQLM.\n"
+	    + "\tconsidered as SQL-command and handed over to the JDBC-driver.\n"
+	    + "\tHowever, I don't know anything about its syntax. RTFSQLM.\n"
 	    + "\ttry <http://www.google.de/search?q=sql+syntax+" + cmd + ">";
 	cmd = cmd.toLowerCase();
 	if ("select".equals(cmd)) {

@@ -272,7 +272,8 @@ public class DescribeCommand extends AbstractCommand {
     public String getLongDescription(String cmd) {
 	String dsc;
 	dsc="\tDescribe the meta information of the named user object\n"
-	    +"\t(only tables for now).";
+	    +"\t(only tables for now). The name you type is case sensitive\n"
+	    +"\tbut henplus tries its best to correct it.\n";
 	return dsc;
     }
 
