@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.53 2003-01-27 17:50:13 hzeller Exp $
+ * $Id: HenPlus.java,v 1.54 2003-02-01 13:18:42 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -361,6 +361,10 @@ public class HenPlus implements Interruptable {
 	if (!_quiet) {
 	    System.err.println("storing settings..");
 	}
+        /*
+         * allow hard resetting.
+         */
+        SigIntHandler.getInstance().reset();
 	try {
 	    if (dispatcher != null) {
 		dispatcher.shutdown();
@@ -560,8 +564,24 @@ public class HenPlus implements Interruptable {
 	    String homeDir = System.getProperty("user.home", ".");
 	    _configDir = new File(homeDir + File.separator + HENPLUSDIR);
 	    if (!_configDir.exists()) {
+                if (!_quiet) {
+                    System.err.println("creating henplus config dir");
+                }
 		_configDir.mkdir();
 	    }
+            try {
+                /*
+                 * Make this directory accessible only for the user
+                 * in question.
+                 * works only on unix. Ignore Exception other OSes
+                 */
+                String params[] = new String[] {"chmod", "700", 
+                                                _configDir.toString() };
+                Runtime.getRuntime().exec( params );
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
 	}
 	_configDir = _configDir.getAbsoluteFile();
 	try {
