@@ -1,7 +1,7 @@
-<!-- $Id: build.xml,v 1.7 2002-02-11 16:33:02 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.8 2002-02-12 08:26:29 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- properties -->
-     <property name="version"              value="0.2.1" />
+     <property name="version"              value="0.2.2" />
      <property name="src"                  value="src" />
      <property name="bin"                  value="bin" />
      <property name="lib"                  value="lib" />

@@ -129,7 +129,7 @@ public class SQLCommand extends AbstractCommand {
 		// oracle appends a newline to the message for some reason.
 		System.err.println("FAILURE: " + msg.trim());
 	    }
-	    e.printStackTrace();
+	    //e.printStackTrace();
 	    return EXEC_FAILED;
 	}
 	finally {
