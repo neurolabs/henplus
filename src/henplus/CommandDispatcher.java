@@ -93,6 +93,9 @@ public class CommandDispatcher implements ReadlineCompleter {
 	}
 	Command c = (Command) commandMap.get(cmd);
 	if (c == null) {
+	    c = (Command) commandMap.get(cmd.toLowerCase());
+	}
+	if (c == null) {
 	    c = (Command) commandMap.get(""); // "" matches everything.
 	}
 	return c;
@@ -207,6 +210,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 	 * the first word.. the command.
 	 */
 	else if (completeCommandString.equals(text)) {
+	    text = text.toLowerCase();
 	    if (state == 0) {
 		possibleValues = getRegisteredCommandNames(text);
 	    }
