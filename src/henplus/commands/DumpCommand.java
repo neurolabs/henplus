@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.26 2004-03-07 11:59:29 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.27 2004-03-11 15:15:44 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -108,11 +108,13 @@ public class DumpCommand
 	JDBCTYPE2TYPENAME.put(new Integer(Types.OTHER),   TYPES[ HP_STRING ]);
 
 	JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARBINARY), TYPES[ HP_BLOB ]);
-	JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARCHAR), TYPES[ HP_CLOB ]);
+        // CLOB not supported .. try string.
+	JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARCHAR), TYPES[ HP_STRING ]);
 
 	// not supported yet.
 	JDBCTYPE2TYPENAME.put(new Integer(Types.BLOB),    TYPES[ HP_BLOB ]);
-	JDBCTYPE2TYPENAME.put(new Integer(Types.CLOB),    TYPES[ HP_CLOB ]);
+        // CLOB not supported .. try string.
+	JDBCTYPE2TYPENAME.put(new Integer(Types.CLOB),    TYPES[ HP_STRING ]);
 	
 	// generic float.
 	JDBCTYPE2TYPENAME.put(new Integer(Types.DOUBLE),  TYPES[ HP_DOUBLE ]);
@@ -569,7 +571,7 @@ public class DumpCommand
 			}
 			break;
 		    }
-			
+			                        
 		    default:
 			throw new IllegalArgumentException("type " + 
 							   TYPES[thisType]
