@@ -329,7 +329,7 @@ public class ConnectCommand extends AbstractCommand {
 	    }
 
             if (sessions.containsKey(sessionName)) {
-                System.err.println("A session with this name already exists");
+                System.err.println("A session with that name already exists");
                 return EXEC_FAILED;
             }
 
