@@ -54,7 +54,7 @@ public class KeyBindCommand extends AbstractCommand {
 	return new String[] {
 	    "bind-key-cmd-string",
             "list-key-bindings",
-            "test-bind-all" // uncomment in production.
+            //"test-bind-all" // uncomment for tests.
 	};
     }
     
