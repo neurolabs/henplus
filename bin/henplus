@@ -1,0 +1,13 @@
+#!/bin/sh
+# $Id: henplus,v 1.1 2002-01-22 09:01:57 hzeller Exp $
+##
+HENPLUSDIR=/usr/local/share/henplus
+LD_LIBRARY_PATH=$HENPLUSDIR
+CLASSPATH=""
+for f in $HENPLUSDIR/*.jar ; do
+    CLASSPATH=$CLASSPATH:$f
+done
+
+export CLASSPATH LD_LIBRARY_PATH
+
+exec java HenPlus "$@"
