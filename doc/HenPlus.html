@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.26 2004-10-10 14:36:59 magrokosmos Exp $ -->
+<!-- $Id: HenPlus.html,v 1.27 2005-03-10 10:22:36 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -94,7 +94,7 @@ This is where <em>HenPlus</em> steps in. It supports:
      commands.</li>
  <li>Is provided as Free Software. You are free to modify, copy, share and sell this software under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License</a>
 </ul>
-</body>
+</p>
 
 <h3><a name="getting-started"/>Getting started</h3>
 <h4>Download</h4>
@@ -102,7 +102,12 @@ You can download source and binary packages of HenPlus at the
 <a href="http://sourceforge.net/project/showfiles.php?group_id=47945">HenPlus SourceForge Download Page</a> at<br/>
 <code>http://sourceforge.net/project/showfiles.php?group_id=47945</code>
 <p>
-If you are using <a href="http://www.debian.org/">Debian</a>, you can install HenPlus by adding the following
+As of March 2005, HenPlus is included in some distributions, for example <a href="http://www.debian.org/">Debian</a>
+testing and unstable, <a href="http://www.ubuntulinux.org/">Ubuntu</a> and <a href="http://www.gentoo.org/">Gentoo</a>.
+Use the respective package management tool to install HenPlus on these distributions.
+</p>
+<p>
+If you are using <a href="http://www.debian.org/">Debian</a> stable, you can install HenPlus by adding the following
 line to your <code>/etc/apt/sources.list</code>
 <pre>
   deb http://osdn.dl.sourceforge.net/henplus ./
@@ -119,6 +124,7 @@ then
 <pre>
   apt-get install henplus
 </pre>
+</p>
 
 <h4>Compilation</h4>
 If you have <a href="http://sourceforge.net/project/showfiles.php?group_id=47945">downloaded</a>
@@ -130,6 +136,7 @@ an additional library.
 HenPlus uses the features of the GNU-readline library and therefore
 needs the JNI java wrapper library &gt;=
 <a href="http://sourceforge.net/project/showfiles.php?group_id=48669">java-readline 0.7.3</a>.
+</p>
 <p>
 To build HenPlus the <a href="http://jakarta.apache.org/ant">ant build
 tool</a> (Version >= 1.4) is required. To compile HenPlus, make sure that the 
@@ -138,6 +145,7 @@ java-readline package in <code>/usr/share/java/libreadline-java.jar</code>).
 Compilation needs to be done with JDK >= 1.3, but the resulting 
 jar file works with old JDK 1.2.2 (the Runtime.addShutdownHook() method is
 used in compilation).
+</p>
 <p>Now, just type
 <pre>
 $ ant jar
@@ -167,6 +175,7 @@ the <code>DESTDIR</code> parameter with a similar meaning as in usual
 Makefiles)</font>
 If you've created packages for other operating systems (like
 Solaris) or Windows, please <a href="mailto:H.Zeller@acm.org">let me know</a>.
+</p>
 <p>
 I haven't compiled this on Windows, but it shouldn't be a big deal .. if you manage to compile
 the java-readline. This is an JNI shared library and thus platform dependant.
@@ -180,6 +189,7 @@ with or without an jdbc-url on the command line.
 $ henplus jdbc:mysql://localhost/foobar
 </pre>
 
+</p>
 <p>
 <h5>Make sure, command line editing is enabled</h5>
 If the first line, henplus writes reads:
@@ -221,9 +231,11 @@ Hen*Plus&gt; help
 <a name="config-dir"/><a href="#per-project-config">config read from [/home/hzeller/.henplus]</a>
 </pre></td></tr></table>
 <hr>
+</p>
 <p>
 You exit the HenPlus shell by typing the <code>exit</code> or <code>quit</code>
 command or by just typing EOF-Character (CTRL-D).
+</p>
 <p>
 For almost all commands, there is more detailed help available. You can
 just explore the commands by typing <code>help [commandname]</code> and
@@ -254,6 +266,7 @@ Hen*Plus&gt; help connect
 </pre>
 (more details on connection to the database in the 
 <a href="#getting-connected">Getting connected</a> section).
+</p>
 
 
 <h3><a name="getting-connected"/>Getting connected</h3>
@@ -293,6 +306,7 @@ $ cp /path/to/my/driver.jar ~/.henplus/lib
 If you use different <code>.henplus</code> directories for the
 <a href="#per-project-config">per project configuration</a>, you need to put the
 driver in that directory.
+</p>
 
 <h4>2. Register the driver</h4>
 <p>
@@ -322,6 +336,7 @@ command you can see what driver classes are registered and loaded. If you
 cannot connect to some JDBC URL, check first, if the appropriate driver is
 actually loaded. If it is not loaded, then it is probably not found in the
 CLASSPATH (see <a href="#put-classpath">Put the JDBC-Driver in the CLASSPATH</a>).
+</p>
 <p>
 Drivers once registered are remembered by HenPlus, so that they are loaded
 automatically on next startup. For registering and unregistering drivers,
@@ -330,8 +345,9 @@ see the online help:
 Hen*Plus&gt; help register
 Hen*Plus&gt; help unregister
 </pre></td></tr></table>
-<p>
+</p>
 <h4>3. Connect</h4>
+<p>
 <a name="connect"/>
 When the driver is loaded, you can connect to the database using the
 JDBC-URL:
@@ -418,6 +434,7 @@ hello&gt;
 <p>
 You can disconnect with the <code>disconnect</code> command or by
 simply pressing CTRL-D.
+</p>
 
 <h3>Special Characters in the Shell</h3>
 <h4>Command Separators</h4>
@@ -438,6 +455,7 @@ oracle:localhost&gt; create table foobar (
 ok. (70 msec)
 oracle:localhost&gt;
 </pre></td></tr></table>
+</p>
 <p>
 Some commands are not even complete, if there is a semicolon -- these are
 'create procedure' and 'create trigger'. These commands contain 
@@ -460,6 +478,7 @@ oracle:localhost&gt;
 (The current keywords that trigger requiering the '/' as command separator are
  "CREATE" followed by PROCEDURE, TRIGGER, FUNCTION or PACKAGE later. If this
  is not enough, please let me know).
+</p>
 
 <h4>SQL-Comments</h4>
 That should be enough to start working with HenPlus. But especially if you are
@@ -483,6 +502,7 @@ the C/C++/Java style comments, that comment out a range between
  */
  select * from foobar;
 </pre></td></tr></table>
+</p>
 <p>
 Another style of comments, allowed for instance in the 
 MySQL-Shell is the UNIX-shell like '#' endline comment; however, this character
@@ -506,6 +526,7 @@ first on a line:
    ;; this one as well, since there are only whitespaces on the left
 select * from foobar ;; echo "this echo is executed as usual"
 </pre></td></tr></table>
+</p>
 <p>
 To make a long story short -- the supported types of comments are
 <ul>
@@ -517,9 +538,11 @@ To make a long story short -- the supported types of comments are
 <em>Not</em> supported is the C++/Java like endline comment that starts with
 two slashes <b><code>//</code></b>. The reason is, that many JDBC-URLs contain
 these two slashes, and we don't want to comment these out, right ? ;-)
+</p>
 <p>
 If you encounter some other reasonable style of comments you want that it is
 supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
+</p>
 <p>
 <b>Switching off comment removal...</b><a name="remove-comment"/>
 Usually, all comments are removed in HenPlus before sending commands to the
@@ -597,17 +620,20 @@ henman@oracle:localhost&gt; create table bar (id number(10), description varchar
 </p>
 <p>
 Variables can be expanded with or without curly braces: $FOO and ${FOO} is the same.
+</p>
 <p>
 If you don't want a variable to be expanded, double the dollar-sign: <code>$$FOO</code>;
 the Unix-shell way to embed it in single-quotes (like '$FOO') does <em>not</em> work.
+</p>
 <p>
 Unlike the shell, variables that are <b>not</b> set, are <b>not</b> expanded to an empty
 string, but left as they are. So an unset variable $FOOBAR expands to .. $FOOBAR. This
 is, because some databases (especially Oracle in system views) use names with
 dollar characters; thus character sequences starting with '$' that cannot be recognized as
 HenPlus-variable have to be left as they are.
-<p>
+</p>
 <h4>Special Variables</h4>
+<p>
 <a name="special-variables"/>
 Special variables are variables that have a special meaning to 
 HenPlus. Currently there is only one special variable, that is set 
@@ -617,8 +643,9 @@ automatically.
 <tr><td><code>_HENPLUS_LAST_COMMAND</code></td>
     <td>This variable contains the last command executed by HenPlus</td></tr>
 </table>
-<p>
+</p>
 <h4>Showing and Unsetting Variables</h4>
+<p>
 All variable settings can be shown with the <code>set-var</code> command 
 without any parameters. Unsetting variables works with <code>unset-var</code>.
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
@@ -644,6 +671,7 @@ henman@oracle:localhost&gt; set-var
  _HENPLUS_LAST_COMMAND | unset-var STORAGE_OPTIONS tabname |
 -----------------------+-----------------------------------+
 </pre></td></tr></table>
+</p>
 <p>
 All non-special variables that are set at the end of the session are stored, so that they are available on next startup.
 </p>
@@ -677,9 +705,11 @@ sa@hsqldb> set-property column-delimiter <b><font color="#3333FF">-- property na
         maybe you want to have an empty string ?
 sa@hsqldb> set-property column-delimiter "****"       <b><font color="#3333FF">-- property name and value: set property</font></b>
 </pre></td></tr></table>
+</p>
 <p>
 Note, that the property names are TAB-completed and even the values,
 if they are restricted (like 'on', 'off').
+</p>
 
 <h4>1. Global Properties</h4>
 <p>
@@ -769,6 +799,7 @@ So if you work in multiple projects with specific connect strings,
 variables, properties etc. a per project separation of this information is
 desirable.
 <em>HenPlus</em> supports per project storage of this information.
+</p>
 <p>
 To store only information you use in some project, just create an empty 
 <code>.henplus</code> directory in the directory you usually start the
@@ -778,6 +809,7 @@ directory within the current working dir, it goes up the directory tree
 until it finds the <code>.henplus</code> directory. If it still does
 not find the directory, it falls back to the <code>~/.henplus</code> in your
 home directory.
+</p>
 <p>
 As an example consider these directories:
 <pre>
@@ -798,13 +830,16 @@ using GNU readline (Brian Fox, Chet Ramey), Java wrapper by Bernhard Bablok
 henplus config at <b>/home/hzeller/projects/project-b/.henplus</b>
  [...]
 </pre></td></tr></table>
+</p>
 <p>
 Starting henplus anywhere else will use the configuration in the
 home directory in <code>/home/hzeller/</code>
+</p>
 <p>
 If you type 'help', then <em>HenPlus</em> tells you
 in the <a href="#config-dir">last line</a>, where it has loaded its initial 
 configuration from.
+</p>
 
 <h3><a name="plugins"/>Plugins</h3>
 Need some command that creates some fancy statistics or report from your
@@ -822,6 +857,7 @@ new commands that behave just like internal commands. They are, for instance,
 available in the <code>help</code> command.
 </p>
 <p>
+</p>
 <p>There is one cool plugin shipped since version 0.9.4, provided by
 <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>. It resides in the
 henplus.jar, so if you have installed henplus, it is already there, but you have
@@ -849,6 +885,7 @@ a way to automatically create 'alter table'-scripts is planned.
 
 <em>(TODO: This feature needs a way to load the classes from an URLClassloader,
  so its possible to dynamically reload the classes when they changed. Anyone?)</em>
+</p>
 
 <h3><a name="aliases"/>Aliases</h3>
 For certain repeating tasks its tedious to write the same command over and over again.
@@ -895,7 +932,9 @@ could bind the same command to a function key:</p>
 <code>
 bind-key-cmd F1 "help\n"
 </code>
+</p>
 <p>The function keys F1..F12 and Shift-F1..Shift-F12 are available.
+</p>
 
 <h3><a name="cmd-bookmarks"/>Setting Command Bookmarks</h3>
 Sometimes it would be nice set a 'bookmark' to a command just executed.
@@ -916,7 +955,7 @@ So executing Shift-F2 will now execute the command</p>
 <code>
 bind-key-cmd F2 "${_HENPLUS_LAST_COMMAND};\n"
 </code>
-<p>that binds F2 to the command that has been just executed.</p2>
+<p>that binds F2 to the command that has been just executed.</p>
 <p>
 So pressing Shift-F2 sets a bookmark and F2 executes it.
 </p>
@@ -925,13 +964,14 @@ So pressing Shift-F2 sets a bookmark and F2 executes it.
 You can dump out tables in a database independent format. See the online help for
 <code>dump-out</code> and <code>dump-in</code>. You even can dump only selected
 values of a certain table; see <code>dump-conditional</code> for this.
-</p><p>
+<p>
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 henman@oracle:localhost&gt; dump-out mytables.dump.gz student addresses;
 </pre></td></tr></table>
 .. dumps out the tables <code>student</code> and <code>addresses</code> to the file
 <code>mytables.dump.gz</code>. Note, that the file is gzipped automatically
 on-the-fly if the file contains a <code>.gz</code>-suffix.
+</p>
 <p>
 The format that is written must be database independent, thus it is not possible to store
 them as simple <code>'INSERT INTO..'</code> statements, as the different databases have different
@@ -1035,4 +1075,5 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.26 2004-10-10 14:36:59 magrokosmos Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.27 2005-03-10 10:22:36 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+</body>
