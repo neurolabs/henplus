@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.39 2004-03-22 23:42:48 magrokosmos Exp $ -->
+<!-- $Id: build.xml,v 1.40 2004-05-31 10:48:15 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
@@ -55,7 +55,7 @@
 
      <target name="compile" depends="prepare,Version.java" 
 	     description="compile it">
-        <javac srcdir="${src}" destdir="${classes}">
+        <javac debug="true" srcdir="${src}" destdir="${classes}">
            <classpath refid="compile.classpath" />
         </javac>
      </target>

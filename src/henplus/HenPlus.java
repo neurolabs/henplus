@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.69 2004-03-23 11:06:40 magrokosmos Exp $
+ * $Id: HenPlus.java,v 1.70 2004-05-31 10:48:21 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -97,7 +97,7 @@ public class HenPlus implements Interruptable {
 	}
 	catch (Exception ignore) { /* ign */ }
 	
-	Readline.setWordBreakCharacters(" ,()<>=\t\n"); // TODO..
+	Readline.setWordBreakCharacters(" ,/()<>=\t\n"); // TODO..
 	setDefaultPrompt();
     }
 

@@ -53,7 +53,7 @@ public class ShellCommand
      * filename completion by default.
      */
     public Iterator complete(CommandDispatcher disp, String partialCommand, 
-		      String lastWord) {
+                             String lastWord) {
 	return new FileCompletionIterator(partialCommand, lastWord);
     }
 

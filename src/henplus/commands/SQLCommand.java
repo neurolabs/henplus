@@ -99,13 +99,15 @@ public class SQLCommand extends AbstractCommand {
 	    return true;
 	// FIXME: this is a very dumb parser. 
         // i.e. string literals are not considered.
-	boolean anyProcedure = ((command.startsWith("CREATE")
-				 || command.startsWith("REPLACE"))
-				&&
-				((containsWord(command, "PROCEDURE")
-				 || (containsWord(command, "FUNCTION"))
-				 || (containsWord(command, "PACKAGE"))
-                                  || (containsWord(command, "TRIGGER")))));
+	boolean anyProcedure = (command.startsWith("BEGIN")
+                                ||
+                                ((command.startsWith("CREATE")
+                                  || command.startsWith("REPLACE"))
+                                 &&
+                                 ((containsWord(command, "PROCEDURE")
+                                   || (containsWord(command, "FUNCTION"))
+                                   || (containsWord(command, "PACKAGE"))
+                                   || (containsWord(command, "TRIGGER"))))));
 	if (!anyProcedure && command.endsWith(";")) return true;
 	// sqlplus is complete on a single '/' on a line.
 	if (command.length() >= 3) {

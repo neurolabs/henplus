@@ -5,8 +5,10 @@
 package henplus.util;
 
 /**
+ * FIXME: removeme.
+ *   
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
- * @version $Id: StringAppender.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $
+ * @version $Id: StringAppender.java,v 1.3 2004-05-31 10:48:22 hzeller Exp $
  */
 public final class StringAppender {
     

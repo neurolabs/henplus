@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: FileCompletionIterator.java,v 1.4 2002-07-23 06:36:09 hzeller Exp $ 
+ * $Id: FileCompletionIterator.java,v 1.5 2004-05-31 10:48:22 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -20,7 +20,15 @@ public class FileCompletionIterator implements Iterator {
     private String completePrefix;
     private int index;
 
-    public FileCompletionIterator(String partialCommand, String startFile) {
+    public FileCompletionIterator(String partialCommand, String lastWord) {
+        String startFile;
+        int lastPos = partialCommand.lastIndexOf(' ');
+        startFile = ((lastPos >= 0) 
+                     ? partialCommand.substring(lastPos+1)
+                     : "");
+        //startFile = prefix + startFile;
+        //System.err.println("f: " + startFile);
+
 	try {
 	    int lastDirectory = startFile.lastIndexOf(File.separator);
 	    String dirName = ".";

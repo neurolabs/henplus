@@ -37,11 +37,11 @@ public class DescribeCommand
     extends AbstractCommand 
     implements Interruptable 
 {
-
+    final private static String[] LIST_TABLES = { "TABLE" };
     static final boolean verbose     = false;
     private final static ColumnMetaData[] DESC_META;
     static {
-	DESC_META = new ColumnMetaData[8];
+	DESC_META = new ColumnMetaData[9];
         DESC_META[0] = new ColumnMetaData("#", ColumnMetaData.ALIGN_RIGHT);
 	DESC_META[1] = new ColumnMetaData("table");
 	DESC_META[2] = new ColumnMetaData("column");
@@ -50,6 +50,7 @@ public class DescribeCommand
 	DESC_META[5] = new ColumnMetaData("default");
 	DESC_META[6] = new ColumnMetaData("pk");
 	DESC_META[7] = new ColumnMetaData("fk");
+	DESC_META[8] = new ColumnMetaData("remark");
     }
 
     private boolean interrupted;
@@ -109,6 +110,7 @@ public class DescribeCommand
 	    boolean anyRightArrow = false;
             long startTime = System.currentTimeMillis();
             String catalog = session.getConnection().getCatalog();
+            String description = null;
 
             if (interrupted) return SUCCESS;
 
@@ -117,6 +119,14 @@ public class DescribeCommand
 		DESC_META[i].resetWidth();
 	    }
 
+            rset = meta.getTables(catalog,
+                                  schema, tabName,
+                                  LIST_TABLES);
+            if (rset != null && rset.next()) {
+                description = rset.getString(5); // remark
+            }
+            rset.close();
+                
 	    /*
 	     * get primary keys.
 	     */
@@ -164,9 +174,11 @@ public class DescribeCommand
             // some jdbc version 2 drivers (connector/j) have problems with foreign keys...
             try {
                 rset = meta.getImportedKeys(null, schema, tabName);
-            } catch ( NoSuchElementException e ) {
-                if (verbose)
+            } 
+            catch ( NoSuchElementException e ) {
+                if (verbose) {
                     HenPlus.msg().println("Database problem reading meta data: " + e);
+                }
             }
 	    if (rset != null) {
                 while (!interrupted && rset.next()) {
@@ -182,6 +194,10 @@ public class DescribeCommand
                 }
 	    }
 	    rset.close();
+            
+            if (description != null) {
+                HenPlus.out().println(description);
+            }
 
             if (catalog != null) HenPlus.msg().println("catalog: " + catalog);
 	    if (anyLeftArrow)  HenPlus.msg().println(" '<-' : referenced by");
@@ -202,46 +218,51 @@ public class DescribeCommand
 	    rset = meta.getColumns(catalog, schema, tabName, null);
 	    List rows = new ArrayList();
             int colNum = 0;
+            boolean anyDescription = false;
 	    if (rset != null) {
                 while (!interrupted && rset.next()) {
-                    Column[] row = new Column[8];
+                    final Column[] row = new Column[9];
                     row[0] = new Column( ++colNum );
-                    String thisTabName = rset.getString(3);
+                    final String thisTabName = rset.getString(3);
                     row[1] = new Column( thisTabName );
                     allSameTableName &= tabName.equals(thisTabName);
-                    String colname = rset.getString(4);
+                    final String colname = rset.getString(4);
                     if (doubleCheck.contains(colname)) {
                         continue;
                     }
                     doubleCheck.add(colname);
                     row[2] = new Column( colname );
                     String type = rset.getString(6);
-                    int colSize = rset.getInt(7);
+                    final int colSize = rset.getInt(7);
                     if (colSize > 0) {
                         type = StringAppender.start(type).append("(").append(colSize).append(")").toString();
                     }
 
                     row[3] = new Column( type );
-                    String defaultVal = rset.getString(13);
+                    final String defaultVal = rset.getString(13);
                     row[4] = new Column( rset.getString(18) );
                     // oracle appends newline to default values for some reason.
                     row[5] = new Column( ((defaultVal != null) 
                                           ? defaultVal.trim() 
                                           : null) );
-                    String pkdesc = (String) pks.get(colname);
+                    final String pkdesc = (String) pks.get(colname);
                     row[6] = new Column( (pkdesc != null) ? pkdesc : "");
-                    String fkdesc = (String) fks.get(colname);
+                    final String fkdesc = (String) fks.get(colname);
                     row[7] = new Column( (fkdesc != null) ? fkdesc : "");
+                    final String colDesc = rset.getString(12);
+                    row[8] = new Column( colDesc );
+                    anyDescription |= (colDesc != null);
                     rows.add(row);
                 }
 	    }
 	    rset.close();
 
 	    /*
-	     * we render the table now, since we only know know, whether we
-	     * will show the first column or not.
+	     * we render the table now, since we only know now, whether we
+	     * will show the first column and the description column or not.
 	     */
 	    DESC_META[1].setDisplay(!allSameTableName);
+            DESC_META[8].setDisplay(anyDescription);
 	    TableRenderer table = new TableRenderer(DESC_META, HenPlus.out());
 	    Iterator it = rows.iterator();
 	    while (it.hasNext()) {
