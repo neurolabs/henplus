@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.5 2002-05-08 15:27:37 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.6 2002-05-21 09:02:24 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -124,6 +124,14 @@ public class SQLStatementSeparator {
     public void consumed() {
 	_currentState.setState( START );
 	_currentState.getCommandBuffer().setLength(0);
+	final StringBuffer input  = _currentState.getInputBuffer();
+	int pos = 0;
+        /* skip leading whitespaces of next statement .. */
+        while (pos < input.length()
+               && Character.isWhitespace (input.charAt(pos))) {
+            ++pos;
+        }
+	input.delete(0, pos);
     }
 
     /**

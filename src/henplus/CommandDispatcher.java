@@ -187,7 +187,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 		case Command.EXEC_FAILED: {
 		    if (_batchCount > 0) {
 			System.err.println("-- failed command: ");
-			System.err.println(cmd);
+			System.err.println(cmdStr + " " + cmd);
 		    }
 		}
 		}
