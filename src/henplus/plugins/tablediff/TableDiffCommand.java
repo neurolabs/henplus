@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: TableDiffCommand.java,v 1.5 2004-03-23 11:06:40 magrokosmos Exp $ 
+ * @version $Id: TableDiffCommand.java,v 1.6 2004-03-23 11:23:52 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
@@ -99,8 +99,6 @@ public final class TableDiffCommand implements Command, Interruptable {
         try {
             long start = System.currentTimeMillis();
             int count = 0;
-            
-            String nextToken = st.nextToken();
 
             ListUserObjectsCommand objectLister = HenPlus.getInstance().getObjectLister();
             SortedSet tablesOne = objectLister.getTableNamesForSession( first );
@@ -114,7 +112,9 @@ public final class TableDiffCommand implements Command, Interruptable {
              */
             ArrayList missedFromWildcards = new ArrayList();
             
-            do {
+            while ( st.hasMoreTokens() ) {
+                
+                String nextToken = st.nextToken();
         
                 if ( "*".equals( nextToken ) ) {
                     Iterator iter = objectLister.getTableNamesIteratorForSession( first );
@@ -157,7 +157,8 @@ public final class TableDiffCommand implements Command, Interruptable {
                     alreadyDiffed.add( nextToken );
                     count++;
                 }
-            } while ( st.hasMoreTokens() && ( nextToken = st.nextToken() ) != null );
+                
+            }
             
             StringBuffer msg = new StringBuffer();
             msg.append("Diffing ").append(count).append((count == 1)?" table took ":" tables took ").
