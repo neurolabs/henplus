@@ -1,18 +1,23 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * 
+ * $Id: SQLSession.java,v 1.2 2002-01-20 22:59:00 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 import java.util.*;
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.EOFException;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.Enumeration;
 
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.DatabaseMetaData;
 
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineCompleter;
@@ -24,96 +29,124 @@ import commands.*;
  * document me.
  */
 public class SQLSession {
+    private long connectTime;
+    private long statementCount;
+    private String url;
+    private String username;
     private Connection conn;
-    private CommandDispatcher dispatcher;
     private boolean terminated = false;
-    private static final String PROMPT = "Hen*Plus> ";
-    private static final String EXIT_MSG = "good bye.";
 
     /**
      * creates a new SQL session. Open the database connection, initializes
      * the readline library
      */
-    public SQLSession(Properties props, String argv[]) 
-	throws IllegalArgumentException, ClassNotFoundException, SQLException {
-	if (argv.length < 4)
-	    throw new IllegalArgumentException("usage: <driver> <url> <user> <password>");
-	String driverName = argv[0];
-	Class driver = null;
-	Enumeration e = props.propertyNames();
-	while (e.hasMoreElements()) {
-	    String name = (String) e.nextElement();
-	    if (name.equals("driver." + driverName + ".class")) {
-		driver = Class.forName(props.getProperty(name));
-		break;
-	    }
-	}
-	if (driver == null) {
-	    throw new IllegalArgumentException("no driver found for '" 
-					       + driverName + "'");
-	}
-	
-	String url      = argv[1];
-	String username = argv[2];
-	String password = argv[3];
-	
-	System.err.print ("HenPlus II connecting to '" 
-			  + url + '\'');
-	conn = DriverManager.getConnection(url, username, password);
-	System.err.println(" .. done.");
+    public SQLSession(String url, String user, String password)
+	throws IllegalArgumentException, 
+	       ClassNotFoundException, 
+	       SQLException,
+	       IOException 
+    {
+	statementCount = 0;
+	conn = null;
+	this.url = url;
+	this.username = user;
+	boolean authRequired = false;
+	Driver driver = DriverManager.getDriver(url);
 
-	try {
-	    Readline.load(ReadlineLibrary.GnuReadline);
-	    System.err.println("using GNU readline.");
-	} catch (UnsatisfiedLinkError ignore_me) {
-	    System.err.println("no readline found. Using simple stdin.");
-	}
-	Readline.initReadline("HenPlus");
-	try {
-	    Readline.readHistoryFile(getHistoryLocation());
-	}
-	catch (Exception ignore) {}
-	dispatcher = new CommandDispatcher();
-	dispatcher.register(new HelpCommand());
-	dispatcher.register(new DescribeCommand());
-	dispatcher.register(new SQLCommand());
-	dispatcher.register(new ListUserObjectsCommand());
-	dispatcher.register(new ExportCommand());
-	dispatcher.register(new ImportCommand());
-	dispatcher.register(new ShellCommand());
-	dispatcher.register(new ExitCommand());
-	Readline.setCompleter( dispatcher );
-    }
-    
-    public String getHistoryLocation() {
-	String homeDir = System.getProperty("user.home", ".");
-	return homeDir + File.separator + ".henplus";
-    }
-
-    public void run() throws Exception {
-	StringBuffer cmd;
-	String cmdLine = null;
-	while (!terminated) {
+	System.err.println ("HenPlus II connecting ");
+	System.err.println(" url '" + url + '\'');
+	System.err.println(" driver version " 
+			 + driver.getMajorVersion()
+			 + "."
+			 + driver.getMinorVersion());
+	// try to connect directly with the url.
+	if (username == null || password == null) {
 	    try {
-		cmdLine = Readline.readline( PROMPT );
+		conn = DriverManager.getConnection(url);
 	    }
-	    catch (EOFException e) {
-		break;
+	    catch (SQLException e) {
+		authRequired = true;
 	    }
-	    catch (Exception e) { /* ignore */ }
-	    if (cmdLine == null)
-		continue;
-	    dispatcher.execute(this, cmdLine);
 	}
-	System.err.println( EXIT_MSG );
+	
+	if (conn == null) {
+	    // read username, password
+	    if (authRequired) {
+		System.err.println("============ authorization required ===");
+		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+		System.err.print("Username: ");
+		username = input.readLine();
+		System.err.print("Password: ");
+		password = input.readLine();
+	    }
+	    
+	    conn = DriverManager.getConnection(url, username, password);
+	}
+	connectTime = System.currentTimeMillis();
+	
+	int transactionIsolation = Connection.TRANSACTION_NONE;
+	DatabaseMetaData meta = conn.getMetaData();
+	System.err.println(" " + meta.getDatabaseProductName()
+			   + " - " + meta.getDatabaseProductVersion());
 	try {
-	    Readline.writeHistoryFile(getHistoryLocation());
+	    if (meta.supportsTransactions()) {
+		conn.setAutoCommit(false);
+		transactionIsolation = conn.getTransactionIsolation();
+	    }
+	    else {
+		System.err.println("no transactions.");
+	    }
 	}
-	catch (Exception ignore) {}
+	catch (SQLException ignore_me) {
+	}
+
+	printTransactionIsolation(meta,Connection.TRANSACTION_NONE, 
+				  "No Transaction", transactionIsolation);
+	printTransactionIsolation(meta, 
+				  Connection.TRANSACTION_READ_UNCOMMITTED,
+				  "read uncommitted", transactionIsolation);
+	printTransactionIsolation(meta, Connection.TRANSACTION_READ_COMMITTED,
+				  "read committed", transactionIsolation);
+	printTransactionIsolation(meta, Connection.TRANSACTION_REPEATABLE_READ,
+				  "repeatable read", transactionIsolation);
+	printTransactionIsolation(meta, Connection.TRANSACTION_SERIALIZABLE, 
+				  "serializable", transactionIsolation);
     }
     
-    public void terminate() {
-	terminated = true;
+    private void printTransactionIsolation(DatabaseMetaData meta,
+			int iLevel, String descript, int current) 
+	throws SQLException {
+	if (meta.supportsTransactionIsolationLevel(iLevel)) {
+	    System.err.println(" " + descript
+			       + ((current == iLevel) ? " *" : " "));
+	}
+    }
+
+    public String getURL() {
+	return url;
+    }
+
+    /**
+     * return username, if known.
+     */
+    public String getUsername() {
+	return username;
+    }
+
+    public long getUptime() {
+	return System.currentTimeMillis() - connectTime;
+    }
+    public long getStatementCount() {
+	return statementCount;
+    }
+    
+    public void close() {
+	try {
+	    getConnection().close();
+	}
+	catch (SQLException e) {
+	    System.err.println(e); // don't care
+	}
     }
 
     /**
@@ -124,8 +157,9 @@ public class SQLSession {
     /**
      * returns the command dispatcher.
      */
-    public CommandDispatcher getDispatcher() { return dispatcher; }
+    //public CommandDispatcher getDispatcher() { return dispatcher; }
 }
+
 /*
  * Local variables:
  * c-basic-offset: 4

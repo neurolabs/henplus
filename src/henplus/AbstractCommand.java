@@ -31,6 +31,8 @@ public abstract class AbstractCommand implements Command {
     // the simple commands are always complete on newline or semicolon
     public boolean isComplete(String command) { return true; }
 
+    public boolean requiresValidSession(String cmd) { return true; }
+
     /**
      * convenience method: returns the number of elements in this
      * string, separated by whitespace.

@@ -103,10 +103,19 @@ public class CommandDispatcher implements ReadlineCompleter {
 	String cmdStr = getCommandNameFrom(cmd);
 	Command c = getCommandFrom(cmd);
 	if (c != null) {
-	    if (c.execute(session, cmd) == Command.SYNTAX_ERROR) {
-		String synopsis = c.getSynopsis(cmdStr);
-		if (synopsis != null)
-		    System.err.println("usage: " + synopsis);
+	    try {
+		if (session == null && c.requiresValidSession(cmdStr)) {
+		    System.err.println("not connected.");
+		    return;
+		}
+		if (c.execute(session, cmd) == Command.SYNTAX_ERROR) {
+		    String synopsis = c.getSynopsis(cmdStr);
+		    if (synopsis != null)
+			System.err.println("usage: " + synopsis);
+		}
+	    }
+	    catch (Exception e) {
+		System.err.println(e);
 	    }
 	}
     }
@@ -130,6 +139,10 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    Command c = (Command) commandMap.get(nextKey);
 		    if (!c.participateInCommandCompletion())
 			continue;
+		    if (c.requiresValidSession(nextKey) 
+			&& HenPlus.getInstance().getSession() == null) {
+			continue;
+		    }
 		}
 		if (nextKey.startsWith(text))
 		    return nextKey;

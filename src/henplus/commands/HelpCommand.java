@@ -10,6 +10,7 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 
+import HenPlus;
 import SQLSession;
 import CommandDispatcher;
 import Command;
@@ -19,7 +20,7 @@ import AbstractCommand;
  * document me.
  */
 public class HelpCommand extends AbstractCommand {
-    final static int INDENT = 38;
+    final static int INDENT = 42;
 
     /**
      * returns the command-string this command can handle.
@@ -87,17 +88,29 @@ public class HelpCommand extends AbstractCommand {
 	    return SYNTAX_ERROR;
 	String detailHelp = extractDetail(command);
 	if (detailHelp == null) {
-	    Iterator it = session.getDispatcher().getRegisteredCommands();
+	    Iterator it = HenPlus.getInstance()
+		.getDispatcher().getRegisteredCommands();
 	    while (it.hasNext()) {
 		Command cmd = (Command) it.next();
 		String description = cmd.getShortDescription();
 		if (description == null) // no description ..
 		    continue;
-		String[] cmds = cmd.getCommandList();
+
 		StringBuffer cmdPrint = new StringBuffer(" ");
-		for (int i = 0; i < cmds.length; ++i) {
-		    if (i != 0) cmdPrint.append(" | ");
-		    cmdPrint.append(cmds[i]);
+		String[] cmds = cmd.getCommandList();
+		String  firstSynopsis = cmd.getSynopsis(cmds[0]);
+		/*
+		 * either print a list of known commands or the complete
+		 * synopsis, if there is only one command.
+		 */
+		if (cmds.length > 1 || firstSynopsis == null) {
+		    for (int i = 0; i < cmds.length; ++i) {
+			if (i != 0) cmdPrint.append(" | ");
+			cmdPrint.append(cmds[i]);
+		    }
+		}
+		else {
+		    cmdPrint.append(firstSynopsis);
 		}
 		System.err.print(cmdPrint.toString());
 		for (int i = cmdPrint.length(); i < INDENT; ++i) {
@@ -108,7 +121,8 @@ public class HelpCommand extends AbstractCommand {
 	    }
 	}
 	else {
-	    Command c = session.getDispatcher().getCommandFrom(detailHelp);
+	    Command c = HenPlus.getInstance().getDispatcher()
+		.getCommandFrom(detailHelp);
 	    if (c == null) {
 		System.err.println("Help: unknown command '"+detailHelp+"'");
 		return EXEC_FAILED;

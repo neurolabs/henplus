@@ -51,7 +51,7 @@ public interface Command {
      */
     Iterator complete(CommandDispatcher disp, String partialCommand, 
 		      String lastWord);
-
+    
     /**
      * returns, whether the command is complete.
      *
@@ -84,6 +84,11 @@ public interface Command {
      * not get confused unecessarily..
      */
     boolean isComplete(String command);
+
+    /**
+     * returns true, if this command requires a valid SQLSession.
+     */
+    boolean requiresValidSession(String cmd);
 
     /**
      * return a short string describing the purpose of the commands

@@ -6,6 +6,7 @@
  */
 package commands;
 
+import HenPlus;
 import SQLSession;
 import AbstractCommand;
 
@@ -31,7 +32,7 @@ public class ExitCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String command) {
-	session.terminate();
+	HenPlus.getInstance().terminate();
 	return SUCCESS;
     }
 
