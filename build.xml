@@ -1,12 +1,14 @@
-<!-- $Id: build.xml,v 1.2 2002-01-22 09:49:59 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.3 2002-02-09 12:09:57 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- properties -->
      <property name="src"                  value="src" />
+     <property name="lib"                  value="lib" />
      <property name="build"                value="build" />
      <property name="classes"              value="${build}/classes" />
+<!--
      <property name="build.compiler"       value="jikes" />
      <property name="build.compiler.emacs" value="true" />
-     
+    --> 
      <target name="prepare">
         <mkdir dir="${build}"/>
         <mkdir dir="${classes}"/>
@@ -17,10 +19,15 @@
      </target>
      
      <target name="jar" depends="compile" description="make jar">
-        <jar file="${build}/henplus.jar">
+        <jar file="${build}/henplus.jar" manifest="manifest.txt">
            <fileset dir="${classes}">
               <include name="**/*.class"/>
            </fileset>
+<!--
+           <fileset dir="${lib}">
+              <include name="*.jar"/>
+           </fileset>
+-->
         </jar>
      </target>
 

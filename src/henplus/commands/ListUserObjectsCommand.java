@@ -36,11 +36,12 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	    String catalog = conn.getCatalog();
 	    System.err.println("catalog: " + catalog);
 	    ResultSetRenderer renderer = 
-		new ResultSetRenderer(meta.getCatalogs());
-	    renderer.writeTo(System.out);
+		new ResultSetRenderer(meta.getCatalogs(), System.out);
+	    renderer.execute();
 	    renderer = new ResultSetRenderer(meta.getTables(catalog,
-							    null,null,null));
-	    renderer.writeTo(System.out);
+							    null,null,null),
+					     System.out);
+	    renderer.execute();
 	}
 	catch (Exception e) {
 	    System.err.println(e.getMessage());

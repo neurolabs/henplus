@@ -80,8 +80,9 @@ public class SQLCommand extends AbstractCommand {
 		stmt = session.getConnection().createStatement();
 		if (stmt.execute(command)) {
 		    ResultSetRenderer renderer;
-		    renderer = new ResultSetRenderer(stmt.getResultSet());
-		    String rows = renderer.writeTo(System.out);
+		    renderer = new ResultSetRenderer(stmt.getResultSet(),
+						     System.out);
+		    String rows = renderer.execute();
 		    System.err.print(rows + " row" + 
 				     (("1".equals(rows))?"":"s")
 				     + " in result");
