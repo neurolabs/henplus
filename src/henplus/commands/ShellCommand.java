@@ -53,7 +53,7 @@ public class ShellCommand
      */
     public Iterator complete(CommandDispatcher disp, String partialCommand, 
 		      String lastWord) {
-	return new FileCompletionIterator(lastWord);
+	return new FileCompletionIterator(partialCommand, lastWord);
     }
 
     public void interrupt() {

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.6 2002-07-01 09:30:07 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.7 2002-07-23 06:37:17 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -197,7 +197,7 @@ public class DumpCommand
 
 	else if ("dump-in".equals(cmd)) {
 	    if (session == null) {
-		System.err.println("not connected. Only verify possible.");
+		System.err.println("not connected. Only verify-dump possible.");
 		return EXEC_FAILED;
 	    }
 	    if (argc < 1 || argc > 2) return SYNTAX_ERROR;
@@ -1027,7 +1027,7 @@ public class DumpCommand
 	
 	if ("dump-conditional".equals(cmd)) {
 	    if (argc == 0) {
-		return new FileCompletionIterator(lastWord);
+		return new FileCompletionIterator(partialCommand, lastWord);
 	    }
 	    else if (argc == 1) {
 		if (lastWord.startsWith("\"")) {
@@ -1046,7 +1046,7 @@ public class DumpCommand
 	else if ("dump-out".equals(cmd)) {
 	    // this is true for dump-out und verify-dump
 	    if (argc == 0) {
-		return new FileCompletionIterator(lastWord);
+		return new FileCompletionIterator(partialCommand, lastWord);
 	    }
 	    if (argc > 0) {
 		if (lastWord.startsWith("\"")) {
@@ -1082,7 +1082,7 @@ public class DumpCommand
 	}
 	else {
 	    if (argc == 0) {
-		return new FileCompletionIterator(lastWord);
+		return new FileCompletionIterator(partialCommand, lastWord);
 	    }
 	}
 	return null;
@@ -1099,7 +1099,7 @@ public class DumpCommand
      * return a descriptive string.
      */
     public String  getShortDescription() {
-	return "handle database independent table dumps";
+	return "handle table dumps";
     }
 
     public String getSynopsis(String cmd) {
