@@ -112,15 +112,16 @@ public class CommandDispatcher implements ReadlineCompleter {
     public String getCommandNameFrom(String completeCmd) {
 	if (completeCmd == null || completeCmd.length() == 0) return null;
 	String cmd = completeCmd.toLowerCase();
-	Iterator it = getRegisteredCommandNames(cmd.substring(0, 1));
+	final String startChar = cmd.substring(0, 1);
+	Iterator it = getRegisteredCommandNames(startChar);
 	String longestMatch = null;
 	while (it.hasNext()) {
 	    String testMatch = (String) it.next();
 	    if (cmd.startsWith(testMatch)) {
 		longestMatch = testMatch;
 	    }
-	    else if (longestMatch != null) {
-		break; // ok, we already found the longest match.
+	    else if (!testMatch.startsWith(startChar)) {
+		break; // ok, thats it.
 	    }
 	}
 	// ok, fallback: grab the first whitespace delimited part.

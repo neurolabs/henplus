@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.1 2002-05-30 19:48:48 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.2 2002-05-30 20:20:12 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -177,6 +177,7 @@ public final class AliasCommand extends AbstractCommand {
 	    System.err.println("execute alias: " + toExecute + param);
 	    _currentExecutedAliases.add(cmd);
 	    _dispatcher.execute(currentSession, toExecute + param);
+	    _currentExecutedAliases.clear();
 	}
 	return SUCCESS;
     }
