@@ -1,8 +1,9 @@
 henplus (0.9.3-1) unstable; urgency=low
   
   * fix a bug that rendered set-var unusable.
-  * add property support: remove of comments is now a property
-  * make table column separator configurable with a property
+  * add global and session specific property support
+  * column-delimiter, comments-remove, sql-result-limit as global properties
+  * auto-commit and isolation-level as session properties
   
  -- Henner Zeller <H.Zeller@acm.org>  Thu, 01 May 2003 22:54:38 +0200
   

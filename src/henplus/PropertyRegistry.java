@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyRegistry.java,v 1.2 2003-05-01 18:26:28 hzeller Exp $ 
+ * $Id: PropertyRegistry.java,v 1.3 2003-05-01 20:31:59 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -44,7 +44,7 @@ public class PropertyRegistry {
     public void setProperty(String name, String value) throws Exception {
         PropertyHolder holder = (PropertyHolder) _namedProperties.get(name);
         if (holder == null) {
-            throw new IllegalArgumentException("Unknown Property " + name);
+            throw new IllegalArgumentException("unknown property '"+name+"'");
         }
         holder.setValue(value);
     }

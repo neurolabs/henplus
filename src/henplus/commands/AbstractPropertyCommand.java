@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.2 2003-05-01 19:53:09 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.3 2003-05-01 20:31:59 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -222,7 +222,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             +"\tWith only the property name given as parameter,\n"
             +"\tshow the long help associated with that property.\n\n"
             +"\tIs the property name followed by a value, the property is\n"
-            +"\tset to that value\n";
+            +"\tset to that value";
 	return dsc;
     }
 }
