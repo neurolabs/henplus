@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.9 2002-06-10 17:38:11 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.10 2002-10-05 08:47:44 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -29,7 +29,7 @@ public class ResultSetRenderer implements Interruptable {
 
     private boolean beyondLimit;
     private long    firstRowTime;
-    private boolean running;
+    private volatile boolean running;
 
     public ResultSetRenderer(ResultSet rset, PrintStream out, int[] show) 
 	throws SQLException {
@@ -48,7 +48,7 @@ public class ResultSetRenderer implements Interruptable {
     }
     
     // Interruptable interface.
-    public void interrupt() {
+    public synchronized void interrupt() {
 	running = false;
     }
 

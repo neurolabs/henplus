@@ -128,7 +128,7 @@ public class ShellCommand
 	private final Thread stdoutThread;
 	private final Thread stderrThread;
 	private final Process process;
-	private boolean running;
+	private volatile boolean running;
 
 	public IOHandler(Process p) throws IOException {
 	    this.process = p;
@@ -155,7 +155,9 @@ public class ShellCommand
 	}
 
 	public void stop() {
-	    running = false;
+            synchronized (this) {
+                running = false;
+            }
 	    //stdinThread.interrupt(); // this does not work for blocked IO!
 	    try { stdoutThread.join(); } catch(InterruptedException e) {}
 	    try { stderrThread.join(); } catch(InterruptedException e) {}
@@ -181,6 +183,9 @@ public class ShellCommand
 		byte[] buf = new byte [ 256 ];
 		int r;
 		try {
+                    /*
+                     * some sort of 'select' would be good here.
+                     */
 		    while ((running || source.available() > 0)
 			   && (r = source.read(buf)) > 0) {
 			dest.write(buf, 0, r);

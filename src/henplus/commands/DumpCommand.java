@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.7 2002-07-23 06:37:17 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.8 2002-10-05 08:47:44 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -104,7 +104,7 @@ public class DumpCommand
     }
 
     private final ListUserObjectsCommand tableCompleter;
-    private boolean _running;
+    private volatile boolean _running;
 
     public DumpCommand(ListUserObjectsCommand tc) {
 	tableCompleter = tc;
@@ -1008,7 +1008,7 @@ public class DumpCommand
     }
     
     //-- Interruptable interface
-    public void interrupt() {
+    public synchronized void interrupt() {
 	_running = false;
     }
 
