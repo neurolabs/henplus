@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.12 2003-03-18 10:47:06 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.13 2003-03-30 14:54:03 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -58,20 +58,24 @@ public class ResultSetRenderer implements Interruptable {
     }
 
     private String readClob(Clob c) throws SQLException {
+        if (c == null) return null;
         StringBuffer result = new StringBuffer();
-        Reader in = c.getCharacterStream();
-        char buf[] = new char [ 8192 ];
         long restLimit = clobLimit;
-        int r;
         try {
+            Reader in = c.getCharacterStream();
+            char buf[] = new char [ 4096 ];
+            int r;
+
             while (restLimit > 0 
                    && (r = in.read(buf, 0, (int)Math.min(buf.length,restLimit))) > 0) 
                 {
+                    //System.out.println("read .. " + r);
                     result.append(buf, 0, r);
                     restLimit -= r;
                 }
         }
-        catch (IOException e) {
+        catch (Exception e) {
+            System.err.println(e);
         }
         if (restLimit == 0) {
             result.append("...");
