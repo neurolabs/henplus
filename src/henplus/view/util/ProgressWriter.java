@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ProgressWriter.java,v 1.1 2005-03-24 13:57:46 hzeller Exp $ 
+ * $Id: ProgressWriter.java,v 1.2 2005-03-25 15:39:44 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
@@ -53,7 +53,7 @@ public class ProgressWriter {
             long newDots = (_screenWidth * value) / _expectedTargetValue;
             if (newDots > _progressDots) {
                 _etaWriter.cancel(false);
-                while (_progressDots <= newDots) {
+                while (_progressDots < newDots) {
                     _out.print(".");
                     ++_progressDots;
                 }
