@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.27 2002-02-15 20:11:42 hzeller Exp $
+ * $Id: HenPlus.java,v 1.28 2002-02-16 13:27:36 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -72,6 +72,7 @@ public class HenPlus {
 	setDefaultPrompt();
 
 	_settingStore = new SetCommand(this);
+	ListUserObjectsCommand objectLister = new ListUserObjectsCommand(this);
 	dispatcher = new CommandDispatcher(_settingStore);
 	dispatcher.register(new HelpCommand());
 	dispatcher.register(new AboutCommand());
@@ -83,9 +84,9 @@ public class HenPlus {
 	dispatcher.register(new ConnectCommand( argv, this ));
 	dispatcher.register(new StatusCommand());
 
-	dispatcher.register(new ListUserObjectsCommand());
-	dispatcher.register(new DescribeCommand());
-	dispatcher.register(new SQLCommand());
+	dispatcher.register(objectLister);
+	dispatcher.register(new DescribeCommand(objectLister));
+	dispatcher.register(new SQLCommand(objectLister));
 
 	dispatcher.register(new ImportCommand());
 	dispatcher.register(new ExportCommand());
@@ -192,13 +193,14 @@ public class HenPlus {
 		    : readlineFromFile();
 	    }
 	    catch (EOFException e) {
+		// EOF on CTRL-D
 		if (session != null) {
 		    dispatcher.execute(session, "disconnect");
 		    displayPrompt = prompt;
 		    continue;
 		}
 		else {
-		    break; // last session closed.
+		    break; // last session closed -> exit.
 		}
 	    }
 	    catch (Exception e) {
@@ -214,7 +216,10 @@ public class HenPlus {
 	    }
 	}
     }
-    
+
+    /**
+     * called at the very end; on signal, called from the shutdown-hook
+     */
     private void shutdown() {
 	if (_alreadyShutDown) {
 	    return;
@@ -240,10 +245,17 @@ public class HenPlus {
     }
     public CommandDispatcher getDispatcher() { return dispatcher; }
     
+    /**
+     * set current session. This is called from commands, that switch
+     * the sessions (i.e. the ConnectCommand.
+     */
     public void setSession(SQLSession session) {
 	this.session = session;
     }
 
+    /**
+     * get current session.
+     */
     public SQLSession getSession() {
 	return session;
     }

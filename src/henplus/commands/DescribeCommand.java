@@ -6,11 +6,14 @@
  */
 package henplus.commands;
 
+import java.io.PrintStream;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.sql.*;
+
 import henplus.SQLSession;
 import henplus.AbstractCommand;
-import java.util.StringTokenizer;
-import java.io.PrintStream;
-import java.sql.*;
+import henplus.CommandDispatcher;
 
 /**
  * document me.
@@ -20,6 +23,13 @@ public class DescribeCommand extends AbstractCommand {
     static final boolean LEFT        = true;
     static final boolean RIGHT       = false;
     static final int[]   DISP_COLS   = { 3, 4, 6, 7, 18 };
+    
+    private final ListUserObjectsCommand tableCompleter;
+
+    public DescribeCommand(ListUserObjectsCommand tc) {
+	tableCompleter = tc;
+    }
+
     /**
      * returns the command-strings this command can handle.
      */
@@ -39,11 +49,13 @@ public class DescribeCommand extends AbstractCommand {
 	}
 	final String tabName = (String) st.nextElement();
 	try {
-	    describeTable(System.out, "Table", tabName,
-			  session.getUsername(), session.getConnection());
+	    describeOracleTable(System.out, "Table", tabName,
+				session.getUsername(), 
+				session.getConnection());
 	    return SUCCESS;
 	}
 	catch (Exception e) {
+	    // ok, no oracle database..
 	    if (verbose) e.printStackTrace();
 	}
 	try {
@@ -62,10 +74,23 @@ public class DescribeCommand extends AbstractCommand {
 	return SUCCESS;
     }
 
-    private void describeTable (PrintStream out, 
-				String objectType, String tabname, 
-				String owner,
-				Connection conn) 
+    public Iterator complete(CommandDispatcher disp,
+			     String partialCommand, final String lastWord) 
+    {
+	StringTokenizer st = new StringTokenizer(partialCommand);
+	String cmd = (String) st.nextElement();
+	int argc = st.countTokens();
+	// we accept only one argument.
+	if (argc > ("".equals(lastWord) ? 0 : 1)) {
+	    return null;
+	}
+	return tableCompleter.completeTableName(lastWord);
+    }
+
+    private void describeOracleTable (PrintStream out, 
+				      String objectType, String tabname, 
+				      String owner,
+				      Connection conn) 
 	throws SQLException {
 	Statement stmt = conn.createStatement(); // use SQLSession.createSt.()
 	ResultSet rset = null;

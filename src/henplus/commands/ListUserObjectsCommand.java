@@ -6,19 +6,38 @@
  */
 package henplus.commands;
 
-import henplus.SQLSession;
-import henplus.AbstractCommand;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Iterator;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.sql.ResultSet;
+
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.AbstractCommand;
 
 /**
  * document me.
  */
 public class ListUserObjectsCommand extends AbstractCommand {
-    final String[] LIST_TABLES = { "TABLE" };
-    final String[] LIST_VIEWS  = { "VIEW" };
+    final private static String[] LIST_TABLES = { "TABLE" };
+    final private static String[] LIST_VIEWS  = { "VIEW" };
+
+    /**
+     * all tables in one session.
+     */
+    final private Map/*<SQLSession,SortedMap>*/  sessionTables;
+    final private HenPlus                        henplus;
+
+    public ListUserObjectsCommand(HenPlus hp) {
+	sessionTables = new HashMap();
+	henplus = hp;
+    }
 
     /**
      * returns the command-strings this command can handle.
@@ -54,6 +73,67 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	    return EXEC_FAILED;
 	}
 	return SUCCESS;
+    }
+
+    private SortedSet getTableSet(SQLSession session) {
+	SortedSet set = (SortedSet) sessionTables.get(session);
+	return (set == null) ? rehash(session) : set;
+    }
+
+    private SortedSet rehash(SQLSession session) {
+	SortedSet result = new TreeSet();
+	Connection conn = session.getConnection();  // use createStmt
+	ResultSet rset = null;
+	try {
+	    DatabaseMetaData meta = conn.getMetaData();
+	    rset = meta.getTables(null, null, null, LIST_TABLES);
+	    while (rset.next()) {
+		result.add(rset.getString(3));
+	    }
+	}
+	catch (Exception e) {
+	    // ignore.
+	}
+	finally {
+	    if (rset != null) {
+		try { rset.close(); } catch (Exception e) {}
+	    }
+	}
+	sessionTables.put(session, result);
+	return result;
+    }
+
+    /**
+     * used from diverse commands that need table name completion.
+     */
+    public Iterator completeTableName(String partialTable) {
+	final SortedSet tableSet = getTableSet(henplus.getSession());
+	Iterator it0 = tableSet.tailSet(partialTable).iterator();
+	if (!it0.hasNext()) {
+	    // test uppercase, then:
+	    partialTable = partialTable.toUpperCase();
+	    it0 = tableSet.tailSet(partialTable).iterator();
+	}
+	final Iterator tableIterator = it0;
+	final String   tablePattern  = partialTable;
+
+	return new Iterator() {
+		String current = null;
+		public boolean hasNext() {
+		    if (tableIterator.hasNext()) {
+			current = (String) tableIterator.next();
+			if (current.startsWith(tablePattern))
+			    return true;
+		    }
+		    return false;
+		}
+		public Object  next() { 
+		    return current;
+		}
+		public void remove() { 
+		    throw new UnsupportedOperationException("no!");
+		}
+	    };
     }
 
     /**

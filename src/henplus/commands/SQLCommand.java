@@ -8,10 +8,12 @@ package henplus.commands;
 
 import henplus.SQLSession;
 import henplus.AbstractCommand;
+import henplus.CommandDispatcher;
 
 import java.text.DecimalFormat;
 
 import java.util.Map;
+import java.util.Iterator;
 import java.sql.SQLException;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
@@ -37,6 +39,12 @@ public class SQLCommand extends AbstractCommand {
 	    // henplus buildin-stuff; the following empty string flags this.
 	    ""
 	};
+    }
+
+    private final ListUserObjectsCommand tableCompleter;
+    
+    public SQLCommand(ListUserObjectsCommand tc) {
+	tableCompleter = tc;
     }
 
     /**
@@ -150,6 +158,16 @@ public class SQLCommand extends AbstractCommand {
 	    try { if (rset != null) rset.close(); } catch (Exception e) {}
 	    try { if (stmt != null) stmt.close(); } catch (Exception e) {}
 	}
+    }
+
+    // very simple completer: try to determine wether we can complete a
+    // table name.
+    public Iterator complete(CommandDispatcher disp,
+			     String partialCommand, final String lastWord) 
+    {
+	if (partialCommand.toUpperCase().indexOf("FROM") >= 0)
+	    return tableCompleter.completeTableName(lastWord);
+	return null;
     }
 
     public String getLongDescription(String cmd) {
