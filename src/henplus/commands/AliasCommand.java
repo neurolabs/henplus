@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.4 2002-06-14 18:38:53 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.5 2002-12-29 10:37:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -43,7 +43,8 @@ public final class AliasCommand extends AbstractCommand {
     private final CommandDispatcher _dispatcher;
 
     /**
-     * to determine, if we got a recursion ..
+     * to determine, if we got a recursion: one alias calls another
+     * alias which in turn calls the first one ..
      */
     private final Set       _currentExecutedAliases;
 
@@ -297,12 +298,52 @@ public final class AliasCommand extends AbstractCommand {
 	else if ("alias".equals(cmd)) {
 	    return cmd + " <alias-name> <command-to-execute>";
 	}
-	else if ("alias".equals(cmd)) {
+	else if ("unalias".equals(cmd)) {
 	    return cmd + " <alias-name>";
 	}
 	else {
-	    return cmd + " [ alias for '" + _aliases.get(cmd) + "' ]";
+            /*
+             * special aliased name..
+             */
+	    return cmd;
 	}
+    }
+
+    public String getLongDescription(String cmd) {
+	String dsc = null;
+        if ("list-aliases".equals(cmd)) {
+        }
+        else if ("alias".equals(cmd)) {
+        }
+        else if ("unalias".equals(cmd)) {
+        }
+        else {
+	    // not session-proof:
+	    if (_currentExecutedAliases.contains(cmd)) {
+		dsc = "\t[ this command cyclicly references itself ]";
+	    }
+            else {
+                _currentExecutedAliases.add(cmd);
+                dsc= "\tThis is an alias for the command\n"
+                    +"\t   " + _aliases.get(cmd);
+
+                String actualCmdStr = (String) _aliases.get(cmd);
+                if (actualCmdStr != null) {
+                    StringTokenizer st = new StringTokenizer(actualCmdStr);
+                    actualCmdStr = st.nextToken();
+                    Command c = _dispatcher.getCommandFrom(actualCmdStr);
+                    String longDesc = null;
+                    if (c != null 
+                        && (longDesc=c.getLongDescription(actualCmdStr)) != null) {
+                        dsc+="\n\n\t..the following description could be determined for this";
+                        dsc+="\n\t------- [" + actualCmdStr + "] ---\n";
+                        dsc+=longDesc;
+                    }
+                    _currentExecutedAliases.clear();
+                }
+            }
+        }
+        return dsc;
     }
 }
 
