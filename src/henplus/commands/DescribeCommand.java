@@ -212,7 +212,9 @@ public class DescribeCommand
 	    DESC_META[1].setDisplay(!allSameTableName);
 	    TableRenderer table = new TableRenderer(DESC_META, System.out);
 	    Iterator it = rows.iterator();
-	    while (it.hasNext()) table.addRow((Column[]) it.next());
+	    while (it.hasNext()) {
+                table.addRow((Column[]) it.next());
+            }
 	    table.closeTable();
 
             if ("describe".equals(cmd)) {

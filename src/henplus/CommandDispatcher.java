@@ -202,8 +202,8 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    else {
 			System.err.println("syntax error.");
 		    }
-		    break;
 		}
+		    break;
 		case Command.EXEC_FAILED: {
                     /*
                      * if we are in batch mode, then no message is written
@@ -216,6 +216,9 @@ public class CommandDispatcher implements ReadlineCompleter {
 			System.err.println(cmdStr + " " + cmd);
 		    }
 		}
+		    break;
+                default:
+                    /* nope */
 		}
 	    }
 	    catch (Throwable e) {

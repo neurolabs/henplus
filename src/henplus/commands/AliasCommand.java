@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.9 2003-05-01 18:26:28 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.10 2003-05-07 11:22:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -267,9 +267,13 @@ public final class AliasCommand extends AbstractCommand {
 		int i = 0;
 		String param = partialCommand;
 		while (param.length() < i
-		       && Character.isWhitespace(param.charAt(i))) ++i;
+		       && Character.isWhitespace(param.charAt(i))) {
+                    ++i;
+                }
 		while (param.length() < i
-		       && !Character.isWhitespace(param.charAt(i))) ++i;
+		       && !Character.isWhitespace(param.charAt(i))) {
+                    ++i;
+                }
 		return c.complete(disp, toExecute + param.substring(i),
 				  lastWord);
 	    }

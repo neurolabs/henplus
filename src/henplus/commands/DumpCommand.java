@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.16 2003-05-01 16:50:43 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.17 2003-05-07 11:22:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -322,8 +322,9 @@ public class DumpCommand
 	out.print(s);
 	out.print("'");
 	if (comma) out.print(", ");
-	for (int i = s.length(); i < width; ++i)
+	for (int i = s.length(); i < width; ++i) {
 	    out.print(' ');
+        }
     }
 
     private int dumpTable(SQLSession session, String tabName, 

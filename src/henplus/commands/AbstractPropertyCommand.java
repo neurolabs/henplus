@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.4 2003-05-01 23:21:17 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.5 2003-05-07 11:22:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -33,9 +33,6 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
 	PROP_META[0] = new ColumnMetaData("Name");
 	PROP_META[1] = new ColumnMetaData("Value");
         PROP_META[2] = new ColumnMetaData("Description");
-    }
-
-    public AbstractPropertyCommand() {
     }
 
     /**

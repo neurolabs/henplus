@@ -1,12 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.7 2003-05-01 23:21:17 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.8 2003-05-07 11:22:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 import java.io.PrintStream;
 
@@ -18,7 +19,7 @@ public class TableRenderer {
 
     private final ColumnMetaData meta[];
     private final PrintStream    out;
-    private final ArrayList      cacheRows;
+    private final List           cacheRows;
     private final String         colSeparator;
     private boolean              alreadyFlushed;
     private int                  writtenRows;
