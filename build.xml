@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.30 2003-05-01 20:31:58 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.31 2003-05-02 00:18:30 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
@@ -11,7 +11,7 @@
      <property name="lib"                  value="lib" />
      <property name="build"                value="build" />
      <property name="classes"              value="${build}/classes" />
-     <property name="build.compiler"       value="jikes" />
+     <property name="build.compiler"       value="modern" />
      <property name="build.compiler.emacs" value="true" />
      <property name="tarbase"              value="henplus-${version}" />
 
