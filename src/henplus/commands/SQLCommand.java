@@ -81,8 +81,9 @@ public class SQLCommand extends AbstractCommand {
 		if (stmt.execute(command)) {
 		    ResultSetRenderer renderer;
 		    renderer = new ResultSetRenderer(stmt.getResultSet());
-		    int rows = renderer.writeTo(System.out);
-		    System.err.print(rows + " row" + ((rows!=1)?"s":"")
+		    String rows = renderer.writeTo(System.out);
+		    System.err.print(rows + " row" + 
+				     (("1".equals(rows))?"":"s")
 				     + " in result");
 		}
 		else {
