@@ -1,11 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: NameCompleter.java,v 1.1 2002-02-24 12:25:25 hzeller Exp $ 
+ * $Id: NameCompleter.java,v 1.2 2002-06-14 18:38:53 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.SortedMap;
@@ -25,6 +26,17 @@ public class NameCompleter {
 	canonicalNames = new TreeMap();
     }
     
+    public NameCompleter(Iterator names) {
+	this();
+	while (names.hasNext()) {
+	    addName((String) names.next());
+	}
+    }
+
+    public NameCompleter(Collection c) {
+	this(c.iterator());
+    }
+
     public void addName(String name) {
 	nameSet.add(name);
 	canonicalNames.put(name.toLowerCase(), name);

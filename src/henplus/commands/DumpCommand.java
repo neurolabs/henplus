@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.4 2002-06-13 07:20:13 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.5 2002-06-14 18:38:53 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -116,7 +116,7 @@ public class DumpCommand
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "dump-out", "dump-in", "verify-dump"
+	    "dump-out", "dump-in", "verify-dump" //, "dump-tables"
 	};
     }
 
@@ -137,27 +137,21 @@ public class DumpCommand
 		System.err.println("not connected.");
 		return EXEC_FAILED;
 	    }
-	    if ((argc < 2) || (argc > 3)) return SYNTAX_ERROR;
+	    if ((argc < 2)) return SYNTAX_ERROR;
 	    String tabName  = (String) st.nextElement();
 	    String fileName = (String) st.nextElement();
+	    String whereClause = null;
+	    if (argc >= 3) {
+		whereClause = (String) st.nextToken("\n"); // till EOL
+		whereClause = whereClause.trim();
+		if (whereClause.toUpperCase().startsWith("WHERE")) {
+		    whereClause = whereClause.substring(5);
+		    whereClause = whereClause.trim();
+		}
+	    }
 	    try {
-		// asking for meta data is only possible with the correct
-		// table name.
-		boolean correctName = true;
-		if (tabName.startsWith("\"")) {
-		    tabName = stripQuotes(tabName);
-		    correctName = false;
-		}
-		if (correctName) {
-		    String alternative = tableCompleter.correctTableName(tabName);
-		    if (alternative != null && !alternative.equals(tabName)) {
-			tabName = alternative;
-			System.out.println("dumping table: '" + tabName 
-					   + "' (corrected name)");
-		    }
-		}
-
-		int result = dumpTable(session, tabName, fileName);
+		int result = dumpTable(session, tabName, fileName, 
+				       whereClause);
 		return result;
 	    }
 	    catch (Exception e) {
@@ -239,8 +233,26 @@ public class DumpCommand
 	    out.print(' ');
     }
 
-    private int dumpTable(SQLSession session, String tabName, String fileName)
+    private int dumpTable(SQLSession session, String tabName, String fileName,
+			  String whereClause)
 	throws Exception {
+
+	// asking for meta data is only possible with the correct
+	// table name.
+	boolean correctName = true;
+	if (tabName.startsWith("\"")) {
+	    tabName = stripQuotes(tabName);
+	    correctName = false;
+	}
+	if (correctName) {
+	    String alternative = tableCompleter.correctTableName(tabName);
+	    if (alternative != null && !alternative.equals(tabName)) {
+		tabName = alternative;
+		System.out.println("dumping table: '" + tabName 
+				   + "' (corrected name)");
+	    }
+	}
+
 	List metaList = new ArrayList();
 	Connection conn = session.getConnection();
 	ResultSet rset = null;
@@ -276,6 +288,11 @@ public class DumpCommand
 			System.getProperty("file.encoding") + "')");
 	dumpOut.println("  (dump-version " + DUMP_VERSION + " " 
 			+ DUMP_VERSION + ")");
+	if (whereClause != null) {
+	    dumpOut.print("  (where-clause ");
+	    quoteString(dumpOut, whereClause);
+	    dumpOut.println(")");
+	}
 	dumpOut.println("  (henplus-version '" + Version.getVersion() 
 			+ "')");
 	dumpOut.println("  (time '" + new Timestamp(System.currentTimeMillis())
@@ -303,7 +320,13 @@ public class DumpCommand
 	long expectedRows = -1;
 	try {
 	    stmt = session.createStatement();
-	    rset = stmt.executeQuery("SELECT count(*) from " + tabName);
+	    StringBuffer countStmt = new StringBuffer("SELECT count(*) from ");
+	    countStmt.append(tabName);
+	    if (whereClause != null) {
+		countStmt.append(" WHERE ");
+		countStmt.append(whereClause);
+	    }
+	    rset = stmt.executeQuery(countStmt.toString());
 	    rset.next();
 	    expectedRows = rset.getLong(1);
 	}
@@ -325,6 +348,9 @@ public class DumpCommand
 	    if (it.hasNext()) selectStmt.append(", ");
 	}
 	selectStmt.append(" FROM ").append(tabName);
+	if (whereClause != null) {
+	    selectStmt.append(" WHERE ").append(whereClause);
+	}
 	//System.err.println(selectStmt.toString());
 
 	dumpOut.print("  (data ");
@@ -433,6 +459,10 @@ public class DumpCommand
 				   + " rows");
 	    }
 	}
+	catch (Exception e) {
+	    System.err.println(selectStmt.toString());
+	    throw e; // handle later.
+	}
 	finally {
 	    if (rset != null) {
 		try { rset.close(); } catch (Exception e) {}
@@ -482,6 +512,7 @@ public class DumpCommand
 	String henplusVersion = null;
 	String databaseInfo = null;
 	String dumpTime = null;
+	String whereClause = null;
 	int c;
 	char ch;
 	String token;
@@ -560,6 +591,11 @@ public class DumpCommand
 		expect(reader, ')');
 	    }
 
+	    if ("where-clause".equals(token)) {
+		whereClause = readString(reader);
+		expect(reader, ')');
+	    }
+
 	    if ("time".equals(token)) {
 		dumpTime = readString(reader);
 		expect(reader, ')');
@@ -605,6 +641,10 @@ public class DumpCommand
 				   + "\nfrom database       : " + databaseInfo
 				   + "\nat                  : " + dumpTime
 				   + "\ndump format version : " + dumpVersion);
+		if (whereClause != null) {
+		    System.err.println("projection          : " + whereClause);
+		}
+
 		System.err.print("reading rows..");
 		System.err.flush();
 		boolean rowBefore = false;
@@ -916,6 +956,12 @@ public class DumpCommand
 	    else if (argc == 1) {
 		return new FileCompletionIterator(lastWord);
 	    }
+	    else if (argc > 1) {
+		String table = (String) st.nextElement();
+		Collection columns = tableCompleter.columnsFor(table);
+		NameCompleter compl = new NameCompleter(columns);
+		return compl.getAlternatives(lastWord);
+	    }
 	}
 	else {
 	    if (argc == 0) {
@@ -941,7 +987,7 @@ public class DumpCommand
 
     public String getSynopsis(String cmd) {
 	if ("dump-out".equals(cmd)) {
-	    return cmd + " <tablename> <filename>";
+	    return cmd + " <tablename> <filename> [<where-clause>]";
 	}
 	else if ("dump-in".equals(cmd)) {
 	    return cmd + " <filename> [<commitpoints>]";

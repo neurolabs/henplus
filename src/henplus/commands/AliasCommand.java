@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.3 2002-06-09 11:02:47 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.4 2002-06-14 18:38:53 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -200,37 +200,57 @@ public final class AliasCommand extends AbstractCommand {
 	int argc = st.countTokens();
 
 	// list-aliases gets no names.
-	if ("list-aliases".equals(cmd)) 
+	if ("list-aliases".equals(cmd)) {
 	    return null;
+	}
 	
 	/*
-	 * some completion within the alias commands.
+	 * some completion within the alias/unalias commands.
 	 */
 	if ("alias".equals(cmd) || "unalias".equals(cmd)) {
-	    // do not complete beyond first word.
-	    if (argc > ("".equals(lastWord) ? 0 : 1)) {
-		return null;
+	    final HashSet  alreadyGiven = new HashSet();
+	    
+	    if ("alias".equals(cmd)) {
+		// do not complete beyond first word.
+		if (argc > ("".equals(lastWord) ? 0 : 1)) {
+		    return null;
+		}
 	    }
+	    else {
+		/*
+		 * remember all aliases, that have already been given on
+		 * the commandline and exclude from completion..
+		 * cool, isn't it ?
+		 */
+		while (st.hasMoreElements()) {
+		    alreadyGiven.add((String) st.nextElement());
+		}
+	    }
+	    
+	    // ok, now return the list.
 	    final Iterator it = _aliases.tailMap(lastWord).keySet().iterator();
 	    return new Iterator() {
-		    String var = null;
+		    String alias = null;
 		    public boolean hasNext() {
 			while (it.hasNext()) {
-			    var = (String) it.next();
-			    if (!var.startsWith(lastWord)) {
+			    alias = (String) it.next();
+			    if (!alias.startsWith(lastWord)) {
 				return false;
+			    }
+			    if (alreadyGiven.contains(alias)) {
+				continue;
 			    }
 			    return true;
 			}
 			return false;
 		    }
-		    public Object  next() { return var; }
+		    public Object  next() { return alias; }
 		    public void remove() { 
 			throw new UnsupportedOperationException("no!");
 		    }
 		};
 	}
-
+	
 	/* ok, someone tries to complete something that is a command.
 	 * try to find the actual command and ask that command to do
 	 * the completion.
