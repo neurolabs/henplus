@@ -112,13 +112,14 @@ public class HelpCommand extends AbstractCommand {
 			       + HenPlus.getInstance().getConfigDir() + "]");
 	}
 	else {
-	    Command c = HenPlus.getInstance().getDispatcher()
-		.getCommandFrom(param);
+	    CommandDispatcher disp = HenPlus.getInstance().getDispatcher();
+	    String cmdString = disp.getCommandNameFrom(param);
+	    Command c = disp.getCommandFrom(param);
 	    if (c == null) {
 		System.err.println("Help: unknown command '"+param+"'");
 		return EXEC_FAILED;
 	    }
-	    printDescription(param, c);
+	    printDescription(cmdString, c);
 	}
 	return SUCCESS;
     }
@@ -133,14 +134,14 @@ public class HelpCommand extends AbstractCommand {
 	String synopsis = c.getSynopsis(cmdStr);
 	
 	if (synopsis != null) {
-	    Terminal.blue(System.err);
+	    Terminal.boldface(System.err);
 	    System.err.println("SYNOPSIS");
 	    Terminal.reset(System.err);
 	    System.err.println("\t" + synopsis);
 	    System.err.println();
 	}
 	if (desc != null) {
-	    Terminal.blue(System.err);
+	    Terminal.boldface(System.err);
 	    System.err.println("DESCRIPTION");
 	    Terminal.reset(System.err);
 	    System.err.println(desc);

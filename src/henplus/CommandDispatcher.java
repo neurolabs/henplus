@@ -74,8 +74,13 @@ public class CommandDispatcher implements ReadlineCompleter {
 	    commandMap.put(cmdStrings[i], c);
 	}
     }
-    
-    private String getCommandNameFrom(String completeCmd) {
+
+    /**
+     * extracts the command from the commandstring. This even works, if there
+     * is not delimiter between the command and its arguments (this is esp.
+     * needed for the commands '?', '!', '@' and '@@').
+     */
+    public String getCommandNameFrom(String completeCmd) {
 	if (completeCmd == null || completeCmd.length() == 0) return null;
 	String cmd = completeCmd.toLowerCase();
 	Iterator it = getRegisteredCommandNames(cmd.substring(0, 1));
@@ -89,6 +94,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 		break; // ok, we already found the longest match.
 	    }
 	}
+	// ok, fallback: grab the first whitespace delimited part.
 	if (longestMatch == null) {
 	    Enumeration tok = new StringTokenizer(completeCmd, " ;\t\n\r\f");
 	    if (tok.hasMoreElements()) {
