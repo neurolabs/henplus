@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.7 2002-02-14 22:38:59 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.8 2002-02-16 00:07:33 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -24,17 +24,25 @@ public class ResultSetRenderer {
     private final ResultSet rset;
     private final TableRenderer table;
     private final int columns;
+    private final int[] showColumns;
+
     private boolean beyondLimit;
     private long    firstRowTime;
+    
+    public ResultSetRenderer(ResultSet rset, PrintStream out, int[] show) 
+	throws SQLException {
+	this.rset = rset;
+	beyondLimit = false;
+	firstRowTime = -1;
+	showColumns = show;
+	ResultSetMetaData meta = rset.getMetaData();
+	columns = (show != null) ? show.length : meta.getColumnCount();
+	table = new TableRenderer(getDisplayMeta(meta),  out);
+    }
 
     public ResultSetRenderer(ResultSet rset, PrintStream out) 
 	throws SQLException {
-	this.rset = rset;
-	ResultSetMetaData meta = rset.getMetaData();
-	columns = meta.getColumnCount();
-	table = new TableRenderer(getDisplayMeta(meta),  out);
-	beyondLimit = false;
-	firstRowTime = -1;
+	this(rset, out, null);
     }
 
     public int execute() throws SQLException {
@@ -47,7 +55,8 @@ public class ResultSetRenderer {
 		}
 		Column[] currentRow = new Column[ columns ];
 		for (int i = 0 ; i < columns ; ++i) {
-		    String colString = rset.getString(i+1);
+		    int col = (showColumns != null) ? showColumns[i] : i+1;
+		    String colString = rset.getString( col );
 		    Column thisCol = new Column(colString); 
 		    currentRow[i] = thisCol;
 		}
@@ -80,16 +89,17 @@ public class ResultSetRenderer {
      */
     private ColumnMetaData[] getDisplayMeta(ResultSetMetaData m) 
 	throws SQLException {
-	ColumnMetaData result[] = new ColumnMetaData [ m.getColumnCount() ];
+	ColumnMetaData result[] = new ColumnMetaData [ columns ];
 
-	for (int i = 1; i <= result.length; ++i) {
+	for (int i = 0; i < result.length; ++i) {
+	    int col = (showColumns != null) ? showColumns[i] : i+1;
 	    int alignment  = ColumnMetaData.ALIGN_LEFT;
-	    String columnLabel = m.getColumnLabel(i);
+	    String columnLabel = m.getColumnLabel( col );
 	    /*
 	    int width = Math.max(m.getColumnDisplaySize(i),
 				 columnLabel.length());
 	    */
-	    switch (m.getColumnType(i)) {
+	    switch (m.getColumnType( col )) {
 	    case Types.NUMERIC:  
 	    case Types.INTEGER: 
 	    case Types.REAL:
@@ -98,7 +108,7 @@ public class ResultSetRenderer {
 		alignment = ColumnMetaData.ALIGN_RIGHT;
 		break;
 	    }
-	    result[i-1] = new ColumnMetaData(columnLabel,alignment);
+	    result[i] = new ColumnMetaData(columnLabel,alignment);
 	}
 	return result;
     }

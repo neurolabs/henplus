@@ -16,9 +16,10 @@ import java.sql.*;
  * document me.
  */
 public class DescribeCommand extends AbstractCommand {
+    static final boolean verbose     = false;
     static final boolean LEFT        = true;
     static final boolean RIGHT       = false;
-
+    static final int[]   DISP_COLS   = { 3, 4, 6, 7, 18 };
     /**
      * returns the command-strings this command can handle.
      */
@@ -30,18 +31,32 @@ public class DescribeCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String command) {
-	StringTokenizer st = new StringTokenizer(command);
-	String cmd = (String) st.nextElement();
-	int argc = st.countTokens();
+	final StringTokenizer st = new StringTokenizer(command);
+	final String cmd = (String) st.nextElement();
+	final int argc = st.countTokens();
 	if (argc != 1) {
 	    return SYNTAX_ERROR;
 	}
+	final String tabName = (String) st.nextElement();
 	try {
-	    describeTable(System.out, "Table", (String) st.nextElement(),
+	    describeTable(System.out, "Table", tabName,
 			  session.getUsername(), session.getConnection());
+	    return SUCCESS;
 	}
-	catch (SQLException e) {
-	    System.err.println(e.getMessage());
+	catch (Exception e) {
+	    if (verbose) e.printStackTrace();
+	}
+	try {
+	    // ok, cannot read Oracle like table.
+	    DatabaseMetaData meta = session.getConnection().getMetaData();
+	    ResultSet rset = meta.getColumns(null, null, tabName, null);
+	    ResultSetRenderer renderer = new ResultSetRenderer(rset, 
+							       System.out,
+							       DISP_COLS);
+	    renderer.execute();
+	}
+	catch (Exception e) {
+	    if (verbose) e.printStackTrace();
 	    return EXEC_FAILED;
 	}
 	return SUCCESS;
