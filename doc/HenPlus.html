@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.22 2004-03-07 12:04:15 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.23 2004-03-07 23:37:06 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -18,6 +18,7 @@
 <tr><td><a href="#plugins">Plugins</a></td></tr>
 <tr><td><a href="#aliases">Aliases</a></td></tr>
 <tr><td><a href="#keybindings">Function Key Bindings</a></td></tr>
+<tr><td><a href="#cmd-bookmark">Setting Command Bookmarks</a></td></tr>
 <tr><td><a href="#table-dumps">Table Dumps</a></td></tr>
 <tr><td><a href="#tree-view">Tree View</a></td></tr>
 <tr><td><hr></td></tr>
@@ -98,7 +99,7 @@ This is where <em>HenPlus</em> steps in. It supports:
 <h3><a name="getting-started"/>Getting started</h3>
 <h4>Download</h4>
 You can download source and binary packages of HenPlus at the 
-<a href="http://sourceforge.net/project/showfiles.php?group_id=47945">HenPlus SourceForge Download Page</a> at
+<a href="http://sourceforge.net/project/showfiles.php?group_id=47945">HenPlus SourceForge Download Page</a> at<br/>
 <code>http://sourceforge.net/project/showfiles.php?group_id=47945</code>
 <p>
 If you are using <a href="http://www.debian.org/">Debian</a>, you can install HenPlus by adding the following
@@ -142,7 +143,7 @@ If you are root, then you can install it with:
 # ant install
 </pre>
 which will install henplus in
-<table bgcolor="#DDDDFF" border=1>
+<table bgcolor="#DDDDFF" border="1" cellpadding="5">
 <tr valign="top">
    <td>/usr/share/henplus/henplus.jar</td><td>The jar-file containing
                          the HenPlus classes. You can add additional
@@ -164,7 +165,8 @@ If you've created packages for other operating systems (like
 Solaris) or Windows, please <a href="mailto:H.Zeller@acm.org">let me know</a>.
 <p>
 I haven't compiled this on Windows, but it shouldn't be a big deal .. if you manage to compile
-the java-readline. If you did it, please post your experience, so that we
+the java-readline. This is an JNI shared library and thus platform dependant.
+If you did it, please post your experience, so that we
 can include it in this documentation.
 
 <h4><a name="running"/>Running</h4>
@@ -221,7 +223,27 @@ command or by just typing EOF-Character (CTRL-D).
 <p>
 For almost all commands, there is more detailed help available. You can
 just explore the commands by typing <code>help [commandname]</code> and
-learn what the built-in commands are all about. Start with the 
+learn what the built-in commands are all about; all help entries have
+a synopsis and a more detailed description like in the following example:
+
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; help system
+<b>SYNOPSIS</b>
+        system &lt;system-shell-commandline&gt;
+
+<b>DESCRIPTION</b>
+        Execute a system command in the shell. You can only invoke
+        commands,  that do  not expect  anything  from  stdin: the
+        interactive  input  from HenPlus  is disconnected from the
+        subprocess' stdin. But this is useful to call some small
+        commands in the middle of the session. There are two syntaxes
+        supported: system &lt;command&gt; or even shorter with the
+        exclamation mark: !&lt;command&gt;.
+        Example:
+        !ls
+</pre></td></tr></table>
+</p>
+<p>But for now, we are interested how to get connected, so start with the 
 <code>connect</code> command
 <pre>
 Hen*Plus&gt; help connect
@@ -332,6 +354,24 @@ is after a hack
 thanks so Alec Noronha for the link.
 If the the redrawing causes trouble with your installation, please
 let <a href="mailto:H.Zeller@acm.org">me</a> know).
+</p>
+<p>
+Note, that many JDBC-Drivers allow for a URL-syntax, that already
+includes the name and the password; in that case, you can connect
+directly without typing the user/password; for example in Oracle:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; connect jdbc:oracle:thin:<b>foo/bar</b>@localhost:1521:BLUE
+HenPlus II connecting
+ url 'jdbc:oracle:thin:foo/bar@localhost:1521:BLUE'
+ driver version 1.0
+ Oracle - Oracle9i Enterprise Edition Release 9.2.0.1.0 - Production
+With the Partitioning option
+JServer Release 9.2.0.1.0 - Production
+ read committed *
+ serializable
+FOO@oracle:localhost&gt;
+</pre></td></tr></table>
+</p>
 <p>
 Typing JDBC-URLs is tedious ? That&apos;s right, so HenPlus remembers all the
 connection URLs you were connected to and provides it in the context
@@ -344,7 +384,24 @@ Hen*Plus&gt; connect jdbc:oracle:thin:@<b><font color="#3333FF">d&lt;TAB&gt;</fo
 Hen*Plus&gt; connect jdbc:oracle:thin:@database.my.net:1521:BLUE
 </pre></td></tr></table>
 .. and connecting with long URLs is a piece of cake.
+</p>
 <p>
+<b>Define an easy to remember alias for a connection</b> On connect, you
+can provide a short name for that session as second parameter after the
+JDBC-URL:
+<pre>
+  Hen*Plus&gt; connect jdbc:oracle:thin:@database.my.net:1521:BLUE <b>myora</b>
+   [.. connect to jdbc:oracle:thin:@database.my.net:1521:BLUE ..]
+  myora&gt;
+</pre>
+This will do two things: first the session name will be renamed after
+this alias and this name can be used as a shortcut for later connections:
+<pre>
+  Hen*Plus&gt; connect <b>myora</b>
+   [.. connect to jdbc:oracle:thin:@database.my.net:1521:BLUE ..]
+  myora&gt;
+</pre>
+</p>
 On connection, the prompt changes to a string that reflects the current 
 connection. By
 default, this prompt is automatically extracted from the JDBC-URL, but you
@@ -462,10 +519,10 @@ supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
 <p>
 <b>Switching off comment removal...</b><a name="remove-comment"/>
 Usually, all comments are removed in HenPlus before sending commands to the
-database, because the JDBC-drivers or databases cannot handle comments
+database, because many JDBC-drivers or databases cannot handle comments
 sufficiently.
 However, sometimes it is necessary <em>not</em> to remove comments, since some
-datases use comments to convey hinting in statements. In Oracle, for instance,
+databases use comments to convey hinting in statements. In Oracle, for instance,
 you give hints to the query optimizer in the form
 <pre>
     select <b>/*+ index(foo,foo_a_idx) */</b> a from foo where ...
@@ -505,6 +562,7 @@ type <code>switch</code> without parameter (so in the example above, this would
 have been sufficient).
 
 <h3><a name="variables"/>Using Variables</h3>
+<h4>Manual use of Variables</h4>
 You can use Variables, that can be used as text replacement everywhere. The
 replacement works similar to shellscripts, however setting must be done
 explicitly with the <code>set</code> command instead of a simple assignment:
@@ -530,7 +588,7 @@ henman@oracle:localhost&gt; set-var STORAGE_OPTIONS  <b>"</b>pctused 40 pctfree 
                    MINEXTENTS 1 MAXEXTENTS UNLIMITED )
          TABLESPACE users<b>"</b>
 henman@oracle:localhost&gt; create table foo (id number(10), text varchar2(1024)) ${STORAGE_OPTIONS};
-henman@oracle:localhost&gt; create table bar (id number(10), desc varchar2(1024)) ${STORAGE_OPTIONS};
+henman@oracle:localhost&gt; create table bar (id number(10), description varchar2(1024)) ${STORAGE_OPTIONS};
 </pre></td></tr></table>
 </p>
 <p>
@@ -545,29 +603,45 @@ is, because some databases (especially Oracle in system views) use names with
 dollar characters; thus character sequences starting with '$' that cannot be recognized as
 HenPlus-variable have to be left as they are.
 <p>
+<h4>Special Variables</h4>
+<a name="special-variables"/>
+Special variables are variables that have a special meaning to 
+HenPlus. Currently there is only one special variable, that is set 
+automatically.
+<table border="1" cellpadding="5">
+<tr><th>Variable</th><th>Description</th></tr>
+<tr><td><code>_HENPLUS_LAST_COMMAND</code></td>
+    <td>This variable contains the last command executed by HenPlus</td></tr>
+</table>
+<p>
+<h4>Showing and Unsetting Variables</h4>
 All variable settings can be shown with the <code>set-var</code> command 
 without any parameters. Unsetting variables works with <code>unset-var</code>.
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
-henman@oracle:localhost&gt; set-var 
------------------+----------------------------------------------------------+
-      <b>Name</b>       |                          <b>Value</b>                           |
------------------+----------------------------------------------------------+
- STORAGE_OPTIONS | pctused 40 pctfree 10                                    |
-                 |          storage ( initial 512k NEXT 1024k PCTINCREASE 0 |
-                 |                    MINEXTENTS 1 MAXEXTENTS UNLIMITED )   |
-                 |          TABLESPACE users                                |
- tabname         | footab                                                   |
------------------+----------------------------------------------------------+
-henman@oracle:localhost&gt; unset-var BIG_STORAGE_OPTIONS
-henman@oracle:localhost&gt; unset-var tabname
 henman@oracle:localhost&gt; set-var
-------+-------+
- <b>Name</b> | <b>Value</b> |
-------+-------+
+-----------------------+------------------------------------------------------------------------------------+
+         <b>Name</b>          |                                       <b>Value</b>                                        |
+-----------------------+------------------------------------------------------------------------------------+
+ STORAGE_OPTIONS       | pctused 40 pctfree 10                                                              |
+                       |          storage ( initial 512k NEXT 1024k PCTINCREASE 0                           |
+                       |                    MINEXTENTS 1 MAXEXTENTS UNLIMITED )                             |
+                       |          TABLESPACE users                                                          |
+ _HENPLUS_LAST_COMMAND | create table bar (id number(10), description varchar2(1024)) pctused 40 pctfree 10 |
+                       |          storage ( initial 512k NEXT 1024k PCTINCREASE 0                           |
+                       |                    MINEXTENTS 1 MAXEXTENTS UNLIMITED )                             |
+                       |          TABLESPACE users;                                                         |
+ tabname               | footab                                                                             |
+-----------------------+------------------------------------------------------------------------------------+
+henman@oracle:localhost&gt; unset-var STORAGE_OPTIONS tabname
+henman@oracle:localhost&gt; set-var
+-----------------------+-----------------------------------+
+         <b>Name</b>          |               <b>Value</b>               |
+-----------------------+-----------------------------------+
+ _HENPLUS_LAST_COMMAND | unset-var STORAGE_OPTIONS tabname |
+-----------------------+-----------------------------------+
 </pre></td></tr></table>
 <p>
-Variables that are still set at the end of the session are stored, so that they 
-are available on next startup.
+All non-special variables that are set at the end of the session are stored, so that they are available on next startup.
 </p>
 
 <h3><a name="properties"/>Setting Properties</h3>
@@ -807,6 +881,10 @@ like <code>select * from ${0} where ${1}=${2}</code>)</em>
 </p>
 
 <h3><a name="keybindings"/>Keybindings</h3>
+<b>TODO: explain key bindings connect</b>
+
+<h3><a name="cmd-bookmarks"/>Setting Command Bookmarks</h3>
+Sometimes it would be nice set a 'bookmark' to a command just executed.
 
 <h3><a name="table-dumps"/>Database independent table dumps</h3>
 You can dump out tables in a database independent format. See the online help for
@@ -817,7 +895,8 @@ values of a certain table; see <code>dump-conditional</code> for this.
 henman@oracle:localhost&gt; dump-out mytables.dump.gz student addresses;
 </pre></td></tr></table>
 .. dumps out the tables <code>student</code> and <code>addresses</code> to the file
-<code>mytables.dump.gz</code>. The file is gzipped on-the-fly due to the <code>.gz</code>-suffix.
+<code>mytables.dump.gz</code>. Note, that the file is gzipped automatically
+on-the-fly if the file contains a <code>.gz</code>-suffix.
 <p>
 The format that is written must be database independent, thus it is not possible to store
 them as simple <code>'INSERT INTO..'</code> statements, as the different databases have different
@@ -850,7 +929,7 @@ included in a future
 <h4>XML ?</h4>
 One could argue, that XML would be an idea as export format, since it is hype and
 therefore should be used everywhere :-) ... But seriously, I decided against it because it 
-blows up the file size (and database export tend not to be small) and is not 
+blows up the file size (and database exports tend not to be small) and is not 
 very human readable due to the 'noise'. 
 If you still think, that XML would be a good idea, then consider normal use-cases 
 of dumps like this (besides dump-in with HenPlus of course):
@@ -869,10 +948,11 @@ with this format with only minimal editing required like:
 Ok, XML would be great for many other tools (as long as 
 <a href="http://www.w3.org/XML/1999/XML-in-10-points#text">humans don't have to deal with it</a>) 
 .. but I don't use them. So if you <em>want</em> XML export/import, you are free to do it: just go ahead and 
-write a <a href='#plugins'>plugin</a> that does this and let me know.
+write a <a href='#plugins'>plugin</a> that does this and let me know for integration.
 </p>
 
 <h3><a name="tree-view"/>Tree View of connected tables</h3>
+<b>TODO: make reverse tree possible</b>
 Know this ? To just find out the datastructure of foreign-key connected
 tables in your database you have to <code>describe</code> manually through
 all tables. This is quite tedious. Thus, HenPlus provides a tree view of
@@ -894,13 +974,11 @@ BT_TRACKERUSER
 <h3>Quotes</h3>
 <dl>
   <dt><b>Kolja F.</b> after installing HenPlus for a colleague (German)</dt>
-  <dd>"Henplus ist wirklich dermassen geil. Der Macker, der mit sqlplus arbeiten musste, hätte vor Freude fast geheult."</dd>
+  <dd><em>Henplus ist wirklich dermassen geil. Der Macker, der mit sqlplus arbeiten musste, hätte vor Freude fast geheult.</em><p></p></dd>
 
   <dt><b>javakman</b> wrote this comment on the HenPlus freshmeat page</dt>
-  <dd>"Probably the best JDBC tool available!<br/>
-       Good Job Henner!"
-
-</dl>
+  <dd><em>Probably the best JDBC tool available!<br/>
+       Good Job Henner!</em><p></p></dd>
 </dl>
 <h3><a name="faq"/>FAQ</h3>
 This will eventually be the FAQ. But for now, there is only one question..
@@ -922,4 +1000,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.22 2004-03-07 12:04:15 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.23 2004-03-07 23:37:06 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
