@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.6 2003-05-01 18:26:29 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.7 2003-05-01 23:21:17 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
@@ -22,9 +22,10 @@ public class TableRenderer {
     private final String         colSeparator;
     private boolean              alreadyFlushed;
     private int                  writtenRows;
+    private int                  separatorWidth;
 
     public TableRenderer(ColumnMetaData[] meta, PrintStream out,
-                         String colSeparator) 
+                         String separator) 
     {
 	this.meta = meta;
 	this.out = out;
@@ -35,7 +36,8 @@ public class TableRenderer {
 	this.cacheRows   = new ArrayList( MAX_CACHE_ELEMENTS );
 	this.alreadyFlushed = false;
 	this.writtenRows = 0;
-        this.colSeparator = " " + colSeparator;
+        this.colSeparator = " " + separator;
+        this.separatorWidth = separator.length();
     }
 
     public TableRenderer(ColumnMetaData[] meta, PrintStream out) {
@@ -98,7 +100,8 @@ public class TableRenderer {
 	for (int i = 0 ; i < meta.length ; ++i) {
 	    if (!meta[i].doDisplay()) continue;
 	    String txt;
-	    txt = formatString ("", '-', meta[i].getWidth()+2,
+	    txt = formatString ("", '-', 
+                                meta[i].getWidth() + separatorWidth + 1,
 				ColumnMetaData.ALIGN_LEFT);
 	    out.print(txt);
 	    out.print('+');

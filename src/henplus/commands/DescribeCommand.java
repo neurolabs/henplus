@@ -308,14 +308,18 @@ public class DescribeCommand
     }
     
     public String getSynopsis(String cmd) {
-	return "describe <tablename>";
+	return cmd + " <tablename>";
     }
 
     public String getLongDescription(String cmd) {
 	String dsc;
 	dsc="\tDescribe the meta information of the named user object\n"
 	    +"\t(only tables for now). The name you type is case sensitive\n"
-	    +"\tbut henplus tries its best to correct it.\n";
+	    +"\tbut henplus tries its best to correct it.\n"
+            +"\tThe 'describe' command just describes the table, the\n"
+            +"\t'idescribe' command determines the index information as\n"
+            +"\twell; some databases are really slow in this, so this is\n"
+            +"\tan extra command";
 	return dsc;
     }
 

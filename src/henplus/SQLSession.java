@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.18 2003-05-01 19:53:08 hzeller Exp $
+ * $Id: SQLSession.java,v 1.19 2003-05-01 23:21:16 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -341,6 +341,10 @@ public class SQLSession implements Interruptable {
             }
             getConnection().setAutoCommit(switchOn);
         }
+        
+        public String getDefaultValue() {
+            return "false";
+        }
 
         public String getShortDescription() {
             return "Switches auto commit";
@@ -349,21 +353,28 @@ public class SQLSession implements Interruptable {
 
     private class IsolationLevelProperty extends EnumeratedPropertyHolder {
         private final Map _availableValues;
+        private final String _initialValue;
 
         IsolationLevelProperty(Map availableValues, int currentValue) {
             super(availableValues.keySet());
             _availableValues = availableValues;
 
             // sequential search .. doesn't matter, not much do do
+            String initValue = null;
             Iterator it = availableValues.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry entry = (Map.Entry) it.next();
                 Integer isolationLevel = (Integer) entry.getValue();
                 if (isolationLevel.intValue() == currentValue) {
-                    _propertyValue = (String) entry.getKey();
+                    initValue = (String) entry.getKey();
                     break;
                 }
             }
+            _propertyValue = _initialValue = initValue;
+        }
+
+        public String getDefaultValue() {
+            return _initialValue;
         }
 
         protected void enumeratedPropertyChanged(int index, String value)

@@ -530,6 +530,10 @@ public class SQLCommand extends AbstractCommand {
             return "modify column separator in query results";
         }
 
+        public String getDefaultValue() {
+            return "|";
+        }
+
         public String getLongDescription() {
             String dsc;
             dsc= "\tSet another string that is used to separate columns in\n"
@@ -554,13 +558,17 @@ public class SQLCommand extends AbstractCommand {
                 throw new IllegalArgumentException("cannot parse '"
                                                    + newValue +"' as integer");
             }
-            if (newIntValue < 0) {
-                throw new IllegalArgumentException("value cannot be negative");
+            if (newIntValue < 1) {
+                throw new IllegalArgumentException("value cannot be less than 1");
             }
             SQLCommand.this.setRowLimit(newIntValue);
             return newValue;
         }
         
+        public String getDefaultValue() {
+            return "2000";
+        }
+
         public String getShortDescription() {
             return "set the maximum number of rows printed";
         }

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.15 2003-05-01 18:26:28 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.16 2003-05-01 23:21:16 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -370,6 +370,10 @@ public class SQLStatementSeparator {
             removeComments( value );
         }
         
+        public String getDefaultValue() {
+            return "on";
+        }
+
         /**
          * return a short descriptive string.
          */

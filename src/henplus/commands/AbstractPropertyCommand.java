@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.3 2003-05-01 20:31:59 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.4 2003-05-01 23:21:17 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -43,7 +43,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
         final String setCmd = getSetCommand();
-	return new String[] { setCmd };
+	return new String[] { setCmd, "re" + setCmd };
     }
     
     protected abstract String getSetCommand();
@@ -56,6 +56,29 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
 	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 	
+        if (cmd.startsWith("re")) { // 'reset-property'
+            if (argc == 1) {
+                String name = st.nextToken();
+                PropertyHolder holder;
+                holder = (PropertyHolder) (getRegistry()
+                                           .getPropertyMap().get(name));
+                if (holder == null) {
+                    return EXEC_FAILED;
+                }
+                String defaultValue = holder.getDefaultValue();
+                try {
+                    holder.setValue(defaultValue);
+                }
+                catch (Exception e) {
+                    System.err.println("setting to default '" 
+                                       + defaultValue + "' failed.");
+                    return EXEC_FAILED;
+                }
+                return SUCCESS;
+            }
+            return SYNTAX_ERROR;
+        }
+        else {
         /*
          * no args. show available properties
          */
@@ -133,7 +156,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             }
             return SUCCESS;
         }
-
+        }
 	return SUCCESS;
     }
 
@@ -212,17 +235,26 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
     }
 
     public String getSynopsis(String cmd) {
+        if (cmd.startsWith("re")) {
+            return cmd + " <propery-name>";
+        }
         return cmd + " [<property-name> [<value>]]"; 
     }
     
     public String getLongDescription(String cmd) { 
 	String dsc = null;
-        dsc= "\twithout parameters, show available " + getHelpHeader() + "\n"
-            +"\tproperties and their settings.\n\n"
-            +"\tWith only the property name given as parameter,\n"
-            +"\tshow the long help associated with that property.\n\n"
-            +"\tIs the property name followed by a value, the property is\n"
-            +"\tset to that value";
+        if (cmd.startsWith("re")) {
+            dsc= "\tReset the given " + getHelpHeader() + " property\n"
+                +"\tto its default value";
+        }
+        else {
+            dsc= "\tWithout parameters, show available " + getHelpHeader() + "\n"
+                +"\tproperties and their settings.\n\n"
+                +"\tWith only the property name given as parameter,\n"
+                +"\tshow the long help associated with that property.\n\n"
+                +"\tIs the property name followed by a value, the property is\n"
+                +"\tset to that value.";
+        }
 	return dsc;
     }
 }

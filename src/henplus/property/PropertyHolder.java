@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyHolder.java,v 1.2 2003-05-01 18:26:29 hzeller Exp $ 
+ * $Id: PropertyHolder.java,v 1.3 2003-05-01 23:21:17 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
@@ -53,6 +53,8 @@ public abstract class PropertyHolder {
     public String getValue() {
         return _propertyValue;
     }
+
+    public abstract String getDefaultValue();
 
     /**
      * is called, when the property changes. This method
