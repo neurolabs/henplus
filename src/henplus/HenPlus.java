@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.68 2004-03-07 15:29:04 hzeller Exp $
+ * $Id: HenPlus.java,v 1.69 2004-03-23 11:06:40 magrokosmos Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -160,7 +160,9 @@ public class HenPlus implements Interruptable {
         propertyCommand = new PropertyCommand(this, _henplusProperties);
         _dispatcher.register(propertyCommand);
         _dispatcher.register(new SessionPropertyCommand(this));
-        
+    
+    _dispatcher.register( new SystemInfoCommand() );
+     
 	pluginCommand.load();
 	aliasCommand.load();
         propertyCommand.load();

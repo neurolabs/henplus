@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: TableDiffCommand.java,v 1.4 2004-02-01 16:39:09 hzeller Exp $ 
+ * @version $Id: TableDiffCommand.java,v 1.5 2004-03-23 11:06:40 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
@@ -15,11 +15,14 @@ import henplus.SessionManager;
 import henplus.commands.ListUserObjectsCommand;
 import henplus.sqlmodel.Column;
 import henplus.sqlmodel.Table;
+import henplus.view.util.NameCompleter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
 
 public final class TableDiffCommand implements Command, Interruptable {
@@ -96,30 +99,129 @@ public final class TableDiffCommand implements Command, Interruptable {
         try {
             long start = System.currentTimeMillis();
             int count = 0;
-            while (st.hasMoreTokens()) {
-                String table = st.nextToken();
-                Table ref = first.getTable(table);
-                Table diff = second.getTable(table);
-                TableDiffResult diffResult = TableDiffer.diffTables(ref, diff, colNameIgnoreCase);
-                // TableDiffResult diffResult = getMockResult();
-                if (diffResult == null) {
-                    HenPlus.msg().println("no diff for table " + table);
+            
+            String nextToken = st.nextToken();
+
+            ListUserObjectsCommand objectLister = HenPlus.getInstance().getObjectLister();
+            SortedSet tablesOne = objectLister.getTableNamesForSession( first );
+            SortedSet tablesTwo = objectLister.getTableNamesForSession( second );
+            
+            Set alreadyDiffed = new HashSet();      // which tables got already diffed?
+            
+            /*
+             * which tables are found in the first session via wildcards but are not contained
+             * in the second session?
+             */
+            ArrayList missedFromWildcards = new ArrayList();
+            
+            do {
+        
+                if ( "*".equals( nextToken ) ) {
+                    Iterator iter = objectLister.getTableNamesIteratorForSession( first );
+                    while ( iter.hasNext() ) {
+                        Object objTableName = iter.next();
+                        count =
+                            diffConditionally(
+                                objTableName,
+                                colNameIgnoreCase,
+                                first,
+                                second,
+                                tablesTwo,
+                                alreadyDiffed,
+                                missedFromWildcards,
+                                count);
+                    }
                 }
-                else {
-                    HenPlus.msg().println("diff result for table " + table + ":");
-                    ResultTablePrinter.printResult(diffResult);
+                else if ( nextToken.indexOf( '*' ) > -1 ) {
+                    String tablePrefix = nextToken.substring( 0, nextToken.length() -1 );
+                    
+                    NameCompleter compl = new NameCompleter( tablesOne );
+                    Iterator iter = compl.getAlternatives( tablePrefix );
+                    while ( iter.hasNext() ) {
+                        Object match = iter.next();
+                        count =
+                            diffConditionally(
+                                match,
+                                colNameIgnoreCase,
+                                first,
+                                second,
+                                tablesTwo,
+                                alreadyDiffed,
+                                missedFromWildcards,
+                                count);
+                    }
+                    
                 }
-                count++;
-            }
+                else if ( !alreadyDiffed.contains( nextToken ) ) {
+                    diffTable(first, second, nextToken, colNameIgnoreCase);
+                    alreadyDiffed.add( nextToken );
+                    count++;
+                }
+            } while ( st.hasMoreTokens() && ( nextToken = st.nextToken() ) != null );
+            
             StringBuffer msg = new StringBuffer();
-            msg.append("diffing ").append(count).append((count == 1)?" table took ":" tables took ").
+            msg.append("Diffing ").append(count).append((count == 1)?" table took ":" tables took ").
             append(System.currentTimeMillis() - start).append(" ms.");
+            
+            // if there were tables found via wildcards but not contained in both sessions then let
+            // the user know this.
+            if ( missedFromWildcards.size() > 0 ) {
+                msg.append( "\nTables which matched a given wildcard in your first\n" +                    "session but were not found in your second session:\n");
+                Iterator iter = missedFromWildcards.iterator();
+                while ( iter.hasNext() ) {
+                    msg.append( iter.next() ).append( ", " );
+                }
+                // remove the last two chars
+                msg.delete( msg.length() - 2, msg.length() );
+            }
+            
             HenPlus.msg().println(msg.toString());
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
         
         return SUCCESS;
+    }
+
+    private int diffConditionally(
+        Object objTableName,
+        boolean colNameIgnoreCase,
+        SQLSession first,
+        SQLSession second,
+        SortedSet tablesTwo,
+        Set alreadyDiffed,
+        List missedFromWildcards,
+        int count) {
+        if ( tablesTwo.contains( objTableName ) ) {
+            if ( !alreadyDiffed.contains( objTableName ) ) {
+                String tableName = ( String )objTableName;
+                diffTable(first, second, tableName, colNameIgnoreCase);
+                alreadyDiffed.add( objTableName );
+                count++;
+            }
+        }
+        else {
+            missedFromWildcards.add( objTableName );
+        }
+        return count;
+    }
+
+    private void diffTable(
+        SQLSession first,
+        SQLSession second,
+        String tableName,
+        boolean colNameIgnoreCase) {
+        Table ref = first.getTable( tableName );
+        Table diff = second.getTable( tableName );
+        TableDiffResult diffResult = TableDiffer.diffTables(ref, diff, colNameIgnoreCase);
+        if (diffResult == null) {
+            HenPlus.msg().println("No diff for table " + tableName);
+        }
+        else {
+            HenPlus.msg().println("Diff result for table " + tableName + ":");
+            ResultTablePrinter.printResult(diffResult);
+        }
     }
     
     private TableDiffResult getMockResult() {
@@ -304,21 +406,28 @@ public final class TableDiffCommand implements Command, Interruptable {
      * @see henplus.Command#getShortDescription()
      */
     public String getShortDescription() {
-        return "Perform a diff on meta data of tables from two sessions";
+        return "perform a diff on meta data of tables from two sessions";
     }
 
     /* (non-Javadoc)
      * @see henplus.Command#getSynopsis(java.lang.String)
      */
     public String getSynopsis(String cmd) {
-        return _command + " <sessionname-1> <sessionname-2> <tablename> [<tablename> ..];";
+        return _command + " <sessionname-1> <sessionname-2> ( <tablename> | <prefix>\\* | \\* )+;";
     }
 
     /* (non-Javadoc)
      * @see henplus.Command#getLongDescription(java.lang.String)
      */
     public String getLongDescription(String cmd) {
-        return "\tCompare one or more tables by their meta data.\n" 
+        return "\tCompare one or more tables by their meta data.\n"
+            +"\n"
+            +"\tYou are able to use wildcards (*) to match all tables or\n"
+            +"\ta specific set of tables.\n"
+            +"\tE.g. you might specify \"*\" to match all tables which are contained\n"
+            +"\tin both sessions, or\"tb_*\" to match all tables from your sessions\n"
+            +"\tstarting with \"tb_\".\n"
+            +"\n"
             +"\tThe following is a list of compared column related\n" 
             +"\tproperties, with a \"c\" for a case sensitive and an \"i\" for\n" 
             +"\ta case insensitive comparision by default. If you\n" 
