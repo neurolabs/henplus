@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.41 2002-10-09 17:41:55 hzeller Exp $
+ * $Id: HenPlus.java,v 1.42 2002-10-10 18:03:11 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -176,12 +176,15 @@ public class HenPlus implements Interruptable {
 	byte result = LINE_EMPTY;
 	/*
 	 * special oracle comment 'rem'ark; should be in the comment parser.
+         * ONLY if it is on the beginning of the line, no whitespace.
 	 */
 	int startWhite = 0;
+        /*
 	while (startWhite < line.length() 
 	       && Character.isWhitespace(line.charAt(startWhite))) {
 	    ++startWhite;
 	}
+        */
 	if (line.length() >= (3 + startWhite)
 	    && (line.substring(startWhite,startWhite+3)
 		.toUpperCase()

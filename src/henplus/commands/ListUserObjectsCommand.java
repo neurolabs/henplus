@@ -265,7 +265,6 @@ public class ListUserObjectsCommand
     }
 
     public void interrupt() {
-        System.err.println("UNsadfasdf");
         interrupted = true;
     }
 }
