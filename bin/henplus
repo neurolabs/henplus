@@ -1,9 +1,9 @@
 #!/bin/sh
-# $Id: henplus,v 1.9 2002-07-23 19:11:10 hzeller Exp $
+# $Id: henplus,v 1.10 2002-10-15 07:54:52 hzeller Exp $
 ##
 
 # additional flags you might want to pass to the java interpreter
-# like -Dfile.encoding=ISO-8851-1
+# like -Dfile.encoding=ISO-8859-1
 JAVA_FLAGS=
 
 ##------------------
