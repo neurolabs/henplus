@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PasswordEraserThread.java,v 1.3 2003-01-28 05:55:26 hzeller Exp $
+ * $Id: PasswordEraserThread.java,v 1.4 2003-05-02 00:03:01 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  * inspired by hack provided in 
  *  <http://java.sun.com/features/2002/09/pword_mask.html>
@@ -21,8 +21,9 @@ import java.io.*;
  */
 class PasswordEraserThread extends Thread {
     private final String eraser;
-    private volatile boolean running;
-    
+    private boolean running;
+    private boolean onHold;
+
     /**
      *@param prompt The prompt displayed to the user
      */
@@ -33,6 +34,7 @@ class PasswordEraserThread extends Thread {
          */
         eraser = "\r" + prompt + "                \r" + prompt;
         running = true;
+        onHold = true;
     }
 
     
@@ -41,20 +43,45 @@ class PasswordEraserThread extends Thread {
      */
     public void run() {
         while(running) {
+            if (onHold) {
+                try {
+                    synchronized (this) {
+                        wait();
+                    }
+                }
+                catch (InterruptedException iex) {
+                    // ignore.
+                }
+                if (onHold) {
+                    continue;
+                }
+            }
+
             try {
                 this.sleep(1); // yield.
             }
             catch (InterruptedException iex) {
-                iex.printStackTrace();
+                // ignore
             }
-            if (running) {
+            if (running && !onHold) {
                 System.out.print(eraser);
             }
             System.out.flush();
         }
     }
+    
+    public synchronized void holdOn() {
+        onHold = true;
+        notify();
+    }
+    
+    public synchronized void goOn() {
+        onHold = false;
+        notify();
+    }
 
-   public void done() {
-       running = false;
-   }
+    public synchronized void done() {
+        running = false;
+        notify();
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.19 2003-05-01 23:21:16 hzeller Exp $
+ * $Id: SQLSession.java,v 1.20 2003-05-02 00:03:02 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -228,27 +228,38 @@ public class SQLSession implements Interruptable {
         String password = "";
         PasswordEraserThread maskingthread = new PasswordEraserThread(prompt);
         try {
+            byte lineBuffer[] = new byte[ 64 ];
             maskingthread.start();
             for (;;) {
                 if (_interrupted) {
                     break;
                 }
-                char c = (char)System.in.read();
 
-                if (c == '\r') {
-                    c = (char)System.in.read();
-                    if (c == '\n') {
-                        break;
+                maskingthread.goOn();
+                int byteCount = System.in.read(lineBuffer);
+                /*
+                 * hold on as soon as the system call returnes. Usually,
+                 * this is because we read the newline.
+                 */
+                maskingthread.holdOn();
+                
+                for (int i=0; i < byteCount; ++i) {
+                    char c = (char) lineBuffer[i];
+                    if (c == '\r') {
+                        c = (char) lineBuffer[++i];
+                        if (c == '\n') {
+                            return password;
+                        } 
+                        else {
+                            continue;
+                        }
+                    } 
+                    else if (c == '\n') {
+                        return password;
                     } 
                     else {
-                        continue;
+                        password += c;
                     }
-                } 
-                else if (c == '\n') {
-                    break;
-                } 
-                else {
-                    password += c;
                 }
             }
         }
