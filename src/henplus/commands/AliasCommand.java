@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.7 2002-12-29 11:37:45 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.8 2003-01-25 10:38:55 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -122,6 +122,7 @@ public final class AliasCommand extends AbstractCommand {
 	    table.closeTable();
 	    return SUCCESS;
 	}
+
 	else if ("alias".equals(cmd)) {
 	    if (argc < 2) return SYNTAX_ERROR;
 	    String alias = (String) st.nextElement();
@@ -146,6 +147,7 @@ public final class AliasCommand extends AbstractCommand {
 	    String value = stripQuotes(param); // rest of values.
 	    putAlias(alias, value);
 	}
+
 	else if ("unalias".equals(cmd)) {
 	    if (argc >= 1) {
 		while (st.hasMoreElements()) {
@@ -162,8 +164,10 @@ public final class AliasCommand extends AbstractCommand {
 	    }
 	    return SYNTAX_ERROR;
 	}
+
 	else {
 	    String toExecute = (String) _aliases.get(cmd);
+            System.err.println("key: '" + cmd + "' - exec: " + toExecute);
 	    if (toExecute == null) {
 		return EXEC_FAILED;
 	    }
