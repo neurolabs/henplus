@@ -149,11 +149,18 @@ public class TreeCommand extends AbstractCommand {
             }
         }
 
+        System.out.println();
         try {
+            long startTime = System.currentTimeMillis();
             DatabaseMetaData dbMeta = session.getConnection().getMetaData();
             buildTree(dbMeta, new TreeMap(), tabName).print();
+            TimeRenderer.printTime(System.currentTimeMillis()-startTime,
+                                   System.err);
+            System.err.println();
         }
         catch (Exception e) {
+            System.err.println("problem getting database meta data: " 
+                               + e.getMessage());
             return EXEC_FAILED;
         }
         return SUCCESS;
