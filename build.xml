@@ -1,7 +1,7 @@
-<!-- $Id: build.xml,v 1.9 2002-02-12 10:42:52 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.10 2002-02-15 13:36:36 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- properties -->
-     <property name="version"              value="0.2.3" />
+     <property name="version"              value="0.2.5" />
      <property name="src"                  value="src" />
      <property name="bin"                  value="bin" />
      <property name="lib"                  value="lib" />
@@ -16,7 +16,15 @@
         <mkdir dir="${classes}"/>
      </target>
 
-     <target name="compile" depends="prepare" description="compile it">
+     <target name="Version.java">
+       <filter token="HENPLUS_VERSION" value="${version}"/>
+       <copy file="${src}/henplus/Version.java.in"
+             tofile="${src}/henplus/Version.java"
+             filtering="yes"/>
+     </target>
+
+     <target name="compile" depends="prepare,Version.java" 
+	     description="compile it">
         <javac srcdir="${src}" destdir="${classes}" />
      </target>
      
@@ -28,7 +36,15 @@
         </jar>
      </target>
 
-     <target name="dist" description="create distribution tar">
+     <target name="henplus.spec">
+       <filter token="HENPLUS_VERSION" value="${version}"/>
+       <copy file="henplus.spec.in"
+             tofile="henplus.spec"
+             filtering="yes"/>
+     </target>
+
+     <target name="dist" depends="clean,henplus.spec"
+	     description="create distribution tar">
        <mkdir dir="${tarbase}" />
        <copy todir="${tarbase}">
           <fileset dir=".">
@@ -62,6 +78,8 @@
      <target name="clean" description="remove">
         <delete file="${tarbase}.tar" />
         <delete file="${tarbase}.tar.gz" />
+        <delete file="${src}/henplus/Version.java" />
+        <delete file="henplus.spec" />
         <delete dir="${tarbase}"/>
         <delete dir="${classes}"/>
         <delete dir="${build}"/>

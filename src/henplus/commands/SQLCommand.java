@@ -22,6 +22,7 @@ import java.sql.Types;
  * document me.
  */
 public class SQLCommand extends AbstractCommand {
+    private static final boolean verbose = false; // debug.
     /**
      * returns the command-strings this command can handle.
      */
@@ -142,7 +143,7 @@ public class SQLCommand extends AbstractCommand {
 		// oracle appends a newline to the message for some reason.
 		System.err.println("FAILURE: " + msg.trim());
 	    }
-	    //e.printStackTrace();
+	    if (verbose) e.printStackTrace();
 	    return EXEC_FAILED;
 	}
 	finally {

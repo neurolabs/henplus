@@ -1,0 +1,42 @@
+%define version @HENPLUS_VERSION@
+
+Summary: java wrapper for the GNU-readline library
+Copyright: GNU General Public License (GPL)
+Group: Application/Java
+Name: henplus
+Prefix: /usr
+Packager: Henner Zeller <H.Zeller@acm.org>
+Release: 1
+Source: henplus-%{version}.tar.gz
+URL: http://www.vicdor.org/henplus
+Version: %{version}
+Buildroot: /tmp/henplus
+Requires: libreadline-java
+BuildRequires: libreadline-java
+BuildArchitectures: noarch
+
+%description
+A SQL commandline frontend with TAB-completion and history for any
+JDBC aware database.
+
+%prep
+%setup -q
+
+%build
+CLASSPATH=$CLASSPATH:`rpm -ql libreadline-java | grep readline-java.jar`
+ant jar
+
+%install
+rm -fr $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/%{prefix}/bin
+mkdir -p $RPM_BUILD_ROOT/%{prefix}/share/henplus
+cp build/henplus.jar $RPM_BUILD_ROOT/%{prefix}/share/henplus
+cp bin/henplus $RPM_BUILD_ROOT/%{prefix}/bin
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%{prefix}/bin/henplus
+%dir %{prefix}/share/henplus
+%{prefix}/share/henplus/henplus.jar

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.25 2002-02-15 00:02:25 hzeller Exp $
+ * $Id: HenPlus.java,v 1.26 2002-02-15 13:36:37 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -72,6 +72,7 @@ public class HenPlus {
 
 	_settingStore = new SetCommand(this);
 	dispatcher = new CommandDispatcher(_settingStore);
+	dispatcher.register(new AboutCommand());
 	dispatcher.register(new HelpCommand());
 	dispatcher.register(new DescribeCommand());
 	dispatcher.register(new SQLCommand());
@@ -333,16 +334,6 @@ public class HenPlus {
     }
 
     public static final void main(String argv[]) throws Exception {
-	String cpy;
-	cpy = 
-"-------------------------------------------------------------------------\n"
-+" HenPlus II 0.1 Copyright(C) 1997, 2001 Henner Zeller <H.Zeller@acm.org>\n"
-+" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
-+" This is free software, and you are welcome to redistribute it under the\n"
-+" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.25 $]--\n";
-	System.err.println(cpy);
-
 	instance = new HenPlus(argv);
 	instance.run();
 	instance.shutdown();
