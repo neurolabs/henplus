@@ -18,14 +18,13 @@ public abstract class AbstractCommand implements Command {
     public String getShortDescription() { return null; }
     public String getLongDescription(String cmd) { return null; }
     public String getSynopsis(String cmd) { return null; }
-
-    // completion of the command.
+    
+    // All commands are completed by default.
     public boolean participateInCommandCompletion() { return true; }
 
-    // no of the commmand internally.
+    // no completion support by the commmand
     public Iterator complete(CommandDispatcher disp,
-			     String partialCommand, String lastWord) 
-    {
+			     String partialCommand, String lastWord) {
 	return null; 
     }
     
