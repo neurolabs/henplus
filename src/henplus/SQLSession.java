@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.10 2002-06-09 11:02:47 hzeller Exp $
+ * $Id: SQLSession.java,v 1.11 2002-06-24 15:07:28 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -40,6 +40,7 @@ public class SQLSession {
     private String     _databaseInfo;
     private Connection _conn;
     private boolean    _terminated = false;
+    private int        _showMessages;
 
     /**
      * creates a new SQL session. Open the database connection, initializes
@@ -52,11 +53,12 @@ public class SQLSession {
 	       IOException 
     {
 	_statementCount = 0;
+	_showMessages = 1;
 	_conn = null;
 	_url = url;
 	_username = user;
 	_password = password;
-
+	
 	Driver driver = null;
 	//System.err.println("connect to '" + url + "'");
 	driver = DriverManager.getDriver(url);
@@ -114,6 +116,23 @@ public class SQLSession {
 
     public String getURL() {
 	return _url;
+    }
+    
+    // maybe this should go to HenPlus ..
+    public void hideMessages() {
+	--_showMessages;
+    }
+    public void showMessages() {
+	++_showMessages;
+    }
+    public boolean printMessages() { return _showMessages > 0; }
+
+    public void print(String msg) {
+	if (printMessages()) System.err.print(msg);
+    }
+
+    public void println(String msg) {
+	if (printMessages()) System.err.println(msg);
     }
 
     public void connect() throws SQLException, IOException {

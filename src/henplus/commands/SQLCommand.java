@@ -112,14 +112,14 @@ public class SQLCommand extends AbstractCommand {
 // 	    SigIntHandler.getInstance()
 // 		.registerInterrupt(Thread.currentThread());
 	    if (command.startsWith("commit")) {
-		System.err.print("commit..");
+		session.print("commit..");
 		session.getConnection().commit();
-		System.err.println(".done.");
+		session.println(".done.");
 	    }
 	    else if (command.startsWith("rollback")) {
-		System.err.print("rollback..");
+		session.print("rollback..");
 		session.getConnection().rollback();
-		System.err.println(".done.");
+		session.println(".done.");
 	    }
 	    else {
 		boolean hasResultSet = false;
@@ -151,10 +151,10 @@ public class SQLCommand extends AbstractCommand {
 		    SigIntHandler.getInstance().registerInterrupt(renderer);
 		    int rows = renderer.execute();
 		    if (renderer.limitReached()) {
-			System.err.println("limit reached ..");
-			System.err.print("> ");
+			session.println("limit reached ..");
+			session.print("> ");
 		    }
-		    System.err.print(rows + " row" + 
+		    session.print(rows + " row" + 
 				     ((rows == 1)? "" : "s")
 				     + " in result");
 		    lapTime = renderer.getFirstRowTime() - startTime;
@@ -162,21 +162,25 @@ public class SQLCommand extends AbstractCommand {
 		else {
 		    int updateCount = stmt.getUpdateCount();
 		    if (updateCount >= 0) {
-			System.err.print("affected "+updateCount+" rows");
+			session.print("affected "+updateCount+" rows");
 		    }
 		    else {
-			System.err.print("ok.");
+			session.print("ok.");
 		    }
 		}
 		execTime = System.currentTimeMillis() - startTime;
-		System.err.print(" (");
+		session.print(" (");
 		if (lapTime > 0) {
-		    System.err.print("first row: ");
-		    TimeRenderer.printTime(lapTime, System.err);
-		    System.err.print("; total: ");
+		    session.print("first row: ");
+		    if (session.printMessages()) {
+			TimeRenderer.printTime(lapTime, System.err);
+		    }
+		    session.print("; total: ");
 		}
-		TimeRenderer.printTime(execTime, System.err);
-		System.err.println(")");
+		if (session.printMessages()) {
+		    TimeRenderer.printTime(execTime, System.err);
+		}
+		session.println(")");
 	    }
 
 	    // be smart and retrigger hashing of the tablenames.
@@ -188,10 +192,10 @@ public class SQLCommand extends AbstractCommand {
 	}
 	/*
 	catch (InterruptedException ie) {
-	    System.err.print("interrupted after ");
+	    session.print("interrupted after ");
 	    execTime = System.currentTimeMillis() - startTime;
 	    TimeRenderer.printTime(execTime, System.err);
-	    System.err.println(".");
+	    session.println(".");
 	    return SUCCESS;
 	}
 	*/
