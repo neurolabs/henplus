@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.71 2004-06-07 08:31:56 hzeller Exp $
+ * $Id: HenPlus.java,v 1.72 2005-02-11 13:46:26 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -189,7 +189,12 @@ public class HenPlus implements Interruptable {
 	 * if your compiler/system/whatever does not support the sun.misc.*
 	 * classes, then just disable this call and the SigIntHandler class.
 	 */
-        SigIntHandler.install();
+        try {
+            SigIntHandler.install();
+        }
+        catch (Throwable t) {
+            // ignore.
+        }
 
         /* TESTING  for ^Z support in the shell.
         sun.misc.SignalHandler stoptest = new sun.misc.SignalHandler () {
