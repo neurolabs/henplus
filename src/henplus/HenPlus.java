@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.17 2002-01-28 11:32:00 hzeller Exp $
+ * $Id: HenPlus.java,v 1.18 2002-02-07 11:02:04 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -14,6 +14,8 @@ import java.util.Stack;
 import java.io.File;
 import java.io.IOException;
 import java.io.EOFException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 import commands.*;
 
@@ -55,6 +57,9 @@ public class HenPlus {
     private StringBuffer      _commandBuffer;
     private SetCommand        _settingStore;
     private Stack             _inputBufferStack;
+    private boolean           _fromTerminal;
+    private BufferedReader    _fileReader;
+    private boolean           _optQuiet;
 
     private HenPlus(Properties properties, String argv[]) throws IOException {
 	terminated = false;
@@ -62,11 +67,12 @@ public class HenPlus {
 	_commandBuffer = new StringBuffer();
 	_inputBufferStack = new Stack();
 	_alreadyShutDown = false;
-
+	
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
 	    System.err.println("using GNU readline.");
 	} catch (UnsatisfiedLinkError ignore_me) {
+	    if (verbose) System.err.println(ignore_me);
 	    System.err.println("no readline found. Using simple stdin.");
 	}
 	Readline.initReadline("HenPlus");
@@ -76,7 +82,8 @@ public class HenPlus {
 	catch (Exception ignore) {}
 	
 	Readline.setWordBreakCharacters(" ");
-	
+	_fromTerminal = Readline.hasTerminal();
+
 	/*
 	 * initialize known JDBC drivers.
 	 */
@@ -124,6 +131,7 @@ public class HenPlus {
 		    });
 	}
 	catch (NoSuchMethodError e) {
+	    // compiled with jdk >= 1.3, executed with <= 1.2.x
 	    System.err.println("== This JDK is OLD. ==");
 	    System.err.println(" - No final save on CTRL-C supported.");
 	    System.err.println(" - and if your shell is broken after use of henplus: same reason.");
@@ -147,11 +155,37 @@ public class HenPlus {
 	_parseState = START;
     }
 
+    public String readlineFromFile() throws IOException {
+	if (_fileReader == null) {
+	    _fileReader = new BufferedReader(new InputStreamReader(System.in));
+	}
+	String line = _fileReader.readLine();
+	if (line == null) {
+	    throw new EOFException("EOF");
+	}
+	return (line.length() == 0) ? null : line;
+    }
+
     /**
      * add a new line. returns true if the line completes a command.
      */
     public byte addLine(String line) {
 	byte result = LINE_EMPTY;
+	/*
+	 * special oracle comment 'rem'ark
+	 */
+	int startWhite = 0;
+	while (startWhite < line.length() 
+	       && Character.isWhitespace(line.charAt(startWhite))) {
+	    ++startWhite;
+	}
+	if (line.length() >= (3 + startWhite)
+	    && (line.substring(startWhite,startWhite+3)
+		.toUpperCase()
+		.equals("REM"))) {
+	    return LINE_EMPTY;
+	}
+
 	StringBuffer lineBuf = new StringBuffer(line);
 	lineBuf.append('\n');
 	while (lineBuf.length() > 0) {
@@ -164,6 +198,7 @@ public class HenPlus {
 		Command c = dispatcher.getCommandFrom(completeCommand);
 		if (c == null) {
 		    _parseState = START;
+		    resetBuffer();
 		    result = LINE_EMPTY;
 		}
 		else if(!c.isComplete(completeCommand)) {
@@ -191,7 +226,9 @@ public class HenPlus {
 	resetBuffer();
 	while (!terminated) {
 	    try {
-		cmdLine = Readline.readline( displayPrompt );
+		cmdLine = (_fromTerminal)
+		    ? Readline.readline( displayPrompt )
+		    : readlineFromFile();
 	    }
 	    catch (EOFException e) {
 		if (session != null) {
@@ -286,6 +323,12 @@ public class HenPlus {
 		break;
 	    case START_COMMENT:
 		if (current == '*')         state = COMMENT;
+		/*
+		 * Endline comment in the style '// comment' is not a
+		 * good idea, since many JDBC-urls contain the '//' as
+		 * part of the URL .. and this should _not_ be regarded as
+		 * commend of course.
+		 */
 		//else if (current == '/')    state = ENDLINE_COMMENT;
 		else { parsed.append ('/'); state = STATEMENT; }
 		break;
@@ -425,7 +468,9 @@ public class HenPlus {
 	properties.setProperty("driver.Oracle.example",
 			       "jdbc:oracle:thin:@localhost:1521:ORCL");
 	/*
-	 * wenn auskommentieren, dann mal 'verbose' oben einstellen..
+	 * wenn auskommentieren, dann mal 'verbose' oben einstellen, denn
+	 * es scheint, dass das nicht richtig geladen wird.
+	 *
 	properties.setProperty("driver.DB2.class",
 			       "COM.ibm.db2.jdbc.net.DB2Driver");
 	properties.setProperty("driver.DB2.example",
@@ -453,7 +498,7 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.17 $]--\n";
++"----------------------------------------------------[$Revision: 1.18 $]--\n";
 	System.err.println(cpy);
 
 	instance = new HenPlus(properties, argv);
