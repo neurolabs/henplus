@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.48 2003-01-24 21:41:16 hzeller Exp $
+ * $Id: HenPlus.java,v 1.49 2003-01-25 10:44:06 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -368,6 +368,13 @@ public class HenPlus implements Interruptable {
 	finally {
 	    _alreadyShutDown = true;
 	}
+        /*
+         * some JDBC-Drivers (notably hsqldb) do some important cleanup
+         * (closing open threads, for instance) in finalizers. Force
+         * them to do their duty:
+         */
+        System.gc();
+        System.gc();
     }
 
     public void terminate() {
