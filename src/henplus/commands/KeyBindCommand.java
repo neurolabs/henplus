@@ -30,7 +30,7 @@ import java.util.HashMap;
 import org.gnu.readline.Readline;
 
 /**
- * document me.
+ * Command to bind function keys to commands.
  */
 public class KeyBindCommand extends AbstractCommand {
     private final static String KEYBIND_FILENAME = "key-bindings";
@@ -53,7 +53,8 @@ public class KeyBindCommand extends AbstractCommand {
     public String[] getCommandList() {
 	return new String[] {
 	    "bind-key-cmd-string",
-            "list-key-bindings"
+            "list-key-bindings",
+            "test-bind-all" // uncomment in production.
 	};
     }
     
@@ -64,27 +65,48 @@ public class KeyBindCommand extends AbstractCommand {
         _keyNames.put("F1",  new String[]{"\"\\e[11~\"", 
                                           "\"\\e[[a\"", 
                                           "\"\\eOP\"" });
+        _keyNames.put("Shift-F1", new String[] { "\"\\e[25~\"",
+                                                 "\"\\eO2P\"" });
         _keyNames.put("F2",  new String[]{"\"\\e[12~\"", 
                                           "\"\\e[[b\"",
                                           "\"\\eOQ\""});
+        _keyNames.put("Shift-F2", new String[] { "\"\\e[26~\"",
+                                                 "\"\\eO2Q\"" });
         _keyNames.put("F3",  new String[]{"\"\\e[13~\"", 
                                           "\"\\e[[c\"",
                                           "\"\\eOR\""});
+        _keyNames.put("Shift-F3", new String[] { "\"\\e[28~\"",
+                                                 "\"\\eO2R\"" });
         _keyNames.put("F4",  new String[]{"\"\\e[14~\"", 
                                           "\"\\e[[d\"",
                                           "\"\\eOS\""});
+        _keyNames.put("Shift-F4", new String[] { "\"\\e[29~\"",
+                                                 "\"\\eO2S\"" });
         _keyNames.put("F5",  new String[]{"\"\\e[15~\"",
                                           "\"\\e[[e\""});
+        _keyNames.put("Shift-F5",  new String[]{"\"\\e[15;2~\"",
+                                                "\"\\e[31~\""});
         _keyNames.put("F6",  new String[]{"\"\\e[17~\""});
+        _keyNames.put("Shift-F6",  new String[]{"\"\\e[17;2~\"",
+                                                "\"\\e[32~\""});
         _keyNames.put("F7",  new String[]{"\"\\e[18~\""});
+        _keyNames.put("Shift-F7",  new String[]{"\"\\e[18;2~\"",
+                                                "\"\\e[33~\""});
         _keyNames.put("F8",  new String[]{"\"\\e[19~\""});
+        _keyNames.put("Shift-F8",  new String[]{"\"\\e[19;2~\"",
+                                                "\"\\e[34~\""});
+        // for the linux console, there seem no bindings for F9-F12
         _keyNames.put("F9",  new String[]{"\"\\e[20~\""});
+        _keyNames.put("Shift-F9",  new String[]{"\"\\e[20;2~\""});
         _keyNames.put("F10", new String[]{"\"\\e[21~\""});
+        _keyNames.put("Shift-F10",  new String[]{"\"\\e[21;2~\""});
         _keyNames.put("F11", new String[]{"\"\\e[23~\""});
+        _keyNames.put("Shift-F11",  new String[]{"\"\\e[23;2~\""});
         _keyNames.put("F12", new String[]{"\"\\e[24~\""});
+        _keyNames.put("Shift-F12",  new String[]{"\"\\e[24;2~\""});
         _functionKeyNameCompleter = new NameCompleter(_keyNames.keySet());
         _bindings = new TreeMap();
-        bindKey("F1", "help");
+        bindKey("F1", "help"); // a common default binding.
         load();
     }
 
@@ -101,6 +123,11 @@ public class KeyBindCommand extends AbstractCommand {
 	    return SUCCESS;
 	}
 
+        else if ("test-bind-all".equals(cmd)) {
+            testBindAll();
+	    return SUCCESS;
+        }
+        
         else /* bind-key-cmd-string */ {
             if (!st.hasMoreTokens())
                 return SYNTAX_ERROR;
@@ -125,6 +152,17 @@ public class KeyBindCommand extends AbstractCommand {
             return null;
         }
         return _functionKeyNameCompleter.getAlternatives(lastWord);
+    }
+
+    /**
+     * For tests: bind the key to its name representation.
+     */
+    private void testBindAll() {
+        Iterator it = _keyNames.keySet().iterator();
+        while (it.hasNext()) {
+            String keyName = (String) it.next();
+            bindKey(keyName, keyName);
+        }
     }
 
     /**
@@ -230,7 +268,7 @@ public class KeyBindCommand extends AbstractCommand {
         }
         else if ("bind-key-cmd-string".equals(cmd)) {
             dsc= "\tBind a key to a command. Keys can be the function keys\n"
-                +"\tF1, F2...F12";
+                +"\tF1, F2...F12 or Shift-F1...Shift-F12";
         }
         return dsc;
     }
