@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.17 2003-05-07 11:22:09 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.18 2003-07-17 15:57:05 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -963,7 +963,7 @@ public class DumpCommand
     public void expect(LineNumberReader in, char ch) throws IOException {
 	skipWhite(in);
 	char inCh = (char) in.read();
-	if (ch != inCh) raiseException(in, "'" + ch + "' expected");
+	if (ch != inCh) raiseException(in, "'" + ch + "' expected, got '" + inCh + "'");
     }
 
     private void quoteString(PrintStream out, String in) {
@@ -987,7 +987,7 @@ public class DumpCommand
     private boolean skipWhite(Reader in) throws IOException {
 	in.mark(1);
 	int c;
-	while ((c = in.read()) > 0) {
+	while ((c = in.read()) >= 0) {
 	    if (!Character.isWhitespace((char)c)) {
 		in.reset();
 		return true;
@@ -1002,7 +1002,7 @@ public class DumpCommand
 	StringBuffer token = new StringBuffer();
 	in.mark(1);
 	int c;
-	while ((c = in.read()) > 0) {
+	while ((c = in.read()) >= 0) {
 	    char ch = (char) c;
 	    if (Character.isWhitespace(ch)
 		|| ch == ';' || ch == ',' 
@@ -1023,7 +1023,7 @@ public class DumpCommand
     private String readString(LineNumberReader in) throws IOException {
 	int nullParseState = 0;
 	int c;
-	while ((c = in.read()) > 0) {
+	while ((c = in.read()) >= 0) {
 	    char ch = (char) c;
 	    // unless we already parse the NULL string, skip whitespaces.
 	    if (nullParseState == 0 && Character.isWhitespace(ch)) continue;
@@ -1038,7 +1038,7 @@ public class DumpCommand
 	
 	// ok, we found an opening quote.
 	StringBuffer result = new StringBuffer();
-	while ((c = in.read()) > 0) {
+	while ((c = in.read()) >= 0) {
 	    if (c == '\\') {
 		c = in.read();
 		if (c < 0) {
