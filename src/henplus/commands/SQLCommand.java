@@ -78,8 +78,11 @@ public class SQLCommand extends AbstractCommand {
 	    || command.startsWith("ROLLBACK"))
 	    return true;
 	// FIXME: this is a very dumb parser. Leave out string literals.
-	boolean anyProcedure = ((command.indexOf("PROCEDURE") >= 0)
-				|| (command.indexOf("TRIGGER") >= 0));
+	boolean anyProcedure = ((command.startsWith("CREATE")
+				 || command.startsWith("REPLACE"))
+				&&
+				((command.indexOf("PROCEDURE") >= 0)
+				 || (command.indexOf("TRIGGER") >= 0)));
 	if (!anyProcedure && command.endsWith(";")) return true;
 	// sqlplus is complete on a single '/' on a line.
 	if (command.length() >= 3) {
