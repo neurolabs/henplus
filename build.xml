@@ -1,11 +1,11 @@
-<!-- $Id: build.xml,v 1.27 2003-01-25 18:49:28 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.28 2003-01-25 22:14:31 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
      <property name="DESTDIR"              value="/" />
 
      <!-- properties -->
-     <property name="version"              value="0.9" />
+     <property name="version"              value="0.9.1" />
      <property name="src"                  value="src" />
      <property name="bin"                  value="bin" />
      <property name="lib"                  value="lib" />
@@ -112,6 +112,27 @@
 	<copy file="${tarbase}.tar.gz" todir="${build}/SOURCES" />
 	<copy file="henplus.spec" todir="${build}/SPECS" />
         <rpm specFile="henplus.spec" topDir="${build}" command="-ba" />
+     </target>
+
+     <target name="deb" depends="dist" description="create distribution debian package">
+        <echo>
+	  ** Make sure, that the current version is written to the
+	  ** changelog.
+	</echo>
+        <mkdir dir="${build}/debian" />
+	<copy  file="${tarbase}.tar.gz" todir="${build}/debian"/>
+	<gunzip src="${build}/debian/${tarbase}.tar.gz"/>
+	<untar src="${build}/debian/${tarbase}.tar" dest="${build}/debian"/>
+	<!-- for some stupid reason, the mode is not set appropriately.. -->
+	<chmod perm="755">
+	    <fileset dir="${build}/debian">
+	        <include name="${tarbase}/bin/henplus" />
+	        <include name="${tarbase}/debian/rules" />
+            </fileset>
+        </chmod>
+	<exec dir="${build}/debian/${tarbase}" executable="dpkg-buildpackage">
+	   <arg line="-rfakeroot"/>
+	</exec>
      </target>
 
      <target name="clean" description="remove">

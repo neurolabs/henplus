@@ -1,3 +1,13 @@
+henplus (0.9.1-1) unstable; urgency=low
+  
+  * do a workaround for a bug in hsqldb (exiting does not work properly)
+  * rename the commands 'set' and 'unset' to 'set-var' and 'unset-var'
+    because these are probably common commands provided by databases
+  * rename session only, if a session with the given name does not already
+    exist
+  
+ -- Henner Zeller <H.Zeller@acm.org>  (fill me)
+
 henplus (0.9-1) unstable; urgency=low
 
   * Initial Release as debian package.

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.50 2003-01-25 11:03:51 hzeller Exp $
+ * $Id: HenPlus.java,v 1.51 2003-01-25 22:14:31 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -156,7 +156,7 @@ public class HenPlus implements Interruptable {
 	 */
 	SigIntHandler.install();
 
-        /* TESTING */
+        /* TESTING  for ^Z support in the shell.
         sun.misc.SignalHandler stoptest = new sun.misc.SignalHandler () {
                 public void handle(sun.misc.Signal sig) {
                     System.out.println("caught: " + sig);
@@ -169,7 +169,7 @@ public class HenPlus implements Interruptable {
             // ignore.
         }
 
-        /* end testing */
+        end testing */
     }
     
     public void pushBuffer() {
