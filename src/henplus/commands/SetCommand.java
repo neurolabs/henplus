@@ -1,12 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.16 2003-05-01 19:53:10 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.17 2004-01-27 18:16:33 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
 import henplus.util.*;
+import henplus.view.*;
 
 import java.util.Map;
 import java.util.SortedMap;

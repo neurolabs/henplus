@@ -6,29 +6,27 @@
  */
 package henplus.commands;
 
-import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
-import henplus.SigIntHandler;
-import henplus.util.NameCompleter;
+import henplus.HenPlus;
 import henplus.PropertyRegistry;
+import henplus.SQLSession;
+import henplus.SigIntHandler;
 import henplus.property.PropertyHolder;
+import henplus.view.util.NameCompleter;
 
-import java.text.DecimalFormat;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.sql.SQLException;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * document me.
@@ -376,7 +374,7 @@ public class SQLCommand extends AbstractCommand {
 	    return completer.getAlternatives(lastWord);
 	}
 	else { // table completion.
-	    return tableCompleter.completeTableName(lastWord);
+	    return tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
 	}
     }
     

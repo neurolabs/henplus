@@ -1,10 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Terminal.java,v 1.1 2002-02-26 17:58:19 hzeller Exp $ 
+ * $Id: Terminal.java,v 1.2 2004-01-27 18:16:34 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package henplus.util;
+package henplus.view.util;
 
 import java.io.PrintStream;
 
@@ -50,6 +50,15 @@ public class Terminal {
 
     public static void blue(PrintStream out) {
 	if (hasTerminal) try { out.print( BLUE ); } catch (Exception e) {}
+    }
+    
+    /**
+     * Set the terminal to a specific mode, this must be one of those defined in this class.
+     * @param face
+     * @param out
+     */
+    public static void set( String mode, PrintStream out ) {
+        if (hasTerminal) try { out.print( mode ); } catch (Exception e) {}
     }
 
     public static void reset(PrintStream out) {

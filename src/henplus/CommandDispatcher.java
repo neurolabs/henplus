@@ -6,19 +6,18 @@
  */
 package henplus;
 
+import henplus.commands.SetCommand;
+
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.TreeMap;
-import java.util.Enumeration;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
-import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineCompleter;
-
-import henplus.commands.SetCommand;
 
 /**
  * document me.
@@ -193,7 +192,10 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    System.err.println("not connected.");
 		    return;
 		}
-		switch (c.execute(session, cmdStr, cmd)) {
+        // long start = System.currentTimeMillis();
+        int result = c.execute(session, cmdStr, cmd);
+        // System.out.println("Execution took " + (System.currentTimeMillis() - start ) + " ms." );
+		switch ( result ) {
 		case Command.SYNTAX_ERROR: {
 		    String synopsis = c.getSynopsis(cmdStr);
 		    if (synopsis != null) {

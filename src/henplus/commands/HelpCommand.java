@@ -15,7 +15,7 @@ import henplus.SQLSession;
 import henplus.CommandDispatcher;
 import henplus.Command;
 import henplus.AbstractCommand;
-import henplus.util.Terminal;
+import henplus.view.util.Terminal;
 
 /**
  * document me.

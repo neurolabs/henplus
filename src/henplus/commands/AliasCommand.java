@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.10 2003-05-07 11:22:09 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.11 2004-01-27 18:16:33 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -21,6 +21,7 @@ import java.io.*;
 import henplus.HenPlus;
 import henplus.Command;
 import henplus.util.*;
+import henplus.view.*;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.SQLSession;

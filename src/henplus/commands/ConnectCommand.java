@@ -6,34 +6,34 @@
  */
 package henplus.commands;
 
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.PrintWriter;
-import java.io.FileWriter;
-import java.io.BufferedReader;
-import java.io.IOException;
-
-import java.util.StringTokenizer;
-import java.util.Iterator;
-
-import henplus.util.*;
-import henplus.HenPlus;
-import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.SessionManager;
+import henplus.view.Column;
+import henplus.view.ColumnMetaData;
+import henplus.view.TableRenderer;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 /**
  * document me.
  */
 public class ConnectCommand extends AbstractCommand {
+    
     private static String CONNECTION_CONFIG = "connections";
-    private final SortedMap/*<String,SQLSession>*/ sessions;
+    private final SessionManager _sessionManager;
     private final SortedSet knownUrls;
     private final HenPlus   henplus;
 
@@ -60,41 +60,41 @@ public class ConnectCommand extends AbstractCommand {
 	};
     }
 
-    public ConnectCommand(String argv[], HenPlus henplus) {
-	this.henplus = henplus;
-	sessions  = new TreeMap();
-	knownUrls = new TreeSet();
-
-	try {
-	    File urlFile = new File(henplus.getConfigDir(),
-				    CONNECTION_CONFIG);
-	    BufferedReader in = new BufferedReader(new FileReader(urlFile));
-	    String url;
-	    while ((url = in.readLine()) != null) {
-		knownUrls.add(url);
-	    }
-	}
-	catch (IOException e) {
-	}
-
-	if (argv.length > 0) {
-	    try {
-		SQLSession session = null;
-		String url = argv[0];
-		String username = (argv.length > 1) ? argv[1] : null;
-		String password = (argv.length > 2) ? argv[2] : null;
-		session = new SQLSession(url, username, password);
-		currentSessionName = createSessionName(session, null);
-		sessions.put(currentSessionName, session);
-		knownUrls.add(url);
-		henplus.setPrompt(currentSessionName + "> ");
-		henplus.setCurrentSession(session);
-	    }
-	    catch (Exception e) {
-		//e.printStackTrace();
-		System.err.println(e.getMessage());
-	    }
-	}
+    public ConnectCommand(String argv[], HenPlus henplus, SessionManager sessionManager) {
+    	this.henplus = henplus;
+        this._sessionManager = sessionManager;
+    	knownUrls = new TreeSet();
+    
+    	try {
+    	    File urlFile = new File(henplus.getConfigDir(),
+    				    CONNECTION_CONFIG);
+    	    BufferedReader in = new BufferedReader(new FileReader(urlFile));
+    	    String url;
+    	    while ((url = in.readLine()) != null) {
+    		  knownUrls.add(url);
+    	    }
+    	}
+    	catch (IOException e) {
+    	}
+    
+    	if (argv.length > 0) {
+    	    try {
+        		SQLSession session = null;
+        		String url = argv[0];
+        		String username = (argv.length > 1) ? argv[1] : null;
+        		String password = (argv.length > 2) ? argv[2] : null;
+        		session = new SQLSession(url, username, password);
+        		currentSessionName = createSessionName(session, null);
+                _sessionManager.addSession(currentSessionName, session);
+        		knownUrls.add(url);
+        		henplus.setPrompt(currentSessionName + "> ");
+        		_sessionManager.setCurrentSession(session);
+    	    }
+    	    catch (Exception e) {
+    		//e.printStackTrace();
+    		System.err.println(e.getMessage());
+    	    }
+    	}
     }
     
     private String createSessionName(SQLSession session, String name) {
@@ -108,26 +108,26 @@ public class ConnectCommand extends AbstractCommand {
 	    userName = session.getUsername();
 	    StringTokenizer st = new StringTokenizer(url, ":");
 	    while (st.hasMoreElements()) {
-		String val = (String) st.nextElement();
-		if (val.toUpperCase().equals("JDBC"))
-		    continue;
-		dbName = val;
-		break;
+    		String val = (String) st.nextElement();
+    		if (val.toUpperCase().equals("JDBC"))
+    		    continue;
+    		dbName = val;
+    		break;
 	    }
 	    int pos;
 	    if ((pos = url.indexOf('@')) >= 0) {
-		st = new StringTokenizer(url.substring(pos+1), ":/");
-		try { 
-		    hostname = (String) st.nextElement(); 
-		} 
-		catch (Exception e) { /* ignore */ }
+    		st = new StringTokenizer(url.substring(pos+1), ":/");
+    		try { 
+    		    hostname = (String) st.nextElement(); 
+    		} 
+    		catch (Exception e) { /* ignore */ }
 	    }
 	    else if ((pos = url.indexOf('/')) >= 0) {
 		st = new StringTokenizer(url.substring(pos+1), ":/");
 		while (st.hasMoreElements()) {
 		    String val = (String) st.nextElement();
 		    if (val.length() == 0)
-			continue;
+			   continue;
 		    hostname = val;
 		    break;
 		}
@@ -140,7 +140,7 @@ public class ConnectCommand extends AbstractCommand {
 	}
 	String key = name;
 	int count = 0;
-	while (sessions.containsKey(key)) {
+	while (_sessionManager.sessionNameExists(key)) {
 	    ++count;
 	    key = name + "#" + count;
 	}
@@ -148,23 +148,19 @@ public class ConnectCommand extends AbstractCommand {
     }
 
     public void shutdown() {
-	Iterator sessIter = sessions.values().iterator();
-	while (sessIter.hasNext()) {
-	    SQLSession session = (SQLSession) sessIter.next();
-	    session.close();
-	}
+	   _sessionManager.closeAll();
 
-	try {
-	    File urlFile = new File(henplus.getConfigDir(),
-				    CONNECTION_CONFIG);
-	    PrintWriter writer = new PrintWriter(new FileWriter(urlFile));
-	    Iterator urlIter = knownUrls.iterator();
-	    while (urlIter.hasNext()) {
-		writer.println((String) urlIter.next());
-	    }
-	    writer.close();
-	}
-	catch (IOException dont_care) {}
+       try {
+           File urlFile = new File(henplus.getConfigDir(),
+               CONNECTION_CONFIG);
+           PrintWriter writer = new PrintWriter(new FileWriter(urlFile));
+           Iterator urlIter = knownUrls.iterator();
+           while (urlIter.hasNext()) {
+               writer.println((String) urlIter.next());
+           }
+           writer.close();
+       }
+       catch (IOException dont_care) {}
     }
 
     /**
@@ -214,8 +210,7 @@ public class ConnectCommand extends AbstractCommand {
 		("".equals(lastWord) ? 1 : 2)) {
 		return null;
 	    }
-	    final Iterator it = sessions.tailMap(lastWord)
-		.keySet().iterator();
+	    final Iterator it = _sessionManager.getSessionNames().tailSet(lastWord).iterator();
 	    return new Iterator() {
 		    String sessionName = null;
 		    public boolean hasNext() {
@@ -256,19 +251,18 @@ public class ConnectCommand extends AbstractCommand {
 	    SESS_META[2].resetWidth();
 	    TableRenderer table = new TableRenderer(SESS_META, System.out);
 	    Map.Entry entry = null;
-	    Iterator it = sessions.entrySet().iterator();
+	    Iterator it = _sessionManager.getSessionNames().iterator();
 	    while (it.hasNext()) {
-		entry = (Map.Entry) it.next();
-		String sessName = (String) entry.getKey(); 
-		session         = (SQLSession) entry.getValue();
-		String prepend = sessName.equals(currentSessionName) 
-		    ? " * "
-		    : "   ";
-		Column[] row = new Column[3];
-		row[0] = new Column(prepend + sessName);
-		row[1] = new Column(session.getUsername());
-		row[2] = new Column(session.getURL());
-		table.addRow(row);
+            String sessName = (String)it.next();
+            session = _sessionManager.getSessionByName(sessName);
+    		String prepend = sessName.equals(currentSessionName) 
+    		    ? " * "
+    		    : "   ";
+    		Column[] row = new Column[3];
+    		row[0] = new Column(prepend + sessName);
+    		row[1] = new Column(session.getUsername());
+    		row[2] = new Column(session.getURL());
+    		table.addRow(row);
 	    }
 	    table.closeTable();
 	    return SUCCESS;
@@ -285,7 +279,8 @@ public class ConnectCommand extends AbstractCommand {
 		knownUrls.add(url);
 		currentSessionName = createSessionName(session, 
 						       currentSessionName);
-		sessions.put(currentSessionName, session);
+		_sessionManager.addSession(currentSessionName, session);
+        _sessionManager.setCurrentSession(session);
 	    }
 	    catch (Exception e) {
 		System.err.println(e);
@@ -295,11 +290,11 @@ public class ConnectCommand extends AbstractCommand {
 	
 	else if ("switch".equals(cmd)) {
 	    String sessionName = null;
-	    if (argc != 1 && sessions.size() != 2) {
+	    if (argc != 1 && _sessionManager.getSessionCount() != 2) {
 		return SYNTAX_ERROR;
 	    }
-	    if (argc == 0 && sessions.size() == 2) {
-		Iterator i = sessions.keySet().iterator();
+	    if (argc == 0 && _sessionManager.getSessionCount() == 2) {
+		Iterator i = _sessionManager.getSessionNames().iterator();
 		while (i.hasNext()) {
 		    sessionName = (String) i.next();
 		    if (!sessionName.equals(currentSessionName)) {
@@ -310,7 +305,7 @@ public class ConnectCommand extends AbstractCommand {
 	    else {
 		sessionName = (String) st.nextElement();
 	    }
-	    session = (SQLSession) sessions.get(sessionName);
+	    session = _sessionManager.getSessionByName(sessionName);
 	    if (session == null) {
 		System.err.println("'" + sessionName + "': no such session");
 		return EXEC_FAILED;
@@ -327,40 +322,39 @@ public class ConnectCommand extends AbstractCommand {
 	    if (sessionName.length() < 1) {
 		return SYNTAX_ERROR;
 	    }
-
-            if (sessions.containsKey(sessionName)) {
+        
+        /*  // moved to sessionmanager.renameSession
+         * 
+            if (_sessionManager.sessionNameExists(sessionName)) {
                 System.err.println("A session with that name already exists");
                 return EXEC_FAILED;
             }
 
-	    session = (SQLSession) sessions.remove(currentSessionName);
+	    session = _sessionManager.removeSessionWithName(currentSessionName);
 	    if (session == null) {
-		return EXEC_FAILED;
+		  return EXEC_FAILED;
 	    }
-	    sessions.put(sessionName, session);
+	    _sessionManager.addSession(sessionName, session);
+         */
+         int renamed = _sessionManager.renameSession(currentSessionName, sessionName);
+         if (renamed == EXEC_FAILED)
+            return EXEC_FAILED;
+            
 	    currentSessionName = sessionName;
+        session = _sessionManager.getCurrentSession();
 	}
 
 	else if ("disconnect".equals(cmd)) {
 	    currentSessionName = null;
 	    if (argc != 0) {
-		return SYNTAX_ERROR;
+		  return SYNTAX_ERROR;
 	    }
-	    // find session..
-	    Map.Entry entry = null;
-	    Iterator it = sessions.entrySet().iterator();
-	    while (it.hasNext()) {
-		entry = (Map.Entry) it.next();
-		if (entry.getValue() == currentSession) {
-		    it.remove();
-		    currentSession.close();
-		    System.err.println("session closed.");
-		    break;
-		}
-	    }
-	    if (!sessions.isEmpty()) {
-		currentSessionName = (String) sessions.firstKey();
-		session = (SQLSession) sessions.get(currentSessionName);
+        _sessionManager.closeCurrentSession();
+        System.err.println("session closed.");
+            
+	    if (_sessionManager.hasSessions()) {
+            currentSessionName = _sessionManager.getFirstSessionName();
+		    session = _sessionManager.getSessionByName(currentSessionName);
 	    }
 	}
 	

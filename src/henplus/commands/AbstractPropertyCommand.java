@@ -1,26 +1,25 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.5 2003-05-07 11:22:09 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.6 2004-01-27 18:16:33 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import henplus.util.*;
-import henplus.property.PropertyHolder;
-import henplus.PropertyRegistry;
-
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.HashSet;
-import java.util.TreeMap;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-
-import henplus.HenPlus;
-import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.PropertyRegistry;
+import henplus.SQLSession;
+import henplus.property.PropertyHolder;
+import henplus.view.Column;
+import henplus.view.ColumnMetaData;
+import henplus.view.TableRenderer;
+import henplus.view.util.Terminal;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.StringTokenizer;
 
 /**
  * The command, that allows to set properties.

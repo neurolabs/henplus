@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.7 2003-05-01 18:26:28 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.8 2004-01-27 18:16:33 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 
 import henplus.HenPlus;
 import henplus.util.*;
+import henplus.view.*;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.SQLSession;

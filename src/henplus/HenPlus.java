@@ -1,26 +1,23 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.58 2003-05-01 19:53:08 hzeller Exp $
+ * $Id: HenPlus.java,v 1.59 2004-01-27 18:16:33 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.HashMap;
+import henplus.commands.*;
+import henplus.view.util.Terminal;
 
+import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
-import java.io.EOFException;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
-
-import henplus.commands.*;
+import java.util.Map;
 
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
-import henplus.util.Terminal;
 
 public class HenPlus implements Interruptable {
     public static final boolean verbose = false; // debug.
@@ -36,14 +33,15 @@ public class HenPlus implements Interruptable {
 
     private final boolean               _fromTerminal;    
     private final SQLStatementSeparator _commandSeparator;
+    private final SessionManager _sessionManager;
     private final CommandDispatcher     _dispatcher;
     private final StringBuffer          _historyLine;
     private final SetCommand            _settingStore;
     private final boolean               _quiet;
     private final PropertyRegistry      _henplusProperties;
+    private final ListUserObjectsCommand _objectLister; 
 
     private String            _previousHistoryLine;
-    private SQLSession        _currentSession;
     private boolean           _terminated;
     private String            _prompt;
     private String            _emptyPrompt;
@@ -100,9 +98,11 @@ public class HenPlus implements Interruptable {
             .registerProperty("comments-remove",
                               _commandSeparator.getRemoveCommentsProperty());
         
+        _sessionManager = SessionManager.getInstance(this); 
+        
         // FIXME: to many cross dependencies of commands now. clean up.
 	_settingStore = new SetCommand(this);
-	ListUserObjectsCommand objectLister = new ListUserObjectsCommand(this);
+	_objectLister = new ListUserObjectsCommand(this);
 	_dispatcher = new CommandDispatcher(_settingStore);
 	_dispatcher.register(new HelpCommand());
 
@@ -121,20 +121,20 @@ public class HenPlus implements Interruptable {
         LoadCommand loadCommand = new LoadCommand();
 	_dispatcher.register(loadCommand);
 
-	_dispatcher.register(new ConnectCommand( argv, this ));
+	_dispatcher.register(new ConnectCommand( argv, this, _sessionManager ));
 	_dispatcher.register(new StatusCommand());
 
-	_dispatcher.register(objectLister);
-	_dispatcher.register(new DescribeCommand(objectLister));
+	_dispatcher.register(_objectLister);
+	_dispatcher.register(new DescribeCommand(_objectLister));
         
         /*** experimental ***/
-	_dispatcher.register(new TreeCommand(objectLister));
+	_dispatcher.register(new TreeCommand(_objectLister));
 
-	_dispatcher.register(new SQLCommand(objectLister, _henplusProperties));
+	_dispatcher.register(new SQLCommand(_objectLister, _henplusProperties));
 
 	//_dispatcher.register(new ImportCommand());
 	//_dispatcher.register(new ExportCommand());
-	_dispatcher.register(new DumpCommand(objectLister, loadCommand));
+	_dispatcher.register(new DumpCommand(_objectLister, loadCommand));
 
 	_dispatcher.register(new ShellCommand());
 
@@ -275,7 +275,7 @@ public class HenPlus implements Interruptable {
 	    }
 	    else {
 		//System.err.println("SUBST: " + completeCommand);
-		_dispatcher.execute(_currentSession, completeCommand);
+		_dispatcher.execute(_sessionManager.getCurrentSession(), completeCommand);
 		_commandSeparator.consumed();
 		result = LINE_EXECUTED;
 	    }
@@ -309,8 +309,8 @@ public class HenPlus implements Interruptable {
 	    }
 	    catch (EOFException e) {
 		// EOF on CTRL-D
-		if (_currentSession != null) {
-		    _dispatcher.execute(_currentSession, "disconnect");
+		if (_sessionManager.getCurrentSession() != null) {
+		    _dispatcher.execute(_sessionManager.getCurrentSession(), "disconnect");
 		    displayPrompt = _prompt;
 		    continue;
 		}
@@ -400,24 +400,37 @@ public class HenPlus implements Interruptable {
     }
 
     public void terminate() {
-	_terminated = true;
+	   _terminated = true;
     }
 
     public CommandDispatcher getDispatcher() { return _dispatcher; }
+    
+    /**
+     * Provides access to the session manager. He maintains the list of opened
+     * sessions with their names.
+     * @return
+     */
+    public SessionManager getSessionManager() {
+        return _sessionManager;
+    }
     
     /**
      * set current session. This is called from commands, that switch
      * the sessions (i.e. the ConnectCommand.
      */
     public void setCurrentSession(SQLSession session) {
-	_currentSession = session;
+	   _sessionManager.setCurrentSession(session);
     }
 
     /**
      * get current session.
      */
     public SQLSession getCurrentSession() {
-	return _currentSession;
+	   return _sessionManager.getCurrentSession();
+    }
+    
+    public ListUserObjectsCommand getObjectLister() {
+        return _objectLister;
     }
 
     public void setPrompt(String p) {

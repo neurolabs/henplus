@@ -6,24 +6,21 @@
  */
 package henplus.commands;
 
-import java.io.PrintStream;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.sql.*;
-
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.TreeMap;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import henplus.util.*;
-import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.HenPlus;
+import henplus.SQLSession;
+
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /*
  * foo
@@ -211,7 +208,7 @@ public class TreeCommand extends AbstractCommand {
 	if (lastWord.startsWith("\"")) {
 	    lastWord = lastWord.substring(1);
 	}
-	return tableCompleter.completeTableName(lastWord);
+	return tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
     }
 
     private String stripQuotes(String value) {

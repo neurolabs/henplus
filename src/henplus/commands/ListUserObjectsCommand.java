@@ -6,27 +6,22 @@
  */
 package henplus.commands;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Collection;
-import java.util.Vector;
+import henplus.AbstractCommand;
+import henplus.HenPlus;
+import henplus.Interruptable;
+import henplus.SQLSession;
+import henplus.SigIntHandler;
+import henplus.view.util.NameCompleter;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import java.sql.ResultSet;
-
-import henplus.HenPlus;
-import henplus.SigIntHandler;
-import henplus.Interruptable;
-import henplus.SQLSession;
-import henplus.AbstractCommand;
-import henplus.util.NameCompleter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * document me.
@@ -49,10 +44,10 @@ public class ListUserObjectsCommand
     private boolean interrupted;
 
     public ListUserObjectsCommand(HenPlus hp) {
-	sessionTables = new HashMap();
-        sessionColumns = new HashMap();
-	henplus = hp;
-        interrupted = false;
+	   sessionTables = new HashMap();
+       sessionColumns = new HashMap();
+	   henplus = hp;
+       interrupted = false;
     }
 
     /**
@@ -224,7 +219,7 @@ public class ListUserObjectsCommand
      * has the same length of the requested tablename, return this.
      */
     public String correctTableName(String tabName) {
-	Iterator it = completeTableName(tabName);	
+	Iterator it = completeTableName(HenPlus.getInstance().getCurrentSession(), tabName);	
 	if (it == null) return null;
 	boolean foundSameLengthMatch = false;
 	int count = 0;
@@ -246,8 +241,7 @@ public class ListUserObjectsCommand
     /**
      * used from diverse commands that need table name completion.
      */
-    public Iterator completeTableName(String partialTable) {
-	SQLSession session = henplus.getCurrentSession();
+    public Iterator completeTableName(SQLSession session, String partialTable) {
 	if (session == null) return null;
 	NameCompleter completer = getTableCompleter(session);
 	return completer.getAlternatives(partialTable);

@@ -1,10 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: NameCompleter.java,v 1.1 2003-05-01 16:50:45 hzeller Exp $ 
+ * $Id: NameCompleter.java,v 1.2 2004-01-27 18:16:34 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package henplus.util;
+package henplus.view.util;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -61,7 +61,6 @@ public class NameCompleter {
 	// first test, if we find the name directly
 	Iterator testIt = nameSet.tailSet(partialName).iterator();
 	String testMatch = (testIt.hasNext()) ? (String) testIt.next() : null;
-
 	if (testMatch == null || !testMatch.startsWith(partialName)) {
 	    String canonical = partialName.toLowerCase();
 	    testIt = canonicalNames.tailMap(canonical).keySet().iterator();

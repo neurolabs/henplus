@@ -1,10 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ColumnMetaData.java,v 1.5 2003-05-01 18:26:29 hzeller Exp $ 
+ * $Id: ColumnMetaData.java,v 1.2 2004-01-27 18:16:34 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package henplus.util;
+package henplus.view;
 
 /**
  * own wrapper for the column meta data.
@@ -45,7 +45,7 @@ public final class ColumnMetaData {
 
     int getWidth()     { return width; }
     String getLabel()  { return label; }
-    int getAlignment() { return alignment; }
+    public int getAlignment() { return alignment; }
     void updateWidth(int w) {
 	if (w > width) {
 	    width = w;

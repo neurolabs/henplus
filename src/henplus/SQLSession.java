@@ -1,36 +1,29 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.23 2003-05-02 00:15:02 hzeller Exp $
+ * $Id: SQLSession.java,v 1.24 2004-01-27 18:16:33 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
-import java.util.*;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.EOFException;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.Enumeration;
+import henplus.property.BooleanPropertyHolder;
+import henplus.property.EnumeratedPropertyHolder;
+import henplus.sqlmodel.Table;
+import henplus.view.util.Terminal;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.DatabaseMetaData;
-
-import org.gnu.readline.Readline;
-import org.gnu.readline.ReadlineCompleter;
-import org.gnu.readline.ReadlineLibrary;
-
-import henplus.util.Terminal;
-import henplus.commands.*;
-import henplus.PropertyRegistry;
-import henplus.property.BooleanPropertyHolder;
-import henplus.property.EnumeratedPropertyHolder;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedSet;
 
 /**
  * a SQL session.
@@ -43,6 +36,7 @@ public class SQLSession implements Interruptable {
     private String     _password;
     private String     _databaseInfo;
     private Connection _conn;
+    private SQLMetaData _metaData;
     private boolean    _terminated = false;
     private int        _showMessages;
     private final PropertyRegistry _propertyRegistry;
@@ -158,6 +152,17 @@ public class SQLSession implements Interruptable {
 
     public String getURL() {
 	return _url;
+    }
+    
+    public SQLMetaData getMetaData(SortedSet/*<String>*/ tableNames) {
+        if ( _metaData == null ) {
+            _metaData = new SQLMetaDataBuilder().getMetaData(this, tableNames);
+        }
+        return _metaData;
+    }
+    
+    public Table getTable(String tableName) {
+        return new SQLMetaDataBuilder().getTable(this, tableName);
     }
     
     public boolean printMessages() { 

@@ -1,24 +1,50 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.18 2003-07-17 15:57:05 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.19 2004-01-27 18:16:33 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import java.util.*;
-import java.sql.*;
-import java.io.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import henplus.Interruptable;
-import henplus.SigIntHandler;
-import henplus.Version;
-import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
-import henplus.util.NameCompleter;
+import henplus.HenPlus;
+import henplus.Interruptable;
+import henplus.SQLSession;
+import henplus.SigIntHandler;
+import henplus.Version;
+import henplus.view.util.NameCompleter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.Reader;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Dump out and read that dump of a table; database-independently.
@@ -963,7 +989,7 @@ public class DumpCommand
     public void expect(LineNumberReader in, char ch) throws IOException {
 	skipWhite(in);
 	char inCh = (char) in.read();
-	if (ch != inCh) raiseException(in, "'" + ch + "' expected, got '" + inCh + "'");
+	if (ch != inCh) raiseException(in, "'" + ch + "' expected");
     }
 
     private void quoteString(PrintStream out, String in) {
@@ -987,7 +1013,7 @@ public class DumpCommand
     private boolean skipWhite(Reader in) throws IOException {
 	in.mark(1);
 	int c;
-	while ((c = in.read()) >= 0) {
+	while ((c = in.read()) > 0) {
 	    if (!Character.isWhitespace((char)c)) {
 		in.reset();
 		return true;
@@ -1002,7 +1028,7 @@ public class DumpCommand
 	StringBuffer token = new StringBuffer();
 	in.mark(1);
 	int c;
-	while ((c = in.read()) >= 0) {
+	while ((c = in.read()) > 0) {
 	    char ch = (char) c;
 	    if (Character.isWhitespace(ch)
 		|| ch == ';' || ch == ',' 
@@ -1023,7 +1049,7 @@ public class DumpCommand
     private String readString(LineNumberReader in) throws IOException {
 	int nullParseState = 0;
 	int c;
-	while ((c = in.read()) >= 0) {
+	while ((c = in.read()) > 0) {
 	    char ch = (char) c;
 	    // unless we already parse the NULL string, skip whitespaces.
 	    if (nullParseState == 0 && Character.isWhitespace(ch)) continue;
@@ -1038,7 +1064,7 @@ public class DumpCommand
 	
 	// ok, we found an opening quote.
 	StringBuffer result = new StringBuffer();
-	while ((c = in.read()) >= 0) {
+	while ((c = in.read()) > 0) {
 	    if (c == '\\') {
 		c = in.read();
 		if (c < 0) {
@@ -1090,7 +1116,7 @@ public class DumpCommand
 		if (lastWord.startsWith("\"")) {
 		    lastWord = lastWord.substring(1);
 		}
-		return _tableCompleter.completeTableName(lastWord);
+		return _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
 	    }
 	    else if (argc > 1) {
 		st.nextElement(); // discard filename.
@@ -1117,7 +1143,7 @@ public class DumpCommand
 		while (st.hasMoreElements()) {
 		    alreadyGiven.add((String) st.nextElement());
 		}
-		final Iterator it = _tableCompleter.completeTableName(lastWord);
+		final Iterator it = _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
 		return new Iterator() {
 			String table = null;
 			public boolean hasNext() {
