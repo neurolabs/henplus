@@ -80,6 +80,16 @@ public class DescribeCommand
 	    tabName = stripQuotes(tabName);
 	    correctName = false;
 	}
+
+        // separate schama and table.
+        String schema = null;
+        int schemaDelim = tabName.indexOf('.');
+        if (schemaDelim > 0) {
+            schema = tabName.substring(0, schemaDelim);
+            tabName = tabName.substring(schemaDelim+1);
+        }
+        
+        // FIXME: provide correct name as well for schema!
 	if (correctName) {
 	    String alternative = tableCompleter.correctTableName(tabName);
 	    if (alternative != null && !alternative.equals(tabName)) {
@@ -88,7 +98,7 @@ public class DescribeCommand
 				   + "' (corrected name)");
 	    }
 	}
-
+        
 	ResultSet rset = null;
         Set doubleCheck = new HashSet();
 	try {
@@ -111,7 +121,7 @@ public class DescribeCommand
 	     */
             if (interrupted) return SUCCESS;
 	    Map pks = new HashMap();
-	    rset = meta.getPrimaryKeys(null, null, tabName);
+	    rset = meta.getPrimaryKeys(null, schema, tabName);
 	    if (rset != null) while (!interrupted && rset.next()) {
 		String col = rset.getString(4);
 		int pkseq  = rset.getInt(5);
@@ -129,7 +139,7 @@ public class DescribeCommand
 	     * get referenced primary keys.
 	     */
             if (interrupted) return SUCCESS;
-	    rset = meta.getExportedKeys(null, null, tabName);
+	    rset = meta.getExportedKeys(null, schema, tabName);
 	    if (rset != null) while (!interrupted && rset.next()) {
     		String col = rset.getString(4);
     		String fktable = rset.getString(7);
@@ -152,7 +162,7 @@ public class DescribeCommand
         
         // some jdbc version 2 drivers (connector/j) have problems with foreign keys...
         try {
-            rset = meta.getImportedKeys(null, null, tabName);
+            rset = meta.getImportedKeys(null, schema, tabName);
         } catch ( NoSuchElementException e ) {
             if (verbose)
                 HenPlus.msg().println("Database problem reading meta data: " + e);
@@ -188,7 +198,7 @@ public class DescribeCommand
 	     */
             if (interrupted) return SUCCESS;
 
-	    rset = meta.getColumns(catalog, null, tabName, null);
+	    rset = meta.getColumns(catalog, schema, tabName, null);
 	    List rows = new ArrayList();
         int colNum = 0;
 	    if (rset != null) {
@@ -250,7 +260,7 @@ public class DescribeCommand
             if (interrupted) return SUCCESS;
 	    HenPlus.out().println("index information:");
 	    boolean anyIndex = false;
-	    rset = meta.getIndexInfo(null, null, tabName, false, true);
+	    rset = meta.getIndexInfo(null, schema, tabName, false, true);
 	    if (rset != null) while (!interrupted && rset.next()) {
 		boolean nonUnique;
 		String idxName = null;

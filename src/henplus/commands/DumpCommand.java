@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.22 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.23 2004-02-01 20:01:27 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -369,6 +369,15 @@ public class DumpCommand
 	    tabName = stripQuotes(tabName);
 	    correctName = false;
 	}
+
+        // separate schama and table.
+        String schema = null;
+        int schemaDelim = tabName.indexOf('.');
+        if (schemaDelim > 0) {
+            schema = tabName.substring(0, schemaDelim);
+            tabName = tabName.substring(schemaDelim+1);
+        }
+
 	if (correctName) {
 	    String alternative = _tableCompleter.correctTableName(tabName);
 	    if (alternative != null && !alternative.equals(tabName)) {
@@ -389,7 +398,7 @@ public class DumpCommand
              */
             Set doubleCheck = new HashSet();
 	    DatabaseMetaData meta = conn.getMetaData();
-	    rset = meta.getColumns(conn.getCatalog(), null, tabName, null);
+	    rset = meta.getColumns(conn.getCatalog(), schema, tabName, null);
 	    while (rset.next()) {
                 String columnName = rset.getString(4);
                 if (doubleCheck.contains(columnName))

@@ -196,9 +196,16 @@ public class ListUserObjectsCommand
         Set result = new HashSet();
 	Connection conn = session.getConnection();  // use createStmt
 	ResultSet rset = null;
+
+        String schema = null;
+        int schemaDelim = tabName.indexOf('.');
+        if (schemaDelim > 0) {
+            schema = tabName.substring(0, schemaDelim);
+            tabName = tabName.substring(schemaDelim+1);
+        }
 	try {
 	    DatabaseMetaData meta = conn.getMetaData();
-	    rset = meta.getColumns(conn.getCatalog(), null, tabName, null);
+	    rset = meta.getColumns(conn.getCatalog(), schema, tabName, null);
 	    while (rset.next()) {
 		result.add(rset.getString(4));
 	    }
