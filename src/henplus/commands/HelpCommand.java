@@ -135,6 +135,8 @@ public class HelpCommand extends AbstractCommand {
 	    }
 	    printDescription(detailHelp, c);
 	}
+	System.err.println("config read from [" 
+			   + HenPlus.getInstance().getConfigDir() + "]");
 	return SUCCESS;
     }
 

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.29 2002-02-19 10:11:58 hzeller Exp $
+ * $Id: HenPlus.java,v 1.30 2002-02-26 09:45:11 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -124,6 +124,11 @@ public class HenPlus {
 	    System.err.println(" - and if your shell is broken after use of henplus: same reason.");
 	    System.err.println("Bottomline: update your JDK (>= 1.3)!");
 	}
+	/*
+	 * if your compiler/system/whatever does not support the sun.misc.*
+	 * classes, then just disable this call and the SigIntHandler class.
+	 */
+	SigIntHandler.install();
     }
     
     public void pushBuffer() {
@@ -226,6 +231,7 @@ public class HenPlus {
 	    else {
 		displayPrompt = prompt;
 	    }
+	    SigIntHandler.getInstance().reset();
 	}
     }
 
@@ -400,6 +406,10 @@ public class HenPlus {
 	    }
 	}
 	_configDir = _configDir.getAbsoluteFile();
+	try {
+	    _configDir = _configDir.getCanonicalFile();
+	} catch (IOException ign) {}
+	
 	if (!_quiet) {
 	    System.err.println("henplus config at " + _configDir);
 	}

@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Iterator;
+import java.util.Collection;
+import java.util.Vector;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -123,6 +125,32 @@ public class ListUserObjectsCommand extends AbstractCommand {
     }
 
     /**
+     * fixme: add this to the cached values determined by rehash.
+     */
+    public Collection columnsFor(String tabName) {
+	SQLSession session = henplus.getSession();
+	Vector result = new Vector();
+	Connection conn = session.getConnection();  // use createStmt
+	ResultSet rset = null;
+	try {
+	    DatabaseMetaData meta = conn.getMetaData();
+	    rset = meta.getColumns(null, null, tabName, null);
+	    while (rset.next()) {
+		result.add(rset.getString(4));
+	    }
+	}
+	catch (Exception e) {
+	    // ignore.
+	}
+	finally {
+	    if (rset != null) {
+		try { rset.close(); } catch (Exception e) {}
+	    }
+	}
+	return result;
+    }
+
+    /**
      * used from diverse commands that need table name completion.
      */
     public Iterator completeTableName(String partialTable) {
@@ -131,7 +159,7 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	NameCompleter completer = getTableCompleter(session);
 	return completer.getAlternatives(partialTable);
     }
-
+    
     /**
      * return a descriptive string.
      */

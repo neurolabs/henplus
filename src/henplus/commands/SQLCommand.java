@@ -9,11 +9,17 @@ package henplus.commands;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.SigIntHandler;
 
 import java.text.DecimalFormat;
 
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.StringTokenizer;
 import java.sql.SQLException;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
@@ -95,10 +101,14 @@ public class SQLCommand extends AbstractCommand {
 	if (command.endsWith("/")) {
 	    command = command.substring(0, command.length()-1);
 	}
+	long startTime = System.currentTimeMillis();
+	long lapTime  = -1;
+	long execTime = -1;
 	try {
-	    long startTime = System.currentTimeMillis();
-	    long lapTime  = -1;
-	    long execTime = -1;
+	    /*
+	    SigIntHandler.getInstance()
+		.registerInterrupt(Thread.currentThread());
+	    */
 	    if (command.startsWith("commit")) {
 		System.err.print("commit..");
 		session.getConnection().commit();
@@ -167,6 +177,15 @@ public class SQLCommand extends AbstractCommand {
 	    }
 	    return SUCCESS;
 	}
+	/*
+	catch (InterruptedException ie) {
+	    System.err.print("interrupted after ");
+	    execTime = System.currentTimeMillis() - startTime;
+	    TimeRenderer.printTime(execTime, System.err);
+	    System.err.println(".");
+	    return SUCCESS;
+	}
+	*/
 	catch (Exception e) {
 	    String msg = e.getMessage();
 	    if (msg != null) {
@@ -188,15 +207,129 @@ public class SQLCommand extends AbstractCommand {
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) 
     {
-	partialCommand = partialCommand.toUpperCase();
+	final String canonCmd = partialCommand.toUpperCase();
+	int tableMatch = -1;
 	for (int i=0; i < COMPLETER_KEYWORD.length; ++i) {
-	    if (partialCommand.indexOf( COMPLETER_KEYWORD[i] ) >= 0) {
-		return tableCompleter.completeTableName(lastWord);
+	    int match = canonCmd.indexOf( COMPLETER_KEYWORD[i] );
+	    if (match >= 0) {
+		tableMatch = match + COMPLETER_KEYWORD[i].length();
+		break;
 	    }
 	}
-	return null;
-    }
+	if (tableMatch < 0) return null;
 
+	int whereMatch = canonCmd.indexOf ("WHERE");
+	if (whereMatch > tableMatch) {
+	    String tables = partialCommand.substring(tableMatch, whereMatch);
+	    HashMap tmp = new HashMap();
+	    Iterator it = tableDeclParser(tables).entrySet().iterator();
+	    while (it.hasNext()) {
+		Map.Entry entry = (Map.Entry) it.next();
+		String alias   = (String) entry.getKey();
+		String tabName = (String) entry.getValue();
+		Collection columns = tableCompleter.columnsFor(tabName);
+		Iterator cit = columns.iterator();
+		while (cit.hasNext()) {
+		    String col = (String) cit.next();
+		    Set aliases = (Set) tmp.get(col);
+		    if (aliases == null) aliases = new HashSet();
+		    aliases.add(alias);
+		    tmp.put(col, aliases);
+		}
+	    }
+	    NameCompleter completer = new NameCompleter();
+	    it = tmp.entrySet().iterator();
+	    while (it.hasNext()) {
+		Map.Entry entry = (Map.Entry) it.next();
+		String col = (String) entry.getKey();
+		Set aliases = (Set) entry.getValue();
+		if (aliases.size() == 1) {
+		    completer.addName(col);
+		}
+		else {
+		    Iterator ait = aliases.iterator();
+		    while (ait.hasNext()) {
+			completer.addName(ait.next() + "." + col);
+		    }
+		}
+	    }
+	    return completer.getAlternatives(lastWord);
+	}
+	else { // table completion.
+	    return tableCompleter.completeTableName(lastWord);
+	}
+    }
+    
+    /**
+     * parses 'tablename ((AS)? alias)? [,...]' and returns a map, that maps
+     * the names (or aliases) to the tablenames.
+     */
+    private Map tableDeclParser(String tableDecl) {
+	StringTokenizer tokenizer = new StringTokenizer(tableDecl,
+							" \t\n\r\f,",
+							true);
+	Map result = new HashMap();
+	String tok;
+	String table = null;
+	String alias = null;
+	int state = 0;
+	while (tokenizer.hasMoreElements()) {
+	    tok = tokenizer.nextToken();
+	    if (tok.length() == 1 && Character.isWhitespace(tok.charAt(0)))
+		continue;
+	    switch (state) {
+	    case 0: { // initial/endstate
+		table = tok;
+		alias = tok;
+		state = 1;
+		break;
+	    }
+	    case 1: { // table seen, waiting for potential alias.
+		if ("AS".equals(tok.toUpperCase()))
+		    state = 2;
+		else if (",".equals(tok)) {
+		    state = 0; // we are done.
+		}
+		else {
+		    alias = tok;
+		    state = 3;
+		}
+		break;
+	    }
+	    case 2: { // 'AS' seen, waiting definitly for alias.
+		if (",".equals(tok)) {
+		    // error: alias missing for $table.
+		    state = 0;
+		}
+		else {
+		    alias = tok;
+		    state = 3;
+		}
+		break;
+	    }
+	    case 3: {  // waiting for ',' at end of 'table (as)? alias'
+		if (!",".equals(tok)) {
+		    // error: ',' expected.
+		}
+		state = 0;
+		break;
+	    }
+	    }
+
+	    if (state == 0) {
+		result.put(alias, table);
+	    }
+	}
+	// store any unfinished state..
+	if (state == 1 || state == 3) {
+	    result.put(alias, table);
+	}
+	else if (state == 2) {
+	    // error: alias expected for $table.
+	}
+	return result;
+    }
+    
     public String getSynopsis(String cmd) { 
 	cmd = cmd.toLowerCase();
 	String syn = null;
