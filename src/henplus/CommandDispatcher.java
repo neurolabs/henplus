@@ -73,6 +73,9 @@ public class CommandDispatcher implements ReadlineCompleter {
      */
     public Command getCommandFrom(String completeCmd) {
 	String cmd = getCommandNameFrom(completeCmd);
+	if (cmd == null) {
+	    return null;
+	}
 	Command c = (Command) commandMap.get(cmd);
 	if (c == null) {
 	    c = (Command) commandMap.get(""); // "" matches everything.
@@ -118,8 +121,12 @@ public class CommandDispatcher implements ReadlineCompleter {
 		}
 		if (c.execute(session, cmd) == Command.SYNTAX_ERROR) {
 		    String synopsis = c.getSynopsis(cmdStr);
-		    if (synopsis != null)
+		    if (synopsis != null) {
 			System.err.println("usage: " + synopsis);
+		    }
+		    else {
+			System.err.println("syntax error.");
+		    }
 		}
 	    }
 	    catch (Exception e) {

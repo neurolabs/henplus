@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.5 2002-01-21 13:00:15 hzeller Exp $
+ * $Id: HenPlus.java,v 1.6 2002-01-21 22:06:43 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -29,11 +29,13 @@ public class HenPlus {
     private boolean           terminated;
     private String            prompt;
     private String            emptyPrompt;
+    private StringBuffer      commandBuffer;
 
     private HenPlus(Properties properties, String argv[]) throws IOException {
 	terminated = false;
 	this.properties = properties;
-	
+	commandBuffer = new StringBuffer();
+
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
 	    System.err.println("using GNU readline.");
@@ -47,7 +49,7 @@ public class HenPlus {
 	catch (Exception ignore) {}
 	
 	Readline.setWordBreakCharacters(" ");
-
+	
 	/*
 	 * initialize known JDBC drivers.
 	 */
@@ -73,12 +75,35 @@ public class HenPlus {
 	dispatcher.register(new ExitCommand());
 	dispatcher.register(new StatusCommand());
 	dispatcher.register(new ConnectCommand( argv, this ));
+	dispatcher.register(new LoadCommand());
 	Readline.setCompleter( dispatcher );
 	setDefaultPrompt();
     }
     
+    public void resetBuffer() {
+	commandBuffer.setLength(0);
+    }
+
+    /**
+     * add a new line. returns true if the line was complete.
+     */
+    public boolean addLine(String line) {
+	commandBuffer.append(line);
+	commandBuffer.append('\n');
+	String completeCommand = commandBuffer.toString();
+	Command c = dispatcher.getCommandFrom(completeCommand);
+	if (c == null) {
+	    return false;
+	}
+	if (!c.isComplete(completeCommand)) {
+	    return false; // wait until we are complete
+	}
+	resetBuffer();
+	dispatcher.execute(session, completeCommand);
+	return true;
+    }
+
     public void run() {
-	StringBuffer cmd = new StringBuffer();
 	String cmdLine = null;
 	String displayPrompt = prompt;
 	while (!terminated) {
@@ -98,16 +123,9 @@ public class HenPlus {
 	    catch (Exception e) { /* ignore */ }
 	    if (cmdLine == null)
 		continue;
-	    cmd.append(cmdLine);
-	    String completeCommand = cmd.toString();
-	    Command c = dispatcher.getCommandFrom(completeCommand);
-	    if (c != null && !c.isComplete(completeCommand)) {
-		displayPrompt = emptyPrompt;
-		continue; // wait until we are complete
-	    }
-	    dispatcher.execute(session, completeCommand);
-	    cmd.setLength(0);
-	    displayPrompt = prompt;
+	    boolean complete = false;
+	    complete = addLine(cmdLine);
+	    displayPrompt = (complete ? prompt : emptyPrompt);
 	}
 	
 	dispatcher.shutdown();
