@@ -5,8 +5,9 @@ henplus (0.9.1-1) unstable; urgency=low
     because these are probably common commands provided by databases
   * rename session only, if a session with the given name does not already
     exist
+  * add password-erase-while-typing hack.
   
- -- Henner Zeller <H.Zeller@acm.org>  (fill me)
+ -- Henner Zeller <H.Zeller@acm.org>  Sun, 26 Jan 2003 12:12:12 +0100
 
 henplus (0.9-1) unstable; urgency=low
 
