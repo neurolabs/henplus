@@ -44,6 +44,8 @@ public class HelpCommand extends AbstractCommand {
 	return (result != null) ? result.trim() : null;
     }
 
+    public boolean requiresValidSession(String cmd) { return false; }
+
     /**
      * Returns a list of strings that are possible at this stage.
      */

@@ -97,7 +97,11 @@ public class ConnectCommand extends AbstractCommand {
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) 
     {
-	if (partialCommand.equals("switch")) {
+	if (partialCommand.startsWith("switch")) {
+	    if (argumentCount(partialCommand) >
+		("".equals(lastWord) ? 1 : 2)) {
+		return null;
+	    }
 	    final Iterator it = sessions.tailMap(lastWord)
 		.keySet().iterator();
 	    return new Iterator() {

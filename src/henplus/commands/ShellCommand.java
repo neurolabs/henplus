@@ -36,6 +36,8 @@ public class ShellCommand extends AbstractCommand {
 	return (!command.endsWith(";"));
     }
 
+    public boolean requiresValidSession(String cmd) { return false; }
+
     /**
      * filename completion by default.
      */

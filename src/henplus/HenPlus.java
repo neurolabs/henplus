@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.2 2002-01-20 22:59:00 hzeller Exp $
+ * $Id: HenPlus.java,v 1.3 2002-01-20 23:30:11 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -29,7 +29,7 @@ public class HenPlus {
     private boolean           terminated;
     private String            prompt;
 
-    private HenPlus(Properties properties, String argv[]) {
+    private HenPlus(Properties properties, String argv[]) throws IOException {
 	terminated = false;
 	this.properties = properties;
 	
@@ -45,6 +45,8 @@ public class HenPlus {
 	}
 	catch (Exception ignore) {}
 	
+	Readline.setWordBreakCharacters(" ");
+
 	/*
 	 * initialize known JDBC drivers.
 	 */

@@ -27,6 +27,8 @@ public class ExitCommand extends AbstractCommand {
      * these commands should by default not be expanded.
      */
     public boolean participateInCommandCompletion() { return false; }
+
+    public boolean requiresValidSession(String cmd) { return false; }
     
     /**
      * execute the command given.
