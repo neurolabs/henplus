@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.17 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.18 2004-03-07 17:20:36 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -322,7 +322,6 @@ public class SQLStatementSeparator {
 		    if (current == '\'') state = STATEMENT;
 		    break;
 		case STRING_QUOTE:
-		    if (current == '\"') parsed.append("\"");
 		    vetoAppend = (current == '\n');
 		    state = STRING;
 		    break;
