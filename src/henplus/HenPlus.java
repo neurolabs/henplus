@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.63 2004-02-01 16:39:09 hzeller Exp $
+ * $Id: HenPlus.java,v 1.64 2004-02-02 13:36:37 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -35,23 +35,24 @@ public class HenPlus implements Interruptable {
 
     private final boolean               _fromTerminal;    
     private final SQLStatementSeparator _commandSeparator;
-    private final SessionManager _sessionManager;
-    private final CommandDispatcher     _dispatcher;
     private final StringBuffer          _historyLine;
-    private final SetCommand            _settingStore;
-    private final boolean               _quiet;
-    private final PropertyRegistry      _henplusProperties;
-    private final ListUserObjectsCommand _objectLister; 
 
-    private String            _previousHistoryLine;
-    private boolean           _terminated;
-    private String            _prompt;
-    private String            _emptyPrompt;
-    private File              _configDir;
-    private boolean           _alreadyShutDown;
-    private BufferedReader    _fileReader;
-    private OutputDevice      _output;
-    private OutputDevice      _msg;
+    private final boolean               _quiet;
+
+    private SetCommand             _settingStore;
+    private SessionManager         _sessionManager;
+    private CommandDispatcher      _dispatcher;
+    private PropertyRegistry       _henplusProperties;
+    private ListUserObjectsCommand _objectLister; 
+    private String                 _previousHistoryLine;
+    private boolean                _terminated;
+    private String                 _prompt;
+    private String                 _emptyPrompt;
+    private File                   _configDir;
+    private boolean                _alreadyShutDown;
+    private BufferedReader         _fileReader;
+    private OutputDevice           _output;
+    private OutputDevice           _msg;
 
     private volatile boolean   _interrupted;
 
@@ -62,12 +63,10 @@ public class HenPlus implements Interruptable {
 
 	_commandSeparator = new SQLStatementSeparator();
 	_historyLine = new StringBuffer();
-	boolean readlineLoaded = false;
 	// read options .. like -q
 
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
-	    readlineLoaded = true;
 	} 
         catch (UnsatisfiedLinkError ignore_me) {
 	    System.err.println("no readline found ("
@@ -105,7 +104,9 @@ public class HenPlus implements Interruptable {
 	
 	Readline.setWordBreakCharacters(" ,/()<>=\t\n"); // TODO..
 	setDefaultPrompt();
+    }
 
+    public void initializeCommands(String argv[]) {
         _henplusProperties = new PropertyRegistry();
         _henplusProperties
             .registerProperty("comments-remove",
@@ -597,6 +598,7 @@ public class HenPlus implements Interruptable {
     
     public static final void main(String argv[]) throws Exception {
 	instance = new HenPlus(argv);
+        instance.initializeCommands(argv);
 	instance.run();
 	instance.shutdown();
         /*
