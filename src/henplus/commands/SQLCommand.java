@@ -67,7 +67,7 @@ public class SQLCommand extends AbstractCommand {
      * complicated SQL statements are only complete with
      * semicolon. Simple commands may have no semicolon (like
      * 'commit' and 'rollback'). Yet others are not complete even
-     * if there is a semicolon at the end (like triggers and stored
+     * if we ecounter a semicolon (like triggers and stored
      * procedures). We support the SQL*PLUS syntax in that we consider these
      * kind of statements complete with a single slash ('/') at the
      * beginning of a line.

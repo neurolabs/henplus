@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.4 2002-05-06 06:56:57 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.5 2002-05-08 15:27:37 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -283,11 +283,6 @@ public class SQLStatementSeparator {
 	}
 	// we reached: POTENTIAL_END_FOUND. Store the rest, that
 	// has not been parsed in the input-buffer.
-	/* skip leading whitespaces of next statement .. */
-	while (pos < input.length() 
-	       && Character.isWhitespace (input.charAt(pos))) {
-	    ++pos;
-	}
 	input.delete(0, pos);
 	_currentState.setState(state);
     }
