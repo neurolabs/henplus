@@ -396,9 +396,9 @@ public class ImportCommand extends AbstractCommand {
                 return paren.iterator();
             }
             if (lastCommand.endsWith(" ")) {
-                
+                //...
             }
-            String tab = parser.getConfiguration().getTable();
+            String tab = parser.getConfig().getTable();
             return null;
         }
     }
