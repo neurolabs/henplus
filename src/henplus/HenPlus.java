@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.22 2002-02-11 20:53:23 hzeller Exp $
+ * $Id: HenPlus.java,v 1.23 2002-02-14 17:08:51 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -10,7 +10,6 @@ import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Stack;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,25 +28,12 @@ public class HenPlus {
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT     = "Hen*Plus> ";
 
-    private static final byte START           = 1;  // statement == start
-    private static final byte STATEMENT       = 1;
-    private static final byte START_COMMENT   = 3;
-    private static final byte COMMENT         = 4;
-    private static final byte PRE_END_COMMENT = 5;
-    private static final byte START_ANSI      = 6;
-    private static final byte ENDLINE_COMMENT = 7;
-    private static final byte STRING          = 8;
-    private static final byte SQLSTRING       = 9;
-    private static final byte POTENTIAL_END_FOUND = 10;
-
     public static final byte LINE_EXECUTED   = 1;
     public static final byte LINE_EMPTY      = 2;
     public static final byte LINE_INCOMPLETE = 3;
     
     private static HenPlus instance = null; // singleton.
     
-    private byte              _parseState;
-
     private CommandDispatcher dispatcher;
     private SQLSession        session;
     private Properties        properties;
@@ -55,19 +41,17 @@ public class HenPlus {
     private String            prompt;
     private String            emptyPrompt;
     private boolean           _alreadyShutDown;
-    private StringBuffer      _commandBuffer;
     private SetCommand        _settingStore;
-    private Stack             _inputBufferStack;
     private boolean           _fromTerminal;
     private BufferedReader    _fileReader;
     private boolean           _optQuiet;
+    private SQLStatementSeparator _commandSeparator;
 
     private HenPlus(Properties properties, String argv[]) throws IOException {
 	terminated = false;
 	this.properties = properties;
-	_commandBuffer = new StringBuffer();
-	_inputBufferStack = new Stack();
 	_alreadyShutDown = false;
+	_commandSeparator = new SQLStatementSeparator();
 	
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
@@ -145,19 +129,11 @@ public class HenPlus {
     }
     
     public void pushBuffer() {
-	_inputBufferStack.push(_commandBuffer);
-	_commandBuffer = new StringBuffer();
-	_parseState = START;  // FIXME: we have to push the state as well.
+	_commandSeparator.push();
     }
 
     public void popBuffer() {
-	_commandBuffer = (StringBuffer) _inputBufferStack.pop();
-	_parseState = START;  // FIXME: we have to pop the state as well.
-    }
-
-    public void resetBuffer() {
-	_commandBuffer.setLength(0);
-	_parseState = START;
+	_commandSeparator.pop();
     }
 
     public String readlineFromFile() throws IOException {
@@ -177,7 +153,7 @@ public class HenPlus {
     public byte addLine(String line) {
 	byte result = LINE_EMPTY;
 	/*
-	 * special oracle comment 'rem'ark
+	 * special oracle comment 'rem'ark; should be in the comment parser.
 	 */
 	int startWhite = 0;
 	while (startWhite < line.length() 
@@ -187,39 +163,35 @@ public class HenPlus {
 	if (line.length() >= (3 + startWhite)
 	    && (line.substring(startWhite,startWhite+3)
 		.toUpperCase()
-		.equals("REM"))) {
-	    return LINE_EMPTY;
-	}
+		.equals("REM"))
+	    && (line.length() == 3 || Character.isWhitespace(line.charAt(3))))
+	    {
+		return LINE_EMPTY;
+	    }
 
 	StringBuffer lineBuf = new StringBuffer(line);
 	lineBuf.append('\n');
-	while (lineBuf.length() > 0) {
-	    parsePartialInput(lineBuf, _commandBuffer);
-	    if (_parseState == POTENTIAL_END_FOUND) {
-		//System.err.println(">'" + _commandBuffer.toString() + "'<");
-		String completeCommand;
-		completeCommand = varsubst(_commandBuffer.toString(),
-					   _settingStore.getVariableMap());
-		Command c = dispatcher.getCommandFrom(completeCommand);
-		if (c == null) {
-		    _parseState = START;
-		    resetBuffer();
-		    result = LINE_EMPTY;
-		}
-		else if(!c.isComplete(completeCommand)) {
-		    _parseState = START;
-		    result = LINE_INCOMPLETE;
-		}
-		else {
-		    //System.err.println("SUBST: " + completeCommand);
-		    dispatcher.execute(session, completeCommand);
-		    resetBuffer();
-		    result = LINE_EXECUTED;
-		}
+	_commandSeparator.append(lineBuf.toString());
+	result = LINE_INCOMPLETE;
+	while (_commandSeparator.hasNext()) {
+	    String completeCommand = _commandSeparator.next();
+	    //System.err.println(">'" + completeCommand + "'<");
+	    completeCommand = varsubst(completeCommand,
+				       _settingStore.getVariableMap());
+	    Command c = dispatcher.getCommandFrom(completeCommand);
+	    if (c == null) {
+		_commandSeparator.consumed();
+		result = LINE_EMPTY;
+	    }
+	    else if(!c.isComplete(completeCommand)) {
+		_commandSeparator.cont();
+		result = LINE_INCOMPLETE;
 	    }
 	    else {
-		//System.err.println("#'" + _commandBuffer.toString() + "'#");
-		result = LINE_INCOMPLETE;
+		//System.err.println("SUBST: " + completeCommand);
+		dispatcher.execute(session, completeCommand);
+		_commandSeparator.consumed();
+		result = LINE_EXECUTED;
 	    }
 	}
 	return result;
@@ -228,7 +200,6 @@ public class HenPlus {
     public void run() {
 	String cmdLine = null;
 	String displayPrompt = prompt;
-	resetBuffer();
 	while (!terminated) {
 	    try {
 		cmdLine = (_fromTerminal)
@@ -305,91 +276,6 @@ public class HenPlus {
 	setPrompt( PROMPT );
     }
 
-    /**
-     * parse partial input and set state to POTENTIAL_END_FOUND if we
-     * either reached end-of-line or a semicolon.
-     */
-    private void parsePartialInput (StringBuffer input, StringBuffer parsed) {
-	int pos = 0;
-	char current;
-	byte oldstate = -1;
-	byte state = _parseState; // local: faster access.
-	
-	while (state != POTENTIAL_END_FOUND && pos < input.length()) {
-	    current = input.charAt(pos);
-	    //System.out.print ("Pos: " + pos + "\t");
-	    switch (state) {
-	    case STATEMENT :
-		if (current == '\n' || current == '\r')
-		    state = POTENTIAL_END_FOUND;
-		else if (current == ';')  state = POTENTIAL_END_FOUND;
-		else if (current == '/')  state = START_COMMENT;
-		else if (current == '"')  state = STRING;
-		else if (current == '\'') state = SQLSTRING;
-		else if (current == '-')  state = START_ANSI;
-		break;
-	    case START_COMMENT:
-		if (current == '*')         state = COMMENT;
-		/*
-		 * Endline comment in the style '// comment' is not a
-		 * good idea, since many JDBC-urls contain the '//' as
-		 * part of the URL .. and this should _not_ be regarded as
-		 * commend of course.
-		 */
-		//else if (current == '/')    state = ENDLINE_COMMENT;
-		else { parsed.append ('/'); state = STATEMENT; }
-		break;
-	    case COMMENT:
-		if (current == '*') state = PRE_END_COMMENT;
-		break;
-	    case PRE_END_COMMENT:
-		if (current == '/')      state = STATEMENT;
-		else if (current == '*') state = PRE_END_COMMENT;
-		else state = COMMENT;
-		break;
-	    case START_ANSI:
-		if (current == '-')        state = ENDLINE_COMMENT;
-		else { parsed.append('-'); state = STATEMENT; }
-		break;
-	    case ENDLINE_COMMENT:
-		if (current == '\n')      state = POTENTIAL_END_FOUND;
-		else if (current == '\r') state = POTENTIAL_END_FOUND;
-		break;
-	    case STRING:     
-		if (current == '"') state = STATEMENT;
-		break;
-	    case SQLSTRING:
-		if (current == '\'') state = STATEMENT;
-		break;
-	    }
-	    
-	    /* append to parsed; ignore comments */
-	    if ((state == STATEMENT && oldstate != PRE_END_COMMENT)
-		|| state == STRING
-		|| state == SQLSTRING
-		|| state == POTENTIAL_END_FOUND) {
-		parsed.append(current);
-	    }
-	    
-	    oldstate = state;
-	    pos++;
-	}
-	// we reached: POTENTIAL_END_FOUND. Store the rest in the input-buf
-	StringBuffer rest = new StringBuffer();
-	/* skip leading whitespaces of next statement .. */
-	while (pos < input.length() 
-	       && Character.isWhitespace (input.charAt(pos))) {
-	    ++pos;
-	}
-	while (pos < input.length()) { 
-	    rest.append(input.charAt(pos)); 
-	    pos++; 
-	}
-	input.setLength(0);
-	input.append(rest.toString()); // stuid jdk 1.2.2
-	_parseState = state;
-    }
-    
     public String varsubst (String in, Map variables) {
         int pos             = 0;
         int endpos          = 0;
@@ -510,7 +396,7 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.22 $]--\n";
++"----------------------------------------------------[$Revision: 1.23 $]--\n";
 	System.err.println(cpy);
 
 	instance = new HenPlus(properties, argv);
