@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.15 2003-01-26 21:15:12 hzeller Exp $
+ * $Id: SQLSession.java,v 1.16 2003-01-26 21:51:49 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -184,9 +184,7 @@ public class SQLSession implements Interruptable {
      * This is after a hack found in 
      * http://java.sun.com/features/2002/09/pword_mask.html
      */
-    private String promptPassword(String prompt) 
-        throws IOException {
-        
+    private String promptPassword(String prompt) throws IOException {
         String password = "";
         PasswordEraserThread maskingthread = new PasswordEraserThread(prompt);
         try {
@@ -198,7 +196,8 @@ public class SQLSession implements Interruptable {
                     c = (char)System.in.read();
                     if (c == '\n') {
                         break;
-                    } else {
+                    } 
+                    else {
                         continue;
                     }
                 } 
