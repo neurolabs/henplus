@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.33 2002-03-01 14:34:54 hzeller Exp $
+ * $Id: HenPlus.java,v 1.34 2002-04-22 16:16:54 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -46,7 +46,7 @@ public class HenPlus {
     private BufferedReader    _fileReader;
     private boolean           _optQuiet;
     private SQLStatementSeparator _commandSeparator;
-
+    private final StringBuffer    _historyLine;
     private boolean            _quiet;
 
     private HenPlus(String argv[]) throws IOException {
@@ -54,6 +54,7 @@ public class HenPlus {
 	_alreadyShutDown = false;
 	_quiet = false;
 	_commandSeparator = new SQLStatementSeparator();
+	_historyLine = new StringBuffer();
 	boolean readlineLoaded = false;
 	// read options .. like -q
 
@@ -109,6 +110,10 @@ public class HenPlus {
 
 	dispatcher.register(new AutocommitCommand()); // replace with 'set'
 	dispatcher.register(new ShellCommand());
+
+	// dummy command:
+	dispatcher.register(new SpoolCommand());
+
 	dispatcher.register(_settingStore);
 	Readline.setCompleter( dispatcher );
 
@@ -155,9 +160,10 @@ public class HenPlus {
     }
 
     /**
-     * add a new line. returns true if the line completes a command.
+     * add a new line. returns one of LINE_EMPTY, LINE_INCOMPLETE
+     * or LINE_EXECUTED.
      */
-    public byte addLine(String line) {
+    public byte executeLine(String line) {
 	byte result = LINE_EMPTY;
 	/*
 	 * special oracle comment 'rem'ark; should be in the comment parser.
@@ -203,6 +209,10 @@ public class HenPlus {
 	}
 	return result;
     }
+    
+    public String getPartialLine() {
+	return _historyLine.toString() + Readline.getLineBuffer();
+    }
 
     public void run() {
 	String cmdLine = null;
@@ -210,7 +220,7 @@ public class HenPlus {
 	while (!terminated) {
 	    try {
 		cmdLine = (_fromTerminal)
-		    ? Readline.readline( displayPrompt )
+		    ? Readline.readline( displayPrompt, false )
 		    : readlineFromFile();
 	    }
 	    catch (EOFException e) {
@@ -230,17 +240,32 @@ public class HenPlus {
 	    SigIntHandler.getInstance().reset();
 	    if (cmdLine == null)
 		continue;
-	    if (addLine(cmdLine) == LINE_INCOMPLETE) {
+	    /*
+	     * if there is already some line in the history, then add
+	     * newline. But if the only thing we added was a delimiter (';'),
+	     * then this would be annoying.
+	     */
+	    if (_historyLine.length() > 0
+		&& !cmdLine.trim().equals(";")) {
+		_historyLine.append("\n");
+	    }
+	    _historyLine.append(cmdLine);
+	    byte lineExecState = executeLine(cmdLine);
+	    if (lineExecState == LINE_INCOMPLETE) {
 		displayPrompt = emptyPrompt;
 	    }
 	    else {
 		displayPrompt = prompt;
 	    }
+	    if (lineExecState == LINE_EXECUTED) {
+		Readline.addToHistory(_historyLine.toString());
+		_historyLine.setLength(0);
+	    }
 	}
     }
 
     /**
-     * called at the very end; on signal, called from the shutdown-hook
+     * called at the very end; on signal or called from the shutdown-hook
      */
     private void shutdown() {
 	if (_alreadyShutDown) {
@@ -291,6 +316,7 @@ public class HenPlus {
 	    tmp.append(' ');
 	}
 	emptyPrompt = tmp.toString();
+	// readline won't know anything about these extra characters:
 //  	if (_fromTerminal) {
 //  	    prompt = Terminal.BOLD + prompt + Terminal.NORMAL;
 //  	}
@@ -320,7 +346,9 @@ public class HenPlus {
         while ((pos = in.indexOf ('$', pos)) >= 0) {
 	    startVar = pos;
             if (in.charAt(pos+1) == '$') { // quoting '$'
-                pos++;
+		result.append(in.substring (endpos, pos));
+		endpos = pos+1;
+		pos+= 2;
                 continue;
             }
             
@@ -346,7 +374,7 @@ public class HenPlus {
                 }
                 ++endpos;
             }
-	    if (endpos >= in.length()) {
+	    if (endpos > in.length()) {
 		if (variables.containsKey(varname)) {
 		    System.err.println("warning: missing '}' for variable '"
 				       + varname + "'.");

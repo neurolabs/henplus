@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.10 2002-02-27 07:56:21 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.11 2002-04-22 16:16:54 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -276,7 +276,7 @@ public final class SetCommand extends AbstractCommand {
 		+"\t$VARNAME, then it is not replaced by an empty string but\n"
 		+"\tstays '$VARNAME'. This is because some scripts use wierd\n"
 		+"\tidentifiers  containting  dollars  (esp. Oracle scripts)\n"
-		+"\tIf you want to quote the dollarsign, write\n"
+		+"\tIf you want to quote the dollarsign explicitly, write\n"
 		+"\ttwo dollars: $$FOO means $FOO";
 	}
 	else if ("unset".equals(cmd)) {

@@ -150,19 +150,29 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	return result;
     }
 
+    /**
+     * see, if we find exactly one alternative, that is spelled
+     * correctly. If we have more than one alternative but one, that
+     * has the same length of the requested tablename, return this.
+     */
     public String correctTableName(String tabName) {
-	/* see, if we find exactly one alternative, that is spelled
-	 * correctly.
-	 */
 	Iterator it = completeTableName(tabName);	
 	if (it == null) return null;
-	String alternative = null;
+	boolean foundSameLengthMatch = false;
+	int count = 0;
+	String correctedName = null;
 	if (it.hasNext()) {
-	    alternative = (String) it.next();
-	    // more than one match is ambiguous..
-	    if (it.hasNext()) alternative = null;
+	    String alternative = (String) it.next();
+	    boolean sameLength = (alternative != null
+				  && alternative.length() == tabName.length());
+	    
+	    foundSameLengthMatch |= sameLength;
+	    ++count;
+	    if (correctedName == null || sameLength) {
+		correctedName = alternative;
+	    }
 	}
-	return alternative;
+	return (count == 1 || foundSameLengthMatch) ? correctedName : null;
     }
 
     /**

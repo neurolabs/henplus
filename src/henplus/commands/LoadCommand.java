@@ -13,6 +13,9 @@ import henplus.CommandDispatcher;
 
 import java.util.StringTokenizer;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.Stack;
+import java.util.HashSet;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -23,6 +26,17 @@ import java.io.IOException;
  */
 public class LoadCommand extends AbstractCommand {
     /**
+     * to determine recursively loaded files, we remember all open files.
+     */
+    private final Set/*<File>*/   _openFiles;
+
+    /**
+     *  current working directory stack - to always open files relative to
+     * the currently open file.
+     */
+    private final Stack/*<File>*/ _cwdStack;
+
+    /**
      * returns the command-strings this command can handle.
      */
     public String[] getCommandList() {
@@ -30,7 +44,20 @@ public class LoadCommand extends AbstractCommand {
 	    "load", "start", "@", "@@"
 	};
     }
-    
+
+    public LoadCommand() {
+	_openFiles = new HashSet();
+	_cwdStack = new Stack();
+	try {
+	    File cwd = new File(".");
+	    _cwdStack.push(cwd.getCanonicalFile());
+	}
+	catch (IOException e) {
+	    System.err.println("cannot determine current working directory: " 
+			       + e);
+	}
+    }
+
     /**
      * filename completion by default.
      */
@@ -53,20 +80,32 @@ public class LoadCommand extends AbstractCommand {
 	    int  commandCount = 0;
 	    String filename = (String) st.nextElement();
 	    long startTime = System.currentTimeMillis();
+	    File currentFile = null;
 	    try {
 		henplus.pushBuffer();
 		henplus.getDispatcher().startBatch();
 		File f = new File(filename);
+		if (!f.isAbsolute()) {
+		    f = new File((File)_cwdStack.peek(), filename);
+		}
+		f = f.getCanonicalFile();
+		if (_openFiles.contains(f)) {
+		    throw new IOException("recursive inclusion alert: skipping file " + f.getName());
+		}
 		System.err.println(f.getName());
-		BufferedReader reader = new BufferedReader(new FileReader(f));
+		currentFile = f;
+		_openFiles.add(currentFile);
+		_cwdStack.push(currentFile.getParentFile());
+		BufferedReader reader = new BufferedReader(new FileReader(currentFile));
 		String line;
 		while ((line = reader.readLine()) != null) {
-		    if (henplus.addLine(line) == HenPlus.LINE_EXECUTED) {
+		    if (henplus.executeLine(line) == HenPlus.LINE_EXECUTED) {
 			++commandCount;
 		    }
 		}
 	    }
 	    catch (Exception e) {
+		//e.printStackTrace();
 		System.err.println(e.getMessage());
 		if (st.hasMoreElements()) {
 		    System.err.println("..skipping to next file.");
@@ -77,6 +116,10 @@ public class LoadCommand extends AbstractCommand {
 	    finally {
 		henplus.popBuffer(); // no open state ..
 		henplus.getDispatcher().endBatch();
+		if (currentFile != null) {
+		    _openFiles.remove(currentFile);
+		    _cwdStack.pop();
+		}
 	    }
 	    long execTime = System.currentTimeMillis() - startTime;
 	    System.err.print(commandCount + " commands in ");
@@ -109,9 +152,13 @@ public class LoadCommand extends AbstractCommand {
     }
 
     public String getLongDescription(String cmd) {
-	return "\topens one file or a sequence of files and and reads the\n"
-	    +  "\tcontained sql-commands line by line.\n"
-	    +  "\tThe commands 'load' and 'start' do exaclty the same;\n"
+	return "\tOpens one file or a sequence of files and reads the\n"
+	    +  "\tcontained sql-commands line by line. If the path of the\n"
+	    +  "\tfilename is not absolute, it is interpreted relative to\n"
+	    +  "\tthe current working directory. If the load command itself\n"
+	    +  "\tis executed in some loaded file, then the current working\n"
+	    +  "\tdirectory is the directory that file is in.\n"
+	    +  "\tThe commands 'load' and 'start' do exactly the same;\n"
 	    +  "\t'start', '@' and '@@' are provided for compatibility \n"
 	    +  "\twith oracle SQLPLUS scripts. However, there is no\n"
 	    +  "\tdistinction between '@' and '@@' as in SQLPLUS; henplus\n"

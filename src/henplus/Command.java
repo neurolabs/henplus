@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Command.java,v 1.5 2002-02-26 21:15:17 hzeller Exp $
+ * $Id: Command.java,v 1.6 2002-04-22 16:16:53 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -73,17 +73,16 @@ public interface Command {
      *  <li>'select * from foobar' is not complete, since we can
      *      expect a where clause. If it has a semicolon at the end, we
      *      know, that is is complete. So newline is <em>not</em> a delimiter
-     *      while ';' is (return command.endsWith(";")). Of course, the command
-     *      has to take care of string-constants as well (consider a semicolon
-     *      or newline within a string constant)
+     *      while ';' is (return command.endsWith(";")). 
      *  <li>definitions of stored procedures are even more complicated: it
      *      depends on the syntax whether a semicolon is part of the
      *      command or can be regarded as delimiter. Here, neither ';' nor
      *      newline can be regarded as delimiter per-se. Only the Command
-     *      implementation can decide upon this.
+     *      implementation can decide upon this. In Oracle, a single '/' on
+     *      one line is used to denote this command-complete.
      * </ul>
      * Note, this method should only apply a very lazy syntax check so it does
-     * not get confused unecessarily..
+     * not get confused and uses too much cycles unecessarily..
      */
     boolean isComplete(String command);
 
@@ -117,6 +116,8 @@ public interface Command {
      *      <code>help [command]</code></li>
      * </ul>
      * <p>Should contain no newline, no leading spaces.
+     * This synopsis is printed in the detailed help of a command or if the
+     * execute()-method returned a SYNTAX_ERROR.
      *
      * @param cmd the command the synopsis is for. This is one of the possible
      *            commands returned by getCommandList().

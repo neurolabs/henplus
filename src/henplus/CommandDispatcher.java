@@ -188,7 +188,8 @@ public class CommandDispatcher implements ReadlineCompleter {
 
     //-- Readline completer ..
     public String completer(String text, int state) {
-	String completeCommandString = Readline.getLineBuffer().trim();
+	final HenPlus henplus = HenPlus.getInstance();
+	String completeCommandString = henplus.getPartialLine().trim();
 	boolean variableExpansion = false;
 
 	/*
@@ -240,7 +241,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    if (!c.participateInCommandCompletion())
 			continue;
 		    if (c.requiresValidSession(nextKey) 
-			&& HenPlus.getInstance().getSession() == null) {
+			&& henplus.getSession() == null) {
 			continue;
 		    }
 		}

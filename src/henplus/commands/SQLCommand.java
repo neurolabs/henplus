@@ -106,10 +106,8 @@ public class SQLCommand extends AbstractCommand {
 	long lapTime  = -1;
 	long execTime = -1;
 	try {
-	    /*
-	    SigIntHandler.getInstance()
-		.registerInterrupt(Thread.currentThread());
-	    */
+// 	    SigIntHandler.getInstance()
+// 		.registerInterrupt(Thread.currentThread());
 	    if (command.startsWith("commit")) {
 		System.err.print("commit..");
 		session.getConnection().commit();

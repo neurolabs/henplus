@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.4 2002-03-12 22:32:18 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.5 2002-04-22 16:16:54 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -265,6 +265,32 @@ public final class DriverCommand extends AbstractCommand {
 	    return cmd + " <shortname> <driver-class> [sample-url]";
 	}
 	return cmd;
+    }
+
+    public String getLongDescription(String cmd) {
+	String dsc = null;
+	if ("register".equals(cmd)) {
+	    dsc= "\tRegister a  new driver.   Basically this  adds the  JDBC\n"
+		+"\tdriver represented by its driver class. You have to give\n"
+		+"\ta short name,  that is used in the user interface.   You\n"
+		+"\tmight  give  a  sample  JDBC-URL  that is shown with the\n"
+		+"\tlist-drivers command.   This  command tries  to load the\n"
+		+"\tdriver from the CLASSPATH;  if it is not found,  then it\n"
+		+"\tis not added to the list of usable drivers.";
+	}
+	else if ("unregister".equals(cmd)) {
+	    dsc= "\tUnregister the driver with the given shortname. There\n"
+		+"\tis a command line completion for the shortname, but you\n"
+		+"\tcan list them as well with the list-drivers command.";
+	}
+	else if ("list-drivers".equals(cmd)) {
+	    dsc= "\tList the drivers that are registered. The drivers, that\n"
+		+"\tare actually loaded have a little star (*) in the first\n"
+		+"\tcolumn. If it is not loaded, than you have to augment your\n"
+		+"\tCLASSPATH in order to be able to connect to some database\n"
+		+"\tof that kind.";
+	}
+	return dsc;
     }
 }
 
