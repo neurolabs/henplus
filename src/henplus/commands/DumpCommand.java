@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.15 2003-02-01 21:41:42 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.16 2003-05-01 16:50:43 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -18,6 +18,7 @@ import henplus.Version;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.util.NameCompleter;
 
 /**
  * Dump out and read that dump of a table; database-independently.
@@ -45,6 +46,7 @@ public class DumpCommand
     extends AbstractCommand
     implements Interruptable 
 {
+    private final String FILE_ENCODING = "UTF-8";
     private final static int DUMP_VERSION = 1;
     private final static int PROGRESS_WIDTH = 65;
     private final static String NULL_STR = "NULL";
@@ -142,7 +144,6 @@ public class DumpCommand
      */
     public int execute(SQLSession session, String cmd, String param) {
 	//final String FILE_ENCODING = System.getProperty("file.encoding");
-	final String FILE_ENCODING = "UTF-8";
 	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 
@@ -226,88 +227,68 @@ public class DumpCommand
 		    return SYNTAX_ERROR;
 		}
 	    }
-
-	    LineNumberReader in = null;
-	    try {
-		SigIntHandler.getInstance().pushInterruptable(this);
-                String fileEncoding = FILE_ENCODING;
-                boolean retryPossible = true;
-                do {
-                    try {
-                        in = openInputReader(fileName, fileEncoding);
-                        while (skipWhite(in)) {
-                            int result = readTableDump(in, fileEncoding,
-                                                       session, true, commitPoint);
-                            retryPossible = false;
-                            if (!_running) {
-                                System.err.print("interrupted.");
-                                return result;
-                            }
-                            if (result != SUCCESS) {
-                                return result;
-                            }
-                        }
-                    }
-                    catch (EncodingMismatchException e) {
-                        // did we already retry with another encoding?
-                        if (!fileEncoding.equals(FILE_ENCODING)) {
-                            throw new Exception("got file encoding problem twice");
-                        }
-                        fileEncoding = e.getEncoding();
-                        System.err.println("got a different encoding; retry with " + fileEncoding);
-                    }
-                }
-                while (retryPossible);
-		return SUCCESS;
-	    }
-	    catch (Exception e) {
-		System.err.println("failed: " + e.getMessage());
-		return EXEC_FAILED;
-	    }
-	    finally {
-		try { 
-		    if (in != null) in.close(); 
-		} 
-		catch (IOException e) {
-		    System.err.println("closing file failed.");
-		}
-	    }
+            return retryReadDump(fileName, session, commitPoint);
 	}
 	
 	else if ("verify-dump".equals(cmd)) {
 	    if (argc != 1) return SYNTAX_ERROR;
 	    String fileName = (String) st.nextElement();
-	    LineNumberReader in = null;
-	    try {
-		SigIntHandler.getInstance().pushInterruptable(this);
-		in = openInputReader(fileName, FILE_ENCODING);
-		while (skipWhite(in)) {
-		    int result = readTableDump(in, FILE_ENCODING,
-					       session, false, -1);
-		    if (!_running) {
-			System.err.print("interrupted.");
-			return result;
-		    }
-		    if (result != SUCCESS) {
-			return result;
-		    }
-		}
-		return SUCCESS;
-	    }
-	    catch (Exception e) {
-		System.err.println("failed: " + e.getMessage());
-		return EXEC_FAILED;
-	    }
-	    finally {
-		try { 
-		    if (in != null) in.close(); 
-		} 
-		catch (IOException e) {
-		    System.err.println("closing file failed.");
-		}
-	    }
+            return retryReadDump(fileName, null, -1);
 	}
 	return SYNTAX_ERROR;
+    }
+
+    /**
+     * reads a dump and does a retry if the file encoding does
+     * not match.
+     */
+    private int retryReadDump(String fileName, SQLSession session, int commitPoint) {
+        LineNumberReader in = null;
+        boolean hot = (session != null);
+        try {
+            SigIntHandler.getInstance().pushInterruptable(this);
+            String fileEncoding = FILE_ENCODING;
+            boolean retryPossible = true;
+            do {
+                try {
+                    in = openInputReader(fileName, fileEncoding);
+                    while (skipWhite(in)) {
+                        int result = readTableDump(in, fileEncoding,
+                                                   session, hot, commitPoint);
+                        retryPossible = false;
+                        if (!_running) {
+                            System.err.print("interrupted.");
+                            return result;
+                        }
+                        if (result != SUCCESS) {
+                            return result;
+                        }
+                    }
+                }
+                catch (EncodingMismatchException e) {
+                    // did we already retry with another encoding?
+                    if (!fileEncoding.equals(FILE_ENCODING)) {
+                        throw new Exception("got file encoding problem twice");
+                    }
+                    fileEncoding = e.getEncoding();
+                    System.err.println("got a different encoding; retry with " + fileEncoding);
+                }
+            }
+            while (retryPossible);
+            return SUCCESS;
+        }
+        catch (Exception e) {
+            System.err.println("failed: " + e.getMessage());
+            return EXEC_FAILED;
+        }
+        finally {
+            try { 
+                if (in != null) in.close(); 
+            } 
+            catch (IOException e) {
+                System.err.println("closing file failed.");
+            }
+        }
     }
 
     private PrintStream openOutputStream(String fileName, 

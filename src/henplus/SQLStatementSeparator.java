@@ -1,12 +1,15 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.13 2003-01-27 17:50:14 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.14 2003-05-01 16:50:43 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
 import java.util.Stack;
+
+import henplus.property.PropertyHolder;
+import henplus.property.BooleanPropertyHolder;
 
 /**
  * Simple parser that separates SQLStatements.
@@ -33,6 +36,10 @@ import java.util.Stack;
  }
  *----------------------- 
  *</pre>
+ *
+ * FIXME: this is a bit rough and accummulated some ideas. Should be 
+ * cleaned up.
+ *
  * @author Henner Zeller <H.Zeller@acm.org>
  */
 public class SQLStatementSeparator {
@@ -116,6 +123,7 @@ public class SQLStatementSeparator {
      */
     public void discard() {
 	_currentState.getInputBuffer().setLength(0);
+	_currentState.getCommandBuffer().setLength(0);
 	_currentState.setState( NEW_STATEMENT );
     }
 
@@ -156,6 +164,13 @@ public class SQLStatementSeparator {
 	if (_currentState.getState() != POTENTIAL_END_FOUND)
 	    throw new IllegalStateException ("next() called without hasNext()");
 	return _currentState.getCommandBuffer().toString();
+    }
+
+    /**
+     * returns a property holder for the remove comments property.
+     */
+    public PropertyHolder getRemoveCommentsProperty() {
+        return new RemoveCommentsProperty();
     }
 
     /**
@@ -334,7 +349,7 @@ public class SQLStatementSeparator {
 	    oldstate = state;
 	    pos++;
 	    /*
-	     * we maintain the state of 'just seen newline' as long
+8	     * we maintain the state of 'just seen newline' as long
 	     * as we only skip whitespaces..
 	     */
 	    lastEoline &= Character.isWhitespace(current);
@@ -343,6 +358,46 @@ public class SQLStatementSeparator {
 	// has not been parsed in the input-buffer.
 	input.delete(0, pos);
 	_currentState.setState(state);
+    }
+
+    private class RemoveCommentsProperty extends BooleanPropertyHolder {
+
+        public RemoveCommentsProperty() {
+            super(SQLStatementSeparator.this._removeComments);
+        }
+
+        public void booleanPropertyChanged(boolean value){
+            removeComments( value );
+        }
+        
+        /**
+         * return a short descriptive string.
+         */
+        public String getShortDescription() {
+            return "switches the removal of SQL-comments";
+        }
+        
+        public String getLongDescription() {
+            String dsc = null;
+            dsc= "\tSwitch the behaviour to remove all comments\n"
+                +"\tfound in the string sent to the database. Some databases\n"
+                +"\tcan not handle comments in JDBC-Strings.\n\nValues\n"
+                
+                +"\ttrue\n"
+                +"\t\tDEFAULT. Remove all SQL92 comments found in the given\n"
+                +"\t\tSQL Strings before sending them to the database.\n\n"
+                
+                +"\tfalse\n"
+                +"\t\tSwitch off the default behaviour to remove all\n"
+                +"\t\tcomments found in the string sent to the database.\n"
+                +"\t\tUsually, this is not necessary, but there are\n"
+                +"\t\tconditions where comments actually convey a meaning\n"
+                +"\t\tto the database. For instance hinting in oracle works\n"
+                +"\t\twith comments, like\n"
+                +"\t\t   select /*+ index(foo,foo_fk_idx) */ ....\n"
+                +"\t\t..so removing of comments should be off in this case";
+            return dsc;
+        }
     }
 }
 

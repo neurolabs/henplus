@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.13 2003-04-29 21:49:53 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.14 2003-05-01 16:50:45 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -37,7 +37,7 @@ public final class SetCommand extends AbstractCommand {
 
     static {
 	SET_META = new ColumnMetaData[2];
-	SET_META[0] = new ColumnMetaData("Variable");
+	SET_META[0] = new ColumnMetaData("Name");
 	SET_META[1] = new ColumnMetaData("Value");
 	//SET_META[2] = new ColumnMetaData("built-in");
 	//SET_META[3] = new ColumnMetaData("user");

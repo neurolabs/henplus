@@ -1,10 +1,10 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: NameCompleter.java,v 1.3 2002-10-04 17:36:54 hzeller Exp $ 
+ * $Id: NameCompleter.java,v 1.1 2003-05-01 16:50:45 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package henplus.commands;
+package henplus.util;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,6 +35,13 @@ public class NameCompleter {
 
     public NameCompleter(Collection c) {
 	this(c.iterator());
+    }
+
+    public NameCompleter(String names[]) {
+        this();
+        for (int i=0; i < names.length; ++i) {
+            addName(names[i]);
+        }
     }
 
     public void addName(String name) {

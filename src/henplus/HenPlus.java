@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.55 2003-02-01 13:19:39 hzeller Exp $
+ * $Id: HenPlus.java,v 1.56 2003-05-01 16:50:43 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -33,28 +33,31 @@ public class HenPlus implements Interruptable {
     public static final byte LINE_INCOMPLETE = 3;
     
     private static HenPlus instance = null; // singleton.
-    
-    private CommandDispatcher dispatcher;
-    private SQLSession        session;
-    private boolean           terminated;
-    private String            prompt;
-    private String            emptyPrompt;
+
+    private final boolean               _fromTerminal;    
+    private final SQLStatementSeparator _commandSeparator;
+    private final CommandDispatcher     _dispatcher;
+    private final StringBuffer          _historyLine;
+    private final SetCommand            _settingStore;
+    private final boolean               _quiet;
+    private final PropertyRegistry      _henplusProperties;
+
+    private String            _previousHistoryLine;
+    private SQLSession        _currentSession;
+    private boolean           _terminated;
+    private String            _prompt;
+    private String            _emptyPrompt;
     private File              _configDir;
     private boolean           _alreadyShutDown;
-    private SetCommand        _settingStore;
-    private boolean           _fromTerminal;
     private BufferedReader    _fileReader;
-    private boolean           _optQuiet;
-    private SQLStatementSeparator _commandSeparator;
-    private final StringBuffer    _historyLine;
-    private String             _previousHistoryLine;
-    private boolean            _quiet;
+
     private volatile boolean   _interrupted;
 
     private HenPlus(String argv[]) throws IOException {
-	terminated = false;
+	_terminated = false;
 	_alreadyShutDown = false;
-	_quiet = false;
+	boolean quiet = false;
+
 	_commandSeparator = new SQLStatementSeparator();
 	_historyLine = new StringBuffer();
 	boolean readlineLoaded = false;
@@ -72,10 +75,10 @@ public class HenPlus implements Interruptable {
 
 
 	_fromTerminal = Readline.hasTerminal();
-	if (!_fromTerminal && !_quiet) {
+	if (!_fromTerminal && !quiet) {
 	    System.err.println("reading from stdin");
 	}
-	_quiet = _quiet || !_fromTerminal; // not from terminal: always quiet.
+	_quiet = quiet || !_fromTerminal; // not from terminal: always quiet.
 
 	// output of special characters.
 	Terminal.setTerminalAvailable(_fromTerminal);
@@ -89,56 +92,60 @@ public class HenPlus implements Interruptable {
 	}
 	catch (Exception ignore) {}
 	
-	Readline.setWordBreakCharacters(" ,/()<>=\t\n");
+	Readline.setWordBreakCharacters(" ,/()<>=\t\n"); // TODO..
 	setDefaultPrompt();
 
-        // fixme: to many cross dependencies of commands now. clean up.
+        _henplusProperties = new PropertyRegistry();
+        _henplusProperties
+            .registerProperty("comments-remove",
+                              _commandSeparator.getRemoveCommentsProperty());
+        
+        // FIXME: to many cross dependencies of commands now. clean up.
 	_settingStore = new SetCommand(this);
 	ListUserObjectsCommand objectLister = new ListUserObjectsCommand(this);
-	dispatcher = new CommandDispatcher(_settingStore);
-	dispatcher.register(new HelpCommand());
+	_dispatcher = new CommandDispatcher(_settingStore);
+	_dispatcher.register(new HelpCommand());
 
         /*
          * this one prints as well the initial copyright header.
          */
-	dispatcher.register(new AboutCommand(_quiet));
+	_dispatcher.register(new AboutCommand(_quiet));
 
-	dispatcher.register(new ExitCommand());
-	dispatcher.register(new EchoCommand());
+	_dispatcher.register(new ExitCommand());
+	_dispatcher.register(new EchoCommand());
 	PluginCommand pluginCommand = new PluginCommand(this);
-	dispatcher.register(pluginCommand);
-	dispatcher.register(new DriverCommand(this));
+	_dispatcher.register(pluginCommand);
+	_dispatcher.register(new DriverCommand(this));
 	AliasCommand aliasCommand = new AliasCommand(this);
-	dispatcher.register(aliasCommand);
+	_dispatcher.register(aliasCommand);
         LoadCommand loadCommand = new LoadCommand();
-	dispatcher.register(loadCommand);
+	_dispatcher.register(loadCommand);
 
-	dispatcher.register(new ConnectCommand( argv, this ));
-	dispatcher.register(new StatusCommand());
+	_dispatcher.register(new ConnectCommand( argv, this ));
+	_dispatcher.register(new StatusCommand());
 
-	dispatcher.register(objectLister);
-	dispatcher.register(new DescribeCommand(objectLister));
+	_dispatcher.register(objectLister);
+	_dispatcher.register(new DescribeCommand(objectLister));
         
         /*** experimental ***/
-	dispatcher.register(new TreeCommand(objectLister));
+	_dispatcher.register(new TreeCommand(objectLister));
 
-	dispatcher.register(new SQLCommand(objectLister));
+	_dispatcher.register(new SQLCommand(objectLister));
 
-	//dispatcher.register(new ImportCommand());
-	//dispatcher.register(new ExportCommand());
-	dispatcher.register(new DumpCommand(objectLister, loadCommand));
+	//_dispatcher.register(new ImportCommand());
+	//_dispatcher.register(new ExportCommand());
+	_dispatcher.register(new DumpCommand(objectLister, loadCommand));
 
-	dispatcher.register(new AutocommitCommand()); // replace with 'set'
-        dispatcher.register(new CommentRemoveCommand(this));
-	dispatcher.register(new ShellCommand());
+	_dispatcher.register(new AutocommitCommand()); // replace with 'set'
+	_dispatcher.register(new ShellCommand());
 
-	dispatcher.register(new SpoolCommand()); // dummy command
-	dispatcher.register(_settingStore);
+	_dispatcher.register(new SpoolCommand()); // dummy command
+	_dispatcher.register(_settingStore);
 
 	pluginCommand.load();
 	aliasCommand.load();
 
-	Readline.setCompleter( dispatcher );
+	Readline.setCompleter( _dispatcher );
 
 	// in case someone presses Ctrl-C
 	try {
@@ -160,7 +167,7 @@ public class HenPlus implements Interruptable {
 	 * if your compiler/system/whatever does not support the sun.misc.*
 	 * classes, then just disable this call and the SigIntHandler class.
 	 */
-	SigIntHandler.install();
+        SigIntHandler.install();
 
         /* TESTING  for ^Z support in the shell.
         sun.misc.SignalHandler stoptest = new sun.misc.SignalHandler () {
@@ -177,7 +184,7 @@ public class HenPlus implements Interruptable {
 
         end testing */
     }
-    
+
     public void pushBuffer() {
 	_commandSeparator.push();
     }
@@ -243,7 +250,7 @@ public class HenPlus implements Interruptable {
 	    //System.err.println(">'" + completeCommand + "'<");
 	    completeCommand = varsubst(completeCommand,
 				       _settingStore.getVariableMap());
-	    Command c = dispatcher.getCommandFrom(completeCommand);
+	    Command c = _dispatcher.getCommandFrom(completeCommand);
 	    if (c == null) {
 		_commandSeparator.consumed();
                 /*
@@ -263,7 +270,7 @@ public class HenPlus implements Interruptable {
 	    }
 	    else {
 		//System.err.println("SUBST: " + completeCommand);
-		dispatcher.execute(session, completeCommand);
+		_dispatcher.execute(_currentSession, completeCommand);
 		_commandSeparator.consumed();
 		result = LINE_EXECUTED;
 	    }
@@ -277,8 +284,8 @@ public class HenPlus implements Interruptable {
 
     public void run() {
 	String cmdLine = null;
-	String displayPrompt = prompt;
-	while (!terminated) {
+	String displayPrompt = _prompt;
+	while (!_terminated) {
 	    _interrupted = false;
 	    /*
 	     * a CTRL-C will not interrupt the current reading
@@ -297,9 +304,9 @@ public class HenPlus implements Interruptable {
 	    }
 	    catch (EOFException e) {
 		// EOF on CTRL-D
-		if (session != null) {
-		    dispatcher.execute(session, "disconnect");
-		    displayPrompt = prompt;
+		if (_currentSession != null) {
+		    _dispatcher.execute(_currentSession, "disconnect");
+		    displayPrompt = _prompt;
 		    continue;
 		}
 		else {
@@ -316,11 +323,11 @@ public class HenPlus implements Interruptable {
 	    if (_interrupted) {
 		if ((cmdLine == null || cmdLine.trim().length() == 0) 
 		    &&  _historyLine.length() == 0) {
-		    terminated = true;  // terminate if we press CTRL on empty line.
+		    _terminated = true;  // terminate if we press CTRL on empty line.
 		}
 		_historyLine.setLength(0);
 		_commandSeparator.discard();
-		displayPrompt = prompt;
+		displayPrompt = _prompt;
 		continue;
 	    }
 
@@ -339,10 +346,10 @@ public class HenPlus implements Interruptable {
 	    _historyLine.append(cmdLine);
 	    byte lineExecState = executeLine(cmdLine);
 	    if (lineExecState == LINE_INCOMPLETE) {
-		displayPrompt = emptyPrompt;
+		displayPrompt = _emptyPrompt;
 	    }
 	    else {
-		displayPrompt = prompt;
+		displayPrompt = _prompt;
 	    }
 	    if (lineExecState != LINE_INCOMPLETE) {
                 storeLineInHistory();
@@ -366,8 +373,8 @@ public class HenPlus implements Interruptable {
          */
         SigIntHandler.getInstance().reset();
 	try {
-	    if (dispatcher != null) {
-		dispatcher.shutdown();
+	    if (_dispatcher != null) {
+		_dispatcher.shutdown();
 	    }
 	    try {
 		HistoryWriter.writeReadlineHistory(getHistoryLocation());
@@ -388,33 +395,34 @@ public class HenPlus implements Interruptable {
     }
 
     public void terminate() {
-	terminated = true;
+	_terminated = true;
     }
 
-    public CommandDispatcher getDispatcher() { return dispatcher; }
+    public CommandDispatcher getDispatcher() { return _dispatcher; }
     
     /**
      * set current session. This is called from commands, that switch
      * the sessions (i.e. the ConnectCommand.
      */
     public void setSession(SQLSession session) {
-	this.session = session;
+	_currentSession = session;
     }
 
     /**
      * get current session.
      */
     public SQLSession getSession() {
-	return session;
+	return _currentSession;
     }
 
     public void setPrompt(String p) {
-	this.prompt = p;
+	_prompt = p;
 	StringBuffer tmp = new StringBuffer();
-	for (int i=prompt.length(); i > 0; --i) {
+        int emptyLength = p.length();
+	for (int i = emptyLength; i > 0; --i) {
 	    tmp.append(' ');
 	}
-	emptyPrompt = tmp.toString();
+	_emptyPrompt = tmp.toString();
 	// readline won't know anything about these extra characters:
 //  	if (_fromTerminal) {
 //  	    prompt = Terminal.BOLD + prompt + Terminal.NORMAL;
@@ -423,10 +431,6 @@ public class HenPlus implements Interruptable {
     
     public void setDefaultPrompt() {
 	setPrompt( _fromTerminal ? PROMPT : "" );
-    }
-
-    public void removeComments(boolean rc) {
-        _commandSeparator.removeComments(rc);
     }
 
     /**

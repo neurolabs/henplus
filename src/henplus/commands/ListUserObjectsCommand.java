@@ -26,6 +26,7 @@ import henplus.SigIntHandler;
 import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
+import henplus.util.NameCompleter;
 
 /**
  * document me.
