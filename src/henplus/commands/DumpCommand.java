@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.8 2002-10-05 08:47:44 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.9 2002-10-09 17:41:55 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -216,7 +216,7 @@ public class DumpCommand
 
 	    LineNumberReader in = null;
 	    try {
-		SigIntHandler.getInstance().registerInterrupt(this);
+		SigIntHandler.getInstance().pushInterruptable(this);
 		in = openInputReader(fileName, FILE_ENCODING);
 		while (skipWhite(in)) {
 		    int result = readTableDump(in, FILE_ENCODING,
@@ -250,7 +250,7 @@ public class DumpCommand
 	    String fileName = (String) st.nextElement();
 	    LineNumberReader in = null;
 	    try {
-		SigIntHandler.getInstance().registerInterrupt(this);
+		SigIntHandler.getInstance().pushInterruptable(this);
 		in = openInputReader(fileName, FILE_ENCODING);
 		while (skipWhite(in)) {
 		    int result = readTableDump(in, FILE_ENCODING,

@@ -20,13 +20,17 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 
 import henplus.HenPlus;
+import henplus.SigIntHandler;
+import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 
 /**
  * document me.
  */
-public class ListUserObjectsCommand extends AbstractCommand {
+public class ListUserObjectsCommand 
+    extends AbstractCommand implements Interruptable 
+{
     final private static String[] LIST_TABLES = { "TABLE" };
     final private static String[] LIST_VIEWS  = { "VIEW" };
     final private static int[]    DISP_COLS   = { 2, 3, 5 };
@@ -37,11 +41,14 @@ public class ListUserObjectsCommand extends AbstractCommand {
     final private Map/*<SQLSession,SortedMap>*/  sessionTables;
     final private Map/*<SQLSession,SortedMap>*/  sessionColumns;
     final private HenPlus                        henplus;
+    
+    private boolean interrupted;
 
     public ListUserObjectsCommand(HenPlus hp) {
 	sessionTables = new HashMap();
         sessionColumns = new HashMap();
 	henplus = hp;
+        interrupted = false;
     }
 
     /**
@@ -108,11 +115,16 @@ public class ListUserObjectsCommand extends AbstractCommand {
         if (compl != null) {
             return compl;
         }
+        /*
+         * This may be a lengthy process..
+         */
+        interrupted = false;
+        SigIntHandler.getInstance().pushInterruptable(this);
         NameCompleter tables = getTableCompleter(session);
         if (tables == null) return null;
         Iterator table = tables.getAllNames();
         compl = new NameCompleter();
-        while (table.hasNext()) {
+        while (!interrupted && table.hasNext()) {
             String tabName = (String) table.next();
             Collection columns = columnsFor(tabName);
             Iterator cit = columns.iterator();
@@ -121,7 +133,13 @@ public class ListUserObjectsCommand extends AbstractCommand {
                 compl.addName(col);
             }
         }
-        sessionColumns.put(session, compl);
+        if (interrupted) {
+            compl = null;
+        }
+        else {
+            sessionColumns.put(session, compl);
+        }
+        SigIntHandler.getInstance().popInterruptable();
         return compl;
     }
 
@@ -244,6 +262,11 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	    dsc="\tLists all " + cmd + " available in this schema.";
 	}
 	return dsc;
+    }
+
+    public void interrupt() {
+        System.err.println("UNsadfasdf");
+        interrupted = true;
     }
 }
 

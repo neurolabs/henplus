@@ -71,7 +71,7 @@ public class ShellCommand
 	IOHandler ioHandler = null;
 	int exitStatus = -1;
 	_myThread = Thread.currentThread();
-	SigIntHandler.getInstance().registerInterrupt(this);
+	SigIntHandler.getInstance().pushInterruptable(this);
 	try {
 	    try {
 		p = Runtime.getRuntime().exec(new String[] { "sh", "-c",

@@ -149,7 +149,7 @@ public class SQLCommand extends AbstractCommand {
 		    rset = stmt.getResultSet();
 		    ResultSetRenderer renderer;
 		    renderer = new ResultSetRenderer(rset, System.out);
-		    SigIntHandler.getInstance().registerInterrupt(renderer);
+		    SigIntHandler.getInstance().pushInterruptable(renderer);
 		    int rows = renderer.execute();
 		    if (renderer.limitReached()) {
 			session.println("limit reached ..");

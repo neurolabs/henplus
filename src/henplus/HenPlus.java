@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.40 2002-10-06 09:09:13 hzeller Exp $
+ * $Id: HenPlus.java,v 1.41 2002-10-09 17:41:55 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -245,7 +245,7 @@ public class HenPlus implements Interruptable {
 	     *       like a shell. This requires, that CTRL-C makes
 	     *       Readline.readline() return..
 	     */
-	    SigIntHandler.getInstance().registerInterrupt(this);
+	    SigIntHandler.getInstance().pushInterruptable(this);
 
 	    try {
 		cmdLine = (_fromTerminal)
