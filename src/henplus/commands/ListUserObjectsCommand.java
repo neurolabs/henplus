@@ -27,6 +27,7 @@ import henplus.AbstractCommand;
 public class ListUserObjectsCommand extends AbstractCommand {
     final private static String[] LIST_TABLES = { "TABLE" };
     final private static String[] LIST_VIEWS  = { "VIEW" };
+    final private static int[]    DISP_COLS   = { 2, 3, 5 };
 
     /**
      * all tables in one session.
@@ -60,17 +61,30 @@ public class ListUserObjectsCommand extends AbstractCommand {
 		Connection conn = session.getConnection();  // use createStmt
 		DatabaseMetaData meta = conn.getMetaData();
 		String catalog = conn.getCatalog();
+		/*
 		System.err.println("catalog: " + catalog);
 		ResultSetRenderer renderer = 
 		    new ResultSetRenderer(meta.getCatalogs(), System.out);
 		renderer.execute();
+		*/
+		ResultSetRenderer renderer;
+		boolean showViews = "views".equals(cmd);
+		String objectType = ((showViews) ? "Views" : "Tables");
+		System.err.println(objectType);
 		ResultSet rset = meta.getTables(catalog,
 						null, null,
-						"views".equals(cmd)
+						(showViews)
 						? LIST_VIEWS
 						: LIST_TABLES);
-		renderer = new ResultSetRenderer(rset, System.out);
-		renderer.execute();
+		renderer = new ResultSetRenderer(rset, System.out,
+						 DISP_COLS);
+		int tables = renderer.execute();
+		if (tables > 0) {
+		    System.err.println(tables + " " + objectType + " found.");
+		    if (renderer.limitReached()) {
+			System.err.println("..and probably more; reached display limit");
+		    }
+		}
 	    }
 	    catch (Exception e) {
 		System.err.println(e.getMessage());
@@ -119,6 +133,7 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	if (!it0.hasNext()) {
 	    // test uppercase, then:
 	    partialTable = partialTable.toUpperCase();
+	    //System.err.println("test upper case: " + partialTable);
 	    it0 = tableSet.tailSet(partialTable).iterator();
 	}
 	final Iterator tableIterator = it0;

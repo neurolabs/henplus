@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.2 2002-02-09 12:21:58 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.3 2002-02-21 21:51:34 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
@@ -67,6 +67,7 @@ public class TableRenderer {
 	    do {
 		hasMoreLines = false;
 		for (int i = 0 ; i < meta.length ; ++i) {
+		    if (!meta[i].doDisplay()) continue;
 		    String txt;
 		    out.print(" ");
 		    txt = formatString (currentRow[i].getNextLine(), ' ',
@@ -85,6 +86,7 @@ public class TableRenderer {
     
     private void printHorizontalLine() {
 	for (int i = 0 ; i < meta.length ; ++i) {
+	    if (!meta[i].doDisplay()) continue;
 	    String txt;
 	    txt = formatString ("", '-', meta[i].getWidth()+2,
 				ColumnMetaData.ALIGN_LEFT);
@@ -97,6 +99,7 @@ public class TableRenderer {
     private void printTableHeader() {
 	printHorizontalLine();
 	for (int i=0; i < meta.length ; ++i) {
+	    if (!meta[i].doDisplay()) continue;
 	    String txt;
 	    txt = formatString (meta[i].getLabel(), ' ',
 				meta[i].getWidth()+1,

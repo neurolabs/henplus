@@ -10,7 +10,11 @@ import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.sql.*;
-
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import henplus.util.*;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
@@ -19,10 +23,18 @@ import henplus.CommandDispatcher;
  * document me.
  */
 public class DescribeCommand extends AbstractCommand {
-    static final boolean verbose     = false;
-    static final boolean LEFT        = true;
-    static final boolean RIGHT       = false;
-    static final int[]   DISP_COLS   = { 3, 4, 6, 7, 18 };
+    static final boolean verbose     = true;
+    private final static ColumnMetaData[] DESC_META;
+    static {
+	DESC_META = new ColumnMetaData[7];
+	DESC_META[0] = new ColumnMetaData("table");
+	DESC_META[1] = new ColumnMetaData("column");
+	DESC_META[2] = new ColumnMetaData("type");
+	DESC_META[3] = new ColumnMetaData("null");
+	DESC_META[4] = new ColumnMetaData("default");
+	DESC_META[5] = new ColumnMetaData("pk");
+	DESC_META[6] = new ColumnMetaData("fk");
+    }
     
     private final ListUserObjectsCommand tableCompleter;
 
@@ -48,32 +60,131 @@ public class DescribeCommand extends AbstractCommand {
 	    return SYNTAX_ERROR;
 	}
 	final String tabName = (String) st.nextElement();
+	ResultSet rset = null;
 	try {
-	    describeOracleTable(System.out, "Table", tabName,
-				session.getUsername(), 
-				session.getConnection());
-	    return SUCCESS;
-	}
-	catch (Exception e) {
-	    // ok, no oracle database..
-	    if (verbose) e.printStackTrace();
-	}
-	try {
-	    // ok, cannot read Oracle like table.
 	    DatabaseMetaData meta = session.getConnection().getMetaData();
-	    ResultSet rset = meta.getColumns(null, null, tabName, null);
-	    ResultSetRenderer renderer = new ResultSetRenderer(rset, 
-							       System.out,
-							       DISP_COLS);
-	    renderer.execute();
+	    for (int i=0; i < DESC_META.length; ++i) {
+		DESC_META[i].reset();
+	    }
+	    /*
+	     * get primary keys.
+	     */
+	    Map pks = new HashMap();
+	    rset = meta.getPrimaryKeys(null, null, tabName);
+	    while (rset.next()) {
+		String col = rset.getString(4);
+		String pkseq  = rset.getString(5);
+		String pkname = rset.getString(6);
+		String desc = (pkname != null) ? pkname : "*";
+		if (pkseq != null) {
+		    desc += "{" + pkseq + "}";
+		}
+		pks.put(col, desc);
+	    }
+	    rset.close();
+	    /*
+	     * get foreign keys.
+	     */
+	    Map fks = new HashMap();
+	    rset = meta.getImportedKeys(null, null, tabName);
+	    while (rset.next()) {
+		String table = rset.getString(3);
+		String pkcolumn  = rset.getString(4);
+		table = table + "(" + pkcolumn + ")";
+		String col = rset.getString(8);
+		String fkname = rset.getString(12);
+		String desc = (fkname != null) ? fkname +"\n-> " : "-> ";
+		desc += table;
+		fks.put(col, desc);
+	    }
+	    rset.close();
+	    rset = meta.getColumns(null, null, tabName, null);
+	    /*
+	     * if all columns belong to the same table name, then don't
+	     * report it. A different table name may only occur in rare
+	     * circumstance like object oriented databases.
+	     */
+	    boolean allSameTableName = true;
+	    List rows = new ArrayList();
+	    while (rset.next()) {
+		Column[] row = new Column[7];
+		String thisTabName = rset.getString(3);
+		row[0] = new Column( thisTabName );
+		allSameTableName &= tabName.equals(thisTabName);
+		String colname = rset.getString(4);
+		row[1] = new Column( colname );
+		String type = rset.getString(6);
+		int colSize = rset.getInt(7);
+		if (colSize > 0) type = type + "(" + colSize + ")";
+		row[2] = new Column( type );
+		String defaultVal = rset.getString(13);
+		row[3] = new Column( rset.getString(18) );
+		row[4] = new Column( defaultVal );
+		String pkdesc = (String) pks.get(colname);
+		if (pkdesc != null && pks.size() == 1) {
+		    int curlPos = pkdesc.indexOf('{');
+		    if (curlPos >= 0) {
+			pkdesc = pkdesc.substring(0, curlPos);
+		    }
+		}
+		row[5] = new Column( (pkdesc != null) ? pkdesc : "");
+		String fkdesc = (String) fks.get(colname);
+		row[6] = new Column( (fkdesc != null) ? fkdesc : "");
+		rows.add(row);
+	    }
+	    rset.close();
+	    /*
+	     * we render the table now, since we only know know, whether we
+	     * will show the first column or not.
+	     */
+	    DESC_META[0].setDisplay(!allSameTableName);
+	    TableRenderer table = new TableRenderer(DESC_META, System.out);
+	    Iterator it = rows.iterator();
+	    while (it.hasNext()) table.addRow((Column[]) it.next());
+	    table.closeTable();
+	    /*
+	     * index info.
+	     */
+	    System.out.println("index information:");
+	    boolean anyIndex = false;
+	    rset = meta.getIndexInfo(null, null, tabName, false, false);
+	    while (rset.next()) {
+		anyIndex = true;
+		System.out.print("\t");
+		boolean nonUnique;
+		String idxName = null;
+		nonUnique = rset.getBoolean(4);
+		idxName = rset.getString(6);
+		if (idxName == null) continue; // statistics, otherwise.
+		if (!nonUnique) System.out.print("unique ");
+		System.out.print("index " + idxName);
+		String colName = rset.getString(9);
+		// work around postgres-JDBC-driver bug:
+		if (colName != null && colName.length() > 0) {
+		    System.out.print(" on " + colName);
+		}
+		System.out.println();
+	    }
+	    rset.close();
+	    if (!anyIndex) {
+		System.out.println("\t<none>");
+	    }
 	}
 	catch (Exception e) {
 	    if (verbose) e.printStackTrace();
 	    return EXEC_FAILED;
 	}
+	finally {
+	    if (rset != null) {
+		try { rset.close(); } catch (Exception e) {}
+	    }
+	}
 	return SUCCESS;
     }
-
+    
+    /**
+     * complete the table name.
+     */
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) 
     {
@@ -85,157 +196,6 @@ public class DescribeCommand extends AbstractCommand {
 	    return null;
 	}
 	return tableCompleter.completeTableName(lastWord);
-    }
-
-    private void describeOracleTable (PrintStream out, 
-				      String objectType, String tabname, 
-				      String owner,
-				      Connection conn) 
-	throws SQLException {
-	Statement stmt = conn.createStatement(); // use SQLSession.createSt.()
-	ResultSet rset = null;
-	String ownerSelect;
-	// oracle: always uppercase
-	tabname = tabname.toUpperCase();
-	if (owner != null) {
-	    owner = owner.toUpperCase();
-	    ownerSelect = " and owner='" + owner + "'";
-	}
-	else {
-	    ownerSelect = "";
-	}
-
-	/*
-	 * describe the tables tablespace
-	 */
-	if ("Table".equals(objectType)) {
-	    rset = stmt.executeQuery ("select tablespace_name from all_tables "
-				      + "where table_name='" + tabname + "'"
-				      +  ownerSelect);
-	    if (rset.next()) {
-		out.println ("in tablespace " + rset.getString(1));
-		rset.close();
-	    }
-	}
-    
-	/*
-	 * Describe the columns
-	 */
-	rset = stmt.executeQuery ("select max(length(COLUMN_NAME)) from all_tab_columns "
-				  + "where table_name='" + tabname + "'"
-				  + ownerSelect);
-	if (!rset.next()) {
-	    throw new SQLException ("Unable to read column description");
-	}
-	int breit = (int) rset.getLong (1);
-	rset = stmt.executeQuery ("select column_name,data_type,"+
-				  "data_length,data_precision,nullable"+
-				  " from all_tab_columns"+
-				  " where table_name ='" + tabname + "'"
-				  + ownerSelect);
-	Statement constrStmt = conn.createStatement();
-	ResultSet constrRset = null;
-    
-	while (rset.next()) {
-	    out.print ("\t");
-	    String Column = rset.getString(1);
-	    formatString (Column, ' ', breit + 2, LEFT);
-	    String type = rset.getString (2);
-	    if (type.equals("NUMBER")) {
-		type = type + "(" + rset.getString(4) + ")";
-	    }
-	    else if (type.equals("CHAR") || type.startsWith ("VARCHAR")) {
-		type = type + "(" + rset.getString(3) + ")";
-	    }
-	    formatString (type, ' ', 15, LEFT);
-	    if ((rset.getString(5)).equals("N"))
-		out.print ("NOT NULL");
-	    else
-		out.print ("        ");
-	
-	    if ("Table".equals(objectType)) {
-		/*
-		 * Leider kann man die all_cons_columns
-		 * nicht mit der all_tab_colmuns zusammenjoinen
-		 */
-		constrRset = constrStmt
-		    .executeQuery ("select all_constraints.constraint_name,"+
-				   " constraint_type,r_constraint_name,"+
-				   " delete_rule,status" +
-				   " from all_constraints,all_cons_columns"+
-				   " where all_cons_columns.table_name='" + tabname + "'" +
-				   "   and column_name='" + Column + "'"+
-				   "   and all_constraints.table_name=all_cons_columns.table_name"+
-				   "   and all_constraints.owner=all_cons_columns.owner"+
-				   "   and all_constraints.constraint_name=all_cons_columns.constraint_name"+
-				   "   and constraint_type != 'C'");
-		int consNum = 0;
-		while (constrRset.next()) {
-		    if (consNum > 0) {
-			out.print ("\n");
-			formatString (" ", ' ', breit + 15 + 8 + 10, LEFT);
-		    }
-		    out.print (" constraint " + constrRset.getString(1));
-		    out.print (" ");
-		    if ("P".equals(constrRset.getString(2)))
-			out.print ("PRIMARY KEY");
-		    else if ("R".equals(constrRset.getString(2))) {
-			out.print ("\n");
-			formatString (" ", ' ', breit + 2 + 15 + 8 + 11, LEFT);
-			out.print ("references KEY (" + constrRset.getString(3) + ")");
-			out.print ("\n");
-			formatString (" ", ' ', breit + 2 + 15 + 8 + 11, LEFT);
-			out.print ("on delete " + constrRset.getString(4));
-		    }
-		    if ("DISABLED".equals(constrRset.getString(5))) {
-			out.print ("\n");
-			formatString (" ", ' ', breit + 2 + 15 + 8 + 11, LEFT);
-			out.print ("[constraint disabled]");
-		    }
-		    consNum++;
-		}
-		constrRset.close();
-	    }
-	    out.println ();
-	}
-	constrStmt.close();
-	/*
-	 * describe the view (if it is a view ..)
-	 */
-	if ("View".equals(objectType)) {
-	    Statement ViewStmt = conn.createStatement ();
-	    rset = ViewStmt.executeQuery ("select text from all_views "+
-					  "where view_name='" + tabname + "'"
-					  + ownerSelect);
-	    if (rset.next()) {
-		out.println ("----------------\nVIEW definition:\n " + rset.getString(1));
-	    }
-	    rset.close();
-	    ViewStmt.close();
-	}
-    }
-
-  private void  formatString (String out, char fillchar, 
-			      int len, boolean alignment) {
-	StringBuffer fillstr = new StringBuffer();
-	
-	if (len > 4000)
-	    len = 4000;
-	
-	if (out == null)
-	    out = "[NULL]";
-	int slen = out.length();
-	
-	for (int i = slen+1 ; i <= len ; i++)
-	    fillstr.append (fillchar);
-	
-	if (alignment == LEFT) {
-	    System.out.print (out);
-	}
-	System.out.print (fillstr.toString());
-	if (alignment == RIGHT) {
-	    System.out.print (out);
-	}
     }
     
     /**
@@ -251,9 +211,7 @@ public class DescribeCommand extends AbstractCommand {
 
     public String getLongDescription(String cmd) {
 	String dsc;
-	dsc="\tDescribe the meta information of the named user object.\n" +
-	    "\tA table,  for instance,  is described as a CREATE TABLE\n" +
-	    "\tstatement.";
+	dsc="\tDescribe the meta information of the named user object.";
 	return dsc;
     }
 

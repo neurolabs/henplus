@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ColumnMetaData.java,v 1.3 2002-02-14 17:09:49 hzeller Exp $ 
+ * $Id: ColumnMetaData.java,v 1.4 2002-02-21 21:51:34 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
@@ -18,7 +18,7 @@ public final class ColumnMetaData {
     private final String  label;
     private final int     initialWidth;
     private       int     width;
-
+    private       boolean display;
     /**
      * publically available constructor for the
      * user.
@@ -28,6 +28,7 @@ public final class ColumnMetaData {
 	initialWidth = header.length();
 	width = initialWidth;
 	alignment = align;
+	display = true;
     }
     
     public ColumnMetaData(String header) {
@@ -35,6 +36,11 @@ public final class ColumnMetaData {
     }
     
     public void reset() { width = initialWidth; }
+    /**
+     * set, whether a specific column should be displayed.
+     */
+    public void setDisplay(boolean val) { display = val; }
+    public boolean doDisplay() { return display; }
 
     int getWidth()     { return width; }
     String getLabel()  { return label; }

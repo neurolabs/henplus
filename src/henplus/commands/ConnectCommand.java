@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 
+import henplus.util.*;
 import henplus.HenPlus;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
@@ -35,6 +36,15 @@ public class ConnectCommand extends AbstractCommand {
     private final SortedMap/*<String,SQLSession>*/ sessions;
     private final SortedSet knownUrls;
     private final HenPlus   henplus;
+
+    private final static ColumnMetaData[] SESS_META;
+
+    static {
+	SESS_META = new ColumnMetaData[3];
+	SESS_META[0] = new ColumnMetaData("session");
+	SESS_META[1] = new ColumnMetaData("user");
+	SESS_META[2] = new ColumnMetaData("url");
+    }
 
     /**
      * the current session we are in.
@@ -241,21 +251,27 @@ public class ConnectCommand extends AbstractCommand {
 	int argc = st.countTokens();
 	
 	if ("sessions".equals(cmd)) {
+	    System.err.println("current session is marked with '*'");
+	    SESS_META[0].reset();
+	    SESS_META[1].reset();
+	    SESS_META[2].reset();
+	    TableRenderer table = new TableRenderer(SESS_META, System.out);
 	    Map.Entry entry = null;
 	    Iterator it = sessions.entrySet().iterator();
 	    while (it.hasNext()) {
 		entry = (Map.Entry) it.next();
 		String sessName = (String) entry.getKey(); 
 		session         = (SQLSession) entry.getValue();
-		if (sessName.equals(currentSessionName)) {
-		    System.err.print(" * ");
-		}
-		else {
-		    System.err.print("   ");
-		}
-		System.err.print(sessName + "\t");
-		System.err.println(session.getURL());
+		String prepend = sessName.equals(currentSessionName) 
+		    ? " * "
+		    : "   ";
+		Column[] row = new Column[3];
+		row[0] = new Column(prepend + sessName);
+		row[1] = new Column(session.getUsername());
+		row[2] = new Column(session.getURL());
+		table.addRow(row);
 	    }
+	    table.closeTable();
 	    return SUCCESS;
 	}
 
