@@ -238,7 +238,8 @@ public class TreeCommand extends AbstractCommand {
             +"\tConsider tables 'bar' and 'baz' that have a foreign key\n"
             +"\ton the table 'foo'. Further a table 'blah', that references\n"
             +"\t'bar'. The table 'foo' in turn references 'bar', thus\n"
-            +"\tcyclicly referencing itself. This would be represented as\n"
+            +"\tcyclicly referencing itself. Invoking tree-view on 'foo'\n"
+            +"\twould be represented as\n"
             +"\t    foo\n"
             +"\t    |-- bar\n"
             +"\t    |   |-- blah\n"
@@ -249,8 +250,6 @@ public class TreeCommand extends AbstractCommand {
             +"\tin parenthesis.";
         return dsc;
     }
-
-    public boolean requiresValidSession(String cmd) { return false; }
 }
 
 /*
