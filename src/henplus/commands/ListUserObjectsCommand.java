@@ -112,7 +112,9 @@ public class ListUserObjectsCommand extends AbstractCommand {
      * used from diverse commands that need table name completion.
      */
     public Iterator completeTableName(String partialTable) {
-	final SortedSet tableSet = getTableSet(henplus.getSession());
+	SQLSession session = henplus.getSession();
+	if (session == null) return null;
+	final SortedSet tableSet = getTableSet(session);
 	Iterator it0 = tableSet.tailSet(partialTable).iterator();
 	if (!it0.hasNext()) {
 	    // test uppercase, then:

@@ -25,6 +25,10 @@ import java.sql.Types;
  */
 public class SQLCommand extends AbstractCommand {
     private static final boolean verbose = false; // debug.
+    private final static String[] COMPLETER_KEYWORD = {
+	"FROM", "INTO", "UPDATE", "TABLE"
+    };
+    
     /**
      * returns the command-strings this command can handle.
      */
@@ -161,14 +165,16 @@ public class SQLCommand extends AbstractCommand {
     }
 
     // very simple completer: try to determine wether we can complete a
-    // table name.
+    // table name. that is: if some keyword has been found before, go to
+    // table-completer-mode :-)
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) 
     {
 	partialCommand = partialCommand.toUpperCase();
-	if (partialCommand.indexOf("FROM") >= 0 
-	    || partialCommand.indexOf("TABLE") >= 0) {
-	    return tableCompleter.completeTableName(lastWord);
+	for (int i=0; i < COMPLETER_KEYWORD.length; ++i) {
+	    if (partialCommand.indexOf( COMPLETER_KEYWORD[i] ) >= 0) {
+		return tableCompleter.completeTableName(lastWord);
+	    }
 	}
 	return null;
     }
