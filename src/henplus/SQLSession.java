@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.20 2003-05-02 00:03:02 hzeller Exp $
+ * $Id: SQLSession.java,v 1.21 2003-05-02 00:06:28 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -282,7 +282,7 @@ public class SQLSession implements Interruptable {
      * return username, if known.
      */
     public String getUsername() {
-	return _username;
+	return (_username != null) ? _username : "<unknown>";
     }
 
     public long getUptime() {
