@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.24 2004-03-05 23:34:38 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.25 2004-03-06 00:15:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -1158,6 +1158,7 @@ public class DumpCommand
 		while (st.hasMoreElements()) {
 		    alreadyGiven.add((String) st.nextElement());
 		}
+
 		final Iterator it = _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
 		return new Iterator() {
 			String table = null;

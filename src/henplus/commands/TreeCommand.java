@@ -75,11 +75,12 @@ public class TreeCommand extends AbstractCommand {
             }
             String name = getName();
             boolean cyclic = alreadyPrinted.contains(name);
-            //Terminal.blue(out);
-            if (cyclic) out.print("(");
-            out.print(name);
-            if (cyclic) out.print(")");
-            //Terminal.reset(out);
+            if (cyclic) {
+                out.print("(" + name + ")");
+            }
+            else {
+                out.print(name);
+            }
             out.println();
             if (cyclic) {
                 return;
@@ -100,6 +101,51 @@ public class TreeCommand extends AbstractCommand {
                 }
                 currentIndent.setLength(previousLength);
             }
+        }
+
+        public void printReverse(OutputDevice out) {
+            printReverse(new TreeSet(), "", false, out);
+        }
+
+        private int printReverse(SortedSet alreadyPrinted,
+                                 String indentString, boolean isLast,
+                                 OutputDevice out)
+        {
+            String name = getName();
+            boolean cyclic = alreadyPrinted.contains(name);
+            String printName = cyclic ? "("+name+")--" : name+"--";
+            int myIndent = indentString.length() + printName.length();
+            int maxIndent = myIndent;
+            
+            if (!cyclic) {
+                alreadyPrinted.add(name);
+                int remaining = _children.size();
+                if (remaining > 0) {
+                    Iterator it = _children.iterator();
+                    boolean isFirst = true;
+                    while (it.hasNext()) {
+                        Node n = (Node) it.next();
+                        int nIndent;
+                        nIndent = n.printReverse(alreadyPrinted, 
+                                                 indentString + "    |",
+                                                 isFirst,
+                                                 out);
+                        if (nIndent > maxIndent)
+                            maxIndent = nIndent;
+                        --remaining;
+                        isFirst = false;
+                    }
+                }
+            }
+            int space = maxIndent - myIndent;
+            for (int i=0; i < space; ++i) 
+                out.print("x");
+            out.print(printName);
+            out.print(isLast ? "\\" : "|");
+            out.print(indentString);
+            out.println();
+
+            return maxIndent;
         }
 
         public int compareTo(Object o) {
@@ -182,7 +228,7 @@ public class TreeCommand extends AbstractCommand {
                 }, EXP_FOREIGN_KEY_TABLE, new TreeMap(), schema, tabName);
 
             HenPlus.out().println("I depend on ..");
-            myParents.print(HenPlus.out());
+            myParents.printReverse(HenPlus.out());
 
             HenPlus.out().println();
             HenPlus.out().println("these depend on me ..");

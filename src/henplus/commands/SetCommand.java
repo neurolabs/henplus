@@ -1,13 +1,14 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.19 2004-03-05 23:34:38 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.20 2004-03-06 00:15:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
 import henplus.util.*;
 import henplus.view.*;
+import henplus.view.util.SortedMatchIterator;
 
 import java.util.Map;
 import java.util.SortedMap;
@@ -168,28 +169,9 @@ public final class SetCommand extends AbstractCommand {
 	final boolean hasBrace = variable.startsWith("${");
 	final String prefix = (hasBrace ? "${" : "$");
 	final String name   =  variable.substring(prefix.length());
-	final Iterator it   = _variables.tailMap(name).keySet().iterator();
 	//HenPlus.msg().println("VAR: " + variable);
 	//HenPlus.msg().println("NAME: " + name);
-	return new Iterator() {
-		String current = null;
-		public boolean hasNext() {
-		    while (it.hasNext()) {
-			current = (String) it.next();
-			if (!current.startsWith(name)) {
-			    return false;
-			}
-			return true;
-		    }
-		    return false;
-		}
-		public Object  next() { 
-		    return prefix + current + (hasBrace ? "}" : "");
-		}
-		public void remove() { 
-		    throw new UnsupportedOperationException("no!");
-		}
-	    };
+        return new SortedMatchIterator(name, _variables);
     }
 
     /**
@@ -216,27 +198,11 @@ public final class SetCommand extends AbstractCommand {
 		alreadyGiven.add((String) st.nextElement());
 	    }
 	}
-	final Iterator it = _variables.tailMap(lastWord).keySet().iterator();
-	return new Iterator() {
-		String var = null;
-		public boolean hasNext() {
-		    while (it.hasNext()) {
-			var = (String) it.next();
-			if (!var.startsWith(lastWord)) {
-			    return false;
-			}
-			if (alreadyGiven.contains(var)) {
-			    continue;
-			}
-			return true;
-		    }
-		    return false;
-		}
-		public Object  next() { return var; }
-		public void remove() { 
-		    throw new UnsupportedOperationException("no!");
-		}
-	    };
+        return new SortedMatchIterator(lastWord, _variables) {
+                protected boolean exclude(String current) {
+                    return alreadyGiven.contains(current);
+                }
+            };
     }
 	
 	

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: NameCompleter.java,v 1.3 2004-03-05 23:34:38 hzeller Exp $ 
+ * $Id: NameCompleter.java,v 1.4 2004-03-06 00:15:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
@@ -78,26 +78,7 @@ public class NameCompleter {
 	    partialName = foundName.substring(0, partialName.length());
 	}
 
-	final Iterator nameIt = nameSet.tailSet(partialName).iterator();
-	final String   namePattern  = partialName;
-
-	return new Iterator() {
-		String current = null;
-		public boolean hasNext() {
-		    if (nameIt.hasNext()) {
-			current = (String) nameIt.next();
-			if (current.startsWith(namePattern))
-			    return true;
-		    }
-		    return false;
-		}
-		public Object  next() {
-		    return current;
-		}
-		public void remove() { 
-		    throw new UnsupportedOperationException("no!");
-		}
-	    };
+        return new SortedMatchIterator(partialName, nameSet);
     }
 }
 

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PluginCommand.java,v 1.5 2004-01-29 22:31:53 hzeller Exp $ 
+ * $Id: PluginCommand.java,v 1.6 2004-03-06 00:15:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -20,6 +20,7 @@ import henplus.HenPlus;
 import henplus.Command;
 import henplus.util.*;
 import henplus.view.*;
+import henplus.view.util.SortedMatchIterator;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.SQLSession;
@@ -189,24 +190,7 @@ public final class PluginCommand extends AbstractCommand {
 	if (argc > ("".equals(lastWord) ? 0 : 1)) {
 		return null;
 	}
-	final Iterator it = _plugins.tailMap(lastWord).keySet().iterator();
-	return new Iterator() {
-		String var = null;
-		public boolean hasNext() {
-		    while (it.hasNext()) {
-			var = (String) it.next();
-			if (!var.startsWith(lastWord)) {
-			    return false;
-			}
-			return true;
-		    }
-		    return false;
-		}
-		public Object  next() { return var; }
-		public void remove() { 
-		    throw new UnsupportedOperationException("no!");
-		}
-	    };
+        return new SortedMatchIterator(lastWord, _plugins);
     }
 
     public void shutdown() {

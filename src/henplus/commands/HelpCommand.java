@@ -15,6 +15,7 @@ import henplus.SQLSession;
 import henplus.CommandDispatcher;
 import henplus.Command;
 import henplus.AbstractCommand;
+import henplus.view.util.SortedMatchIterator;
 
 /**
  * document me.
@@ -42,26 +43,12 @@ public class HelpCommand extends AbstractCommand {
 	}
 
 	final Iterator it = disp.getRegisteredCommandNames(lastWord);
-	return new Iterator() {
-		private String cmdName;
-		public boolean hasNext() {
-		    while (it.hasNext()) {
-			cmdName = (String) it.next();
-			if (cmdName.length() == 0) continue;
-			if (!cmdName.startsWith(lastWord))
-			    return false;
-			// return only commands, that provide a detailed help.
-			Command cmd = disp.getCommandFrom(cmdName);
-			if (cmd.getLongDescription(cmdName) != null)
-			    return true;
-		    }
-		    return false;
-		}
-		public Object  next() { return cmdName; }
-		public void remove() { 
-		    throw new UnsupportedOperationException("no!");
-		}
-	    };
+        return new SortedMatchIterator(lastWord, it) {
+                protected boolean exclude(String cmdName) {
+                    Command cmd = disp.getCommandFrom(cmdName);
+                    return (cmd.getLongDescription(cmdName) == null);
+                }
+            };
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.14 2004-03-05 23:34:38 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.15 2004-03-06 00:15:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -22,6 +22,7 @@ import henplus.HenPlus;
 import henplus.Command;
 import henplus.util.*;
 import henplus.view.*;
+import henplus.view.util.SortedMatchIterator;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.SQLSession;
@@ -238,28 +239,12 @@ public final class AliasCommand extends AbstractCommand {
 	    }
 	    
 	    // ok, now return the list.
-	    final Iterator it = _aliases.tailMap(lastWord).keySet().iterator();
-	    return new Iterator() {
-		    String alias = null;
-		    public boolean hasNext() {
-			while (it.hasNext()) {
-			    alias = (String) it.next();
-			    if (!alias.startsWith(lastWord)) {
-				return false;
-			    }
-			    if (alreadyGiven.contains(alias)) {
-				continue;
-			    }
-			    return true;
-			}
-			return false;
-		    }
-		    public Object  next() { return alias; }
-		    public void remove() { 
-			throw new UnsupportedOperationException("no!");
-		    }
-		};
-	}
+            return new SortedMatchIterator(lastWord, _aliases) {
+                    protected boolean exclude(String current) {
+                        return alreadyGiven.contains(current);
+                    }
+                };
+        }
 	
 	/* ok, someone tries to complete something that is a command.
 	 * try to find the actual command and ask that command to do

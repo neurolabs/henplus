@@ -14,6 +14,7 @@ import henplus.SessionManager;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
+import henplus.view.util.SortedMatchIterator;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -212,24 +213,7 @@ public class ConnectCommand extends AbstractCommand {
 	    if (argumentCount(partialCommand) > ("".equals(lastWord) ? 1 : 2)) {
 		return null;
 	    }
-	    final Iterator it = knownUrls.tailMap(lastWord).keySet().iterator();
-	    return new Iterator() {
-		    String url = null;
-		    public boolean hasNext() {
-			while (it.hasNext()) {
-			    url = (String) it.next();
-			    if (!url.startsWith(lastWord)) {
-				return false;
-			    }
-			    return true;
-			}
-			return false;
-		    }
-		    public Object  next() { return url; }
-		    public void remove() { 
-			throw new UnsupportedOperationException("no!");
-		    }
-		};
+            return new SortedMatchIterator(lastWord, knownUrls);
 	}
 	
 	else if (partialCommand.startsWith("switch")) {
@@ -237,27 +221,12 @@ public class ConnectCommand extends AbstractCommand {
 		("".equals(lastWord) ? 1 : 2)) {
 		return null;
 	    }
-	    final Iterator it = _sessionManager.getSessionNames().tailSet(lastWord).iterator();
-	    return new Iterator() {
-		    String sessionName = null;
-		    public boolean hasNext() {
-			while (it.hasNext()) {
-			    sessionName = (String) it.next();
-			    if (!sessionName.startsWith(lastWord)) {
-				return false;
-			    }
-			    if (sessionName.equals(currentSessionName)) {
-				continue;
-			    }
-			    return true;
-			}
-			return false;
-		    }
-		    public Object  next() { return sessionName; }
-		    public void remove() { 
-			throw new UnsupportedOperationException("no!");
-		    }
-		};
+            return new SortedMatchIterator(lastWord, 
+                                           _sessionManager.getSessionNames()) {
+                    protected boolean exclude(String sessionName) {
+                        return sessionName.equals(currentSessionName);
+                    }
+                };
 	}
 	return null; 
     }
