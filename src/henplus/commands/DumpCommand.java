@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.3 2002-06-10 18:11:49 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.4 2002-06-13 07:20:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -187,7 +187,9 @@ public class DumpCommand
 	    
 	    try {
 		SigIntHandler.getInstance().registerInterrupt(this);
-		int result = readTableDump(session, fileName, true, 
+		int result = readTableDump(session, fileName, 
+					   System.getProperty("file.encoding"),
+					   true, 
 					   commitPoint);
 		if (!_running) {
 		    System.err.print("interrupted.");
@@ -205,7 +207,9 @@ public class DumpCommand
 	    String fileName = (String) st.nextElement();
 	    try {
 		SigIntHandler.getInstance().registerInterrupt(this);
-		int result = readTableDump(session, fileName, false, -1);
+		int result = readTableDump(session, fileName, 
+					   System.getProperty("file.encoding"),
+					   false, -1);
 		if (!_running) {
 		    System.err.print("interrupted.");
 		}
@@ -268,9 +272,13 @@ public class DumpCommand
 	PrintStream dumpOut = new PrintStream(outStream);
 	
 	dumpOut.println("(tabledump '" + tabName + "'");
+	dumpOut.println("  (file-encoding '" + 
+			System.getProperty("file.encoding") + "')");
 	dumpOut.println("  (dump-version " + DUMP_VERSION + " " 
 			+ DUMP_VERSION + ")");
 	dumpOut.println("  (henplus-version '" + Version.getVersion() 
+			+ "')");
+	dumpOut.println("  (time '" + new Timestamp(System.currentTimeMillis())
 			+ "')");
 	dumpOut.print("  (database-info ");
 	quoteString(dumpOut, session.getDatabaseInfo());
@@ -412,12 +420,12 @@ public class DumpCommand
 	    }
 	    dumpOut.println(")");
 	    dumpOut.println("  (rows " + rows + "))");
-	    System.err.print("(" + rows + " rows; ");
+	    System.err.print("(" + rows + " rows)\n");
 	    long execTime = System.currentTimeMillis()-startTime;
 	    TimeRenderer.printTime(execTime, System.err);
 	    System.err.print(" total; ");
 	    TimeRenderer.printFraction(execTime, rows, System.err);
-	    System.err.println(" / row)");
+	    System.err.println(" / row");
 	    if (expectedRows >= 0 && rows != expectedRows) {
 		System.err.println("\nWarning: 'select count(*)' in the"
 				   + " beginning resulted in " + expectedRows
@@ -463,7 +471,8 @@ public class DumpCommand
 	return null;
     }
 
-    private int readTableDump(SQLSession session, String filename, boolean hot,
+    private int readTableDump(SQLSession session, String filename, 
+			      String fileEncoding, boolean hot,
 			      int commitPoint)
 	throws IOException, SQLException, InterruptedException {
 	MetaProperty[] metaProperty = null;
@@ -472,6 +481,7 @@ public class DumpCommand
 	int    compatibleVersion = -1;
 	String henplusVersion = null;
 	String databaseInfo = null;
+	String dumpTime = null;
 	int c;
 	char ch;
 	String token;
@@ -485,7 +495,7 @@ public class DumpCommand
 	if (filename.endsWith(".gz")) {
 	    inStream = new GZIPInputStream(inStream);
 	}
-	Reader fileIn = new InputStreamReader(inStream);
+	Reader fileIn = new InputStreamReader(inStream, fileEncoding);
 	LineNumberReader reader = new LineNumberReader(fileIn);
 
 	expect(reader, '(');
@@ -523,6 +533,16 @@ public class DumpCommand
 		expect(reader, ')');
 	    }
 
+	    if ("file-encoding".equals(token)) {
+		token = readString(reader);
+		if (!token.equals(fileEncoding)) {
+		    raiseException(reader,
+				   "different file encoding: '" + token 
+				   + "' (we have '" + fileEncoding + "').");
+		}
+		expect(reader, ')');
+	    }
+
 	    if ("henplus-version".equals(token)) {
 		token = readString(reader);
 		henplusVersion = token;
@@ -537,6 +557,11 @@ public class DumpCommand
 
 	    if ("database-info".equals(token)) {
 		databaseInfo = readString(reader);
+		expect(reader, ')');
+	    }
+
+	    if ("time".equals(token)) {
+		dumpTime = readString(reader);
 		expect(reader, ')');
 	    }
 
@@ -577,7 +602,8 @@ public class DumpCommand
 				   + " table dump created with HenPlus "
 				   + henplusVersion 
 				   + "\nfor table           : " + tableName
-				   + "\nfrom database       : " + databaseInfo 
+				   + "\nfrom database       : " + databaseInfo
+				   + "\nat                  : " + dumpTime
 				   + "\ndump format version : " + dumpVersion);
 		System.err.print("reading rows..");
 		System.err.flush();

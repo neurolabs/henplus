@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SigIntHandler.java,v 1.4 2002-06-10 17:38:11 hzeller Exp $ 
+ * $Id: SigIntHandler.java,v 1.5 2002-06-13 07:20:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -48,7 +48,6 @@ public class SigIntHandler implements SignalHandler {
 	    return;
 	}
 	once = true;
-	System.err.println("[Ctrl-C ; interrupted]");
 	if (toInterrupt != null) {
 	    // this doesn't work, since the JDBC driver is not in a 'wait()'
 	    //System.err.println("try to interrupt: " + toInterrupt);
@@ -56,6 +55,7 @@ public class SigIntHandler implements SignalHandler {
 	    toInterrupt = null;
 	}
 	else {
+	    System.err.println("[Ctrl-C ; interrupted]");
 	    System.exit(1);
 	}
     }
