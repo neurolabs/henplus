@@ -86,6 +86,7 @@ public class SQLCommand extends AbstractCommand {
 		    try {
 			stmt = session.createStatement();
 			hasResultSet = stmt.execute(command);
+			break;
 		    }
 		    catch (SQLException e) { throw e; }
 		    catch (Throwable e) {
