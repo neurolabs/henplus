@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.8 2002-07-24 16:33:14 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.9 2002-12-20 17:51:28 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -17,6 +17,7 @@
 <tr><td><a href="#plugins">Plugins</a></td></tr>
 <tr><td><a href="#aliases">Aliases</a></td></tr>
 <tr><td><a href="#table-dumps">Table Dumps</a></td></tr>
+<tr><td><a href="#tree-view">Tree View</a></td></tr>
 <tr><td><hr></td></tr>
 <tr><td><a href="#faq">FAQ</a></td></tr>
 <tr><td><a href="http://sourceforge.net/projects/henplus">Download</a></td></tr>
@@ -159,6 +160,7 @@ Hen*Plus&gt; help
  status                                   : show status of this connection
  tables | views | rehash                  : list available user objects
  describe &lt;tablename&gt;                     : describe a database object
+ tree-view &lt;tablename&gt;                    : <a href="#tree-view">tree representation of connected tables</a>
  dump-out | dump-in | verify-dump | dump-conditional: <a href="#table-dumps">handle table dumps</a>
  autocommit-on | autocommit-off           : switches autocommit on/off
  system | !                               : execute system commands
@@ -240,10 +242,13 @@ the C/C++/Java style comments, that comment out a range between
 </pre></td></tr></table>
 <p>
 Another style of comments, allowed for instance in the 
-MySQL-Shell is the UNIX-shell like '#' endline comment:
+MySQL-Shell is the UNIX-shell like '#' endline comment; however, this character
+is <b>only</b> allowed as first character to be a comment -- otherwise
+using the Hash-Symbol in normal SQL-Statements (e.g. column names), would not work.
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 # this is a comment.
- select * from foobar;  # a comment at the end of a line
+ select * from foobar;
+ create table foo (id# number); -- the hash here is not a comment
 </pre></td></tr></table>
 
 One beta tester <!-- Andi G. --> requested an additional type of 
@@ -515,6 +520,25 @@ and is not very human readable due to the 'noise'
 One interesting feature of these commands is, that they automatically can read/write
 gziped files if the filenames have the '.gz' suffix.
 
+<h3><a name="tree-view"/>Tree View of connected tables</h3>
+Know this ? To just find out the datastructure of foreign-key connected
+tables in your database you have to <code>describe</code> manually through
+all tables. This is quite tedious. Thus, HenPlus provides a tree view of
+your tables. Cyclic references are resolved by printing the recursive
+entity in parenthesis.  See the example for some bugtracker database:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+henman@oracle:localhost&gt; tree-view BT_TRACKERUSER
+
+BT_TRACKERUSER
+|-- BT_BUGHISTORY
+|   |-- BT_BUG
+|   |   `-- (BT_BUGHISTORY)
+|   `-- BT_BUGCOMMENTATTACHMENT
+`-- BT_USERPERMISSION
+265 msec
+</pre></td></tr></table>
+<hr noshade='noshade' size="1" />
+
 <h3><a name="faq"/>FAQ</h3>
 This will eventually be the FAQ. But for now, there is only one question..
 
@@ -535,4 +559,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.8 2002-07-24 16:33:14 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.9 2002-12-20 17:51:28 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
