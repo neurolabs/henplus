@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.5 2002-05-29 18:03:02 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.6 2002-06-10 17:38:57 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -14,9 +14,11 @@
 <tr><td><a href="#variables">Using Variables</a></td></tr>
 <tr><td><a href="#commandline-completion">Commandline Completion</a></td></tr>
 <tr><td><a href="#per-project-config">Per Project Configuration</a></td></tr>
+<tr><td><a href="#table-dumps">Table Dumps</a></td></tr>
 <tr><td><a href="#plugins">Plugins</a></td></tr>
+<tr><td><a href="#aliases">Aliases</a></td></tr>
 <tr><td><hr></td></tr>
-<tr><td><a href="#plugins">FAQ</a></td></tr>
+<tr><td><a href="#faq">FAQ</a></td></tr>
 <tr><td><a href="http://sourceforge.net/projects/henplus">Download</a></td></tr>
 </table>
 
@@ -86,15 +88,15 @@ This is where <em>HenPlus</em> steps in. It supports:
 
 <h3><a name="getting-started"/>Getting started</h3>
 <h4>Compilation</h4>
-If you <a href="http://sourceforge.net/projects/henplus">downloaded</a>
+If you <a href="http://sourceforge.net/project/showfiles.php?group_id=47945">downloaded</a>
 HenPlus as a binary RPM or debian package, you can
 <a href="#running">skip</a> this part.
 <p>
 Ok, you are still here, so you have to compile it first. First you need
 an additional library.
 HenPlus utilizes the features of the GNU-readline library and therefore
-uses the JNI java wrapper library:
-<a href="http://sourceforge.net/projects/java-readline">java-readline 0.7.3</a>.
+uses the JNI java wrapper library &gt;=
+<a href="http://sourceforge.net/project/showfiles.php?group_id=48669">java-readline 0.7.3</a>.
 <p>
 Building requires the <a href="http://jakarta.apache.org/ant">ant build
 tool</a>. To compile HenPlus, make sure that the libreadline-java.jar is
@@ -393,7 +395,9 @@ some Swing-window to do database record editing <!-- Armin H. --> ?
 You are not limited with HenPlus to do this. It is very simple to write
 plug-ins, that you
 
-<h3><a name="imexport"/>Im- and Export</h3>
+<h3><a name="aliases"/>Aliases</h3>
+
+<h3><a name="table-dumps"/>Database independant table dumps</h3>
 The import and export of SQL-tables is not yet supported ;-). I am thinking of
 some XML-format. Anyone wants to implement this ?
 
@@ -416,4 +420,4 @@ This will once be the FAQ. But for now, there is only one question..
 	 (HenPlus command: <code>autocommit-on</code>).
 <br>
 <hr noshade="noshade" size="1"/>
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.5 2002-05-29 18:03:02 hzeller Exp $ &copy; Henner Zeller</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.6 2002-06-10 17:38:57 hzeller Exp $ &copy; Henner Zeller</font></div>
