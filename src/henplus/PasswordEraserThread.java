@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PasswordEraserThread.java,v 1.2 2003-01-27 17:50:14 hzeller Exp $
+ * $Id: PasswordEraserThread.java,v 1.3 2003-01-28 05:55:26 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  * inspired by hack provided in 
  *  <http://java.sun.com/features/2002/09/pword_mask.html>
@@ -11,6 +11,14 @@ package henplus;
 
 import java.io.*;
 
+/**
+ * Erase password as it is typed. Since we do not have access to 
+ * the tty in a way to switch off echoing, we constantly override
+ * any stuff written with spaces. This is a hack, since it is kinda
+ * busy process doing this in a loop and it may still expose letters
+ * from the password for the fraction of a second. However, this is
+ * better than nothing, right ?
+ */
 class PasswordEraserThread extends Thread {
     private final String eraser;
     private volatile boolean running;
