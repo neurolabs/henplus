@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.27 2004-03-06 12:49:56 hzeller Exp $
+ * $Id: SQLSession.java,v 1.28 2004-03-06 13:19:29 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -116,6 +116,8 @@ public class SQLSession implements Interruptable {
 
         _propertyRegistry.registerProperty("auto-commit", 
                                            new AutoCommitProperty());
+        _propertyRegistry.registerProperty("read-only", 
+                                           new ReadOnlyProperty());
         _propertyRegistry
             .registerProperty("isolation-level",
                               new IsolationLevelProperty(availableIsolations,
@@ -346,6 +348,40 @@ public class SQLSession implements Interruptable {
 	return result;
     }
 
+    private class ReadOnlyProperty extends BooleanPropertyHolder {
+
+        ReadOnlyProperty() {
+            super(false);
+            _propertyValue = "off"; // 'off' sounds better in this context.
+        }
+
+        public void booleanPropertyChanged(boolean switchOn) throws Exception {
+            /*
+             * readonly requires a closed transaction.
+             */
+            if (!switchOn) {
+                getConnection().rollback(); // save choice.
+            }
+            else {
+                /* if we switched off and the user has not closed the current
+                 * transaction, setting readonly will throw an exception 
+                 * and will notify the user about what to do.. */
+            }
+            getConnection().setReadOnly(switchOn);
+            if (getConnection().isReadOnly() != switchOn) {
+                throw new Exception("JDBC-Driver ignores request; transaction closed before ?");
+            }            
+        }
+        
+        public String getDefaultValue() {
+            return "off";
+        }
+
+        public String getShortDescription() {
+            return "Switches on read only mode for optimizations.";
+        }
+    }
+
     private class AutoCommitProperty extends BooleanPropertyHolder {
 
         AutoCommitProperty() {
@@ -357,12 +393,16 @@ public class SQLSession implements Interruptable {
             /*
              * due to a bug in Sybase, we have to close the
              * transaction first before setting autcommit.
-             * This is probably a save choice to do.
+             * This is probably a save choice to do, since the user asks
+             * for autocommit..
              */
             if (switchOn) {
                 getConnection().commit();
             }
             getConnection().setAutoCommit(switchOn);
+            if (getConnection().getAutoCommit() != switchOn) {
+                throw new Exception("JDBC-Driver ignores request");
+            }
         }
         
         public String getDefaultValue() {
