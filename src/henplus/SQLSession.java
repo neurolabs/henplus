@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.28 2004-03-06 13:19:29 hzeller Exp $
+ * $Id: SQLSession.java,v 1.29 2004-03-06 15:37:18 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -206,7 +206,6 @@ public class SQLSession implements Interruptable {
             DatabaseMetaData meta = _conn.getMetaData();
             if (meta != null) {
                 _username = meta.getUserName();
-                System.err.println("Schema is " + meta.getSchemaTerm());
             }
         }
 	_connectTime = System.currentTimeMillis();
@@ -348,6 +347,8 @@ public class SQLSession implements Interruptable {
 	return result;
     }
 
+    /* ------- Session Properties ----------------------------------- */
+
     private class ReadOnlyProperty extends BooleanPropertyHolder {
 
         ReadOnlyProperty() {
@@ -446,7 +447,11 @@ public class SQLSession implements Interruptable {
             if (isolationLevel == null) {
                 throw new IllegalArgumentException("invalid value");
             }
-            getConnection().setTransactionIsolation(isolationLevel.intValue());
+            int isolation = isolationLevel.intValue();
+            getConnection().setTransactionIsolation(isolation);
+            if (getConnection().getTransactionIsolation() != isolation) {
+                throw new Exception("JDBC-Driver ignores request");
+            }
         }
 
         public String getShortDescription() {

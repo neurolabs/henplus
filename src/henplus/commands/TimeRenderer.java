@@ -1,12 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TimeRenderer.java,v 1.5 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: TimeRenderer.java,v 1.6 2004-03-06 15:37:18 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
 import henplus.OutputDevice;
+import henplus.AbstractOutputDevice;
 
 /**
  * document me.
@@ -21,6 +22,18 @@ public class TimeRenderer {
 	long milli = execTime / number;
 	long micro = (execTime - number * milli) * 1000 / number;
 	printTime(milli, micro, out);
+    }
+
+    public static String renderTime(long execTime) {
+        return renderTime(execTime, 0);
+    }
+
+    public static String renderTime(long execTime, long usec) {
+        final StringBuffer result = new StringBuffer();
+        printTime(execTime, usec, new AbstractOutputDevice() {
+                public void print(String s) { result.append(s); }
+            });
+        return result.toString();
     }
 
     public static void printTime(long execTime, OutputDevice out) {

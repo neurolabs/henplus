@@ -41,10 +41,13 @@ public class ConnectCommand extends AbstractCommand {
     private final static ColumnMetaData[] SESS_META;
 
     static {
-	SESS_META = new ColumnMetaData[3];
+	SESS_META = new ColumnMetaData[5];
 	SESS_META[0] = new ColumnMetaData("session");
 	SESS_META[1] = new ColumnMetaData("user");
-	SESS_META[2] = new ColumnMetaData("url");
+	SESS_META[2] = new ColumnMetaData("jdbc url");
+	SESS_META[3] = new ColumnMetaData("uptime");
+	SESS_META[4] = new ColumnMetaData("#stmts", 
+                                          ColumnMetaData.ALIGN_RIGHT);
     }
 
     /**
@@ -241,26 +244,7 @@ public class ConnectCommand extends AbstractCommand {
 	int argc = st.countTokens();
 	
 	if ("sessions".equals(cmd)) {
-	    HenPlus.msg().println("current session is marked with '*'");
-	    SESS_META[0].resetWidth();
-	    SESS_META[1].resetWidth();
-	    SESS_META[2].resetWidth();
-	    TableRenderer table = new TableRenderer(SESS_META, HenPlus.out());
-	    Map.Entry entry = null;
-	    Iterator it = _sessionManager.getSessionNames().iterator();
-	    while (it.hasNext()) {
-                String sessName = (String)it.next();
-                session = _sessionManager.getSessionByName(sessName);
-    		String prepend = sessName.equals(currentSessionName) 
-    		    ? " * "
-    		    : "   ";
-    		Column[] row = new Column[3];
-    		row[0] = new Column(prepend + sessName);
-    		row[1] = new Column(session.getUsername());
-    		row[2] = new Column(session.getURL());
-    		table.addRow(row);
-	    }
-	    table.closeTable();
+            showSessions();
 	    return SUCCESS;
 	}
 
@@ -378,6 +362,31 @@ public class ConnectCommand extends AbstractCommand {
 	henplus.setCurrentSession(session);
 
 	return SUCCESS;
+    }
+
+    private void showSessions() {
+        HenPlus.msg().println("current session is marked with '*'");
+        for (int i=0; i < SESS_META.length; ++i) {
+            SESS_META[i].resetWidth();
+        }
+        TableRenderer table = new TableRenderer(SESS_META, HenPlus.out());
+        Map.Entry entry = null;
+        Iterator it = _sessionManager.getSessionNames().iterator();
+        while (it.hasNext()) {
+            String sessName = (String)it.next();
+            SQLSession session = _sessionManager.getSessionByName(sessName);
+            String prepend = sessName.equals(currentSessionName) 
+                ? " * "
+                : "   ";
+            Column[] row = new Column[5];
+            row[0] = new Column(prepend + sessName);
+            row[1] = new Column(session.getUsername());
+            row[2] = new Column(session.getURL());
+            row[3] = new Column(TimeRenderer.renderTime(session.getUptime()));
+            row[4] = new Column(session.getStatementCount());
+            table.addRow(row);
+        }
+        table.closeTable();
     }
 
     /**

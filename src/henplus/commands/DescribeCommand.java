@@ -217,9 +217,10 @@ public class DescribeCommand
                     row[2] = new Column( colname );
                     String type = rset.getString(6);
                     int colSize = rset.getInt(7);
-                    if (colSize > 0)
+                    if (colSize > 0) {
                         type = StringAppender.start(type).append("(").append(colSize).append(")").toString();
-                
+                    }
+
                     row[3] = new Column( type );
                     String defaultVal = rset.getString(13);
                     row[4] = new Column( rset.getString(18) );

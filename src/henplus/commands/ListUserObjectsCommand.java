@@ -71,13 +71,13 @@ public class ListUserObjectsCommand
 		Connection conn = session.getConnection();  // use createStmt
 		DatabaseMetaData meta = conn.getMetaData();
 		String catalog = conn.getCatalog();
-		/**/
+		/*
                 HenPlus.msg().println("catalog: " + catalog);
                 ResultSetRenderer catalogrenderer = 
-                    new ResultSetRenderer(meta.getCatalogs(), "|", true, true,
+                    new ResultSetRenderer(meta.getSchemas(), "|", true, true,
                                           2000, HenPlus.out());
                 catalogrenderer.execute();
-                /**/
+                */
 		ResultSetRenderer renderer;
                 ResultSet rset;
                 String objectType;
