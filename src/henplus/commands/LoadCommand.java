@@ -127,7 +127,7 @@ public class LoadCommand extends AbstractCommand {
 	    TimeRenderer.printTime(execTime, System.err);
 	    if (commandCount != 0) {
 		System.err.print("; avg. time ");
-		TimeRenderer.printTime(execTime / commandCount, System.err);
+		TimeRenderer.printFraction(execTime, commandCount, System.err);
 	    }
 	    if (execTime != 0 && commandCount > 0) {
 		System.err.print("; " + 
