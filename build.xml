@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.36 2004-03-08 10:34:49 magrokosmos Exp $ -->
+<!-- $Id: build.xml,v 1.37 2004-03-08 12:29:40 magrokosmos Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
@@ -119,8 +119,9 @@
 
      <target name="check.rpmbuild" description="Tests whether the rpmbuild command is available on this system. If so, the rpmbuild.executable property is set to 'rpmbuild', default it's 'rpm'.">
          <property name="rpmbuild.executable" value="rpm" />
+         <property environment="env"/>
          <available property="rpmbuild.executable" value="rpmbuild"
-                    file="rpmbuild" type="file" filepath="/usr/bin:/bin" />
+                    file="rpmbuild" type="file" filepath="${env.PATH}" />
      </target>
 
      <target name="rpm" depends="dist,check.rpmbuild" description="create distribution rpm">
@@ -135,9 +136,9 @@
         <!--rpm specFile="henplus.spec" topDir="${build}" command="-ba" /-->
         <!--echo message="${rpmbuild.executable}"/-->
         <exec dir="${build}" executable="${rpmbuild.executable}">
-           <arg line="-ba"/>
-           <arg line="--buildroot=${build}"/>
-           <arg line="SPECS/henplus.spec"/>
+            <arg line="-ba"/>
+            <arg line="--define '_topdir ${basedir}/${build}'"/>
+            <arg line="SPECS/henplus.spec"/>
         </exec>
      </target>
 
