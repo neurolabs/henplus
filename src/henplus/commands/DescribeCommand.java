@@ -171,12 +171,6 @@ public class DescribeCommand
 	     * build up actual describe table.
 	     */
             if (interrupted) return SUCCESS;
-            if ("describe".equals(cmd)) {
-                /*
-                 * no index describe
-                 */
-                return SUCCESS;
-            }
 
 	    rset = meta.getColumns(catalog, null, tabName, null);
 	    List rows = new ArrayList();
@@ -220,6 +214,13 @@ public class DescribeCommand
 	    Iterator it = rows.iterator();
 	    while (it.hasNext()) table.addRow((Column[]) it.next());
 	    table.closeTable();
+
+            if ("describe".equals(cmd)) {
+                /*
+                 * no index describe
+                 */
+                return SUCCESS;
+            }
 
 	    /*
 	     * index info.
