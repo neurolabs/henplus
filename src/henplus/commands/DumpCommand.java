@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.5 2002-06-14 18:38:53 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.6 2002-07-01 09:30:07 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -116,7 +116,7 @@ public class DumpCommand
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "dump-out", "dump-in", "verify-dump" //, "dump-tables"
+	    "dump-out", "dump-in", "verify-dump", "dump-conditional"
 	};
     }
 
@@ -129,17 +129,18 @@ public class DumpCommand
      * execute the command given.
      */
     public int execute(SQLSession session, String cmd, String param) {
+	final String FILE_ENCODING = System.getProperty("file.encoding");
 	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 
-	if ("dump-out".equals(cmd)) {
+	if ("dump-conditional".equals(cmd)) {
 	    if (session == null) {
 		System.err.println("not connected.");
 		return EXEC_FAILED;
 	    }
 	    if ((argc < 2)) return SYNTAX_ERROR;
-	    String tabName  = (String) st.nextElement();
 	    String fileName = (String) st.nextElement();
+	    String tabName  = (String) st.nextElement();
 	    String whereClause = null;
 	    if (argc >= 3) {
 		whereClause = (String) st.nextToken("\n"); // till EOL
@@ -149,17 +150,51 @@ public class DumpCommand
 		    whereClause = whereClause.trim();
 		}
 	    }
+	    PrintStream out = null;
 	    try {
-		int result = dumpTable(session, tabName, fileName, 
-				       whereClause);
+		out = openOutputStream(fileName, FILE_ENCODING);
+		int result = dumpTable(session, tabName, whereClause, out,
+				       FILE_ENCODING);
 		return result;
 	    }
 	    catch (Exception e) {
 		System.err.println("failed: " + e.getMessage());
 		return EXEC_FAILED;
 	    }
+	    finally {
+		if (out != null) out.close(); 
+	    }
 	}
 	
+	else if ("dump-out".equals(cmd)) {
+	    if (session == null) {
+		System.err.println("not connected.");
+		return EXEC_FAILED;
+	    }
+	    if ((argc < 2)) return SYNTAX_ERROR;
+	    String fileName = (String) st.nextElement();
+	    PrintStream out = null;
+	    try {
+		out = openOutputStream(fileName, FILE_ENCODING);
+		while (st.hasMoreElements()) {
+		    String tabName  = (String) st.nextElement();
+		    int result = dumpTable(session, tabName, null, out,
+					   FILE_ENCODING);
+		    if (result != SUCCESS) {
+			return result;
+		    }
+		}
+		return SUCCESS;
+	    }
+	    catch (Exception e) {
+		System.err.println("failed: " + e.getMessage());
+		return EXEC_FAILED;
+	    }
+	    finally {
+		if (out != null) out.close(); 
+	    }
+	}
+
 	else if ("dump-in".equals(cmd)) {
 	    if (session == null) {
 		System.err.println("not connected. Only verify possible.");
@@ -178,47 +213,93 @@ public class DumpCommand
 		    return SYNTAX_ERROR;
 		}
 	    }
-	    
+
+	    LineNumberReader in = null;
 	    try {
 		SigIntHandler.getInstance().registerInterrupt(this);
-		int result = readTableDump(session, fileName, 
-					   System.getProperty("file.encoding"),
-					   true, 
-					   commitPoint);
-		if (!_running) {
-		    System.err.print("interrupted.");
+		in = openInputReader(fileName, FILE_ENCODING);
+		while (skipWhite(in)) {
+		    int result = readTableDump(in, FILE_ENCODING,
+					       session, true, commitPoint);
+		    if (!_running) {
+			System.err.print("interrupted.");
+			return result;
+		    }
+		    if (result != SUCCESS) {
+			return result;
+		    }
 		}
-		return result;
-	    }
-	    catch (Exception e) {
-		System.err.println("failed: " + e.getMessage());
-		return EXEC_FAILED;
-	    }
-	}
-	
-	else if ("verify-dump".equals(cmd)) {
-	    if (argc != 1) return SYNTAX_ERROR;
-	    String fileName = (String) st.nextElement();
-	    try {
-		SigIntHandler.getInstance().registerInterrupt(this);
-		int result = readTableDump(session, fileName, 
-					   System.getProperty("file.encoding"),
-					   false, -1);
-		if (!_running) {
-		    System.err.print("interrupted.");
-		}
-		return result;
-	    }
-	    catch (InterruptedException ie) {
-		System.err.println("interrupted.");
 		return SUCCESS;
 	    }
 	    catch (Exception e) {
 		System.err.println("failed: " + e.getMessage());
 		return EXEC_FAILED;
 	    }
+	    finally {
+		try { 
+		    if (in != null) in.close(); 
+		} 
+		catch (IOException e) {
+		    System.err.println("closing file failed.");
+		}
+	    }
+	}
+	
+	else if ("verify-dump".equals(cmd)) {
+	    if (argc != 1) return SYNTAX_ERROR;
+	    String fileName = (String) st.nextElement();
+	    LineNumberReader in = null;
+	    try {
+		SigIntHandler.getInstance().registerInterrupt(this);
+		in = openInputReader(fileName, FILE_ENCODING);
+		while (skipWhite(in)) {
+		    int result = readTableDump(in, FILE_ENCODING,
+					       session, false, -1);
+		    if (!_running) {
+			System.err.print("interrupted.");
+			return result;
+		    }
+		    if (result != SUCCESS) {
+			return result;
+		    }
+		}
+		return SUCCESS;
+	    }
+	    catch (Exception e) {
+		System.err.println("failed: " + e.getMessage());
+		return EXEC_FAILED;
+	    }
+	    finally {
+		try { 
+		    if (in != null) in.close(); 
+		} 
+		catch (IOException e) {
+		    System.err.println("closing file failed.");
+		}
+	    }
 	}
 	return SYNTAX_ERROR;
+    }
+
+    private PrintStream openOutputStream(String fileName, 
+					 String encoding)
+	throws IOException {
+	OutputStream outStream = new FileOutputStream(new File(fileName));
+	if (fileName.endsWith(".gz")) {
+	    outStream = new GZIPOutputStream(outStream, 4096);
+	}
+	return new PrintStream(outStream, false, encoding);
+    }
+
+    private LineNumberReader openInputReader(String fileName, 
+					     String fileEncoding) 
+	throws IOException {
+	InputStream inStream = new FileInputStream(fileName);
+	if (fileName.endsWith(".gz")) {
+	    inStream = new GZIPInputStream(inStream);
+	}
+	Reader fileIn = new InputStreamReader(inStream, fileEncoding);
+	return new LineNumberReader(fileIn);
     }
 
     // to make the field-name and field-type nicely aligned
@@ -233,8 +314,9 @@ public class DumpCommand
 	    out.print(' ');
     }
 
-    private int dumpTable(SQLSession session, String tabName, String fileName,
-			  String whereClause)
+    private int dumpTable(SQLSession session, String tabName, 
+			  String whereClause,
+			  PrintStream dumpOut, String fileEncoding)
 	throws Exception {
 
 	// asking for meta data is only possible with the correct
@@ -276,16 +358,9 @@ public class DumpCommand
 			       + "' found.");
 	    return EXEC_FAILED;
 	}
-
-	OutputStream outStream = new FileOutputStream(new File(fileName));
-	if (fileName.endsWith(".gz")) {
-	    outStream = new GZIPOutputStream(outStream, 4096);
-	}
-	PrintStream dumpOut = new PrintStream(outStream);
 	
 	dumpOut.println("(tabledump '" + tabName + "'");
-	dumpOut.println("  (file-encoding '" + 
-			System.getProperty("file.encoding") + "')");
+	dumpOut.println("  (file-encoding '" + fileEncoding + "')");
 	dumpOut.println("  (dump-version " + DUMP_VERSION + " " 
 			+ DUMP_VERSION + ")");
 	if (whereClause != null) {
@@ -445,7 +520,8 @@ public class DumpCommand
 		}
 	    }
 	    dumpOut.println(")");
-	    dumpOut.println("  (rows " + rows + "))");
+	    dumpOut.println("  (rows " + rows + "))\n");
+
 	    System.err.print("(" + rows + " rows)\n");
 	    long execTime = System.currentTimeMillis()-startTime;
 	    TimeRenderer.printTime(execTime, System.err);
@@ -470,7 +546,6 @@ public class DumpCommand
 	    if (stmt != null) {
 		try { stmt.close(); } catch (Exception e) {}
 	    }
-	    dumpOut.close();
 	}
 	return SUCCESS;
     }
@@ -501,8 +576,8 @@ public class DumpCommand
 	return null;
     }
 
-    private int readTableDump(SQLSession session, String filename, 
-			      String fileEncoding, boolean hot,
+    private int readTableDump(LineNumberReader reader, String fileEncoding,
+			      SQLSession session, boolean hot,
 			      int commitPoint)
 	throws IOException, SQLException, InterruptedException {
 	MetaProperty[] metaProperty = null;
@@ -522,13 +597,6 @@ public class DumpCommand
 	Connection conn = null;
 	PreparedStatement stmt = null;
 
-	InputStream inStream = new FileInputStream(filename);
-	if (filename.endsWith(".gz")) {
-	    inStream = new GZIPInputStream(inStream);
-	}
-	Reader fileIn = new InputStreamReader(inStream, fileEncoding);
-	LineNumberReader reader = new LineNumberReader(fileIn);
-
 	expect(reader, '(');
 	token = readToken(reader);
 	if (!"tabledump".equals(token)) raiseException(reader, 
@@ -538,7 +606,9 @@ public class DumpCommand
 	_running = true; // interruptable
 	while (_running) {
 	    skipWhite(reader);
-	    char inCh = (char) reader.read();
+	    int rawChar = reader.read();
+	    if (rawChar == -1) return SUCCESS; // EOF reached.
+	    char inCh = (char) rawChar;
 	    if (inCh == ')') break;
 	    if (inCh != '(') {
 		raiseException(reader, "'(' or ')' expected");
@@ -564,7 +634,7 @@ public class DumpCommand
 		expect(reader, ')');
 	    }
 
-	    if ("file-encoding".equals(token)) {
+	    else if ("file-encoding".equals(token)) {
 		token = readString(reader);
 		if (!token.equals(fileEncoding)) {
 		    raiseException(reader,
@@ -574,41 +644,41 @@ public class DumpCommand
 		expect(reader, ')');
 	    }
 
-	    if ("henplus-version".equals(token)) {
+	    else if ("henplus-version".equals(token)) {
 		token = readString(reader);
 		henplusVersion = token;
 		expect(reader, ')');
 	    }
 
-	    if ("rows".equals(token)) {
+	    else if ("rows".equals(token)) {
 		token = readToken(reader);
 		expectedRows = Integer.valueOf(token).intValue();
 		expect(reader, ')');
 	    }
 
-	    if ("database-info".equals(token)) {
+	    else if ("database-info".equals(token)) {
 		databaseInfo = readString(reader);
 		expect(reader, ')');
 	    }
 
-	    if ("where-clause".equals(token)) {
+	    else if ("where-clause".equals(token)) {
 		whereClause = readString(reader);
 		expect(reader, ')');
 	    }
 
-	    if ("time".equals(token)) {
+	    else if ("time".equals(token)) {
 		dumpTime = readString(reader);
 		expect(reader, ')');
 	    }
 
-	    if ("meta".equals(token)) {
+	    else if ("meta".equals(token)) {
 		if (dumpVersion < 0 || compatibleVersion < 0) {
 		    raiseException(reader, "cannot read meta data without dump-version information");
 		}
 		metaProperty = parseMetaData(reader);
 	    }
 
-	    if ("data".equals(token)) {
+	    else if ("data".equals(token)) {
 		if (metaProperty == null) {
 		    raiseException(reader, "no meta-data available");
 		}
@@ -772,6 +842,12 @@ public class DumpCommand
 		    }
 		}
 	    }
+	    
+	    else {
+		System.err.println("ignoring unknown token " + token);
+		dumpTime = readString(reader);
+		expect(reader, ')');
+	    }
 	}
 	
 	// final commit, if commitPoints are enabled.
@@ -794,7 +870,6 @@ public class DumpCommand
 	System.err.print(" total; ");
 	TimeRenderer.printFraction(execTime, importedRows, System.err);
 	System.err.println(" / row)");
-	fileIn.close();
 	return SUCCESS;
     }
 
@@ -849,16 +924,20 @@ public class DumpCommand
 	out.print(buf.toString());
     }
 
-    private void skipWhite(Reader in) throws IOException {
+    /**
+     * skip whitespace. return false, if EOF reached.
+     */
+    private boolean skipWhite(Reader in) throws IOException {
 	in.mark(1);
 	int c;
 	while ((c = in.read()) > 0) {
 	    if (!Character.isWhitespace((char)c)) {
 		in.reset();
-		break;
+		return true;
 	    }
 	    in.mark(1);
 	}
+	return false;
     }
 
     private String readToken(LineNumberReader in) throws IOException {
@@ -946,21 +1025,59 @@ public class DumpCommand
 	    argc--;
 	}
 	
-	if ("dump-out".equals(cmd)) {
+	if ("dump-conditional".equals(cmd)) {
 	    if (argc == 0) {
+		return new FileCompletionIterator(lastWord);
+	    }
+	    else if (argc == 1) {
 		if (lastWord.startsWith("\"")) {
 		    lastWord = lastWord.substring(1);
 		}
 		return tableCompleter.completeTableName(lastWord);
 	    }
-	    else if (argc == 1) {
-		return new FileCompletionIterator(lastWord);
-	    }
 	    else if (argc > 1) {
+		st.nextElement(); // discard filename.
 		String table = (String) st.nextElement();
 		Collection columns = tableCompleter.columnsFor(table);
 		NameCompleter compl = new NameCompleter(columns);
 		return compl.getAlternatives(lastWord);
+	    }
+	}
+	else if ("dump-out".equals(cmd)) {
+	    // this is true for dump-out und verify-dump
+	    if (argc == 0) {
+		return new FileCompletionIterator(lastWord);
+	    }
+	    if (argc > 0) {
+		if (lastWord.startsWith("\"")) {
+		    lastWord = lastWord.substring(1);
+		}
+		final HashSet  alreadyGiven = new HashSet();
+		/*
+		 * do not complete the tables we already gave on the
+		 * commandline.
+		 */
+		while (st.hasMoreElements()) {
+		    alreadyGiven.add((String) st.nextElement());
+		}
+		final Iterator it = tableCompleter.completeTableName(lastWord);
+		return new Iterator() {
+			String table = null;
+			public boolean hasNext() {
+			    while (it.hasNext()) {
+				table = (String) it.next();
+				if (alreadyGiven.contains(table)) {
+				    continue;
+				}
+				return true;
+			    }
+			    return false;
+			}
+			public Object  next() { return table; }
+			public void remove() { 
+			    throw new UnsupportedOperationException("no!");
+			}
+		    };
 	    }
 	}
 	else {
@@ -987,7 +1104,10 @@ public class DumpCommand
 
     public String getSynopsis(String cmd) {
 	if ("dump-out".equals(cmd)) {
-	    return cmd + " <tablename> <filename> [<where-clause>]";
+	    return cmd + " <filename> <tablename> [<tablename> ..]";
+	}
+	if ("dump-conditional".equals(cmd)) {
+	    return cmd + " <filename> <tablename> [<where-clause>]";
 	}
 	else if ("dump-in".equals(cmd)) {
 	    return cmd + " <filename> [<commitpoints>]";
@@ -1001,9 +1121,9 @@ public class DumpCommand
     public String getLongDescription(String cmd) {
 	String dsc = null;
 	if ("dump-out".equals(cmd)) {
-	    dsc= "\tDump out the contents of the table to the file with the\n"
-		+"\tgiven name. If the filename ends with '.gz', the content\n"
-		+"\tis gzip'ed automatically .. that saves space.\n\n"
+	    dsc= "\tDump out the contents of the table(s) given to the file\n"
+		+"\twith the given name. If the filename ends with '.gz', the\n"
+		+"\tcontent is gzip'ed automatically .. that saves space.\n\n"
 		+"\tThe dump-format allows to read in the data back into\n"
 		+"\tthe database ('dump-in' command). And unlike pure SQL-insert\n"
 		+"\tstatements, this works even across databases.\n"
@@ -1026,15 +1146,17 @@ public class DumpCommand
 		+"\t    (rows 4))\n"
 		+"\t----------------\n\n"
 		+"\tTODOs\n"
-		+"\tFor now, it is only possible to store a single table per\n"
-		+"\tfile. If you have to dump multiple tables, then you\n"
-		+"\thave to create multiple files.\n"
-		+"\tAdditionally, this format contains only the data, no\n"
+		+"\tThis format contains only the data, no\n"
 		+"\tcanonical 'create table' statement - so the table must\n"
 		+"\talready exist at import time. Both these features will\n"
-		+"\tbe in later versions of HenPlus.\n";;
+		+"\tbe in later versions of HenPlus.";
 	}
 
+	else if ("dump-conditional".equals(cmd)) {
+	    dsc= "\tLike dump-out, but dump only the rows of a single table\n"
+		+"\tthat match the where clause.";
+	}
+	
 	else if ("dump-in".equals(cmd)) {
 	    dsc= "\tRead back in the data that has been dumped out with the\n"
 		+"\t'dump-out' command. If the filename ends with '.gz',\n"
