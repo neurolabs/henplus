@@ -1,12 +1,11 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.24 2002-02-14 22:38:34 hzeller Exp $
+ * $Id: HenPlus.java,v 1.25 2002-02-15 00:02:25 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
-import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.HashMap;
@@ -23,7 +22,7 @@ import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
 
 public class HenPlus {
-    public static final boolean verbose = true; // debug.
+    public static final boolean verbose = false; // debug.
     private static final String EXIT_MSG   = "good bye.";
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT     = "Hen*Plus> ";
@@ -36,7 +35,6 @@ public class HenPlus {
     
     private CommandDispatcher dispatcher;
     private SQLSession        session;
-    private Properties        properties;
     private boolean           terminated;
     private String            prompt;
     private String            emptyPrompt;
@@ -47,9 +45,8 @@ public class HenPlus {
     private boolean           _optQuiet;
     private SQLStatementSeparator _commandSeparator;
 
-    private HenPlus(Properties properties, String argv[]) throws IOException {
+    private HenPlus(String argv[]) throws IOException {
 	terminated = false;
-	this.properties = properties;
 	_alreadyShutDown = false;
 	_commandSeparator = new SQLStatementSeparator();
 	
@@ -73,25 +70,6 @@ public class HenPlus {
 	    System.err.println("input not a terminal; disabling TAB-completion");
 	}
 
-	/*
-	 * initialize known JDBC drivers.
-	 */
-	Enumeration props = properties.propertyNames();
-	while (props.hasMoreElements()) {
-	    String name = (String) props.nextElement();
-	    if (name.startsWith("driver.") && name.endsWith(".class")) {
-		try {
-		    String driverClass = properties.getProperty(name);
-		    if (verbose) System.err.print("loading .. '" + driverClass + "'");
-		    Class.forName(driverClass);
-		    if (verbose) System.err.println(" done.");
-		}
-		catch (Throwable t) {
-		    if (verbose) System.err.println(" failed: " + t.getMessage());
-		}
-	    }
-	}
-
 	_settingStore = new SetCommand(this);
 	dispatcher = new CommandDispatcher(_settingStore);
 	dispatcher.register(new HelpCommand());
@@ -106,6 +84,7 @@ public class HenPlus {
 	dispatcher.register(new StatusCommand());
 	dispatcher.register(new ConnectCommand( argv, this ));
 	dispatcher.register(new LoadCommand());
+	dispatcher.register(new DriverCommand(this));
 	dispatcher.register(new AutocommitCommand()); // replace with 'set'
 	dispatcher.register(_settingStore);
 	Readline.setCompleter( dispatcher );
@@ -354,46 +333,6 @@ public class HenPlus {
     }
 
     public static final void main(String argv[]) throws Exception {
-	Properties properties = new Properties();
-	
-	properties.setProperty("driver.Oracle.class", 
-			       "oracle.jdbc.driver.OracleDriver");
-	properties.setProperty("driver.Oracle.example",
-			       "jdbc:oracle:thin:@localhost:1521:ORCL");
-	/*
-	 * wenn auskommentieren, dann mal 'verbose' oben einstellen, denn
-	 * es scheint, dass das nicht richtig geladen wird.
-	 *
-	 */
-	properties.setProperty("driver.DB2.class",
-			       "COM.ibm.db2.jdbc.net.DB2Driver");
-	properties.setProperty("driver.DB2.example",
-			       "jdbc:db2://localhost:6789/foobar");
-	properties.setProperty("driver.MySQL.class",
-			       "org.gjt.mm.mysql.Driver");
-	properties.setProperty("driver.MySQL.example",
-			       "jdbc:mysql://localhost/foobar");
-
-	properties.setProperty("driver.SAP-DB.class",
-			       "com.sap.dbtech.jdbc.DriverSapDB");
-	properties.setProperty("driver.SAP-DB.example",
-			       "jdbc:sapdb://localhost/foobar");
-
-	properties.setProperty("driver.Postgres.class",
-			       "org.postgresql.Driver");
-	properties.setProperty("driver.Postgres.example",
-			       "jdbc:postgresql://localhost/foobar");
-
-	properties.setProperty("driver.Adabas.class",
-			       "de.sag.jdbc.adabasd.ADriver");
-	properties.setProperty("driver.Adabas.example",
-			       "jdbc:adabasd://adabasdserver:7200/work");
-
-	properties.setProperty("driver.Emetor.class",
-			       "de.mercatis.emetor.jdbc.Driver");
-	properties.setProperty("driver.Adabas.example",
-			       "emetor:jdbc:sapdb://localhost/foobar");
-
 	String cpy;
 	cpy = 
 "-------------------------------------------------------------------------\n"
@@ -401,10 +340,10 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.24 $]--\n";
++"----------------------------------------------------[$Revision: 1.25 $]--\n";
 	System.err.println(cpy);
 
-	instance = new HenPlus(properties, argv);
+	instance = new HenPlus(argv);
 	instance.run();
 	instance.shutdown();
 	System.err.println( EXIT_MSG );
