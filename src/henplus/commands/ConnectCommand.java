@@ -88,18 +88,44 @@ public class ConnectCommand extends AbstractCommand {
     }
     
     private String createSessionName(SQLSession session, String name) {
+	String userName = null;
+	String dbName   = null;
+	String hostname = null;
+	String url = session.getURL();
+
 	if (name == null || name.length() == 0) {
 	    StringBuffer result = new StringBuffer();
-	    if (session.getUsername() != null) {
-		result.append(session.getUsername());
-		result.append('@');
+	    userName = session.getUsername();
+	    StringTokenizer st = new StringTokenizer(url, ":");
+	    while (st.hasMoreElements()) {
+		String val = (String) st.nextElement();
+		if (val.toUpperCase().equals("JDBC"))
+		    continue;
+		dbName = val;
+		break;
 	    }
-	    StringTokenizer st = new StringTokenizer(session.getURL(), ":");
-	    try {
-		st.nextElement();
-		result.append(st.nextElement());
+	    int pos;
+	    if ((pos = url.indexOf('@')) >= 0) {
+		st = new StringTokenizer(url.substring(pos+1), ":/");
+		try { 
+		    hostname = (String) st.nextElement(); 
+		} 
+		catch (Exception e) { /* ignore */ }
 	    }
-	    catch (Exception ign) {}
+	    else if ((pos = url.indexOf('/')) >= 0) {
+		st = new StringTokenizer(url.substring(pos+1), ":/");
+		while (st.hasMoreElements()) {
+		    String val = (String) st.nextElement();
+		    if (val.length() == 0)
+			continue;
+		    hostname = val;
+		    break;
+		}
+	    }
+	    if (userName != null) result.append(userName + "@");
+	    if (dbName != null)   result.append(dbName);
+	    if (dbName != null && hostname != null) result.append(":");
+	    if (hostname != null) result.append(hostname);
 	    name = result.toString();
 	}
 	String key = name;
