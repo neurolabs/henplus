@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SigIntHandler.java,v 1.6 2002-10-09 17:41:55 hzeller Exp $ 
+ * $Id: SigIntHandler.java,v 1.7 2003-01-24 21:41:17 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -51,17 +51,15 @@ public class SigIntHandler implements SignalHandler {
 
     public void handle(Signal sig) {
 	if (once) {
-	    // got the interrupt twice. Just exit.
+	    // got the interrupt more than once. May happen if you press
+            // Ctrl-C multiple times .. or with broken thread lib on Linux.
 	    return;
 	}
 
 	once = true;
 	if (!toInterruptStack.empty()) {
             Interruptable toInterrupt = (Interruptable)toInterruptStack.peek();
-	    // this doesn't work, since the JDBC driver is not in a 'wait()'
-	    //System.err.println("try to interrupt: " + toInterrupt);
 	    toInterrupt.interrupt();
-	    toInterrupt = null;
 	}
 	else {
 	    System.err.println("[Ctrl-C ; interrupted]");

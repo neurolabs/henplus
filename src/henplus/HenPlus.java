@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.47 2003-01-20 13:35:19 hzeller Exp $
+ * $Id: HenPlus.java,v 1.48 2003-01-24 21:41:16 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -155,6 +155,21 @@ public class HenPlus implements Interruptable {
 	 * classes, then just disable this call and the SigIntHandler class.
 	 */
 	SigIntHandler.install();
+
+        /* TESTING */
+        sun.misc.SignalHandler stoptest = new sun.misc.SignalHandler () {
+                public void handle(sun.misc.Signal sig) {
+                    System.out.println("caught: " + sig);
+                }
+            };
+        try {
+            sun.misc.Signal.handle(new sun.misc.Signal("TSTP"), stoptest);
+        }
+        catch (Exception e) {
+            // ignore.
+        }
+
+        /* end testing */
     }
     
     public void pushBuffer() {
@@ -327,6 +342,7 @@ public class HenPlus implements Interruptable {
                 storeLineInHistory();
 	    }
 	}
+        SigIntHandler.getInstance().reset();
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.13 2002-11-21 17:50:52 hzeller Exp $
+ * $Id: SQLSession.java,v 1.14 2003-01-24 21:41:17 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -205,7 +205,9 @@ public class SQLSession implements Interruptable {
     
     public void close() {
 	try {
+            Connection conn = getConnection();
 	    getConnection().close();
+            _conn = null;
 	}
 	catch (Exception e) {
 	    System.err.println(e); // don't care
