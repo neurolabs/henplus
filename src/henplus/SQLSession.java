@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.26 2004-03-05 23:34:38 hzeller Exp $
+ * $Id: SQLSession.java,v 1.27 2004-03-06 12:49:56 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -175,53 +175,63 @@ public class SQLSession implements Interruptable {
     }
 
     public void connect() throws SQLException, IOException {
-	boolean authRequired = false;
-
 	/*
 	 * close old connection ..
 	 */
 	if (_conn != null) {
 	    try { _conn.close(); } catch (Throwable t) { /* ignore */ }
+            _conn = null;
 	}
 
-	// try to connect directly with the url.
+	/* try to connect directly with the url. Several JDBC-Drivers
+         * allow to embed the username and password directly in the URL.
+         */
 	if (_username == null || _password == null) {
 	    try {
 		_conn = DriverManager.getConnection(_url);
 	    }
 	    catch (SQLException e) {
                 HenPlus.msg().println(e.getMessage());
-		authRequired = true;
+                promptUserPassword();
 	    }
 	}
-	
-	// read username, password
-	if (authRequired) {
-	    HenPlus.msg().println("============ authorization required ===");
-	    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-            _interrupted = false;
-            try {
-                SigIntHandler.getInstance().pushInterruptable(this);
-                HenPlus.getInstance();
-                HenPlus.msg().print("Username: ");
-                _username = input.readLine();
-                if (_interrupted) {
-                    throw new IOException("connect interrupted ..");
-                }
-                _password = promptPassword("Password: ");
-                if (_interrupted) {
-                    throw new IOException("connect interrupted ..");
-                }
+        
+        if (_conn == null) {
+            _conn = DriverManager.getConnection(_url, _username, _password);
+        }
+
+        if (_conn != null && _username == null) {
+            DatabaseMetaData meta = _conn.getMetaData();
+            if (meta != null) {
+                _username = meta.getUserName();
+                System.err.println("Schema is " + meta.getSchemaTerm());
             }
-            finally {
-                SigIntHandler.getInstance().popInterruptable();
-            }
-	}
-	
-	_conn = DriverManager.getConnection(_url, _username, _password);
+        }
 	_connectTime = System.currentTimeMillis();
     }
-    
+
+    private void promptUserPassword() throws IOException {
+        HenPlus.msg().println("============ authorization required ===");
+        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+        _interrupted = false;
+        try {
+            SigIntHandler.getInstance().pushInterruptable(this);
+            HenPlus.getInstance();
+            HenPlus.msg().print("Username: ");
+            _username = input.readLine();
+            if (_interrupted) {
+                throw new IOException("connect interrupted ..");
+            }
+            _password = promptPassword("Password: ");
+            if (_interrupted) {
+                throw new IOException("connect interrupted ..");
+            }
+        }
+        finally {
+            SigIntHandler.getInstance().popInterruptable();
+        }
+    }
+
     /**
      * This is after a hack found in 
      * http://java.sun.com/features/2002/09/pword_mask.html
