@@ -26,7 +26,7 @@ import java.sql.Types;
 public class SQLCommand extends AbstractCommand {
     private static final boolean verbose = false; // debug.
     private final static String[] COMPLETER_KEYWORD = {
-	"FROM", "INTO", "UPDATE", "TABLE"
+	"FROM", "INTO", "UPDATE", "TABLE", /*create index*/"ON"
     };
     
     /**
@@ -179,12 +179,56 @@ public class SQLCommand extends AbstractCommand {
 	return null;
     }
 
+    public String getSynopsis(String cmd) { 
+	cmd = cmd.toLowerCase();
+	String syn = null;
+	if ("select".equals(cmd)) {
+	    syn="select <columns> from <table[s]> [ where <where-clause>]";
+	}
+	else if ("insert".equals(cmd)) {
+	    syn="insert into <table> [(<columns>])] values (<values>)";
+	}
+	else if ("delete".equals(cmd)) {
+	    syn="delete from <table> [ where <where-clause>]";
+	}
+	else if ("update".equals(cmd)) {
+	    syn="update <table> set <column>=<value>[,...] [ where <where-clause> ]";
+	}
+	else if ("drop".equals(cmd)) {
+	    syn="drop <table|index|view|...>";
+	}
+	else if ("commit".equals(cmd))   { syn = cmd; }
+	else if ("rollback".equals(cmd)) { syn = cmd; }
+	return syn;
+    }
+
     public String getLongDescription(String cmd) {
 	String dsc;
-	dsc="\t'" + cmd + "': this is a possible SQL-command.\n"
-	    + "\tBut I don't know anything about it. RTFSQLM.";
+	dsc="\t'" + cmd + "': this is not a build-in command, so would be\n"
+	    + "\thandled as SQL-command.\n"
+	    + "\tHowever, I don't know anything about it. RTFSQLM.\n"
+	    + "\ttry <http://www.google.de/search?q=sql+syntax+" + cmd + ">";
+	cmd = cmd.toLowerCase();
 	if ("select".equals(cmd)) {
 	    dsc="\tselect from tables.";
+	}
+	else if ("delete".equals(cmd)) {
+	    dsc="\tdelete data from tables. DML.";
+	}
+	else if ("insert".equals(cmd)) {
+	    dsc="\tinsert data into tables. DML.";
+	}
+	else if ("update".equals(cmd)) {
+	    dsc="\tupdate existing rows with new data. DML.";
+	}
+	else if ("create".equals(cmd)) {
+	    dsc="\tcreate new database object (such as tables/views/indices..). DDL.";
+	}
+	else if ("alter".equals(cmd)) {
+	    dsc="\talter a database object. DDL.";
+	}
+	else if ("drop".equals(cmd)) {
+	    dsc="\tdrop (remove) a database object. DDL.";
 	}
 	else if ("rollback".equals(cmd)) {
 	    dsc="\trollback transaction.";
