@@ -79,6 +79,14 @@ public class CommandDispatcher implements ReadlineCompleter {
 	}
 	return c;
     }
+    
+    public void shutdown() {
+	Iterator i = commandMap.values().iterator();
+	while (i.hasNext()) {
+	    Command c = (Command) i.next();
+	    c.shutdown();
+	}
+    }
 
     /**
      * execute the command given. This strips whitespaces and trailing

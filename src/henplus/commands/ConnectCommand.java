@@ -6,9 +6,19 @@
  */
 package commands;
 
-import java.util.SortedMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.IOException;
+
 import java.util.StringTokenizer;
 import java.util.Iterator;
 
@@ -21,14 +31,40 @@ import CommandDispatcher;
  * document me.
  */
 public class ConnectCommand extends AbstractCommand {
-    private SortedMap/*<String,SQLSession>*/ sessions;
+    private static String CONNECTION_CONFIG = "connections";
+    private final SortedMap/*<String,SQLSession>*/ sessions;
+    private final SortedSet knownUrls;
+
     /**
      * the current session we are in.
      */
     private String currentSessionName = null;
 
+    /**
+     * returns the command-strings this command can handle.
+     */
+    public String[] getCommandList() {
+	return new String[] {
+	    "connect", "disconnect", "switch"
+	};
+    }
+
     public ConnectCommand(String argv[], HenPlus henplus) {
-	sessions = new TreeMap();
+	sessions  = new TreeMap();
+	knownUrls = new TreeSet();
+
+	try {
+	    File urlFile = new File(henplus.getConfigDir(),
+				    CONNECTION_CONFIG);
+	    BufferedReader in = new BufferedReader(new FileReader(urlFile));
+	    String url;
+	    while ((url = in.readLine()) != null) {
+		knownUrls.add(url);
+	    }
+	}
+	catch (IOException e) {
+	}
+
 	if (argv.length > 0) {
 	    try {
 		SQLSession session = null;
@@ -38,6 +74,7 @@ public class ConnectCommand extends AbstractCommand {
 		session = new SQLSession(url, username, password);
 		String sessionName = createSessionName(session, null);
 		sessions.put(sessionName, session);
+		knownUrls.add(url);
 		henplus.setPrompt(sessionName + "> ");
 		henplus.setSession(session);
 	    }
@@ -45,15 +82,6 @@ public class ConnectCommand extends AbstractCommand {
 		System.err.println(e.getMessage());
 	    }
 	}
-    }
-
-    /**
-     * returns the command-strings this command can handle.
-     */
-    public String[] getCommandList() {
-	return new String[] {
-	    "connect", "disconnect", "switch"
-	};
     }
     
     private String createSessionName(SQLSession session, String name) {
@@ -80,6 +108,26 @@ public class ConnectCommand extends AbstractCommand {
 	return key;
     }
 
+    public void shutdown() {
+	Iterator sessIter = sessions.values().iterator();
+	while (sessIter.hasNext()) {
+	    SQLSession session = (SQLSession) sessIter.next();
+	    session.close();
+	}
+
+	try {
+	    File urlFile = new File(HenPlus.getInstance().getConfigDir(),
+				    CONNECTION_CONFIG);
+	    PrintWriter writer = new PrintWriter(new FileWriter(urlFile));
+	    Iterator urlIter = knownUrls.iterator();
+	    while (urlIter.hasNext()) {
+		writer.println((String) urlIter.next());
+	    }
+	    writer.close();
+	}
+	catch (IOException dont_care) {}
+    }
+
     /**
      * we can connect, even if we don't have a running connection.
      */
@@ -97,7 +145,32 @@ public class ConnectCommand extends AbstractCommand {
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) 
     {
-	if (partialCommand.startsWith("switch")) {
+	if (partialCommand.startsWith("connect")) {
+	    if (argumentCount(partialCommand) >
+		("".equals(lastWord) ? 1 : 2)) {
+		return null;
+	    }
+	    final Iterator it = knownUrls.tailSet(lastWord).iterator();
+	    return new Iterator() {
+		    String url = null;
+		    public boolean hasNext() {
+			while (it.hasNext()) {
+			    url = (String) it.next();
+			    if (!url.startsWith(lastWord)) {
+				return false;
+			    }
+			    return true;
+			}
+			return false;
+		    }
+		    public Object  next() { return url; }
+		    public void remove() { 
+			throw new UnsupportedOperationException("no!");
+		    }
+		};
+	}
+	
+	else if (partialCommand.startsWith("switch")) {
 	    if (argumentCount(partialCommand) >
 		("".equals(lastWord) ? 1 : 2)) {
 		return null;
@@ -149,6 +222,7 @@ public class ConnectCommand extends AbstractCommand {
 	    }
 	    try {
 		session = new SQLSession(url, null, null);
+		knownUrls.add(url);
 		currentSessionName = createSessionName(session, 
 						       currentSessionName);
 		sessions.put(currentSessionName, session);

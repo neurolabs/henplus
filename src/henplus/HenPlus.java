@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.3 2002-01-20 23:30:11 hzeller Exp $
+ * $Id: HenPlus.java,v 1.4 2002-01-21 11:40:01 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -97,6 +97,8 @@ public class HenPlus {
 		continue;
 	    dispatcher.execute(session, cmdLine);
 	}
+	
+	dispatcher.shutdown();
 
 	try {
 	    Readline.writeHistoryFile(getHistoryLocation());
@@ -173,13 +175,13 @@ public class HenPlus {
 	System.err.println( EXIT_MSG );
     }
 
-    private String getHistoryLocation() {
+    public File getConfigDir() {
 	/*
 	 * test local directory.
 	 */
 	File henplusDir = new File( HENPLUSDIR );
 	if (henplusDir.exists() && henplusDir.isDirectory()) {
-	    return HENPLUSDIR + File.separator + "history";
+	    return henplusDir;
 	}
 
 	/*
@@ -190,7 +192,11 @@ public class HenPlus {
 	if (!henplusDir.exists()) {
 	    henplusDir.mkdir();
 	}
-	return henplusDir.getAbsolutePath() + File.separator + "history";
+	return henplusDir;
+    }
+
+    private String getHistoryLocation() {
+	return getConfigDir().getAbsolutePath() + File.separator + "history";
     }
 }
 

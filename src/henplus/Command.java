@@ -91,6 +91,12 @@ public interface Command {
     boolean requiresValidSession(String cmd);
 
     /**
+     * shutdown this command. This is called on exit of the CommandDispatcher
+     * and allows you to do some cleanup (close connections, flush files..)
+     */
+    void shutdown();
+
+    /**
      * return a short string describing the purpose of the commands
      * handled by this Command-implementation. This is the string listed
      * in the bare 'help' overview (like 
