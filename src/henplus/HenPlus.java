@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.54 2003-02-01 13:18:42 hzeller Exp $
+ * $Id: HenPlus.java,v 1.55 2003-02-01 13:19:39 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -580,7 +580,7 @@ public class HenPlus implements Interruptable {
                 Runtime.getRuntime().exec( params );
             }
             catch (Exception e) {
-                e.printStackTrace();
+                if (verbose) e.printStackTrace();
             }
 	}
 	_configDir = _configDir.getAbsoluteFile();
