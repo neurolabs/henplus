@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import henplus.util.*;
+import henplus.Interruptable;
+import henplus.SigIntHandler;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
@@ -24,7 +26,11 @@ import henplus.CommandDispatcher;
 /**
  * document me.
  */
-public class DescribeCommand extends AbstractCommand {
+public class DescribeCommand 
+    extends AbstractCommand 
+    implements Interruptable 
+{
+
     static final boolean verbose     = false;
     private final static ColumnMetaData[] DESC_META;
     static {
@@ -38,7 +44,8 @@ public class DescribeCommand extends AbstractCommand {
 	DESC_META[6] = new ColumnMetaData("pk");
 	DESC_META[7] = new ColumnMetaData("fk");
     }
-    
+
+    private boolean interrupted;
     private final ListUserObjectsCommand tableCompleter;
 
     public DescribeCommand(ListUserObjectsCommand tc) {
@@ -79,20 +86,27 @@ public class DescribeCommand extends AbstractCommand {
 	ResultSet rset = null;
         Set doubleCheck = new HashSet();
 	try {
+            interrupted = false;
+            SigIntHandler.getInstance().pushInterruptable(this);
 	    boolean anyLeftArrow  = false;
 	    boolean anyRightArrow = false;
             long startTime = System.currentTimeMillis();
             String catalog = session.getConnection().getCatalog();
+
+            if (interrupted) return SUCCESS;
+
 	    DatabaseMetaData meta = session.getConnection().getMetaData();
 	    for (int i=0; i < DESC_META.length; ++i) {
 		DESC_META[i].reset();
 	    }
+
 	    /*
 	     * get primary keys.
 	     */
+            if (interrupted) return SUCCESS;
 	    Map pks = new HashMap();
 	    rset = meta.getPrimaryKeys(null, null, tabName);
-	    if (rset != null) while (rset.next()) {
+	    if (rset != null) while (!interrupted && rset.next()) {
 		String col = rset.getString(4);
 		int pkseq  = rset.getInt(5);
 		String pkname = rset.getString(6);
@@ -107,8 +121,9 @@ public class DescribeCommand extends AbstractCommand {
 	    /*
 	     * get referenced primary keys.
 	     */
+            if (interrupted) return SUCCESS;
 	    rset = meta.getExportedKeys(null, null, tabName);
-	    if (rset != null) while (rset.next()) {
+	    if (rset != null) while (!interrupted && rset.next()) {
 		String col = rset.getString(4);
 		String fktable = rset.getString(7);
 		String fkcolumn  = rset.getString(8);
@@ -125,9 +140,10 @@ public class DescribeCommand extends AbstractCommand {
 	    /*
 	     * get foreign keys.
 	     */
+            if (interrupted) return SUCCESS;
 	    Map fks = new HashMap();
 	    rset = meta.getImportedKeys(null, null, tabName);
-	    if (rset != null) while (rset.next()) {
+	    if (rset != null) while (!interrupted && rset.next()) {
 		String table = rset.getString(3);
 		String pkcolumn  = rset.getString(4);
 		table = table + "(" + pkcolumn + ")";
@@ -154,10 +170,11 @@ public class DescribeCommand extends AbstractCommand {
 	    /*
 	     * build up actual describe table.
 	     */
+            if (interrupted) return SUCCESS;
 	    rset = meta.getColumns(catalog, null, tabName, null);
 	    List rows = new ArrayList();
             int colNum = 0;
-	    if (rset != null) while (rset.next()) {
+	    if (rset != null) while (!interrupted && rset.next()) {
 		Column[] row = new Column[8];
                 row[0] = new Column( ++colNum );
 		String thisTabName = rset.getString(3);
@@ -200,10 +217,11 @@ public class DescribeCommand extends AbstractCommand {
 	    /*
 	     * index info.
 	     */
+            if (interrupted) return SUCCESS;
 	    System.out.println("index information:");
 	    boolean anyIndex = false;
 	    rset = meta.getIndexInfo(null, null, tabName, false, true);
-	    if (rset != null) while (rset.next()) {
+	    if (rset != null) while (!interrupted && rset.next()) {
 		boolean nonUnique;
 		String idxName = null;
 		nonUnique = rset.getBoolean(4);
@@ -267,6 +285,11 @@ public class DescribeCommand extends AbstractCommand {
 	    value = value.substring(1, value.length()-1);
 	}
 	return value;
+    }
+
+    //-- Interruptable interface
+    public synchronized void interrupt() {
+        interrupted = true;
     }
     
     /**
