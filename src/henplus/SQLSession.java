@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.14 2003-01-24 21:41:17 hzeller Exp $
+ * $Id: SQLSession.java,v 1.15 2003-01-26 21:15:12 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -166,8 +166,7 @@ public class SQLSession implements Interruptable {
                 if (_interrupted) {
                     throw new IOException("connect interrupted ..");
                 }
-                System.err.print("Password: ");
-                _password = input.readLine();
+                _password = promptPassword("Password: ");
                 if (_interrupted) {
                     throw new IOException("connect interrupted ..");
                 }
@@ -179,6 +178,43 @@ public class SQLSession implements Interruptable {
 	
 	_conn = DriverManager.getConnection(_url, _username, _password);
 	_connectTime = System.currentTimeMillis();
+    }
+    
+    /**
+     * This is after a hack found in 
+     * http://java.sun.com/features/2002/09/pword_mask.html
+     */
+    private String promptPassword(String prompt) 
+        throws IOException {
+        
+        String password = "";
+        PasswordEraserThread maskingthread = new PasswordEraserThread(prompt);
+        try {
+            maskingthread.start();
+            for (;;) {
+                char c = (char)System.in.read();
+
+                if (c == '\r') {
+                    c = (char)System.in.read();
+                    if (c == '\n') {
+                        break;
+                    } else {
+                        continue;
+                    }
+                } 
+                else if (c == '\n') {
+                    break;
+                } 
+                else {
+                    password += c;
+                }
+            }
+        }
+        finally {
+            maskingthread.done();
+        }
+        
+        return password;
     }
     
     // -- Interruptable interface
