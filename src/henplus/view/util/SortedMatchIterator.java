@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SortedMatchIterator.java,v 1.3 2004-03-07 14:22:03 hzeller Exp $ 
+ * $Id: SortedMatchIterator.java,v 1.4 2004-03-07 15:28:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
@@ -22,7 +22,7 @@ import java.util.SortedMap;
  */
 public class SortedMatchIterator implements Iterator {
     private final Iterator _it;
-    private final String _match;
+    private final String _partialMatch;
 
     private String _prefix;
     private String _suffix;
@@ -39,7 +39,7 @@ public class SortedMatchIterator implements Iterator {
      * @param it the Iterator positioned at the first partial match.
      */
     public SortedMatchIterator(String partialMatch, Iterator/*<String>*/ it) {
-        _match = match;
+        _partialMatch = partialMatch;
         _it = it;
     }
 
@@ -51,7 +51,7 @@ public class SortedMatchIterator implements Iterator {
      * @param set the SortedSet from which the matches should be iterated.
      */
     public SortedMatchIterator(String partialMatch, SortedSet/*<String>*/ set){
-        this(match, set.tailSet(match).iterator());
+        this(partialMatch, set.tailSet(partialMatch).iterator());
     }
 
     /**
@@ -63,7 +63,7 @@ public class SortedMatchIterator implements Iterator {
      * iterated.
      */
     public SortedMatchIterator(String partialMatch, SortedMap/*<String>*/ map){
-        this(match, map.tailMap(match).keySet().iterator());
+        this(partialMatch, map.tailMap(partialMatch).keySet().iterator());
     }
 
     /**
@@ -96,7 +96,7 @@ public class SortedMatchIterator implements Iterator {
             if (_current.length() == 0) {
                 continue;
             }
-            if (!_current.startsWith(_match)) {
+            if (!_current.startsWith(_partialMatch)) {
                 return false;
             }
             if (exclude(_current)) {
