@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.19 2002-02-09 12:21:52 hzeller Exp $
+ * $Id: HenPlus.java,v 1.20 2002-02-10 09:35:28 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -84,6 +84,9 @@ public class HenPlus {
 	
 	Readline.setWordBreakCharacters(" ");
 	_fromTerminal = Readline.hasTerminal();
+	if (!_fromTerminal) {
+	    System.err.println("input not a terminal; disabling TAB-completion");
+	}
 
 	/*
 	 * initialize known JDBC drivers.
@@ -499,7 +502,7 @@ public class HenPlus {
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
 +" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"----------------------------------------------------[$Revision: 1.19 $]--\n";
++"----------------------------------------------------[$Revision: 1.20 $]--\n";
 	System.err.println(cpy);
 
 	instance = new HenPlus(properties, argv);
