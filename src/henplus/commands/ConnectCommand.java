@@ -45,7 +45,7 @@ public class ConnectCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "connect", "disconnect", "switch"
+	    "connect", "disconnect", "switch", "sessions"
 	};
     }
 
@@ -210,8 +210,27 @@ public class ConnectCommand extends AbstractCommand {
 	StringTokenizer st = new StringTokenizer(command);
 	String cmd = (String) st.nextElement();
 	int argc = st.countTokens();
+	
+	if ("sessions".equals(cmd)) {
+	    Map.Entry entry = null;
+	    Iterator it = sessions.entrySet().iterator();
+	    while (it.hasNext()) {
+		entry = (Map.Entry) it.next();
+		String sessName = (String) entry.getKey(); 
+		session         = (SQLSession) entry.getValue();
+		if (sessName.equals(currentSessionName)) {
+		    System.err.print(" * ");
+		}
+		else {
+		    System.err.print("   ");
+		}
+		System.err.print(sessName + "\t");
+		System.err.println(session.getURL());
+	    }
+	    return SUCCESS;
+	}
 
-	if ("connect".equals(cmd)) {
+	else if ("connect".equals(cmd)) {
 	    if (argc < 1 || argc > 2) {
 		return SYNTAX_ERROR;
 	    }
@@ -316,6 +335,9 @@ public class ConnectCommand extends AbstractCommand {
 	}
 	else if ("switch".equals(cmd)) {
 	    dsc="\tswitch to session with the given session name.";
+	}
+	else if ("sessions".equals(cmd)) {
+	    dsc="\tlist all active sessions.";
 	}
 	return dsc;
     }
