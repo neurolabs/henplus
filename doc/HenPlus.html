@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.13 2003-01-27 17:50:13 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.14 2003-01-27 20:51:44 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -163,6 +163,7 @@ Hen*Plus&gt; help
  tree-view &lt;tablename&gt;                    : <a href="#tree-view">tree representation of connected tables</a>
  dump-out | dump-in | verify-dump | dump-conditional: <a href="#table-dumps">handle table dumps</a>
  autocommit-on | autocommit-off           : switches autocommit on/off
+ remove-comments-on | remove-comments-off : <a href="#remove-comment">switches the implicit removal of comments on/off</a>
  system | !                               : execute system commands
  set | unset                              : <a href="#variables">set/unset variables</a>
 <a name="config-dir"/><a href="#per-project-config">config read from [/home/hzeller/.henplus]</a>
@@ -278,7 +279,7 @@ these two slashes, and we don't want to comment these out, right ? ;-)
 If you encounter some other reasonable style of comments you want that it is
 supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
 <p>
-<b>Switching off comment removal...</b>
+<b>Switching off comment removal...</b><a name="remove-comment"/>
 The comment removal is done in HenPlus, since some JDBC-Drivers have problems
 to remove comments or do not remove the same set of comment types given here.
 Anyway, sometimes it is necessary <em>not</em> to remove comments, since some
@@ -582,4 +583,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.13 2003-01-27 17:50:13 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.14 2003-01-27 20:51:44 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.16 2003-01-26 21:51:49 hzeller Exp $
+ * $Id: SQLSession.java,v 1.17 2003-01-27 20:51:46 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -190,6 +190,9 @@ public class SQLSession implements Interruptable {
         try {
             maskingthread.start();
             for (;;) {
+                if (_interrupted) {
+                    break;
+                }
                 char c = (char)System.in.read();
 
                 if (c == '\r') {
@@ -217,11 +220,11 @@ public class SQLSession implements Interruptable {
     }
     
     // -- Interruptable interface
-    public void interrupt() { 
+    public void interrupt() {
+	_interrupted = true;
         Terminal.boldface(System.err);
 	System.err.println(" interrupted; press [RETURN]");
 	Terminal.reset(System.err);
-	_interrupted = true; 
     }
 
     /**
