@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: FileCompletionIterator.java,v 1.3 2002-02-09 12:21:56 hzeller Exp $ 
+ * $Id: FileCompletionIterator.java,v 1.4 2002-07-23 06:36:09 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -17,11 +17,20 @@ public class FileCompletionIterator implements Iterator {
     private String dirList[];
     private String matchName;
     private String nextFileName;
+    private String completePrefix;
     private int index;
 
-    public FileCompletionIterator(String startFile) {
+    public FileCompletionIterator(String partialCommand, String startFile) {
 	try {
-	    File f = (new File(startFile)).getCanonicalFile();
+	    int lastDirectory = startFile.lastIndexOf(File.separator);
+	    String dirName = ".";
+	    completePrefix = "";
+	    if (lastDirectory > 0) {
+		dirName = startFile.substring(0, lastDirectory);
+		startFile = startFile.substring(lastDirectory + 1 );
+		completePrefix = dirName + File.separator;
+	    }
+	    File f = (new File(dirName)).getCanonicalFile();
 	    boolean isDir = f.isDirectory();
 	    dirList = (isDir)
 		? f.list()
@@ -41,12 +50,17 @@ public class FileCompletionIterator implements Iterator {
 	if (dirList == null) return false;
 	while (index < dirList.length) {
 	    nextFileName = dirList[index++];
-	    if (nextFileName.startsWith(matchName))
+	    if (nextFileName.startsWith(matchName)) {
+		File f = new File(completePrefix + nextFileName);
+		if (f.isDirectory()) {
+		    nextFileName += File.separator;
+		}
 		return true;
+	    }
 	}
 	return false;
     }
-    public Object  next() { return nextFileName; }
+    public Object  next() { return completePrefix + nextFileName; }
     public void remove() {}
 }
 
