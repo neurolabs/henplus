@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Column.java,v 1.3 2002-02-26 17:58:19 hzeller Exp $ 
+ * $Id: Column.java,v 1.4 2003-01-20 13:35:19 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
@@ -18,6 +18,10 @@ public final class Column {
     private final String columnText[]; // multi-rows
     private int    width;
     private int    pos;
+
+    public Column(int value) {
+        this(String.valueOf(value));
+    }
 
     public Column(String text) {
 	if (text == null) {

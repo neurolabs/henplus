@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.46 2002-12-28 11:59:48 hzeller Exp $
+ * $Id: HenPlus.java,v 1.47 2003-01-20 13:35:19 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -47,6 +47,7 @@ public class HenPlus implements Interruptable {
     private boolean           _optQuiet;
     private SQLStatementSeparator _commandSeparator;
     private final StringBuffer    _historyLine;
+    private String             _previousHistoryLine;
     private boolean            _quiet;
     private volatile boolean   _interrupted;
 
@@ -173,6 +174,17 @@ public class HenPlus implements Interruptable {
 	    throw new EOFException("EOF");
 	}
 	return (line.length() == 0) ? null : line;
+    }
+
+    private void storeLineInHistory() {
+        String line = _historyLine.toString();
+        if (!"".equals(line)
+            && !line.equals( _previousHistoryLine )) 
+        {
+            Readline.addToHistory( line );
+            _previousHistoryLine = line;
+        }
+        _historyLine.setLength(0);
     }
 
     /**
@@ -312,8 +324,7 @@ public class HenPlus implements Interruptable {
 		displayPrompt = prompt;
 	    }
 	    if (lineExecState != LINE_INCOMPLETE) {
-		Readline.addToHistory(_historyLine.toString());
-		_historyLine.setLength(0);
+                storeLineInHistory();
 	    }
 	}
     }
