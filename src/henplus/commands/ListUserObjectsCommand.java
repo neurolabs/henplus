@@ -155,6 +155,7 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	 * correctly.
 	 */
 	Iterator it = completeTableName(tabName);	
+	if (it == null) return null;
 	String alternative = null;
 	if (it.hasNext()) {
 	    alternative = (String) it.next();

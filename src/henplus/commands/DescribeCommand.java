@@ -86,7 +86,7 @@ public class DescribeCommand extends AbstractCommand {
 	     */
 	    Map pks = new HashMap();
 	    rset = meta.getPrimaryKeys(null, null, tabName);
-	    while (rset.next()) {
+	    if (rset != null) while (rset.next()) {
 		String col = rset.getString(4);
 		int pkseq  = rset.getInt(5);
 		String pkname = rset.getString(6);
@@ -102,7 +102,7 @@ public class DescribeCommand extends AbstractCommand {
 	     * get referenced primary keys.
 	     */
 	    rset = meta.getExportedKeys(null, null, tabName);
-	    while (rset.next()) {
+	    if (rset != null) while (rset.next()) {
 		String col = rset.getString(4);
 		String fktable = rset.getString(7);
 		String fkcolumn  = rset.getString(8);
@@ -121,7 +121,7 @@ public class DescribeCommand extends AbstractCommand {
 	     */
 	    Map fks = new HashMap();
 	    rset = meta.getImportedKeys(null, null, tabName);
-	    while (rset.next()) {
+	    if (rset != null) while (rset.next()) {
 		String table = rset.getString(3);
 		String pkcolumn  = rset.getString(4);
 		table = table + "(" + pkcolumn + ")";
@@ -149,7 +149,7 @@ public class DescribeCommand extends AbstractCommand {
 	     */
 	    rset = meta.getColumns(null, null, tabName, null);
 	    List rows = new ArrayList();
-	    while (rset.next()) {
+	    if (rset != null) while (rset.next()) {
 		Column[] row = new Column[7];
 		String thisTabName = rset.getString(3);
 		row[0] = new Column( thisTabName );
@@ -187,7 +187,7 @@ public class DescribeCommand extends AbstractCommand {
 	    System.out.println("index information:");
 	    boolean anyIndex = false;
 	    rset = meta.getIndexInfo(null, null, tabName, false, true);
-	    while (rset.next()) {
+	    if (rset != null) while (rset.next()) {
 		boolean nonUnique;
 		String idxName = null;
 		nonUnique = rset.getBoolean(4);
