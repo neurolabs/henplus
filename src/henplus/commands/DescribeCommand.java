@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.sql.*;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -74,9 +76,11 @@ public class DescribeCommand extends AbstractCommand {
 	}
 
 	ResultSet rset = null;
+        Set doubleCheck = new HashSet();
 	try {
 	    boolean anyLeftArrow  = false;
 	    boolean anyRightArrow = false;
+            String catalog = session.getConnection().getCatalog();
 	    DatabaseMetaData meta = session.getConnection().getMetaData();
 	    for (int i=0; i < DESC_META.length; ++i) {
 		DESC_META[i].reset();
@@ -134,6 +138,7 @@ public class DescribeCommand extends AbstractCommand {
 	    }
 	    rset.close();
 
+            if (catalog != null) System.err.println("catalog: " + catalog);
 	    if (anyLeftArrow)  System.err.println(" '<-' : referenced by");
 	    if (anyRightArrow) System.err.println(" '->' : referencing");
 
@@ -147,7 +152,7 @@ public class DescribeCommand extends AbstractCommand {
 	    /*
 	     * build up actual describe table.
 	     */
-	    rset = meta.getColumns(null, null, tabName, null);
+	    rset = meta.getColumns(catalog, null, tabName, null);
 	    List rows = new ArrayList();
 	    if (rset != null) while (rset.next()) {
 		Column[] row = new Column[7];
@@ -155,6 +160,10 @@ public class DescribeCommand extends AbstractCommand {
 		row[0] = new Column( thisTabName );
 		allSameTableName &= tabName.equals(thisTabName);
 		String colname = rset.getString(4);
+                if (doubleCheck.contains(colname)) {
+                    continue;
+                }
+                doubleCheck.add(colname);
 		row[1] = new Column( colname );
 		String type = rset.getString(6);
 		int colSize = rset.getInt(7);

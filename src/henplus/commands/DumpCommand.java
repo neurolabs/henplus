@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.9 2002-10-09 17:41:55 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.10 2002-10-11 14:07:24 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -129,7 +129,8 @@ public class DumpCommand
      * execute the command given.
      */
     public int execute(SQLSession session, String cmd, String param) {
-	final String FILE_ENCODING = System.getProperty("file.encoding");
+	//final String FILE_ENCODING = System.getProperty("file.encoding");
+	final String FILE_ENCODING = "UTF-8";
 	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 
@@ -340,11 +341,19 @@ public class DumpCommand
 	ResultSet rset = null;
 	Statement stmt = null;
 	try {
+            /*
+             * if the same column is in more than one schema defined, then
+             * oracle seems to write them out twice..
+             */
+            Set doubleCheck = new HashSet();
 	    DatabaseMetaData meta = conn.getMetaData();
-	    rset = meta.getColumns(null, null, tabName, null);
+	    rset = meta.getColumns(conn.getCatalog(), null, tabName, null);
 	    while (rset.next()) {
-		metaList.add(new MetaProperty(rset.getString(4),
-					      rset.getInt(5)));
+                String columnName = rset.getString(4);
+                if (doubleCheck.contains(columnName))
+                    continue;
+                doubleCheck.add(columnName);
+		metaList.add(new MetaProperty(columnName, rset.getInt(5)));
 	    }
 	}
 	finally {
@@ -640,6 +649,9 @@ public class DumpCommand
 		    raiseException(reader,
 				   "different file encoding: '" + token 
 				   + "' (we have '" + fileEncoding + "').");
+                    /*
+                     * FIXME: reopen the file with this file encoding.
+                     */
 		}
 		expect(reader, ')');
 	    }

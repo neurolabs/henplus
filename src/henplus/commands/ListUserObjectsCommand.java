@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Collection;
 import java.util.Vector;
@@ -179,12 +181,12 @@ public class ListUserObjectsCommand
      */
     public Collection columnsFor(String tabName) {
 	SQLSession session = henplus.getSession();
-	Vector result = new Vector();
+        Set result = new HashSet();
 	Connection conn = session.getConnection();  // use createStmt
 	ResultSet rset = null;
 	try {
 	    DatabaseMetaData meta = conn.getMetaData();
-	    rset = meta.getColumns(null, null, tabName, null);
+	    rset = meta.getColumns(conn.getCatalog(), null, tabName, null);
 	    while (rset.next()) {
 		result.add(rset.getString(4));
 	    }
