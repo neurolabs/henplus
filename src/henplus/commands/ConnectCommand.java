@@ -72,10 +72,10 @@ public class ConnectCommand extends AbstractCommand {
 		String username = (argv.length > 1) ? argv[1] : null;
 		String password = (argv.length > 2) ? argv[2] : null;
 		session = new SQLSession(url, username, password);
-		String sessionName = createSessionName(session, null);
-		sessions.put(sessionName, session);
+		currentSessionName = createSessionName(session, null);
+		sessions.put(currentSessionName, session);
 		knownUrls.add(url);
-		henplus.setPrompt(sessionName + "> ");
+		henplus.setPrompt(currentSessionName + "> ");
 		henplus.setSession(session);
 	    }
 	    catch (Exception e) {
@@ -206,7 +206,6 @@ public class ConnectCommand extends AbstractCommand {
      */
     public int execute(SQLSession currentSession, String command) {
 	SQLSession session = null;
-	currentSessionName = null;
 
 	StringTokenizer st = new StringTokenizer(command);
 	String cmd = (String) st.nextElement();
@@ -217,9 +216,7 @@ public class ConnectCommand extends AbstractCommand {
 		return SYNTAX_ERROR;
 	    }
 	    String url = (String) st.nextElement();
-	    if (argc == 2) {
-		currentSessionName = (String) st.nextElement();
-	    }
+	    currentSessionName = (argc==2) ? (String) st.nextElement() : null;
 	    try {
 		session = new SQLSession(url, null, null);
 		knownUrls.add(url);
@@ -234,17 +231,31 @@ public class ConnectCommand extends AbstractCommand {
 	}
 	
 	else if ("switch".equals(cmd)) {
-	    if (argc != 1) {
+	    String sessionName = null;
+	    if (argc != 1 && sessions.size() != 2) {
 		return SYNTAX_ERROR;
 	    }
-	    currentSessionName = (String) st.nextElement();
-	    session = (SQLSession) sessions.get(currentSessionName);
+	    if (argc == 0 && sessions.size() == 2) {
+		Iterator i = sessions.keySet().iterator();
+		while (i.hasNext()) {
+		    sessionName = (String) i.next();
+		    if (!sessionName.equals(currentSessionName)) {
+			break;
+		    }
+		}
+	    }
+	    else {
+		sessionName = (String) st.nextElement();
+	    }
+	    session = (SQLSession) sessions.get(sessionName);
 	    if (session == null) {
 		return EXEC_FAILED;
 	    }
+	    currentSessionName = sessionName;
 	}
 
 	else if ("disconnect".equals(cmd)) {
+	    currentSessionName = null;
 	    if (argc != 0) {
 		return SYNTAX_ERROR;
 	    }
