@@ -44,13 +44,14 @@ public class TreeCommand extends AbstractCommand {
      * A node in a cyclic graph.
      */
     private static abstract class Node implements Comparable {
-        private final Set/*<Node>*/ _nodeSet;
+        private final Set/*<Node>*/ _children;
+
         protected Node() {
-            _nodeSet = new TreeSet();
+            _children = new TreeSet();
         }
         
         public Node add(Node n) {
-            _nodeSet.add(n);
+            _children.add(n);
             return n;
         }
 
@@ -77,11 +78,11 @@ public class TreeCommand extends AbstractCommand {
                 return;
             }
             alreadyPrinted.add(name);
-            int remaining = _nodeSet.size();
+            int remaining = _children.size();
             if (remaining > 0) {
                 int previousLength = currentIndent.length();
                 currentIndent.append(indentString);
-                Iterator it = _nodeSet.iterator();
+                Iterator it = _children.iterator();
                 while (it.hasNext()) {
                     Node n = (Node) it.next();
                     System.out.print(currentIndent);
