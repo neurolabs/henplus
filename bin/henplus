@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: henplus,v 1.7 2002-05-06 06:56:57 hzeller Exp $
+# $Id: henplus,v 1.8 2002-05-06 13:48:00 hzeller Exp $
 ##
 # additional flags you might want to pass to the java interpreter
 JAVA_FLAGS=
@@ -25,7 +25,6 @@ for f in $HENPLUSDIR/*.jar $HENPLUSDIR/*.zip ; do
 	CLASSPATH=$CLASSPATH:$f
     fi
 done
-echo $CLASSPATH
 
 export CLASSPATH LD_LIBRARY_PATH
 
