@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.7 2002-07-23 06:34:55 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.8 2002-07-24 16:33:14 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -33,7 +33,7 @@ Oracle was available for Linux) since I had to develop an application that
 connected to an Oracle database -- but the only SQLPlus I could use
 in the environment back then was running on some Redmond operation
 system that lacked (and still lacks) the environment to develop serious software.
-<br>Since then, I've rewritten
+<br>Since then I've rewritten
 this tool, added command line completion and history -- but it still
 remained small and useful. It is freely distributable in source 
 and binary form because it is protected by the 
@@ -41,13 +41,13 @@ and binary form because it is protected by the
 
 <h3><a name="overview"/>Overview</h3>
 HenPlus is a SQL shell written in Java that works for any database 
-that has JDBC support. So
+that offers JDBC support. So
 basically any database. Why do we need this ? Any database comes with some
 shell, but all of them have missing features (and several shells are simply 
 unusable).
 And if you work with several
 databases at once (if you are a developer, then you do this all the time),
-then switching between these tools is tedious.
+switching between these tools is tedious.
 <p>
 This is where <em>HenPlus</em> steps in. It supports:
 <ul>
@@ -87,29 +87,31 @@ This is where <em>HenPlus</em> steps in. It supports:
 
 <h3><a name="getting-started"/>Getting started</h3>
 <h4>Compilation</h4>
-If you <a href="http://sourceforge.net/project/showfiles.php?group_id=47945">downloaded</a>
+If you have <a href="http://sourceforge.net/project/showfiles.php?group_id=47945">downloaded</a>
 HenPlus as a binary RPM or debian package, you can
 <a href="#running">skip</a> this part.
 <p>
 Ok, you are still here, so you have to compile it first. First you need
 an additional library.
-HenPlus utilizes the features of the GNU-readline library and therefore
+HenPlus uses the features of the GNU-readline library and therefore
 uses the JNI java wrapper library &gt;=
 <a href="http://sourceforge.net/project/showfiles.php?group_id=48669">java-readline 0.7.3</a>.
 <p>
-Building requires the <a href="http://jakarta.apache.org/ant">ant build
-tool</a> (Version >= 1.4). To compile HenPlus, make sure that the 
+To build HenPlus the <a href="http://jakarta.apache.org/ant">ant build
+tool</a> (Version >= 1.4) is required. To compile HenPlus, make sure that the 
 <code>libreadline-java.jar</code> is in the classpath. By default, the 
-java-readline package installs this in <code>/usr/share/java/libreadline-java.jar</code>.
+java-readline package installs this in <code>/usr/share/java/libreadline-java.jar</code>. Compilation needs to be done with JDK >= 1.3, but the resulting 
+jar file works with old JDK 1.2.2 (the Runtime.addShutdownHook() method is
+used in compilation).
 <p>Now, just type
 <pre>
 $ ant jar
 </pre>
-If you are root, you can then install it:
+If you are root, then you can install it with:
 <pre>
 $ ant install
 </pre>
-will install henplus in
+which will install henplus in
 <table bgcolor="#DDDDFF" border=1>
 <tr valign="top">
    <td>/usr/share/henplus/henplus.jar</td><td>The jar-file containing
@@ -120,8 +122,8 @@ will install henplus in
 			 </td>
 <tr><td>/usr/bin/henplus</td><td>shellscript to start henplus</td></tr>
 </table>
-If you want to have another installation base (default: /usr), then you 
-can provide this as parameter <code>'prefix'</code>:
+If you want another installation base (default: /usr), you 
+provide this with the parameter <code>'prefix'</code>:
 <pre>
 $ ant -Dprefix=/usr/local install
 </pre>
@@ -133,13 +135,13 @@ the java-readline. If you did it, just post your experience, so that we
 can include it in this documentation.
 
 <h4><a name="running"/>Running</h4>
-You can invoke HenPlus with the <code>henplus</code> shellscript
-with or without an jdbc-url on the commandline.
+You can start HenPlus with the <code>henplus</code> shell script
+with or without an jdbc-url on the command line.
 <pre>
 $ henplus jdbc:mysql://localhost/foobar
 </pre>
 The
-important commands you need to know to get it running is <code>help</code> and
+important commands you need to know to get it running are <code>help</code> and
 <code>connect</code>. The help command gives an overview, what commands
 are supported:
 <hr>
@@ -176,8 +178,8 @@ Hen*Plus&gt; help connect
 (more details on connection to the database in the 
 <a href="#getting-connected">Getting connected</a> section).
 
-<h5>Semicolon is Separator</h5>
-Usually, there is one line per command. However, you can have multiple
+<h5>Semicolon as Separator</h5>
+Usually there is one command per line. However, you can have multiple
 commands on one line if you separate them with a semicolon:
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 echo "*** The build-in help ***" ; help
@@ -185,7 +187,7 @@ echo "*** The build-in help ***" ; help
 <p>
 The SQL commands however (you guess it: 'select', 'update', 'create' .. ) are
 not complete after the newline; you <em>always</em> have to close them
-with a semicolon -- so its possible to write statements on multiple lines:
+with a semicolon -- so it is possible to write statements on multiple lines:
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 oracle:localhost&gt; create table foobar (
                     id number(10) primary key,
@@ -196,9 +198,10 @@ oracle:localhost&gt;
 </pre></td></tr></table>
 <p>
 Some commands are not even complete, if there is a semicolon -- these are
-'create procedure' and 'create trigger' commands. These commands contain some
-more complex SQL-operations that are each separated by a semicolon. This whole
-command is then separated by a single slash at the beginning of a new line 
+'create procedure' and 'create trigger'. These commands contain 
+some more complex SQL-operations that are each separated by a semicolon. 
+The whole
+command is then completed with a single slash at the beginning of a new line 
 (this syntax is the same that SQLPlus supports):
 
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
@@ -245,7 +248,7 @@ MySQL-Shell is the UNIX-shell like '#' endline comment:
 
 One beta tester <!-- Andi G. --> requested an additional type of 
 comment: Two semicolons at 
-<em>the beginning</em> of a line comment out the whole line. The problem
+<em>the beginning</em> of a line to comment out the whole line. The problem
 with semicolon is, that it is as well used as separator between commands and
 as such may of course occur twice in a row. Therefore, two 
 semicolons are <em>only</em> regarded as comment, if they are the
@@ -276,8 +279,8 @@ from your database vendor, put it in the classpath, register the driver
 -- thats it. HenPlus provides the commands register, unregister and 
 list-drivers to manage the drivers (you know it already: the <code>help</code>
 command tells you more details). Some of the common drivers
-are already registered by default .. however, they need to be in the CLASSPATH
-still.
+are already registered by default .. however, they still need to be in 
+the CLASSPATH still.
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 Hen*Plus&gt; list-drivers
 loaded drivers are marked with '*' (otherwise not found in CLASSPATH)
@@ -418,7 +421,7 @@ the variable settings persistently in the filesystem. This is written
 to a directory <code>~/.henplus</code>, that is createted in your
 home directory.
 <p>
-If you have multiple projects you work on, all this information of any
+If you have multiple projects you work on, all this information about any
 of these projects is collected in the <code>~/.henplus</code> directory.
 Since a per project separation of this information is desirable,
 <em>HenPlus</em> supports per project storage of this information.
@@ -433,7 +436,7 @@ not find the directory, it falls back to the <code>~/.henplus</code> in your
 home directory.
 <p>
 If you type 'help', then <em>HenPlus</em> tells you
-in the <a href="#config-dir">last line</a>, where it loaded its initial 
+in the <a href="#config-dir">last line</a>, where it has loaded its initial 
 configuration from.
 
 <h3><a name="plugins"/>Plugins</h3>
@@ -442,10 +445,12 @@ database tables ? Or need a command
 that you are missing from some other database tool ? Or want to pop up
 some Swing-window to do database record editing <!-- Armin H. --> ?
 <p>
-You are not limited with HenPlus to do this. It is very simple to write
+HenPlus does not limit you to the features already provided.
+It is very simple to write
 plug-ins, that can be added and removed at run time. See <code>plug-in</code>,
-<code>plug-out</code> and <code>list-plugins</code> for this. Basically, you just
-need to write a class that implements the <code>henplus.Command</code> interface.
+<code>plug-out</code> and <code>list-plugins</code> for details.
+Basically, you just need to write a class that implements 
+the <code>henplus.Command</code> interface.
 <p>
 <em>(TODO: This feature needs a way to load the classes from an URLClassloader,
  so its possible to dynamically reload the classes when they changed. Anyone?)</em>
@@ -456,7 +461,8 @@ Therefore it is possible to store aliases.
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 henman@oracle:localhost&gt; alias ls tables
 </pre></td></tr></table>
-Would alias the 'tables' command so that is could be simply 'ls'.
+This would alias the 'tables' command so that it can be called by simply typing
+'ls'.
 <p>
 Parameters given to aliases are appended to the original command, so that you can 
 define aliases for commands that need parameters:
@@ -502,7 +508,7 @@ canonical lisp like text format that is easily parsable for the human eye and ex
 </pre>
 <hr noshade='noshade' size="1" />
 Even though XML would be an idea here, I decided against it because it blows up the file size
-and is not very human readable because of the 'noise' 
+and is not very human readable due to the 'noise' 
 (But if you want to, just write a <a href="#plugins">plug-in</a> that does this..).
 [ "XML is readable but is not meant to be read" ].
 <p>
@@ -510,7 +516,7 @@ One interesting feature of these commands is, that they automatically can read/w
 gziped files if the filenames have the '.gz' suffix.
 
 <h3><a name="faq"/>FAQ</h3>
-This will once be the FAQ. But for now, there is only one question..
+This will eventually be the FAQ. But for now, there is only one question..
 
 <p>
 <b>Q: </b><em>When I am connected to a postgreSQL database, sometimes the
@@ -528,4 +534,5 @@ This will once be the FAQ. But for now, there is only one question..
 	 (HenPlus command: <code>autocommit-on</code>).
 <br>
 <hr noshade="noshade" size="1"/>
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.7 2002-07-23 06:34:55 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+Thanks Rebecca for proof reading.
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.8 2002-07-24 16:33:14 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
