@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Column.java,v 1.4 2004-06-07 08:31:56 hzeller Exp $ 
+ * $Id: Column.java,v 1.5 2004-08-27 09:24:03 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
@@ -39,7 +39,7 @@ public class Column {
         }
         else {
             width = 0;
-            StringTokenizer tok = new StringTokenizer(text, "\n");
+            StringTokenizer tok = new StringTokenizer(text, "\n\r");
             columnText = new String[tok.countTokens()];
             for (int i = 0; i < columnText.length; ++i) {
                 String line = (String)tok.nextElement();
