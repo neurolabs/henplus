@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.59 2004-01-27 18:16:33 hzeller Exp $
+ * $Id: HenPlus.java,v 1.60 2004-01-27 22:52:39 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -190,10 +190,17 @@ public class HenPlus implements Interruptable {
         end testing */
     }
 
+    /** 
+     * push the current state of the command execution buffer, e.g.
+     * to parse a new file.
+     */
     public void pushBuffer() {
 	_commandSeparator.push();
     }
 
+    /**
+     * pop the command execution buffer.
+     */
     public void popBuffer() {
         _commandSeparator.pop();
     }
@@ -416,17 +423,17 @@ public class HenPlus implements Interruptable {
     
     /**
      * set current session. This is called from commands, that switch
-     * the sessions (i.e. the ConnectCommand.
+     * the sessions (i.e. the ConnectCommand.)
      */
     public void setCurrentSession(SQLSession session) {
-	   _sessionManager.setCurrentSession(session);
+	   getSessionManager().setCurrentSession(session);
     }
 
     /**
      * get current session.
      */
     public SQLSession getCurrentSession() {
-	   return _sessionManager.getCurrentSession();
+	   return getSessionManager().getCurrentSession();
     }
     
     public ListUserObjectsCommand getObjectLister() {

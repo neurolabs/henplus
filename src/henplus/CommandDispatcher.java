@@ -24,14 +24,16 @@ import org.gnu.readline.ReadlineCompleter;
  */
 public class CommandDispatcher implements ReadlineCompleter {
     private final static boolean verbose = false; // debug
-    private final List commands;  // commands in sequence of addition.
+    private final List/*<Command>*/ commands; // commands in seq. of addition.
     private final SortedMap commandMap;
     private final SetCommand setCommand;
+    private final List/*<ExecutionL<Listener>*/ executionListeners;
     private int   _batchCount;
 
     public CommandDispatcher(SetCommand sc) {
 	commandMap = new TreeMap();
 	commands = new ArrayList();
+        executionListeners = new ArrayList();
 	setCommand = sc;
 	_batchCount = 0;
     }
@@ -100,7 +102,9 @@ public class CommandDispatcher implements ReadlineCompleter {
 	Iterator entries = commandMap.entrySet().iterator();
 	while (entries.hasNext()) {
 	    Map.Entry e = (Map.Entry) entries.next();
-	    if (e.getValue() == c) entries.remove();
+	    if (e.getValue() == c) {
+                entries.remove();
+            }
 	}
     }
 
@@ -159,16 +163,55 @@ public class CommandDispatcher implements ReadlineCompleter {
             }
 	}
     }
+    
+    /**
+     * Add an execution listener that is informed whenever a command
+     * is executed.
+     * @param listener an Execution Listener
+     */
+    public void addExecutionListener(ExecutionListener listener) {
+        if (!executionListeners.contains(listener)) {
+            executionListeners.add(listener);
+        }
+    }
+
+    /**
+     * remove an execution listener.
+     * @param listener the execution listener to be removed
+     * @return true, if this has been successful.
+     */
+    public boolean removeExecutionListener(ExecutionListener listener) {
+        return executionListeners.remove(listener);
+    }
+
+    private void informBeforeListeners(SQLSession session, String cmd) {
+        Iterator it = executionListeners.iterator();
+        while (it.hasNext()) {
+            ExecutionListener listener = (ExecutionListener) it.next();
+            listener.beforeExecution(session, cmd);
+        }
+    }
+
+    private void informAfterListeners(SQLSession session, String cmd, 
+                                      int result) 
+    {
+        Iterator it = executionListeners.iterator();
+        while (it.hasNext()) {
+            ExecutionListener listener = (ExecutionListener) it.next();
+            listener.afterExecution(session, cmd, result);
+        }
+    }
 
     /**
      * execute the command given. This strips whitespaces and trailing
      * semicolons and calls the Command class.
      */
-    public void execute(SQLSession session, String cmd) {
-	if (cmd == null)
+    public void execute(SQLSession session, final String givenCommand) {
+	if (givenCommand == null)
 	    return;
+
 	// remove trailing ';' and whitespaces.
-	StringBuffer cmdBuf = new StringBuffer(cmd.trim());
+	StringBuffer cmdBuf = new StringBuffer(givenCommand.trim());
 	int i = 0;
 	for (i = cmdBuf.length()-1; i > 0; --i) {
 	    char c = cmdBuf.charAt(i);
@@ -180,7 +223,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 	    return;
 	}
 	cmdBuf.setLength(i+1);
-	cmd = cmdBuf.toString();
+	String cmd = cmdBuf.toString();
 	//System.err.println("## '" + cmd + "'");
 	String cmdStr = getCommandNameFrom(cmd);
 	Command c = getCommandFromCooked(cmdStr);
@@ -192,9 +235,12 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    System.err.println("not connected.");
 		    return;
 		}
-        // long start = System.currentTimeMillis();
-        int result = c.execute(session, cmdStr, cmd);
-        // System.out.println("Execution took " + (System.currentTimeMillis() - start ) + " ms." );
+                
+                int result;
+                informBeforeListeners(session, givenCommand);
+                result = c.execute(session, cmdStr, cmd);
+                informAfterListeners(session, givenCommand, result);
+
 		switch ( result ) {
 		case Command.SYNTAX_ERROR: {
 		    String synopsis = c.getSynopsis(cmdStr);
@@ -226,6 +272,8 @@ public class CommandDispatcher implements ReadlineCompleter {
 	    catch (Throwable e) {
 		if (verbose) e.printStackTrace();
 		System.err.println(e);
+                informAfterListeners(session, givenCommand, 
+                                     Command.EXEC_FAILED);
 	    }
 	}
     }
