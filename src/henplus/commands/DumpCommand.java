@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.23 2004-02-01 20:01:27 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.24 2004-03-05 23:34:38 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -217,10 +217,11 @@ public class DumpCommand
 	    if ((argc < 2)) return SYNTAX_ERROR;
 	    String fileName = (String) st.nextElement();
 	    PrintStream out = null;
+            String tabName = null;
 	    try {
 		out = openOutputStream(fileName, FILE_ENCODING);
 		while (st.hasMoreElements()) {
-		    String tabName  = (String) st.nextElement();
+		    tabName  = (String) st.nextElement();
 		    int result = dumpTable(session, tabName, null, out,
 					   FILE_ENCODING);
 		    if (result != SUCCESS) {
@@ -230,7 +231,8 @@ public class DumpCommand
 		return SUCCESS;
 	    }
 	    catch (Exception e) {
-		HenPlus.msg().println("failed: " + e.getMessage());
+		HenPlus.msg().println("dump table '" + tabName + "' failed: "
+                                      + e.getMessage());
 		e.printStackTrace();
 		return EXEC_FAILED;
 	    }

@@ -1,15 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PasswordEraserThread.java,v 1.4 2003-05-02 00:03:01 hzeller Exp $
+ * $Id: PasswordEraserThread.java,v 1.5 2004-03-05 23:34:38 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  * inspired by hack provided in 
  *  <http://java.sun.com/features/2002/09/pword_mask.html>
  * Thanks to alec <acgnacgn@yahoo.co.uk> to point me to this.
  */
 package henplus;
-
-import java.io.*;
 
 /**
  * Erase password as it is typed. Since we do not have access to 
@@ -58,7 +56,7 @@ class PasswordEraserThread extends Thread {
             }
 
             try {
-                this.sleep(1); // yield.
+                Thread.sleep(1); // yield.
             }
             catch (InterruptedException iex) {
                 // ignore

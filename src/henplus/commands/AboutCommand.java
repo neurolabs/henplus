@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AboutCommand.java,v 1.7 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: AboutCommand.java,v 1.8 2004-03-05 23:34:38 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -48,8 +48,8 @@ public class AboutCommand extends AbstractCommand {
 	    HenPlus.msg().print( ABOUT );
 	}
 	else if ("version".equals(cmd)) {
-	    HenPlus.msg().print(Version.getVersion() 
-                                + " / compiled " + Version.getCompileTime());
+	    HenPlus.msg().println(Version.getVersion() 
+                                  + " / compiled " + Version.getCompileTime());
 	}
 	else if ("license".equals(cmd)) {
 	    HenPlus.msg().println( LICENSE );

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.18 2004-01-28 09:25:49 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.19 2004-03-05 23:34:38 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -35,7 +35,7 @@ import henplus.CommandDispatcher;
 public final class SetCommand extends AbstractCommand {
     private final static String SETTINGS_FILENAME = "settings";
     private final static ColumnMetaData[] SET_META;
-
+    
     static {
 	SET_META = new ColumnMetaData[2];
 	SET_META[0] = new ColumnMetaData("Name");
@@ -248,6 +248,7 @@ public final class SetCommand extends AbstractCommand {
 	    Properties p = new Properties();
 	    p.putAll(_variables);
 	    p.store(stream, "user variables");
+            stream.close();
 	}
 	catch (IOException dont_care) {}
     }

@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedSet;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 /**
  * document me.
@@ -34,7 +34,7 @@ public class ConnectCommand extends AbstractCommand {
     
     private static String CONNECTION_CONFIG = "connections";
     private final SessionManager _sessionManager;
-    private final SortedSet knownUrls;
+    private final SortedMap knownUrls;
     private final HenPlus   henplus;
 
     private final static ColumnMetaData[] SESS_META;
@@ -63,15 +63,30 @@ public class ConnectCommand extends AbstractCommand {
     public ConnectCommand(String argv[], HenPlus henplus, SessionManager sessionManager) {
     	this.henplus = henplus;
         this._sessionManager = sessionManager;
-    	knownUrls = new TreeSet();
+    	knownUrls = new TreeMap();
     
     	try {
     	    File urlFile = new File(henplus.getConfigDir(),
     				    CONNECTION_CONFIG);
     	    BufferedReader in = new BufferedReader(new FileReader(urlFile));
-    	    String url;
-    	    while ((url = in.readLine()) != null) {
-    		  knownUrls.add(url);
+    	    String urlLine;
+    	    while ((urlLine = in.readLine()) != null) {
+                StringTokenizer tok = new StringTokenizer(urlLine);
+                String url;
+                String alias;
+                int tokNum = tok.countTokens();
+                if (tokNum == 1) {
+                    url = tok.nextToken();
+                    alias = url;
+                }
+                else if (tokNum == 2) {
+                    url = tok.nextToken();
+                    alias = tok.nextToken();
+                }
+                else {
+                    continue;
+                }
+                knownUrls.put(alias, url);
     	    }
     	}
     	catch (IOException e) {
@@ -79,16 +94,16 @@ public class ConnectCommand extends AbstractCommand {
     
     	if (argv.length > 0) {
     	    try {
-        		SQLSession session = null;
-        		String url = argv[0];
-        		String username = (argv.length > 1) ? argv[1] : null;
-        		String password = (argv.length > 2) ? argv[2] : null;
-        		session = new SQLSession(url, username, password);
-        		currentSessionName = createSessionName(session, null);
+                SQLSession session = null;
+                String url = argv[0];
+                String username = (argv.length > 1) ? argv[1] : null;
+                String password = (argv.length > 2) ? argv[2] : null;
+                session = new SQLSession(url, username, password);
+                currentSessionName = createSessionName(session, null);
                 _sessionManager.addSession(currentSessionName, session);
-        		knownUrls.add(url);
-        		henplus.setPrompt(currentSessionName + "> ");
-        		_sessionManager.setCurrentSession(session);
+                knownUrls.put(url, url);
+                henplus.setPrompt(currentSessionName + "> ");
+                _sessionManager.setCurrentSession(session);
     	    }
     	    catch (Exception e) {
     		//e.printStackTrace();
@@ -97,6 +112,9 @@ public class ConnectCommand extends AbstractCommand {
     	}
     }
     
+    /**
+     * create a session name from an URL.
+     */
     private String createSessionName(SQLSession session, String name) {
 	String userName = null;
 	String dbName   = null;
@@ -127,7 +145,7 @@ public class ConnectCommand extends AbstractCommand {
 		while (st.hasMoreElements()) {
 		    String val = (String) st.nextElement();
 		    if (val.length() == 0)
-			   continue;
+                        continue;
 		    hostname = val;
 		    break;
 		}
@@ -148,19 +166,29 @@ public class ConnectCommand extends AbstractCommand {
     }
 
     public void shutdown() {
-	   _sessionManager.closeAll();
+        _sessionManager.closeAll();
 
-       try {
-           File urlFile = new File(henplus.getConfigDir(),
-               CONNECTION_CONFIG);
-           PrintWriter writer = new PrintWriter(new FileWriter(urlFile));
-           Iterator urlIter = knownUrls.iterator();
-           while (urlIter.hasNext()) {
-               writer.println((String) urlIter.next());
-           }
-           writer.close();
-       }
-       catch (IOException dont_care) {}
+        try {
+            File urlFile = new File(henplus.getConfigDir(),
+                                    CONNECTION_CONFIG);
+            PrintWriter writer = new PrintWriter(new FileWriter(urlFile));
+            Iterator urlIter = knownUrls.entrySet().iterator();
+            while (urlIter.hasNext()) {
+                Map.Entry entry = (Map.Entry) urlIter.next();
+                String alias = (String) entry.getKey();
+                String url = (String) entry.getValue();
+                if (alias.equals(url)) {
+                    writer.println(url);
+                }
+                else {
+                    writer.print(url);
+                    writer.print(" ");
+                    writer.println(alias);
+                }
+            }
+            writer.close();
+        }
+        catch (IOException dont_care) {}
     }
 
     /**
@@ -181,11 +209,10 @@ public class ConnectCommand extends AbstractCommand {
 			     String partialCommand, final String lastWord) 
     {
 	if (partialCommand.startsWith("connect")) {
-	    if (argumentCount(partialCommand) >
-		("".equals(lastWord) ? 1 : 2)) {
+	    if (argumentCount(partialCommand) > ("".equals(lastWord) ? 1 : 2)) {
 		return null;
 	    }
-	    final Iterator it = knownUrls.tailSet(lastWord).iterator();
+	    final Iterator it = knownUrls.tailMap(lastWord).keySet().iterator();
 	    return new Iterator() {
 		    String url = null;
 		    public boolean hasNext() {
@@ -253,8 +280,8 @@ public class ConnectCommand extends AbstractCommand {
 	    Map.Entry entry = null;
 	    Iterator it = _sessionManager.getSessionNames().iterator();
 	    while (it.hasNext()) {
-            String sessName = (String)it.next();
-            session = _sessionManager.getSessionByName(sessName);
+                String sessName = (String)it.next();
+                session = _sessionManager.getSessionByName(sessName);
     		String prepend = sessName.equals(currentSessionName) 
     		    ? " * "
     		    : "   ";
@@ -273,14 +300,29 @@ public class ConnectCommand extends AbstractCommand {
 		return SYNTAX_ERROR;
 	    }
 	    String url = (String) st.nextElement();
-	    currentSessionName = (argc==2) ? (String) st.nextElement() : null;
+            String alias = (argc==2) ? st.nextToken() : null;
+            if (alias == null) {
+                /*
+                 * we only got one parameter. So the that single parameter
+                 * might have been an alias. let's see..
+                 */
+                if (knownUrls.containsKey(url)) {
+                    String possibleAlias = url;
+                    url = (String) knownUrls.get(url);
+                    if (!possibleAlias.equals(url)) {
+                        alias = possibleAlias;
+                    }
+                }
+            }
 	    try {
 		session = new SQLSession(url, null, null);
-		knownUrls.add(url);
-		currentSessionName = createSessionName(session, 
-						       currentSessionName);
+		knownUrls.put(url, url);
+                if (alias != null) {
+                    knownUrls.put(alias, url);
+                }
+		currentSessionName = createSessionName(session, alias);
 		_sessionManager.addSession(currentSessionName, session);
-        _sessionManager.setCurrentSession(session);
+                _sessionManager.setCurrentSession(session);
 	    }
 	    catch (Exception e) {
 		HenPlus.msg().println(e.toString());
@@ -323,38 +365,38 @@ public class ConnectCommand extends AbstractCommand {
 		return SYNTAX_ERROR;
 	    }
         
-        /*  // moved to sessionmanager.renameSession
-         * 
-            if (_sessionManager.sessionNameExists(sessionName)) {
-                HenPlus.err().println("A session with that name already exists");
-                return EXEC_FAILED;
-            }
+            /*  // moved to sessionmanager.renameSession
+             * 
+             if (_sessionManager.sessionNameExists(sessionName)) {
+             HenPlus.err().println("A session with that name already exists");
+             return EXEC_FAILED;
+             }
 
-	    session = _sessionManager.removeSessionWithName(currentSessionName);
-	    if (session == null) {
-		  return EXEC_FAILED;
-	    }
-	    _sessionManager.addSession(sessionName, session);
-         */
-         int renamed = _sessionManager.renameSession(currentSessionName, sessionName);
-         if (renamed == EXEC_FAILED)
-            return EXEC_FAILED;
+             session = _sessionManager.removeSessionWithName(currentSessionName);
+             if (session == null) {
+             return EXEC_FAILED;
+             }
+             _sessionManager.addSession(sessionName, session);
+            */
+            int renamed = _sessionManager.renameSession(currentSessionName, sessionName);
+            if (renamed == EXEC_FAILED)
+                return EXEC_FAILED;
             
 	    currentSessionName = sessionName;
-        session = _sessionManager.getCurrentSession();
+            session = _sessionManager.getCurrentSession();
 	}
 
 	else if ("disconnect".equals(cmd)) {
 	    currentSessionName = null;
 	    if (argc != 0) {
-		  return SYNTAX_ERROR;
+                return SYNTAX_ERROR;
 	    }
-        _sessionManager.closeCurrentSession();
-        HenPlus.msg().println("session closed.");
+            _sessionManager.closeCurrentSession();
+            HenPlus.msg().println("session closed.");
             
 	    if (_sessionManager.hasSessions()) {
-            currentSessionName = _sessionManager.getFirstSessionName();
-		    session = _sessionManager.getSessionByName(currentSessionName);
+                currentSessionName = _sessionManager.getFirstSessionName();
+                session = _sessionManager.getSessionByName(currentSessionName);
 	    }
 	}
 	
@@ -393,11 +435,19 @@ public class ConnectCommand extends AbstractCommand {
 	String dsc = null;
 	if ("connect".equals(cmd)) {
 	    dsc= "\tconnects to the url with the optional session name.\n"
-		+"\tIf no session name is given, a session name is chosen.";
+		+"\tIf no session name is given, a session name is chosen.\n"
+                +"\tIf a session name is given, this is stored as an alias\n"
+                +"\tfor the URL as well, so later you might connect with\n"
+                +"\tthat alias conveniently instead:\n"
+                +"\t\tconnect jdbc:oracle:thin:foo/bar@localhost:BLUE myAlias\n"
+                +"\tallows to later connect simply with\n"
+                +"\t\tconnect myAlias\n"
+                +"\tOf course, all URLs and aliases are stored in your \n"
+                +"\t~/.henplus configuration.";
 	}
 	else if ("disconnect".equals(cmd)) {
 	    dsc="\tdisconnect current session. You can leave a session as\n"
-	    +"\twell if you just type CTRL-D";
+                +"\twell if you just type CTRL-D";
 	}
 	else if ("switch".equals(cmd)) {
 	    dsc="\tswitch to session with the given session name.";

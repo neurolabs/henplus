@@ -19,6 +19,7 @@ import henplus.view.TableRenderer;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -258,31 +259,7 @@ public class DescribeCommand
 	     * index info.
 	     */
             if (interrupted) return SUCCESS;
-	    HenPlus.out().println("index information:");
-	    boolean anyIndex = false;
-	    rset = meta.getIndexInfo(null, schema, tabName, false, true);
-	    if (rset != null) while (!interrupted && rset.next()) {
-		boolean nonUnique;
-		String idxName = null;
-		nonUnique = rset.getBoolean(4);
-		idxName = rset.getString(6);
-		if (idxName == null) continue; // statistics, otherwise.
-		// output part.
-		anyIndex = true;
-		HenPlus.out().print("\t");
-		if (!nonUnique) HenPlus.out().print("unique ");
-		HenPlus.out().print("index " + idxName);
-		String colName = rset.getString(9);
-		// work around postgres-JDBC-driver bug:
-		if (colName != null && colName.length() > 0) {
-		    HenPlus.out().print(" on " + colName);
-		}
-		HenPlus.out().println();
-	    }
-	    rset.close();
-	    if (!anyIndex) {
-		HenPlus.out().println("\t<none>");
-	    }
+	    showIndexInformation(tabName, schema, meta);
             TimeRenderer.printTime(System.currentTimeMillis() - startTime,
                                    HenPlus.out());
             HenPlus.out().println();
@@ -303,13 +280,49 @@ public class DescribeCommand
     }
     
     /**
+     * @param tabName
+     * @param schema
+     * @param meta
+     * @return
+     * @throws SQLException
+     */
+    private void showIndexInformation(String tabName, String schema, DatabaseMetaData meta) throws SQLException {
+        ResultSet rset;       
+        HenPlus.out().println("index information:");
+        boolean anyIndex = false;
+        rset = meta.getIndexInfo(null, schema, tabName, false, true);
+        if (rset != null) while (!interrupted && rset.next()) {
+            boolean nonUnique;
+            String idxName = null;
+            nonUnique = rset.getBoolean(4);
+            idxName = rset.getString(6);
+            if (idxName == null) continue; // statistics, otherwise.
+            // output part.
+            anyIndex = true;            
+            HenPlus.out().print("\t");
+            if (!nonUnique) HenPlus.out().print("unique ");
+            HenPlus.out().print("index " + idxName);
+            String colName = rset.getString(9);
+            // work around postgres-JDBC-driver bug:
+            if (colName != null && colName.length() > 0) {
+                HenPlus.out().print(" on " + colName);
+            }
+            HenPlus.out().println();
+        }
+        rset.close();
+        if (!anyIndex) {
+            HenPlus.out().println("\t<none>");
+        }        
+    }
+
+    /**
      * complete the table name.
      */
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, String lastWord) 
     {
 	StringTokenizer st = new StringTokenizer(partialCommand);
-	String cmd = (String) st.nextElement();
+	st.nextElement(); // consume first element.
 	int argc = st.countTokens();
 	// we accept only one argument.
 	if (argc > ("".equals(lastWord) ? 0 : 1)) {

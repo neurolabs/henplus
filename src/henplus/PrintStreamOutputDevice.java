@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PrintStreamOutputDevice.java,v 1.1 2004-02-01 14:12:52 hzeller Exp $
+ * $Id: PrintStreamOutputDevice.java,v 1.2 2004-03-05 23:34:38 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -28,8 +28,8 @@ public class PrintStreamOutputDevice implements OutputDevice {
 
     public void close() { _outStream.close(); }
 
-    public void attributeBold()  { }
-    public void attributeGrey()  { }
+    public void attributeBold()  { /* no attributes */ }
+    public void attributeGrey()  { /* no attributes */ }
 
-    public void attributeReset() { }
+    public void attributeReset() { /* no attributes */ }
 }

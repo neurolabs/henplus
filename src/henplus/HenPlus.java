@@ -1,14 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.64 2004-02-02 13:36:37 hzeller Exp $
+ * $Id: HenPlus.java,v 1.65 2004-03-05 23:34:38 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
 import henplus.commands.*;
 import henplus.commands.properties.*;
-import henplus.view.util.Terminal;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -16,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
-import java.io.PrintStream;
 
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
@@ -90,9 +88,6 @@ public class HenPlus implements Interruptable {
                       new PrintStreamOutputDevice(System.err));
         }
 
-	// output of special characters.
-	Terminal.setTerminalAvailable(_fromTerminal);
-
 	if (!_quiet) {
 	    System.err.println("using GNU readline (Brian Fox, Chet Ramey), Java wrapper by Bernhard Bablok");
 	}
@@ -100,9 +95,9 @@ public class HenPlus implements Interruptable {
 	try {
 	    HistoryWriter.readReadlineHistory(getHistoryLocation());
 	}
-	catch (Exception ignore) {}
+	catch (Exception ignore) { /* ign */ }
 	
-	Readline.setWordBreakCharacters(" ,/()<>=\t\n"); // TODO..
+	Readline.setWordBreakCharacters(" ,()<>=\t\n"); // TODO..
 	setDefaultPrompt();
     }
 
@@ -112,7 +107,7 @@ public class HenPlus implements Interruptable {
             .registerProperty("comments-remove",
                               _commandSeparator.getRemoveCommentsProperty());
 
-        _sessionManager = SessionManager.getInstance(this); 
+        _sessionManager = SessionManager.getInstance(); 
         
         // FIXME: to many cross dependencies of commands now. clean up.
 	_settingStore = new SetCommand(this);
@@ -145,7 +140,6 @@ public class HenPlus implements Interruptable {
 	_dispatcher.register(_objectLister);
 	_dispatcher.register(new DescribeCommand(_objectLister));
         
-        /*** experimental ***/
 	_dispatcher.register(new TreeCommand(_objectLister));
 
 	_dispatcher.register(new SQLCommand(_objectLister, _henplusProperties));
@@ -155,7 +149,9 @@ public class HenPlus implements Interruptable {
 	_dispatcher.register(new DumpCommand(_objectLister, loadCommand));
 
 	_dispatcher.register(new ShellCommand());
-
+        if (_fromTerminal) {
+            _dispatcher.register(new KeyBindCommand(this));
+        }
 	_dispatcher.register(new SpoolCommand(this));
 	_dispatcher.register(_settingStore);
 
@@ -409,7 +405,7 @@ public class HenPlus implements Interruptable {
 	    try {
 		HistoryWriter.writeReadlineHistory(getHistoryLocation());
 	    }
-	    catch (Exception ignore) {}
+	    catch (Exception ignore) { /* ign */ }
 	    Readline.cleanup();
 	}
 	finally {
@@ -492,8 +488,7 @@ public class HenPlus implements Interruptable {
         StringBuffer result = new StringBuffer();
         String      varname;
         boolean     hasBrace= false;
-        boolean     knownVar= false;
-        
+                
         if (in == null) {
             return null;
         }
@@ -656,7 +651,7 @@ public class HenPlus implements Interruptable {
 	_configDir = _configDir.getAbsoluteFile();
 	try {
 	    _configDir = _configDir.getCanonicalFile();
-	} catch (IOException ign) {}
+	} catch (IOException ign) { /* ign */ }
 	
 	if (!_quiet) {
 	    System.err.println("henplus config at " + _configDir);

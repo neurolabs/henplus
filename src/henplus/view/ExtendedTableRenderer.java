@@ -4,15 +4,13 @@
  */
 package henplus.view;
 
-import henplus.view.util.Terminal;
-
 import henplus.OutputDevice;
 
 /**
  * <p>Title: ExtendedTableRenderer</p>
  * <p>Description:<br>
  * Created on: 25.07.2003</p>
- * @version $Id: ExtendedTableRenderer.java,v 1.4 2004-02-01 16:39:09 hzeller Exp $ 
+ * @version $Id: ExtendedTableRenderer.java,v 1.5 2004-03-05 23:34:38 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public class ExtendedTableRenderer extends TableRenderer {

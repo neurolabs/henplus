@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyCommand.java,v 1.1 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: PropertyCommand.java,v 1.2 2004-03-05 23:34:38 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands.properties;
@@ -84,6 +84,7 @@ public class PropertyCommand extends AbstractPropertyCommand {
                 p.put((String) entry.getKey(), holder.getValue());
             }
 	    p.store(stream, "user properties");
+            stream.close();
 	}
 	catch (IOException dont_care) {}
     }

@@ -18,7 +18,6 @@ import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.SigIntHandler;
-import henplus.view.util.Terminal;
 
 /**
  * This command executes stuff on the shell. Supports the most common

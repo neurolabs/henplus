@@ -13,7 +13,6 @@ import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.ExtendedColumn;
 import henplus.view.ExtendedTableRenderer;
-import henplus.view.util.Terminal;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,7 +23,7 @@ import java.util.SortedSet;
  * <p>Title: ResultTablePrinter</p>
  * <p>Description:<br>
  * Created on: 24.07.2003</p>
- * @version $Id: ResultTablePrinter.java,v 1.4 2004-02-01 14:12:52 hzeller Exp $ 
+ * @version $Id: ResultTablePrinter.java,v 1.5 2004-03-05 23:34:38 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class ResultTablePrinter {

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.13 2004-02-01 16:39:09 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.14 2004-03-05 23:34:38 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -109,18 +109,7 @@ public final class AliasCommand extends AbstractCommand {
 	
 	if ("list-aliases".equals(cmd)) {
 	    if (argc != 0) return SYNTAX_ERROR;
-	    DRV_META[0].resetWidth();
-	    DRV_META[1].resetWidth();
-	    TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
-	    Iterator it = _aliases.entrySet().iterator();
-	    while (it.hasNext()) {
-		Map.Entry entry = (Map.Entry) it.next();
-		Column[] row = new Column[2];
-		row[0] = new Column((String) entry.getKey());
-		row[1] = new Column((String) entry.getValue());
-		table.addRow(row);
-	    }
-	    table.closeTable();
+            showAliases();
 	    return SUCCESS;
 	}
 
@@ -186,6 +175,21 @@ public final class AliasCommand extends AbstractCommand {
 	    _currentExecutedAliases.clear();
 	}
 	return SUCCESS;
+    }
+
+    private void showAliases() {
+        DRV_META[0].resetWidth();
+        DRV_META[1].resetWidth();
+        TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
+        Iterator it = _aliases.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            Column[] row = new Column[2];
+            row[0] = new Column((String) entry.getKey());
+            row[1] = new Column((String) entry.getValue());
+            table.addRow(row);
+        }
+        table.closeTable();
     }
 
     private String stripQuotes(String value) {
@@ -291,6 +295,7 @@ public final class AliasCommand extends AbstractCommand {
 	    Properties p = new Properties();
 	    p.putAll(_aliases);
 	    p.store(stream, "Aliases..");
+            stream.close();
 	}
 	catch (IOException dont_care) {}
     }

@@ -1,14 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyRegistry.java,v 1.4 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: PropertyRegistry.java,v 1.5 2004-03-05 23:34:38 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.List;
 
 import henplus.property.PropertyHolder;
 

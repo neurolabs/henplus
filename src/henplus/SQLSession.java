@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.25 2004-02-01 14:12:52 hzeller Exp $
+ * $Id: SQLSession.java,v 1.26 2004-03-05 23:34:38 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -9,7 +9,6 @@ package henplus;
 import henplus.property.BooleanPropertyHolder;
 import henplus.property.EnumeratedPropertyHolder;
 import henplus.sqlmodel.Table;
-import henplus.view.util.Terminal;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,8 +36,7 @@ public class SQLSession implements Interruptable {
     private String     _databaseInfo;
     private Connection _conn;
     private SQLMetaData _metaData;
-    private boolean    _terminated = false;
-    private int        _showMessages;
+    
     private final PropertyRegistry _propertyRegistry;
     private volatile boolean    _interrupted;
 
@@ -53,7 +51,6 @@ public class SQLSession implements Interruptable {
 	       IOException 
     {
 	_statementCount = 0;
-	_showMessages = 1;
 	_conn = null;
 	_url = url;
 	_username = user;
@@ -299,7 +296,6 @@ public class SQLSession implements Interruptable {
     
     public void close() {
 	try {
-            Connection conn = getConnection();
 	    getConnection().close();
             _conn = null;
 	}
@@ -333,7 +329,7 @@ public class SQLSession implements Interruptable {
 	    }
 	    catch (Throwable t) {
 		HenPlus.msg().println("connection failure. Try to reconnect.");
-		try { connect(); } catch (Exception e) {}
+		try { connect(); } catch (Exception e) { /* ign */ }
 	    }
 	    --retries;
 	}

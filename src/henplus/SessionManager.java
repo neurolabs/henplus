@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SessionManager.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: SessionManager.java,v 1.3 2004-03-05 23:34:38 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus;
@@ -18,19 +18,17 @@ import java.util.TreeSet;
 public final class SessionManager {
     
     private static SessionManager _instance;
-    
-    private HenPlus _henplus;
+        
     private final SortedMap/*<String,SQLSession>*/ _sessions;
     private SQLSession _currentSession;
 
-    private SessionManager(HenPlus henplus) {
-        _henplus = henplus;
+    private SessionManager() {        
         _sessions  = new TreeMap();
     }
     
-    public static SessionManager getInstance(HenPlus henplus) {
+    public static SessionManager getInstance() {
         if (_instance == null)
-            _instance = new SessionManager(henplus);
+            _instance = new SessionManager();
         return _instance;
     }
     

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.1 2004-02-01 14:12:52 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.2 2004-03-05 23:34:38 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands.properties;
@@ -15,7 +15,6 @@ import henplus.property.PropertyHolder;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
-import henplus.view.util.Terminal;
 
 import java.util.Iterator;
 import java.util.Map;

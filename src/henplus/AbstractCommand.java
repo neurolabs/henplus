@@ -31,7 +31,7 @@ public abstract class AbstractCommand implements Command {
 	return null; 
     }
     
-    public void shutdown() {}
+    public void shutdown() { /* don't care */ }
 
     // the simple commands are always complete on newline or semicolon
     public boolean isComplete(String command) { return true; }

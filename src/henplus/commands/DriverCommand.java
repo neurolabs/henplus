@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.9 2004-01-28 09:25:48 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.10 2004-03-05 23:34:38 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -249,6 +249,7 @@ public final class DriverCommand extends AbstractCommand {
 		p.put("driver." + shortName + ".example",desc.getSampleURL());
 	    }
 	    p.store(stream, "JDBC drivers");
+            stream.close();
 	}
 	catch (IOException dont_care) {}
     }

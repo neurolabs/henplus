@@ -1,3 +1,9 @@
+henplus (0.9.5-1) unstable; urgency=low
+  
+  * fixed bug: startup with given JDBC-connection throws exception
+
+ -- Henner Zeller <H.Zeller@acm.org>  Mon, 02 Feb 2004 12:22:04 +0100
+
 henplus (0.9.4-1) unstable; urgency=low
   
   * implement spool command
