@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AboutCommand.java,v 1.1 2002-02-15 13:36:38 hzeller Exp $ 
+ * $Id: AboutCommand.java,v 1.2 2002-02-15 20:11:45 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -14,13 +14,16 @@ import henplus.Version;
  * document me.
  */
 public class AboutCommand extends AbstractCommand {
-    final static String cpy = 
-"-------------------------------------------------------------------------\n"
-+" HenPlus II 0.1 Copyright(C) 1997, 2001 Henner Zeller <H.Zeller@acm.org>\n"
+    final static String LICENSE = 
+	"GNU Public License <http://www.gnu.org/licenses/gpl.txt>";
+
+    final static String ABOUT = 
+"---------------------------------------------------------------------------\n"
++" HenPlus II " + Version.getVersion() + " Copyright(C) 1997, 2001 Henner Zeller <H.Zeller@acm.org>\n"
 +" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n"
 +" This is free software, and you are welcome to redistribute it under the\n"
-+" conditions of the GNU Public License <http://www.gnu.org/>\n"
-+"------------------------------------------------------------------------\n";
++" conditions of the " + LICENSE + "\n"
++"---------------------------------------------------------------------------\n";
     /**
      * returns the command-strings this command can handle.
      */
@@ -31,8 +34,7 @@ public class AboutCommand extends AbstractCommand {
     }
 
     public AboutCommand() {
-	System.err.print(cpy);
-	System.err.println("version " + Version.getVersion());
+	System.err.print( ABOUT );
     }
 
     /**
@@ -40,13 +42,13 @@ public class AboutCommand extends AbstractCommand {
      */
     public int execute(SQLSession session, String command) {
 	if (command.startsWith("about")) {
-	    System.err.print(cpy);
+	    System.err.print( ABOUT );
 	}
 	else if (command.startsWith("version")) {
 	    System.err.println(Version.getVersion());
 	}
 	else if (command.startsWith("license")) {
-	    System.err.println("GNU General Public License <http://www.gnu.org/licenses/gpl.txt>");
+	    System.err.println( LICENSE );
 	}
 	return SUCCESS;
     }

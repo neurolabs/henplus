@@ -137,7 +137,9 @@ public class HelpCommand extends AbstractCommand {
     private void printDescription(String cmdStr, Command c) {
 	String desc = c.getLongDescription(cmdStr);
 	if (desc == null) {
-	    desc = "\t[short description]: " + c.getShortDescription();
+	    if (c.getShortDescription() != null) {
+		desc = "\t[short description]: " + c.getShortDescription();
+	    }
 	}
 	String synopsis = c.getSynopsis(cmdStr);
 	

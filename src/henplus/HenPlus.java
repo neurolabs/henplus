@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.26 2002-02-15 13:36:37 hzeller Exp $
+ * $Id: HenPlus.java,v 1.27 2002-02-15 20:11:42 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -49,10 +49,10 @@ public class HenPlus {
 	terminated = false;
 	_alreadyShutDown = false;
 	_commandSeparator = new SQLStatementSeparator();
-	
+
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
-	    System.err.println("using GNU readline.");
+	    System.err.println("using GNU readline wrapper by Bernhard Bablok");
 	} catch (UnsatisfiedLinkError ignore_me) {
 	    System.err.println("no readline found ("
 			       + ignore_me.getMessage()
@@ -69,27 +69,32 @@ public class HenPlus {
 	if (!_fromTerminal) {
 	    System.err.println("input not a terminal; disabling TAB-completion");
 	}
+	setDefaultPrompt();
 
 	_settingStore = new SetCommand(this);
 	dispatcher = new CommandDispatcher(_settingStore);
-	dispatcher.register(new AboutCommand());
 	dispatcher.register(new HelpCommand());
+	dispatcher.register(new AboutCommand());
+	dispatcher.register(new ExitCommand());
+	dispatcher.register(new EchoCommand());
+	dispatcher.register(new DriverCommand(this));
+	dispatcher.register(new LoadCommand());
+
+	dispatcher.register(new ConnectCommand( argv, this ));
+	dispatcher.register(new StatusCommand());
+
+	dispatcher.register(new ListUserObjectsCommand());
 	dispatcher.register(new DescribeCommand());
 	dispatcher.register(new SQLCommand());
-	dispatcher.register(new ListUserObjectsCommand());
-	dispatcher.register(new ExportCommand());
+
 	dispatcher.register(new ImportCommand());
-	dispatcher.register(new ShellCommand());
-	dispatcher.register(new EchoCommand());
-	dispatcher.register(new ExitCommand());
-	dispatcher.register(new StatusCommand());
-	dispatcher.register(new ConnectCommand( argv, this ));
-	dispatcher.register(new LoadCommand());
-	dispatcher.register(new DriverCommand(this));
+	dispatcher.register(new ExportCommand());
+
 	dispatcher.register(new AutocommitCommand()); // replace with 'set'
+	dispatcher.register(new ShellCommand());
 	dispatcher.register(_settingStore);
 	Readline.setCompleter( dispatcher );
-	setDefaultPrompt();
+
 	// in case someone presses Ctrl-C
 	try {
 	    Runtime.getRuntime()

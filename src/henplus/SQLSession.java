@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.8 2002-02-14 17:09:47 hzeller Exp $
+ * $Id: SQLSession.java,v 1.9 2002-02-15 20:11:42 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -54,6 +54,7 @@ public class SQLSession {
 	_conn = null;
 	_url = url;
 	_username = user;
+	_password = password;
 
 	Driver driver = null;
 	//System.err.println("connect to '" + url + "'");
