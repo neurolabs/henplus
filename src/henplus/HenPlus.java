@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.35 2002-05-06 06:56:57 hzeller Exp $
+ * $Id: HenPlus.java,v 1.36 2002-05-29 18:03:02 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -329,6 +329,15 @@ public class HenPlus {
 	setPrompt( _fromTerminal ? PROMPT : "" );
     }
 
+    /**
+     * substitute the variables in String 'in', that are in the
+     * form $VARNAME or ${VARNAME} with the equivalent value that is found
+     * in the Map. Return the varsubstituted String.
+     * @param in the input string containing variables to be
+     *           substituted (with leading $)
+     * @param variables the Map containing the mapping from variable name
+     *                  to value.
+     */
     public String varsubst (String in, Map variables) {
         int pos             = 0;
         int endpos          = 0;

@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.4 2002-05-22 08:40:26 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.5 2002-05-29 18:03:02 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -54,7 +54,7 @@ This is where <em>HenPlus</em> steps in. It supports:
      and tables / columns / variables within SQL-commands. </li>
  <li>Multiple open connection-sessions can be handled in parallel. You can just
      switch between them. So you can be connected to different databases to
-     experiemnt with the same statement in all of them, for example.<br>
+     experiment with the same statement in all of them, for example.<br>
      All JDBC-Urls of opened sessions are stored for
      later command line completion in the <code>connect</code> command.</li>
  <li>Command line history just like in the bash (with cursor-up/down, CTRL-R, 
@@ -180,13 +180,31 @@ not complete after the newline; you <em>always</em> have to close them
 with a semicolon -- so its possible to write statements on multiple lines:
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 oracle:localhost&gt; create table foobar (
-                    id number(10),
+                    id number(10) primary key,
                     text varchar(127)
                   );
 ok. (70 msec)
 oracle:localhost&gt;
 </pre></td></tr></table>
 <p>
+Some commands are not even complete, if there is a semicolon -- these are
+'create procedure' and 'create trigger' commands. These commands contain some
+more complex SQL-operations that are each separated by a semicolon. This whole
+command is then separated by a single slash at the beginning of a new line 
+(this syntax is the same that SQLPlus supports):
+
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+oracle:localhost&gt; create or replace trigger foobar_autoinc
+                  before insert on foobar
+                  for each row
+                  begin
+                    select foobar_seq.nextval into :new.id from dual;
+                  end foobar_autoinc;
+                  /
+ok. (320 msec)
+oracle:localhost&gt;
+</pre></td></tr></table>
+
 <h5>SQL-Comments</h5>
 That should be enough to start working with HenPlus. But especially if you are
 running scripts (with the <code>load</code>-command)
@@ -237,7 +255,11 @@ To make a long story short -- the supported types of comments are
   <li>Lisp-like <b><code>;;</code></b> comment until end of line</li>
   <li>C/C++/Java like <b><code>/*&nbsp;range&nbsp;comment&nbsp;*/</code></b>
 </ul>
-If you encounter another reasonable style of comments you want that it is
+<em>Not</em> supported is the C++/Java like endline comment that starts with
+two slashes <b><code>//</code></b>. The reason is, that many JDBC-URLs contain
+these two slashes, and we don't want to comment these out, right ? ;-)
+<p>
+If you encounter some other reasonable style of comments you want that it is
 supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
 
 <h3><a name="getting-connected"/>Getting connected</h3>
@@ -245,7 +267,9 @@ Getting connected to a database is simple: you need the JDBC driver
 from your database vendor, put it in the classpath, register the driver
 -- thats it. HenPlus provides the commands register, unregister and 
 list-drivers to manage the drivers (you know it already: the <code>help</code>
-command tells you more details).
+command tells you more details). Some of the common drivers
+are already registered by default .. however, they need to be in the CLASSPATH
+still.
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 Hen*Plus&gt; list-drivers
 loaded drivers are marked with '*' (otherwise not found in CLASSPATH)
@@ -272,7 +296,12 @@ found there are added to the CLASSPATH on startup in
 the <code>henplus</code> shellscript.
 <p>
 Drivers once registered are remembered by HenPlus, so that they are loaded
-automatically on next startup.
+automatically on next startup. For registering and unregistering drivers,
+see the online help:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; help register
+Hen*Plus&gt; help unregister
+</pre></td></tr></table>
 <p>
 When the driver is loaded, you can connect to the database using the
 JDBC-URL:
@@ -352,7 +381,7 @@ not find the directory, it falls back to the <code>~/.henplus</code> in your
 home directory.
 <p>
 If you type 'help', then <em>HenPlus</em> tells you
-in the <a href="#config-dir">last line</a>, where it loaded initial 
+in the <a href="#config-dir">last line</a>, where it loaded its initial 
 configuration from.
 
 <h3><a name="plugins"/>Plugins</h3>
@@ -387,4 +416,4 @@ This will once be the FAQ. But for now, there is only one question..
 	 (HenPlus command: <code>autocommit-on</code>).
 <br>
 <hr noshade="noshade" size="1"/>
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.4 2002-05-22 08:40:26 hzeller Exp $ &copy; Henner Zeller</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.5 2002-05-29 18:03:02 hzeller Exp $ &copy; Henner Zeller</font></div>
