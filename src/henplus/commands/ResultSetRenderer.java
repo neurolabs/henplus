@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.11 2002-11-21 17:50:52 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.12 2003-03-18 10:47:06 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -10,10 +10,13 @@ import henplus.util.*;
 import henplus.Interruptable;
 
 import java.sql.ResultSet;
+import java.sql.Clob;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.io.PrintStream;
+import java.io.Reader;
+import java.io.IOException;
 import java.util.StringTokenizer;
 
 /**
@@ -23,12 +26,14 @@ public class ResultSetRenderer implements Interruptable {
     private static final int LIMIT = 2000;
 
     private final ResultSet rset;
+    private final ResultSetMetaData meta;
     private final TableRenderer table;
     private final int columns;
     private final int[] showColumns;
 
     private boolean beyondLimit;
     private long    firstRowTime;
+    private long    clobLimit = 8192;
     private volatile boolean running;
 
     public ResultSetRenderer(ResultSet rset, PrintStream out, int[] show) 
@@ -37,7 +42,7 @@ public class ResultSetRenderer implements Interruptable {
 	beyondLimit = false;
 	firstRowTime = -1;
 	showColumns = show;
-	ResultSetMetaData meta = rset.getMetaData();
+	meta = rset.getMetaData();
 	columns = (show != null) ? show.length : meta.getColumnCount();
 	table = new TableRenderer(getDisplayMeta(meta),  out);
     }
@@ -52,6 +57,28 @@ public class ResultSetRenderer implements Interruptable {
 	running = false;
     }
 
+    private String readClob(Clob c) throws SQLException {
+        StringBuffer result = new StringBuffer();
+        Reader in = c.getCharacterStream();
+        char buf[] = new char [ 8192 ];
+        long restLimit = clobLimit;
+        int r;
+        try {
+            while (restLimit > 0 
+                   && (r = in.read(buf, 0, (int)Math.min(buf.length,restLimit))) > 0) 
+                {
+                    result.append(buf, 0, r);
+                    restLimit -= r;
+                }
+        }
+        catch (IOException e) {
+        }
+        if (restLimit == 0) {
+            result.append("...");
+        }
+        return result.toString();
+    }
+
     public int execute() throws SQLException {
 	int rows = 0;
 
@@ -61,7 +88,13 @@ public class ResultSetRenderer implements Interruptable {
 		Column[] currentRow = new Column[ columns ];
 		for (int i = 0 ; i < columns ; ++i) {
 		    int col = (showColumns != null) ? showColumns[i] : i+1;
-		    String colString = rset.getString( col );
+                    String colString;
+                    if (meta.getColumnType( col ) == Types.CLOB) {
+                        colString = readClob(rset.getClob( col ));
+                    }
+                    else {
+                        colString = rset.getString( col );
+                    }
 		    Column thisCol = new Column(colString); 
 		    currentRow[i] = thisCol;
 		}
