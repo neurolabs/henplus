@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.36 2002-05-29 18:03:02 hzeller Exp $
+ * $Id: HenPlus.java,v 1.37 2002-05-30 19:48:48 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -98,6 +98,8 @@ public class HenPlus {
 	PluginCommand pluginCommand = new PluginCommand(this);
 	dispatcher.register(pluginCommand);
 	dispatcher.register(new DriverCommand(this));
+	AliasCommand aliasCommand = new AliasCommand(this);
+	dispatcher.register(aliasCommand);
 	dispatcher.register(new LoadCommand());
 
 	dispatcher.register(new ConnectCommand( argv, this ));
@@ -117,6 +119,7 @@ public class HenPlus {
 	dispatcher.register(_settingStore);
 
 	pluginCommand.load();
+	aliasCommand.load();
 
 	Readline.setCompleter( dispatcher );
 

@@ -76,6 +76,19 @@ public class CommandDispatcher implements ReadlineCompleter {
 	}
     }
 
+    // methods to make aliases work.
+    public boolean containsCommand(String cmd) {
+	return commandMap.containsKey(cmd);
+    }
+
+    public void registerAdditionalCommand(String cmd, Command c) {
+	commandMap.put(cmd, c);
+    }
+    
+    public void unregisterAdditionalCommand(String cmd) {
+	commandMap.remove(cmd);
+    }
+
     /**
      * unregister command. This is an 'expensive' operation, since we
      * go through the internal list until we find the command and remove
