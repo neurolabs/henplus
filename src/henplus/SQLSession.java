@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.31 2004-06-07 08:31:56 hzeller Exp $
+ * $Id: SQLSession.java,v 1.32 2004-07-24 13:29:24 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -197,7 +197,7 @@ public class SQLSession implements Interruptable {
              * the remarks
              * http://forums.oracle.com/forums/thread.jsp?forum=99&thread=225790
              */
-            props.put("remarksReporting","true");
+            props.setProperty("remarksReporting","true");
         }
 
 	/* try to connect directly with the url. Several JDBC-Drivers

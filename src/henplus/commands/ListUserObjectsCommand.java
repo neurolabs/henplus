@@ -32,7 +32,7 @@ public class ListUserObjectsCommand
 {
     final private static String[] LIST_TABLES = { "TABLE" };
     final private static String[] LIST_VIEWS  = { "VIEW" };
-    final private static int[]    TABLE_DISP_COLS   = { 2, 3, 5 };
+    final private static int[]    TABLE_DISP_COLS   = { 2, 3, 4, 5 };
     final private static int[]    PROC_DISP_COLS   = { 2, 3, 8 };
     
     /**

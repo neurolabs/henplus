@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.28 2004-06-13 10:01:20 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.29 2004-07-24 13:29:24 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -14,6 +14,7 @@ import henplus.SQLSession;
 import henplus.SigIntHandler;
 import henplus.Version;
 import henplus.view.util.NameCompleter;
+import henplus.view.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,6 +73,15 @@ public class DumpCommand
     extends AbstractCommand
     implements Interruptable 
 {
+    private final static ColumnMetaData META_HEADERS[];
+    static {
+	META_HEADERS = new ColumnMetaData[3];
+        META_HEADERS[0] = new ColumnMetaData("Field");
+        META_HEADERS[1] = new ColumnMetaData("Type");
+        META_HEADERS[2] = new ColumnMetaData("Max. length found",
+                                             ColumnMetaData.ALIGN_RIGHT);
+    }
+    
     private final String FILE_ENCODING = "UTF-8";
     private final static int DUMP_VERSION = 1;
     private final static int PROGRESS_WIDTH = 65;
@@ -313,6 +323,7 @@ public class DumpCommand
         }
         catch (Exception e) {
             HenPlus.msg().println("failed: " + e.getMessage());
+            e.printStackTrace();
             return EXEC_FAILED;
         }
         finally {
@@ -836,6 +847,7 @@ public class DumpCommand
 
 			case HP_TIMESTAMP: {
 			    String val = readString(reader);
+                            metaProperty[i].updateMaxLength(val);
 			    if (stmt != null) {
 				if (val == null) {
 				    stmt.setTimestamp(col, null);
@@ -850,6 +862,7 @@ public class DumpCommand
 			    
 			case HP_TIME: {
 			    String val = readString(reader);
+                            metaProperty[i].updateMaxLength(val);
 			    if (stmt != null) {
 				if (val == null) {
 				    stmt.setTime(col, null);
@@ -863,6 +876,7 @@ public class DumpCommand
 
 			case HP_DATE: {
 			    String val = readString(reader);
+                            metaProperty[i].updateMaxLength(val);
 			    if (stmt != null) {
 				if (val == null) {
 				    stmt.setDate(col, null);
@@ -877,6 +891,7 @@ public class DumpCommand
 			    
 			case HP_STRING: {
 			    String val = readString(reader);
+                            metaProperty[i].updateMaxLength(val);
 			    if (stmt != null) {
 				stmt.setString(col, val);
 			    }
@@ -921,6 +936,10 @@ public class DumpCommand
 	// return final count.
         finishProblemReports();
         
+        if (!hot) {
+            printMetaDataInfo(metaProperty);
+        }
+
 	// final commit, if commitPoints are enabled.
 	if (hot && commitPoint >= 0) {
 	    conn.commit();
@@ -1113,6 +1132,21 @@ public class DumpCommand
 			       + ": " + msg);
     }
     
+    private void printMetaDataInfo(MetaProperty[] prop) {
+        HenPlus.out().println();
+        META_HEADERS[0].resetWidth();
+        META_HEADERS[1].resetWidth();
+        TableRenderer table = new TableRenderer(META_HEADERS, HenPlus.out());
+        for (int i=0; i < prop.length; ++i) {
+            Column[] row = new Column[3];
+            row[0] = new Column( prop[i].getFieldName());
+            row[1] = new Column( prop[i].getTypeName());
+            row[2] = new Column( prop[i].getMaxLength());
+            table.addRow(row);
+        }
+        table.closeTable();
+    }
+
     //-- Interruptable interface
     public synchronized void interrupt() {
 	_running = false;
@@ -1298,13 +1332,16 @@ public class DumpCommand
     }
 
     private static class MetaProperty {
+        private int maxLen;
 	public final String fieldName;
 	public int type;
 	public String typeName;
 	
 	public MetaProperty(String fieldName) {
 	    this.fieldName = fieldName;
+            maxLen = -1;
 	}
+
 	public MetaProperty(String fieldName, int jdbcType) {
 	    this.fieldName = fieldName;
 	    this.typeName = (String) JDBCTYPE2TYPENAME.get(new Integer(jdbcType));
@@ -1318,11 +1355,38 @@ public class DumpCommand
             else {
                 this.type = findType(typeName);
             }
+            maxLen = -1;
 	}
+
+        public String getFieldName() {
+            return fieldName;
+        }
+
+	public String getTypeName() {
+            return typeName;
+        }
+
 	public void setTypeName(String typeName) {
 	    this.type = findType(typeName);
+            this.typeName = typeName;
 	}
 	
+        public void updateMaxLength(String val) {
+            if (val != null) {
+                updateMaxLength(val.length());
+            }
+        }
+
+        public void updateMaxLength(int maxLen) {
+            if (maxLen > this.maxLen) {
+                this.maxLen = maxLen;
+            }
+        }
+
+        public int getMaxLength() {
+            return this.maxLen;
+        }
+
 	/**
 	 * find the type in the array. uses linear search, but this is
 	 * only a small list.
