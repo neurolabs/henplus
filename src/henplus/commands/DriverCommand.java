@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.5 2002-04-22 16:16:54 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.6 2002-07-23 06:36:41 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -122,6 +122,8 @@ public final class DriverCommand extends AbstractCommand {
 	    }
 	}
 	catch (IOException dont_care) {
+	}
+	if (_drivers.size() == 0) {
 	    for (int i=0; i < KNOWN_DRIVERS.length; ++i) {
 		String[] row = KNOWN_DRIVERS[i];
 		_drivers.put(row[0], new DriverDescription(row[1], row[2]));
