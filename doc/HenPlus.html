@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.6 2002-06-10 17:38:57 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.7 2002-07-23 06:34:55 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -10,19 +10,19 @@
 <tr><td><a href="#overview">Overview</a></td></tr>
 <tr><td><a href="#getting-started">Getting Started</a></td></tr>
 <tr><td><a href="#getting-connected">Getting Connected</a></td></tr>
-<tr><td><a href="#multiple-open-sesions">Multiple Open Sessions</a></td></tr>
+<tr><td><a href="#multiple-open-sessions">Multiple Open Sessions</a></td></tr>
 <tr><td><a href="#variables">Using Variables</a></td></tr>
 <tr><td><a href="#commandline-completion">Commandline Completion</a></td></tr>
 <tr><td><a href="#per-project-config">Per Project Configuration</a></td></tr>
-<tr><td><a href="#table-dumps">Table Dumps</a></td></tr>
 <tr><td><a href="#plugins">Plugins</a></td></tr>
 <tr><td><a href="#aliases">Aliases</a></td></tr>
+<tr><td><a href="#table-dumps">Table Dumps</a></td></tr>
 <tr><td><hr></td></tr>
 <tr><td><a href="#faq">FAQ</a></td></tr>
 <tr><td><a href="http://sourceforge.net/projects/henplus">Download</a></td></tr>
 </table>
 
-<h3><a name="overview"/>Overview</h3>
+<h3>History</h3>
 Know this ? You need a small little tool for your everyday work and
 you wonder why nobody did this before -- and then you write it yourself.
 HenPlus is the result of such an effort. Its name reflects the original 
@@ -31,15 +31,15 @@ Oracle SQLPlus tool.
 I wrote the first version of HenPlus in 1997 (before
 Oracle was available for Linux) since I had to develop an application that 
 connected to an Oracle database -- but the only SQLPlus I could use
-back then was running on some Redmond operation system that lacks the
-environment to develop serious software.
+in the environment back then was running on some Redmond operation
+system that lacked (and still lacks) the environment to develop serious software.
 <br>Since then, I've rewritten
 this tool, added command line completion and history -- but it still
 remained small and useful. It is freely distributable in source 
 and binary form because it is protected by the 
 <a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License</a>.
 
-<p>
+<h3><a name="overview"/>Overview</h3>
 HenPlus is a SQL shell written in Java that works for any database 
 that has JDBC support. So
 basically any database. Why do we need this ? Any database comes with some
@@ -81,7 +81,6 @@ This is where <em>HenPlus</em> steps in. It supports:
      variables, plugins and connections.
  <li>allows to add your own plugins that behave just like the built-in 
      commands.</li>
- <li>Im- and Export of database tables as XML (not yet..)
  <li>Is provided as OpenSource under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License</a>
 </ul>
 </body>
@@ -99,9 +98,9 @@ uses the JNI java wrapper library &gt;=
 <a href="http://sourceforge.net/project/showfiles.php?group_id=48669">java-readline 0.7.3</a>.
 <p>
 Building requires the <a href="http://jakarta.apache.org/ant">ant build
-tool</a>. To compile HenPlus, make sure that the libreadline-java.jar is
-in the classpath. By default, the java-readline package installs this
-in <code>/usr/share/java/libreadline-java.jar</code>.
+tool</a> (Version >= 1.4). To compile HenPlus, make sure that the 
+<code>libreadline-java.jar</code> is in the classpath. By default, the 
+java-readline package installs this in <code>/usr/share/java/libreadline-java.jar</code>.
 <p>Now, just type
 <pre>
 $ ant jar
@@ -128,6 +127,10 @@ $ ant -Dprefix=/usr/local install
 </pre>
 <font size="-1">(For package providers: the build.xml provides as well
 the <code>DESTDIR</code> parameter)</font>
+<p>
+I haven't compiled this on Windows, but it shouldn't be a big deal .. if you manage to compile
+the java-readline. If you did it, just post your experience, so that we
+can include it in this documentation.
 
 <h4><a name="running"/>Running</h4>
 You can invoke HenPlus with the <code>henplus</code> shellscript
@@ -146,21 +149,24 @@ Hen*Plus&gt; help
  about | version | license                : about HenPlus
  exit | quit                              : exits HenPlus
  echo | prompt                            : echo argument
- list-plugins | plug-in | plug-out        : handle Plugins
- list-drivers | register | unregister     : handle JDBC drivers
+ list-plugins | plug-in | plug-out        : <a href="#plugins">handle Plugins</a>
+ list-drivers | register | unregister     : <a href="#getting-connected">handle JDBC drivers</a>
+ list-aliases | alias | unalias           : <a href="#aliases">handle Aliases</a>
  load | start | @ | @@                    : load file and execute commands
- connect | disconnect | rename-session | switch | sessions: manage sessions
+ connect | disconnect | rename-session | switch | sessions: <a href="#connect">manage sessions</a>
  status                                   : show status of this connection
  tables | views | rehash                  : list available user objects
  describe &lt;tablename&gt;                     : describe a database object
- import                                   : import from CSV
- export &lt;csv|xml|sql&gt; &lt;table&gt; &lt;filename&gt;  : export as XML, SQL or CSV
+ dump-out | dump-in | verify-dump | dump-conditional: <a href="#table-dumps">handle table dumps</a>
  autocommit-on | autocommit-off           : switches autocommit on/off
  system | !                               : execute system commands
- set | unset                              : set/unset variables
-<a name="config-dir"/>config read from [/home/hzeller/.henplus]
+ set | unset                              : <a href="#variables">set/unset variables</a>
+<a name="config-dir"/><a href="#per-project-config">config read from [/home/hzeller/.henplus]</a>
 </pre></td></tr></table>
 <hr>
+You exit the HenPlus shell by typing the <code>exit</code> or <code>quit</code>
+command or by just typing EOF-Character (CTRL-D).
+<p>
 Just explore the commands by typing <code>help [commandname]</code> and
 learn what the built-in commands are all about. Start with the 
 <code>connect</code> commmand
@@ -174,7 +180,7 @@ Hen*Plus&gt; help connect
 Usually, there is one line per command. However, you can have multiple
 commands on one line if you separate them with a semicolon:
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
-echo "** Directory Listing **" ; system ls
+echo "*** The build-in help ***" ; help
 </pre></td></tr></table>
 <p>
 The SQL commands however (you guess it: 'select', 'update', 'create' .. ) are
@@ -292,7 +298,7 @@ command you can see what driver classes are registered and loaded. If you
 cannot connect to some JDBC URL, check first, if the appropriate driver is
 actually loaded. If it is not loaded, then it is probably not found in the
 CLASSPATH. You can explicitly copy your frequently used drivers
-into the installation directory (/usr/share/henplus)</a></code>
+into the installation directory (<code>/usr/share/henplus/</code>)</a></code>
 -- all the jar/zip files
 found there are added to the CLASSPATH on startup in
 the <code>henplus</code> shellscript.
@@ -305,6 +311,7 @@ Hen*Plus&gt; help register
 Hen*Plus&gt; help unregister
 </pre></td></tr></table>
 <p>
+<a name="connect"/>
 When the driver is loaded, you can connect to the database using the
 JDBC-URL:
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
@@ -353,14 +360,57 @@ You can disconnect with the <code>disconnect</code> command or by
 simply pressing CTRL-D.
 
 <h3><a name="multiple-open-sessions"/>Multiple Open Sessions</h3>
-switch command.
+You can be connected to multiple databases at once; just issue the <code>connect</code>
+command multiple times. You can list the sessions you are connected to
+the <code>sessions</code> command.
+Of course, the shell provides only access to one
+session at a time so you can switch between the sessions with the 'switch' command.
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; connect jdbc:oracle:thin:@localhost:1521:ORCL
+<i>[... enter user/password ...]</i>
+henman@oracle:localhost&gt; connect jdbc:mysql://localhost/test
+mysql:localhost&gt; sessions
+current session is marked with '*'
+------------------------------+--------+---------------------------------------+
+           <b>session</b>            |  <b>user</b>  |                 <b>url</b>                   |
+------------------------------+--------+---------------------------------------+
+    henman@oracle:localhost   | henman | jdbc:oracle:thin:@localhost:1521:ORCL |
+  * mysql:localhost           | [NULL] | jdbc:mysql://localhost/test           |
+------------------------------+--------+---------------------------------------+
+mysql:localhost&gt; switch henman@oracle:localhost
+henman@oracle:localhost&gt;
+</pre></td></tr></table>
+Of course, the switch command provides command line completion for the other
+sessions names. If you only have two sessions, then its even easier: just
+type <code>switch</code> without parameter (so in the example above, this would
+have been sufficient).
 
 <h3><a name="variables"/>Using Variables</h3>
-set / unset
-; expanding with $FOO, ${FOO}
+You can use Variables, that can be used as text replacement everywhere. The
+replacement works similar to shellscripts, however setting must be done
+explicitly with the <code>set</code> command instead of a simple assignment:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+henman@oracle:localhost&gt; set tabname footab
+henman@oracle:localhost&gt; select count(*) from ${tabname};
+</pre></td></tr></table>
+Variables can be expanded with or without curly braces: $FOO and ${FOO} is the same.
+<p>
+If you don't want a variable to be expanded, double the dollar-sign: <code>$$FOO</code>.
+It does <em>not</em> help to embed it in single-quoted strings '$FOO'.
+<p>
+Unlike the shell, variables that are not set, are <em>not</em> expanded to an empty
+string, but left as they are. So an unset variable $FOOBAR expands to .. $FOOBAR. This
+is, because some strange scripts (esp. Oracle scripts) contain names with
+dollar characters and thus would behave strange if the behaviour would be the
+same as in shellscripts.
+<p>
+All variable settings can be shown with the <code>set</code> command without
+any parameters. The settings are stored, so that they are available on next startup.
 
 <h3><a name="commandline-completion"/>Commandline Completion</h3>
-tables, columns in selects. tables in describe command (with correction)
+HenPlus provides a commandline completion for virtually everything: tables in
+select statements, column-names in where-clauses, variable-names in set/unset command,
+variable names after typing '<code>$</code>'. Just try it ..
 
 <h3><a name="per-project-config"/>Per Project Configuration</h3>
 <em>HenPlus</em> stores the commandline history, the connection-URLs and
@@ -393,13 +443,71 @@ that you are missing from some other database tool ? Or want to pop up
 some Swing-window to do database record editing <!-- Armin H. --> ?
 <p>
 You are not limited with HenPlus to do this. It is very simple to write
-plug-ins, that you
+plug-ins, that can be added and removed at run time. See <code>plug-in</code>,
+<code>plug-out</code> and <code>list-plugins</code> for this. Basically, you just
+need to write a class that implements the <code>henplus.Command</code> interface.
+<p>
+<em>(TODO: This feature needs a way to load the classes from an URLClassloader,
+ so its possible to dynamically reload the classes when they changed. Anyone?)</em>
 
 <h3><a name="aliases"/>Aliases</h3>
+For certain repeating tasks its tedious to write the same command over and over again.
+Therefore it is possible to store aliases.
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+henman@oracle:localhost&gt; alias ls tables
+</pre></td></tr></table>
+Would alias the 'tables' command so that is could be simply 'ls'.
+<p>
+Parameters given to aliases are appended to the original command, so that you can 
+define aliases for commands that need parameters:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+henman@oracle:localhost&gt; alias size select count(*) from
+henman@oracle:localhost&gt; size footab
+execute alias: select count(*) from footab
+----------+
+ <b>count(*)</b> |
+----------+
+        9 |
+----------+
+1 row in result (first row: 3 msec; total: 3 msec)
+</pre></td></tr></table>
+Note, that even TAB-completion (in this case: of the tablename) works: the alias
+command peeks into the original command that is executed when you type 'size'.
+<p>
+All aliases can be shown with <code>list-aliases</code>; they are stored, so that they
+are available on next startup.
 
 <h3><a name="table-dumps"/>Database independant table dumps</h3>
-The import and export of SQL-tables is not yet supported ;-). I am thinking of
-some XML-format. Anyone wants to implement this ?
+You can dump out tables in a database independant format. See the online help for
+<code>dump-out</code> and <code>dump-in</code>. You even can dump only selected
+values of a certain table; see <code>dump-conditional</code> for this.
+<p>
+The format that is written must be database independant, thus it is not possible to store
+them as simple 'INSERT INTO..' statements, as the different databases have different
+assumption how different data types should be parsed :-( Thus the dump format is a
+canonical lisp like text format that is easily parsable for the human eye and external tools:
+<hr noshade='noshade' size="1" />
+<pre>
+(tabledump 'student'
+   (dump-version 1 1)
+   (henplus-version 0.3.3)
+   (database-info 'MySQL - 3.23.47')
+   (meta ('name',   'sex',    'student_id')
+         ('STRING', 'STRING', 'INTEGER'   ))
+   (data ('Megan','F',1)
+         ('Joseph','M',2)
+         ('Kyle','M',3)
+         ('Mac Donald\'s','M',4))
+   (rows 4))
+</pre>
+<hr noshade='noshade' size="1" />
+Even though XML would be an idea here, I decided against it because it blows up the file size
+and is not very human readable because of the 'noise' 
+(But if you want to, just write a <a href="#plugins">plug-in</a> that does this..).
+[ "XML is readable but is not meant to be read" ].
+<p>
+One interesting feature of these commands is, that they automatically can read/write
+gziped files if the filenames have the '.gz' suffix.
 
 <h3><a name="faq"/>FAQ</h3>
 This will once be the FAQ. But for now, there is only one question..
@@ -420,4 +528,4 @@ This will once be the FAQ. But for now, there is only one question..
 	 (HenPlus command: <code>autocommit-on</code>).
 <br>
 <hr noshade="noshade" size="1"/>
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.6 2002-06-10 17:38:57 hzeller Exp $ &copy; Henner Zeller</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.7 2002-07-23 06:34:55 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
