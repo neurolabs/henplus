@@ -59,19 +59,21 @@ public class DescribeCommand extends AbstractCommand {
 	if (argc != 1) {
 	    return SYNTAX_ERROR;
 	}
-	boolean ignoreCase = true;
+	boolean correctName = true;
 	String tabName = (String) st.nextElement();
 	if (tabName.startsWith("\"")) {
 	    tabName = stripQuotes(tabName);
-	    ignoreCase = false;
+	    correctName = false;
 	}
-	if (ignoreCase) {
-	    // see, if we find an alternative, that matches _exactly_
-	    // the tablename.
+	if (correctName) {
+	    /* see, if we find exactly one alternative, that is spelled
+	     * correctly.
+	     */
 	    Iterator it = tableCompleter.completeTableName(tabName);	
 	    String alternative = null;
 	    if (it.hasNext()) {
 		alternative = (String) it.next();
+		// more than one match is ambiguous. Leave it as it is:
 		if (it.hasNext()) alternative = null;
 	    }
 	    if (alternative != null && !alternative.equals(tabName)) {
@@ -80,6 +82,7 @@ public class DescribeCommand extends AbstractCommand {
 				   + "' (corrected name)");
 	    }
 	}
+
 	ResultSet rset = null;
 	try {
 	    boolean anyLeftArrow  = false;
@@ -263,12 +266,13 @@ public class DescribeCommand extends AbstractCommand {
     }
     
     public String getSynopsis(String cmd) {
-	return "describe <table|view|index>";
+	return "describe <tablename>";
     }
 
     public String getLongDescription(String cmd) {
 	String dsc;
-	dsc="\tDescribe the meta information of the named user object.";
+	dsc="\tDescribe the meta information of the named user object\n"
+	    +"\t(only tables for now).";
 	return dsc;
     }
 
