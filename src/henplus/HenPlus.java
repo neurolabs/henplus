@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.28 2002-02-16 13:27:36 hzeller Exp $
+ * $Id: HenPlus.java,v 1.29 2002-02-19 10:11:58 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -38,6 +38,7 @@ public class HenPlus {
     private boolean           terminated;
     private String            prompt;
     private String            emptyPrompt;
+    private File              _configDir;
     private boolean           _alreadyShutDown;
     private SetCommand        _settingStore;
     private boolean           _fromTerminal;
@@ -45,18 +46,33 @@ public class HenPlus {
     private boolean           _optQuiet;
     private SQLStatementSeparator _commandSeparator;
 
+    private boolean            _quiet;
+
     private HenPlus(String argv[]) throws IOException {
 	terminated = false;
 	_alreadyShutDown = false;
+	_quiet = false;
 	_commandSeparator = new SQLStatementSeparator();
+	boolean readlineLoaded = false;
+	// read options .. like -q
 
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
-	    System.err.println("using GNU readline wrapper by Bernhard Bablok");
+	    readlineLoaded = true;
 	} catch (UnsatisfiedLinkError ignore_me) {
 	    System.err.println("no readline found ("
 			       + ignore_me.getMessage()
 			       + "). Using simple stdin.");
+	}
+
+	_fromTerminal = Readline.hasTerminal();
+	if (!_fromTerminal && !_quiet) {
+	    System.err.println("reading from stdin");
+	}
+	_quiet = _quiet || !_fromTerminal; // not from terminal: always quiet.
+
+	if (!_quiet) {
+	    System.err.println("using GNU readline wrapper by Bernhard Bablok");
 	}
 	Readline.initReadline("HenPlus");
 	try {
@@ -65,17 +81,13 @@ public class HenPlus {
 	catch (Exception ignore) {}
 	
 	Readline.setWordBreakCharacters(" ");
-	_fromTerminal = Readline.hasTerminal();
-	if (!_fromTerminal) {
-	    System.err.println("input not a terminal; disabling TAB-completion");
-	}
 	setDefaultPrompt();
 
 	_settingStore = new SetCommand(this);
 	ListUserObjectsCommand objectLister = new ListUserObjectsCommand(this);
 	dispatcher = new CommandDispatcher(_settingStore);
 	dispatcher.register(new HelpCommand());
-	dispatcher.register(new AboutCommand());
+	dispatcher.register(new AboutCommand(_quiet));
 	dispatcher.register(new ExitCommand());
 	dispatcher.register(new EchoCommand());
 	dispatcher.register(new DriverCommand(this));
@@ -224,7 +236,9 @@ public class HenPlus {
 	if (_alreadyShutDown) {
 	    return;
 	}
-	System.err.println("storing settings..");
+	if (!_quiet) {
+	    System.err.println("storing settings..");
+	}
 	try {
 	    if (dispatcher != null) {
 		dispatcher.shutdown();
@@ -270,7 +284,7 @@ public class HenPlus {
     }
     
     public void setDefaultPrompt() {
-	setPrompt( PROMPT );
+	setPrompt( _fromTerminal ? PROMPT : "" );
     }
 
     public String varsubst (String in, Map variables) {
@@ -354,27 +368,42 @@ public class HenPlus {
 	instance = new HenPlus(argv);
 	instance.run();
 	instance.shutdown();
-	System.err.println( EXIT_MSG );
     }
 
     public File getConfigDir() {
+	if (_configDir != null) {
+	    return _configDir;
+	}
 	/*
-	 * test local directory.
+	 * test local directory and superdirectories.
 	 */
-	File henplusDir = new File( HENPLUSDIR );
-	if (henplusDir.exists() && henplusDir.isDirectory()) {
-	    return henplusDir;
+	File dir = (new File(".")).getAbsoluteFile();
+	while (dir != null) {
+	    _configDir = new File(dir,  HENPLUSDIR );
+	    if (_configDir.exists() && _configDir.isDirectory()) {
+		break;
+	    }
+	    else {
+		_configDir = null;
+	    }
+	    dir = dir.getParentFile();
 	}
 
 	/*
 	 * fallback: home directory.
 	 */
-	String homeDir = System.getProperty("user.home", ".");
-	henplusDir = new File(homeDir + File.separator + HENPLUSDIR);
-	if (!henplusDir.exists()) {
-	    henplusDir.mkdir();
+	if (_configDir == null) {
+	    String homeDir = System.getProperty("user.home", ".");
+	    _configDir = new File(homeDir + File.separator + HENPLUSDIR);
+	    if (!_configDir.exists()) {
+		_configDir.mkdir();
+	    }
 	}
-	return henplusDir;
+	_configDir = _configDir.getAbsoluteFile();
+	if (!_quiet) {
+	    System.err.println("henplus config at " + _configDir);
+	}
+	return _configDir;
     }
 
     private String getHistoryLocation() {
