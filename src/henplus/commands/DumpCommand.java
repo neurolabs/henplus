@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.13 2002-11-21 17:50:52 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.14 2002-12-29 11:38:21 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -230,18 +230,34 @@ public class DumpCommand
 	    LineNumberReader in = null;
 	    try {
 		SigIntHandler.getInstance().pushInterruptable(this);
-		in = openInputReader(fileName, FILE_ENCODING);
-		while (skipWhite(in)) {
-		    int result = readTableDump(in, FILE_ENCODING,
-					       session, true, commitPoint);
-		    if (!_running) {
-			System.err.print("interrupted.");
-			return result;
-		    }
-		    if (result != SUCCESS) {
-			return result;
-		    }
-		}
+                String fileEncoding = FILE_ENCODING;
+                boolean retryPossible = true;
+                do {
+                    try {
+                        in = openInputReader(fileName, fileEncoding);
+                        while (skipWhite(in)) {
+                            int result = readTableDump(in, fileEncoding,
+                                                       session, true, commitPoint);
+                            retryPossible = false;
+                            if (!_running) {
+                                System.err.print("interrupted.");
+                                return result;
+                            }
+                            if (result != SUCCESS) {
+                                return result;
+                            }
+                        }
+                    }
+                    catch (EncodingMismatchException e) {
+                        // did we already retry with another encoding?
+                        if (!fileEncoding.equals(FILE_ENCODING)) {
+                            throw new Exception("got file encoding problem twice");
+                        }
+                        fileEncoding = e.getEncoding();
+                        System.err.println("got a different encoding; retry with " + fileEncoding);
+                    }
+                }
+                while (retryPossible);
 		return SUCCESS;
 	    }
 	    catch (Exception e) {
@@ -660,12 +676,7 @@ public class DumpCommand
 	    else if ("file-encoding".equals(token)) {
 		token = readString(reader);
 		if (!token.equals(fileEncoding)) {
-		    raiseException(reader,
-				   "different file encoding: '" + token 
-				   + "' (we have '" + fileEncoding + "').");
-                    /*
-                     * FIXME: reopen the file with this file encoding.
-                     */
+                    throw new EncodingMismatchException(token);
 		}
 		expect(reader, ')');
 	    }
@@ -1293,6 +1304,15 @@ public class DumpCommand
 	public int renderWidth() {
 	    return Math.max(typeName.length(), fieldName.length());
 	}
+    }
+
+    private static class EncodingMismatchException extends IOException {
+        private final String _encoding;
+        public EncodingMismatchException(String encoding) {
+            super("file encoding Mismatch Exception; got " + encoding);
+            _encoding = encoding;
+        }
+        public String getEncoding() { return _encoding; }
     }
 
     // reading BLOBs.
