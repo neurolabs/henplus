@@ -268,7 +268,7 @@ public class KeyBindCommand extends AbstractCommand {
 	return "handle function key bindings";
     }
     public String getSynopsis(String cmd) {
-        if ("bind-key-cmd-string".equals(cmd)) {
+        if ("bind-key-cmd".equals(cmd)) {
             return cmd + " <function-key> <command>";
         }
         return cmd;
@@ -279,7 +279,7 @@ public class KeyBindCommand extends AbstractCommand {
             dsc= "\tList all key bindings that have been set with\n"
                 +"\tbind-key-cmd";
         }
-        else if ("bind-key-cmd-string".equals(cmd)) {
+        else if ("bind-key-cmd".equals(cmd)) {
             dsc= "\tBind a key to a command. Keys can be the function keys\n"
                 +"\tF1, F2...F12 or Shift-F1...Shift-F12";
         }

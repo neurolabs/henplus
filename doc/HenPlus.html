@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.24 2004-07-24 13:29:24 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.25 2004-10-09 17:56:58 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -885,10 +885,41 @@ like <code>select * from ${0} where ${1}=${2}</code>)</em>
 </p>
 
 <h3><a name="keybindings"/>Keybindings</h3>
-<b>TODO: explain key bindings connect</b>
+<p>
+In HenPlus it is possible to bind function keys to commands to be executed
+(a bit depending on the terminal, but should work on usual Unix terminals).
+It is possible to bind an arbitrary string to a function key; the string
+is issued whenever the function key is pressed. This can be used as a 
+shortcut to excute commands; so instead of pressing help&lt;RETURN&gt; you
+could bind the same command to a function key:</p>
+<code>
+bind-key-cmd F1 "help\n"
+</code>
+<p>The function keys F1..F12 and Shift-F1..Shift-F12 are available.
 
 <h3><a name="cmd-bookmarks"/>Setting Command Bookmarks</h3>
 Sometimes it would be nice set a 'bookmark' to a command just executed.
+<p>
+With the keybinding this is simple to do. Consider, you want to set a
+bookmark with Ctrl-F2 and execute it with F2. So what we want to do on 
+Ctrl-F2 is to bind the command we just executed to F2. With a little quoting
+and use of the special variable ${_HENPLUS_LAST_COMMAND} we can do the trick:
+</p>
+<code>
+bind-key-cmd Shift-F2 "bind-key-cmd F2 \"$${_HENPLUS_LAST_COMMAND};\\n\"\n"
+</code>
+<p>
+to bind the last command
+executed to F2 (Note the double $$ and the \\ to prevent certain elements
+bo be expanded prematurely).
+So executing Shift-F2 will now execute the command</p>
+<code>
+bind-key-cmd F2 "${_HENPLUS_LAST_COMMAND};\n"
+</code>
+<p>that binds F2 to the command that has been just executed.</p2>
+<p>
+So pressing Shift-F2 sets a bookmark and F2 executes it.
+</p>
 
 <h3><a name="table-dumps"/>Database independent table dumps</h3>
 You can dump out tables in a database independent format. See the online help for
@@ -1004,4 +1035,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.24 2004-07-24 13:29:24 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.25 2004-10-09 17:56:58 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
