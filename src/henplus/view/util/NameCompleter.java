@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: NameCompleter.java,v 1.4 2004-03-06 00:15:28 hzeller Exp $ 
+ * $Id: NameCompleter.java,v 1.5 2004-03-23 11:05:38 magrokosmos Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
@@ -49,8 +49,12 @@ public class NameCompleter {
 	canonicalNames.put(name.toLowerCase(), name);
     }
     
-    public Iterator getAllNames() {
+    public Iterator getAllNamesIterator() {
         return nameSet.iterator();
+    }
+    
+    public SortedSet getAllNames() {
+        return nameSet;
     }
 
     public String findCaseInsensitive(String name) {

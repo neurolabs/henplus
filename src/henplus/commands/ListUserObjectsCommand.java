@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * document me.
@@ -136,7 +137,7 @@ public class ListUserObjectsCommand
         SigIntHandler.getInstance().pushInterruptable(this);
         NameCompleter tables = getTableCompleter(session);
         if (tables == null) return null;
-        Iterator table = tables.getAllNames();
+        Iterator table = tables.getAllNamesIterator();
         compl = new NameCompleter();
         while (!interrupted && table.hasNext()) {
             String tabName = (String) table.next();
@@ -260,6 +261,14 @@ public class ListUserObjectsCommand
         if (session == null) return null;
         NameCompleter completer = getAllColumnsCompleter(session);
         return completer.getAlternatives(partialColumn);
+    }
+    
+    public Iterator getTableNamesIteratorForSession( SQLSession session ) {
+        return getTableCompleter( session ).getAllNamesIterator();
+    }
+    
+    public SortedSet getTableNamesForSession( SQLSession session ) {
+        return getTableCompleter( session ).getAllNames();
     }
 
     /**
