@@ -31,7 +31,7 @@ import java.sql.Types;
  */
 public class SQLCommand extends AbstractCommand {
     private static final boolean verbose = false; // debug.
-    private final static String[] COMPLETER_KEYWORD = {
+    private final static String[] TABLE_COMPLETER_KEYWORD = {
 	"FROM", "INTO", "UPDATE", "TABLE", /*create index*/"ON"
     };
     
@@ -82,6 +82,7 @@ public class SQLCommand extends AbstractCommand {
 				 || command.startsWith("REPLACE"))
 				&&
 				((command.indexOf("PROCEDURE") >= 0)
+				 || (command.indexOf("FUNCTION") >= 0)
 				 || (command.indexOf("TRIGGER") >= 0)));
 	if (!anyProcedure && command.endsWith(";")) return true;
 	// sqlplus is complete on a single '/' on a line.
@@ -221,16 +222,26 @@ public class SQLCommand extends AbstractCommand {
 			     String partialCommand, final String lastWord) 
     {
 	final String canonCmd = partialCommand.toUpperCase();
+        /*
+         * look for keywords that expect table names
+         */
 	int tableMatch = -1;
-	for (int i=0; i < COMPLETER_KEYWORD.length; ++i) {
-	    int match = canonCmd.indexOf( COMPLETER_KEYWORD[i] );
+	for (int i=0; i < TABLE_COMPLETER_KEYWORD.length; ++i) {
+	    int match = canonCmd.indexOf( TABLE_COMPLETER_KEYWORD[i] );
 	    if (match >= 0) {
-		tableMatch = match + COMPLETER_KEYWORD[i].length();
+		tableMatch = match + TABLE_COMPLETER_KEYWORD[i].length();
 		break;
 	    }
 	}
-	if (tableMatch < 0) return null;
 
+	if (tableMatch < 0) {
+            /*
+             * ok, try to complete all columns from all tables since
+             * we don't know yet what table the column will be from.
+             */
+            return tableCompleter.completeAllColumns(lastWord);
+        }
+        
 	int endTabMatch = -1;  // where the table declaration ends.
 	if (canonCmd.indexOf("UPDATE") >= 0) {
 	    endTabMatch = canonCmd.indexOf ("SET");
@@ -245,6 +256,11 @@ public class SQLCommand extends AbstractCommand {
 	    }
 	}
 	if (endTabMatch > tableMatch) {
+            /*
+             * column completion for the tables mentioned between in the
+             * table area. This acknowledges as well aliases and prepends
+             * the names with these aliases, if necessary.
+             */
 	    String tables = partialCommand.substring(tableMatch, endTabMatch);
 	    HashMap tmp = new HashMap();
 	    Iterator it = tableDeclParser(tables).entrySet().iterator();

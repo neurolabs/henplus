@@ -35,10 +35,12 @@ public class ListUserObjectsCommand extends AbstractCommand {
      * all tables in one session.
      */
     final private Map/*<SQLSession,SortedMap>*/  sessionTables;
+    final private Map/*<SQLSession,SortedMap>*/  sessionColumns;
     final private HenPlus                        henplus;
 
     public ListUserObjectsCommand(HenPlus hp) {
 	sessionTables = new HashMap();
+        sessionColumns = new HashMap();
 	henplus = hp;
     }
 
@@ -64,10 +66,10 @@ public class ListUserObjectsCommand extends AbstractCommand {
 		DatabaseMetaData meta = conn.getMetaData();
 		String catalog = conn.getCatalog();
 		/*
-		System.err.println("catalog: " + catalog);
-		ResultSetRenderer renderer = 
-		    new ResultSetRenderer(meta.getCatalogs(), System.out);
-		renderer.execute();
+                  System.err.println("catalog: " + catalog);
+                  ResultSetRenderer renderer = 
+                  new ResultSetRenderer(meta.getCatalogs(), System.out);
+                  renderer.execute();
 		*/
 		ResultSetRenderer renderer;
 		boolean showViews = "views".equals(cmd);
@@ -100,7 +102,29 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	NameCompleter compl = (NameCompleter) sessionTables.get(session);
 	return (compl == null) ? rehash(session) : compl;
     }
-    
+
+    private NameCompleter getAllColumnsCompleter(SQLSession session) {
+        NameCompleter compl = (NameCompleter) sessionColumns.get(session);
+        if (compl != null) {
+            return compl;
+        }
+        NameCompleter tables = getTableCompleter(session);
+        if (tables == null) return null;
+        Iterator table = tables.getAllNames();
+        compl = new NameCompleter();
+        while (table.hasNext()) {
+            String tabName = (String) table.next();
+            Collection columns = columnsFor(tabName);
+            Iterator cit = columns.iterator();
+            while (cit.hasNext()) {
+                String col = (String) cit.next();
+                compl.addName(col);
+            }
+        }
+        sessionColumns.put(session, compl);
+        return compl;
+    }
+
     public void unhash(SQLSession session) {
 	sessionTables.remove(session);
     }
@@ -128,6 +152,7 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	    }
 	}
 	sessionTables.put(session, result);
+        sessionColumns.remove(session);
 	return result;
     }
 
@@ -192,6 +217,13 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	return completer.getAlternatives(partialTable);
     }
     
+    public Iterator completeAllColumns(String partialColumn) {
+	SQLSession session = henplus.getSession();
+        if (session == null) return null;
+        NameCompleter completer = getAllColumnsCompleter(session);
+        return completer.getAlternatives(partialColumn);
+    }
+
     /**
      * return a descriptive string.
      */

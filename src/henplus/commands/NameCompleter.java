@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: NameCompleter.java,v 1.2 2002-06-14 18:38:53 hzeller Exp $ 
+ * $Id: NameCompleter.java,v 1.3 2002-10-04 17:36:54 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -40,6 +40,10 @@ public class NameCompleter {
     public void addName(String name) {
 	nameSet.add(name);
 	canonicalNames.put(name.toLowerCase(), name);
+    }
+    
+    public Iterator getAllNames() {
+        return nameSet.iterator();
     }
 
     /**
