@@ -165,8 +165,11 @@ public class SQLCommand extends AbstractCommand {
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) 
     {
-	if (partialCommand.toUpperCase().indexOf("FROM") >= 0)
+	partialCommand = partialCommand.toUpperCase();
+	if (partialCommand.indexOf("FROM") >= 0 
+	    || partialCommand.indexOf("TABLE") >= 0) {
 	    return tableCompleter.completeTableName(lastWord);
+	}
 	return null;
     }
 

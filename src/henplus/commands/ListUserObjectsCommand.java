@@ -44,7 +44,7 @@ public class ListUserObjectsCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "tables", "views", "synonyms", "indices"
+	    "tables", "views", "rehash"
 	};
     }
 
@@ -52,25 +52,30 @@ public class ListUserObjectsCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String cmd) {
-	try {
-	    Connection conn = session.getConnection();  // use createStmt
-	    DatabaseMetaData meta = conn.getMetaData();
-	    String catalog = conn.getCatalog();
-	    System.err.println("catalog: " + catalog);
-	    ResultSetRenderer renderer = 
-		new ResultSetRenderer(meta.getCatalogs(), System.out);
-	    renderer.execute();
-	    renderer = new ResultSetRenderer(meta.getTables(catalog,
-							    null, null,
-							    "views".equals(cmd)
-							    ? LIST_VIEWS
-							    : LIST_TABLES),
-					     System.out);
-	    renderer.execute();
+	if (cmd.equals("rehash")) {
+	    rehash(session);
 	}
-	catch (Exception e) {
-	    System.err.println(e.getMessage());
-	    return EXEC_FAILED;
+	else {
+	    try {
+		Connection conn = session.getConnection();  // use createStmt
+		DatabaseMetaData meta = conn.getMetaData();
+		String catalog = conn.getCatalog();
+		System.err.println("catalog: " + catalog);
+		ResultSetRenderer renderer = 
+		    new ResultSetRenderer(meta.getCatalogs(), System.out);
+		renderer.execute();
+		ResultSet rset = meta.getTables(catalog,
+						null, null,
+						"views".equals(cmd)
+						? LIST_VIEWS
+						: LIST_TABLES);
+		renderer = new ResultSetRenderer(rset, System.out);
+		renderer.execute();
+	    }
+	    catch (Exception e) {
+		System.err.println(e.getMessage());
+		return EXEC_FAILED;
+	    }
 	}
 	return SUCCESS;
     }
@@ -149,7 +154,12 @@ public class ListUserObjectsCommand extends AbstractCommand {
 
     public String getLongDescription(String cmd) {
 	String dsc;
-	dsc="\tLists all " + cmd + " available in this schema.";
+	if (cmd.equals("rehash")) {
+	    dsc="\trebuild the internal hash for tablename completion.";
+	}
+	else {
+	    dsc="\tLists all " + cmd + " available in this schema.";
+	}
 	return dsc;
     }
 }
