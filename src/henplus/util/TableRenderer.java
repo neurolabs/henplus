@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.3 2002-02-21 21:51:34 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.4 2002-02-26 17:58:19 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
@@ -74,7 +74,9 @@ public class TableRenderer {
 					meta[i].getWidth(),
 					meta[i].getAlignment());
 		    hasMoreLines |= currentRow[i].hasNextLine();
+		    if (currentRow[i].isNull()) Terminal.grey(out);
 		    out.print(txt);
+		    if (currentRow[i].isNull()) Terminal.reset(out);
 		    out.print(" |");
 		}
 		out.println();
@@ -104,7 +106,9 @@ public class TableRenderer {
 	    txt = formatString (meta[i].getLabel(), ' ',
 				meta[i].getWidth()+1,
 				ColumnMetaData.ALIGN_CENTER);
+	    Terminal.boldface(out);
 	    out.print(txt);
+	    Terminal.reset(out);
 	    out.print(" |");
 	}
 	out.println();
@@ -120,7 +124,7 @@ public class TableRenderer {
 	}
 	
 	if (text == null) {
-	    text = "[NULL]";
+		text = "[NULL]";
 	}
 	int slen = text.length();
 	

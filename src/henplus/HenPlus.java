@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.30 2002-02-26 09:45:11 hzeller Exp $
+ * $Id: HenPlus.java,v 1.31 2002-02-26 17:58:15 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -20,6 +20,7 @@ import henplus.commands.*;
 
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
+import henplus.util.Terminal;
 
 public class HenPlus {
     public static final boolean verbose = false; // debug.
@@ -70,6 +71,9 @@ public class HenPlus {
 	    System.err.println("reading from stdin");
 	}
 	_quiet = _quiet || !_fromTerminal; // not from terminal: always quiet.
+
+	// output of special characters.
+	Terminal.setTerminalAvailable(_fromTerminal);
 
 	if (!_quiet) {
 	    System.err.println("using GNU readline wrapper by Bernhard Bablok");
@@ -223,6 +227,7 @@ public class HenPlus {
 	    catch (Exception e) {
 		if (verbose) e.printStackTrace();
 	    }
+	    SigIntHandler.getInstance().reset();
 	    if (cmdLine == null)
 		continue;
 	    if (addLine(cmdLine) == LINE_INCOMPLETE) {
@@ -231,7 +236,6 @@ public class HenPlus {
 	    else {
 		displayPrompt = prompt;
 	    }
-	    SigIntHandler.getInstance().reset();
 	}
     }
 
@@ -280,13 +284,16 @@ public class HenPlus {
 	return session;
     }
 
-    public void setPrompt(String prompt) {
-	this.prompt = prompt;
+    public void setPrompt(String p) {
+	this.prompt = p;
 	StringBuffer tmp = new StringBuffer();
 	for (int i=prompt.length(); i > 0; --i) {
 	    tmp.append(' ');
 	}
 	emptyPrompt = tmp.toString();
+	if (_fromTerminal) {
+	    prompt = Terminal.BOLD + prompt + Terminal.NORMAL;
+	}
     }
     
     public void setDefaultPrompt() {

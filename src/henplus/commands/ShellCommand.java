@@ -14,6 +14,7 @@ import java.util.Iterator;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.SigIntHandler;
 
 /**
  * This command executes stuff on the shell. Supports the most common
@@ -25,7 +26,7 @@ public class ShellCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "system"
+	    "system", "!"
 	};
     }
 
@@ -55,26 +56,33 @@ public class ShellCommand extends AbstractCommand {
 	int argc = argumentCount(command);
 	if (argc == 1)
 	    return SYNTAX_ERROR;
-	command = command.substring("system".length()); // cut off 'system'
-	Process p = null;
-	IOHandler  ioHandler = null;
-	try {
-	    p = Runtime.getRuntime().exec(new String[] { "sh", "-c",
-							 command });
-	    ioHandler = new IOHandler(p);
-	}
-	catch (IOException e) {
-	    ioHandler.stop();
-	    return EXEC_FAILED;
-	}
-	for (;;) {
-	    try {
-		p.waitFor();
+	// cut off command.
+	int i;
+	for (i=0; i < command.length(); ++i) {
+	    if (Character.isWhitespace(command.charAt(i)))
 		break;
+	}
+	command = command.substring(i).trim();
+
+	Process   p = null;
+	IOHandler ioHandler = null;
+	SigIntHandler.getInstance().registerInterrupt(Thread.currentThread());
+	try {
+	    try {
+		p = Runtime.getRuntime().exec(new String[] { "sh", "-c",
+							     command });
+		ioHandler = new IOHandler(p);
 	    }
-	    catch (InterruptedException e) {
-		continue;
+	    catch (IOException e) {
+		ioHandler.stop();
+		return EXEC_FAILED;
 	    }
+	    
+	    p.waitFor();
+	}
+	catch (InterruptedException e) {
+	    p.destroy();
+	    System.err.println("Shell command interrupted.");
 	}
 	ioHandler.stop();
 	return SUCCESS;

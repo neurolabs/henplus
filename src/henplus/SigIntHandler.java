@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SigIntHandler.java,v 1.1 2002-02-26 09:45:11 hzeller Exp $ 
+ * $Id: SigIntHandler.java,v 1.2 2002-02-26 17:58:15 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -51,7 +51,7 @@ public class SigIntHandler implements SignalHandler {
 	    //System.err.println("try to interrupt: " + toInterrupt);
 	    toInterrupt.interrupt();
 	    toInterrupt = null;
-	    System.exit(2);
+	    //System.exit(2);
 	}
 	else {
 	    System.exit(1);
