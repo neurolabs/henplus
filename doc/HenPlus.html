@@ -1,11 +1,45 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.2 2002-05-02 12:28:47 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.3 2002-05-06 06:50:24 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
+<h3 align="center">JDBC SQL-shell</h3>
 
-<h3>Overview</h3>
-HenPlus is a SQL shell that works for any database that has JDBC support. So
+<table align="right" bgcolor="#DDDDFF">
+<tr><th>Table of Contents</th></tr>
+<tr><td><a href="#overview">Overview</a></td></tr>
+<tr><td><a href="#getting-started">Getting Started</a></td></tr>
+<tr><td><a href="#getting-connected">Getting Connected</a></td></tr>
+<tr><td><a href="#multiple-open-sesions">Multiple Open Sessions</a></td></tr>
+<tr><td><a href="#variables">Using Variables</a></td></tr>
+<tr><td><a href="#commandline-completion">Commandline Completion</a></td></tr>
+<tr><td><a href="#per-project-config">Per Project Configuration</a></td></tr>
+<tr><td><a href="#plugins">Plugins</a></td></tr>
+<tr><td><hr></td></tr>
+<tr><td><a href="#plugins">FAQ</a></td></tr>
+<tr><td><a href="http://sourceforge.net/projects/henplus">Download</a></td></tr>
+</table>
+
+<h3><a name="overview"/>Overview</h3>
+Know this ? You need a small little tool for your everyday work and
+you wonder why nobody did this before -- and then you write it yourself.
+HenPlus is the result of such an effort. Its name reflects the original 
+intent: it started as a platform independent replacement for the 
+Oracle SQLPlus tool. 
+I wrote the first version of HenPlus in 1997 (before
+Oracle was available for Linux) since I had to develop an application that 
+connected to an Oracle database -- but the only SQLPlus I could use
+back then was running on some Redmond operation system that lacks the
+environment to develop serious software.
+<br>Since then, I've rewritten
+this tool, added command line completion and history -- but it still
+remained small and useful. It is freely distributable in source 
+and binary form because it is protected by the 
+<a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License</a>.
+
+<p>
+HenPlus is a SQL shell written in Java that works for any database 
+that has JDBC support. So
 basically any database. Why do we need this ? Any database comes with some
 shell, but all of them have missing features (and several shells are simply 
 unusable).
@@ -16,9 +50,8 @@ then switching between these tools is tedious.
 This is where <em>HenPlus</em> steps in. It supports:
 <ul>
  <li>Any JDBC aware database.</li>
- <li>Has commandline completion for commands and tables / columns
-     within SQL-commands. IMHO its much better than the command completion
-     provided by the mysql or pgsql (PostgreSQL) tools.</li>
+ <li>Has context sensitive command line completion for commands 
+     and tables / columns / variables within SQL-commands. </li>
  <li>Multiple open connection-sessions can be handled in parallel. You can just
      switch between them. So you can be connected to different databases to
      experiemnt with the same statement in all of them, for example.<br>
@@ -28,43 +61,252 @@ This is where <em>HenPlus</em> steps in. It supports:
      ...)
      </li>
  <li>A <code>describe</code> command for database tables, that work all
-     JDBC-Drivers that unveil the appropriate MetaData.</li>
+     JDBC-Drivers that unveil the appropriate MetaData (Oracle, PostgreSQL,
+     MySQL, DB2...)</li>
  <li>supports variables that are expanded like shell variables
-     with $VARIABLENAME (with commandline completion of their names,
+     with $VARIABLENAME or ${VARIABLENAME} (with completion of their names,
      just like in bash)</li>
  <li>loading files</li>
- <li>supports severyl built-in commands (<code>start</code>, <code>@</code>,
+ <li>supports several built-in commands (<code>start</code>, <code>@</code>,
      <code>@@</code>, <code>spool</code>) and
      syntax from the Oracle SQL-plus utility (like the single '/' on a line
-     to close a statement). Most Oralce SQL-plus scripts will run directly, so
+     to close a statement). Most Oracle SQL-plus scripts will run directly, so
      its simple to switch to HenPlus. Except if you can't stand, that your
-     life will become much simpler, then..</li>
- <li>allows to store the commandline history, variables and connections
-     per project.</li>
+     life will become much simpler, then ;-) If you have problems
+     running your old scripts, please let 
+     <a href="mailto:H.Zeller@acm.org">me</a> know.</li>
+ <li>allows a per-project storage of the commandline history, 
+     variables, plugins and connections.
+ <li>allows to add your own plugins that behave just like the built-in 
+     commands.</li>
  <li>Im- and Export of database tables as XML (not yet..)
+ <li>Is provided as OpenSource under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License</a>
 </ul>
 </body>
 
-<h3>Getting started</h3>
-compile, requires java-readline 0.7.3
-; help command
+<h3><a name="getting-started"/>Getting started</h3>
+<h4>Compilation</h4>
+If you <a href="http://sourceforge.net/projects/henplus">downloaded</a>
+HenPlus as a binary RPM or debian package, you can
+<a href="#running">skip</a> this part.
+<p>
+Ok, you are still here, so you have to compile it first. First you need
+an additional library.
+HenPlus utilizes the features of the GNU-readline library and therefore
+uses the JNI java wrapper library:
+<a href="http://sourceforge.net/projects/java-readline">java-readline 0.7.3</a>.
+<p>
+Building requires the <a href="http://jakarta.apache.org/ant">ant build
+tool</a>. To compile HenPlus just type
+<pre>
+$ ant jar
+</pre>
+If you are root, you can then install it:
+<pre>
+$ ant install
+</pre>
+will install henplus in
+<table bgcolor="#DDDDFF" border=1>
+<tr valign="top">
+   <td>/usr/share/henplus/henplus.jar</td><td>The jar-file containing
+                         the HenPlus classes. You can add additonal
+			 jar files in this directory. All of them are
+			 added to the classpath in the henplus shellscript
+			 (use this for JDBC-drivers).
+			 </td>
+<tr><td>/usr/bin/henplus</td><td>shellscript to start henplus</td></tr>
+</table>
+If you want to have another installation base (default: /usr), then you 
+can provide this as parameter <code>'prefix'</code>:
+<pre>
+$ ant -Dprefix=/usr/local install
+</pre>
+<font size="-1">(For package providers: the build.xml provides as well
+the <code>DESTDIR</code> parameter)</font>
 
-<h3>Getting connected</h3>
-drivers - classpath.
-; connnect command / login
-; ctrl-d disconnect.
-; password - plaintext  (tty)
+<h4><a name="running"/>Running</h4>
+You can invoke HenPlus with the <code>henplus</code> shellscript
+with or without an jdbc-url on the commandline.
+<pre>
+$ henplus jdbc:mysql://localhost/foobar
+</pre>
+The
+important commands you need to know to get it running is <code>help</code> and
+<code>connect</code>. The help command gives an overview, what commands
+are supported:
+<hr>
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; help
+ help | ?                                 : provides help for commands
+ about | version | license                : about HenPlus
+ exit | quit                              : exits HenPlus
+ echo | prompt                            : echo argument
+ list-plugins | plug-in | plug-out        : handle Plugins
+ list-drivers | register | unregister     : handle JDBC drivers
+ load | start | @ | @@                    : load file and execute commands
+ connect | disconnect | rename-session | switch | sessions: manage sessions
+ status                                   : show status of this connection
+ tables | views | rehash                  : list available user objects
+ describe &lt;tablename&gt;                     : describe a database object
+ import                                   : import from CSV
+ export &lt;csv|xml|sql&gt; &lt;table&gt; &lt;filename&gt;  : export as XML, SQL or CSV
+ autocommit-on | autocommit-off           : switches autocommit on/off
+ system | !                               : execute system commands
+ set | unset                              : set/unset variables
+<a name="config-dir"/>config read from [/home/hzeller/.henplus]
+</pre></td></tr></table>
+<hr>
+Just explore the commands by typing <code>help [commandname]</code> and
+learn what the built-in commands are all about. Start with the 
+<code>connect</code> commmand
+<pre>
+Hen*Plus&gt; help connect
+</pre>
+(more details on connection to the database in the 
+<a href="#getting-connected">Getting connected</a> section).
+<p>
+Usually, there is one line per command. However, you can have multiple
+commands on one line if you separate them with a semicolon:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+echo "** Directory Listing **" ; system ls
+</pre></td></tr></table>
+<p>
+The SQL commands however (you guess it: 'select', 'update', 'create' .. ) are
+not complete after the newline; you <em>always</em> have to close them
+with a semicolon -- so its possible to write statements on multiple lines:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+oracle:localhost&gt; create table foobar (
+                    id number(10),
+                    text varchar(127)
+                  );
+ok. (70 msec)
+oracle:localhost&gt;
+</pre></td></tr></table>
+<p>
+That should be enough to start working with HenPlus. But especially if you are
+running scripts (with the <code>load</code>-command)
+there is one additional piece of information you might
+need to know: the types of comments that are ignored. AFAIK, the
+SQL standard defines only an ANSI-endline comment, that starts with two dashes;
+this is supported by HenPlus:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+  select * from foobar; -- this is a comment
+</pre></td></tr></table>
+<p>
+HenPlus ignores as well the C/C++/Java style comments, that comment
+out a range between <code>/*&nbsp;some&nbsp;comment&nbsp;*/</code>.
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+/*
+   This is a longer comment that goes
+   accross several lines
+ */
+ select * from foobar;
+</pre></td></tr></table>
+<p>
+One beta tester <!-- Andi G. --> requested an additional type of 
+comment: Two semicolons at 
+<em>the beginning</em> of a line comment out the whole line:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+;; This line is commented out
+   ;; this one as well, since there are only whitespaces on the left
+select * from foobar ;; echo "this echo is executed as usual"
+</pre></td></tr></table>
 
-<h3>Multiple connections</h3>
+<h3><a name="getting-connected"/>Getting connected</h3>
+Getting connected to a database is simple: you need the JDBC driver
+from your database vendor, put it in the classpath, register the driver
+-- thats it. HenPlus provides the commands register, unregister and 
+list-drivers to manage the drivers (you know it already: the <code>help</code>
+command tells you more details).
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; list-drivers
+loaded drivers are marked with '*' (otherwise not found in CLASSPATH)
+------------+---------------------------------+---------------------------------------+
+    <b>for</b>     |          <b>driver class</b>           |              <b>sample url</b>               |
+------------+---------------------------------+---------------------------------------+
+   Adabas   | de.sag.jdbc.adabasd.ADriver     | jdbc:adabasd://localhost:7200/work    |
+   DB2      | COM.ibm.db2.jdbc.net.DB2Driver  | jdbc:db2://localhost:6789/foobar      |
+ * MySQL    | org.gjt.mm.mysql.Driver         | jdbc:mysql://localhost/foobar         |
+ * Oracle   | oracle.jdbc.driver.OracleDriver | jdbc:oracle:thin:@localhost:1521:ORCL |
+ * Postgres | org.postgresql.Driver           | jdbc:postgresql://localhost/foobar    |
+   SAP-DB   | com.sap.dbtech.jdbc.DriverSapDB | jdbc:sapdb://localhost/foobar         |
+------------+---------------------------------+---------------------------------------+
+</pre></td></tr></table>
+<p>
+With the <code>list-drivers</code>
+command you can see what driver classes are registered and loaded. If you
+cannot connect to some JDBC URL, check first, if the appropriate driver is
+actually loaded. If it is not loaded, then it is probably not found in the
+CLASSPATH. You can explicitly copy your frequently used drivers
+into the installation directory (/usr/share/henplus)</a></code>
+-- all the jar/zip files
+found there are added to the CLASSPATH on startup in
+the <code>henplus</code> shellscript.
+<p>
+Drivers once registered are remembered by HenPlus, so that they are loaded
+automatically on next startup.
+<p>
+When the driver is loaded, you can connect to the database using the
+JDBC-URL:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; connect jdbc:oracle:thin:@localhost:1521:ORCL
+HenPlus II connecting
+ url 'jdbc:oracle:thin:@localhost:1521:ORCL'
+ driver version 1.0
+============ authorization required ===
+Username: henman
+Password: foobar
+ Oracle - Oracle8i Enterprise Edition Release 8.1.7.0.1 - Production
+JServer Release 8.1.7.0.1 - Production
+ read committed *
+ serializable
+henman@oracle:localhost&gt;
+</pre></td></tr></table>
+This will then ask for the username and the password and you are
+connected. <b>The password is echoed on the console as plaintext</b> -- this
+is because its not possible with Java to switch the tty in non-echo mode (or
+is it? Please let <a href="mailto:H.Zeller@acm.org">me</a> know);
+this is a known misfeature and will be fixed sometime.
+<p>
+Typing JDBC-URLs is tedious ? Thats right, so HenPlus remembers all the
+connection URLs you were connected to and provides it in the context
+sensitive commandline completion for the connect command. So next time you
+connect, you just type
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+Hen*Plus&gt; connect <b><font color="#3333FF">&lt;TAB&gt;</font></b>
+jdbc:oracle:thin:@localhost:1521:ORCL  jdbc:oracle:thin:@database.my.net:1521:BLUE
+Hen*Plus&gt; connect jdbc:oracle:thin:@<b><font color="#3333FF">d &lt;TAB&gt;</font></b>
+Hen*Plus&gt; connect jdbc:oracle:thin:@database.my.net:1521:BLUE
+</pre></td></tr></table>
+.. and connecting with long URLs is a piece of cake.
+<p>
+On connection, the prompt changes to a string that reflects the current 
+connection. By
+default, this prompt is automatically extracted from the JDBC-URL, but you
+can provide another name as second parameter in the connection command (see
+help for the 'connect' command). Or just rename the session:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+henman@oracle:localhost&gt; rename-session hello
+hello&gt;
+</pre></td></tr></table>
+<p>
+You can disconnect with the <code>disconnect</code> command or by
+simply pressing CTRL-D.
+
+<h3><a name="multiple-open-sessions"/>Multiple Open Sessions</h3>
 switch command.
 
-<h3>Commandline completion</h3>
+<h3><a name="variables"/>Using Variables</h3>
+set / unset
+; expanding with $FOO, ${FOO}
+
+<h3><a name="commandline-completion"/>Commandline Completion</h3>
 tables, columns in selects. tables in describe command (with correction)
 
-<h3>Handling multiple projects</h3>
+<h3><a name="per-project-config"/>Per Project Configuration</h3>
 <em>HenPlus</em> stores the commandline history, the connection-URLs and
 the variable settings persistently in the filesystem. This is written
-to a a directory <code>~/.henplus</code>, that is createted in your
+to a directory <code>~/.henplus</code>, that is createted in your
 home directory.
 <p>
 If you have multiple projects you work on, all this information of any
@@ -81,10 +323,40 @@ until it finds the <code>.henplus</code> directory. If it still does
 not find the directory, it falls back to the <code>~/.henplus</code> in your
 home directory.
 <p>
-If you type 'help', then <em>HenPlus</em> tells you, where it loaded its
-initial configuration from.
+If you type 'help', then <em>HenPlus</em> tells you
+in the <a href="#config-dir">last line</a>, where it loaded initial 
+configuration from.
 
+<h3><a name="plugins"/>Plugins</h3>
+Need some command that creates some fancy statistics or report from your
+database tables ? Or need a command
+that you are missing from some other database tool ? Or want to pop up
+some Swing-window to do database record editing <!-- Armin H. --> ?
+<p>
+You are not limited with HenPlus to do this. It is very simple to write
+plug-ins, that you
 
-<h3>Im- and Export</h3>
+<h3><a name="imexport"/>Im- and Export</h3>
 The import and export of SQL-tables is not yet supported ;-). I am thinking of
 some XML-format. Anyone wants to implement this ?
+
+<h3><a name="faq"/>FAQ</h3>
+This will once be the FAQ. But for now, there is only one question..
+
+<p>
+<b>Q: </b><em>When I am connected to a postgreSQL database, sometimes the
+             connection seems to stop working. No select works.</em>
+<br>
+<b>A: </b>This is primarily not a problem with HenPlus, but in general with
+         Postgres when it encounters an error in some SQL-statement. Since
+	 everything in Postgres is done within a transaction, a
+	 transaction is regarded invalid on some error; any subsequent 
+	 commands are
+	 ignored, until you finish the transaction with 'commit' or 'rollback'.
+	 This might be annoying if you run SQL-scripts -- if there is only
+	 one error, all subsequent commands are ignored. One solution
+	 might be to switch on autocommit 
+	 (HenPlus command: <code>autocommit-on</code>).
+<br>
+<hr noshade="noshade" size="1"/>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.3 2002-05-06 06:50:24 hzeller Exp $ &copy; Henner Zeller</font></div>
