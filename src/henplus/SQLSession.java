@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.22 2003-05-02 00:07:57 hzeller Exp $
+ * $Id: SQLSession.java,v 1.23 2003-05-02 00:15:02 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -112,10 +112,10 @@ public class SQLSession implements Interruptable {
                               meta, Connection.TRANSACTION_NONE, "none");
         addAvailableIsolation(availableIsolations,
                               meta, Connection.TRANSACTION_READ_UNCOMMITTED,
-                              "read-uncommited");
+                              "read-uncommitted");
         addAvailableIsolation(availableIsolations,
                               meta, Connection.TRANSACTION_READ_COMMITTED,
-                              "read-commited");
+                              "read-committed");
         addAvailableIsolation(availableIsolations,
                               meta, Connection.TRANSACTION_REPEATABLE_READ,
                               "repeatable-read");
@@ -339,6 +339,7 @@ public class SQLSession implements Interruptable {
 
         AutoCommitProperty() {
             super(false);
+            _propertyValue = "off"; // 'off' sounds better in this context.
         }
 
         public void booleanPropertyChanged(boolean switchOn) throws Exception {
@@ -354,7 +355,7 @@ public class SQLSession implements Interruptable {
         }
         
         public String getDefaultValue() {
-            return "false";
+            return "off";
         }
 
         public String getShortDescription() {
