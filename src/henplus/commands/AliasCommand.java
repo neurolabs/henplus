@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.6 2002-12-29 10:48:17 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.7 2002-12-29 11:37:45 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -316,20 +316,21 @@ public final class AliasCommand extends AbstractCommand {
                 +"\t'alias' command";
         }
         else if ("alias".equals(cmd)) {
-            dsc= "\tAdd an alias for a command. This means, that you\n"
-                +"\tcan give a short name for a command you often use. This\n"
+            dsc= "\tAdd an alias for a command. This means, that you can\n"
+                +"\tgive a short name for a command you often use.  This\n"
                 +"\tmight be as simple as\n"
                 +"\t   alias ls tables\n"
-                +"\tto execute the tables command with a short 'ls' or\n"
-                +"\tsomething like\n"
+                +"\tto execute the tables command with a short 'ls'.\n"
+                +"\n\tFor longer commands it is even more helpful:\n"
                 +"\t   alias size select count(*) from\n"
-                +"\t; this command needs a table name as a paramter to\n"
-                +"\texpand to a complete command. So 'size students' expands\n"
-                +"\tto 'select count(*) from students' and returns the\n"
-                +"\texpected result. To make life easier, HenPlus tries to\n"
-                +"\tdetermine the command to be executed so that the\n"
-                +"\ttab-completion works even here; in this case it would\n"
-                +"\thelp complete table names.";
+                +"\tThis command  needs a table  name as a  parameter to\n"
+                +"\texpand  to  a  complete command.  So 'size students'\n"
+                +"\texpands to 'select count(*) from students' and yields\n"
+                +"\tthe expected result.\n"
+                +"\n\tTo make life easier, HenPlus tries to determine the\n"
+                +"\tcommand  to be executed so that the  tab-completion\n"
+                +"\tworks even here; in this latter case it  would help\n"
+                +"\tcomplete table names.";
         }
         else if ("unalias".equals(cmd)) {
             dsc= "\tremove an alias name";
