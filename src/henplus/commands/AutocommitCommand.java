@@ -36,6 +36,12 @@ public class AutocommitCommand extends AbstractCommand {
     public int execute(SQLSession session, String cmd, String param) {
 	try {
 	    if ("autocommit-on".equals(cmd)) {
+                /*
+                 * due to a bug in Sybase, we have to close the
+                 * transaction first before setting autcommit.
+                 * This is probably a save choice to do.
+                 */
+                session.getConnection().commit();
 		session.getConnection().setAutoCommit(true);
 		System.err.println("set autocommit on");
 	    }
