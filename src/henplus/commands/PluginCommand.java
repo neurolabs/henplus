@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PluginCommand.java,v 1.4 2004-01-28 09:25:48 hzeller Exp $ 
+ * $Id: PluginCommand.java,v 1.5 2004-01-29 22:31:53 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -147,7 +147,7 @@ public final class PluginCommand extends AbstractCommand {
 		plugin = loadPlugin(pluginClass);
 	    }
 	    catch (Exception e) {
-		HenPlus.msg().println("couldn't load plugin." + e.getMessage());
+		HenPlus.msg().println("couldn't load plugin: " + e.getMessage());
 		return EXEC_FAILED;
 	    }
 	    if (plugin != null) {

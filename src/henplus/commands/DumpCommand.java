@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.20 2004-01-28 09:25:48 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.21 2004-01-29 22:31:53 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -106,8 +106,9 @@ public class DumpCommand
 
 	// proprietary oracle types. Is there a better way than this ?
 	JDBCTYPE2TYPENAME.put(new Integer(1111),          TYPES[ HP_DOUBLE ]);
-	JDBCTYPE2TYPENAME.put(new Integer(-4),            TYPES[ HP_BLOB ]);
-	JDBCTYPE2TYPENAME.put(new Integer(-1),            TYPES[ HP_CLOB ]);
+
+	JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARBINARY), TYPES[ HP_BLOB ]);
+	JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARCHAR), TYPES[ HP_CLOB ]);
 
 	// not supported yet.
 	JDBCTYPE2TYPENAME.put(new Integer(Types.BLOB),    TYPES[ HP_BLOB ]);
@@ -118,9 +119,10 @@ public class DumpCommand
 	JDBCTYPE2TYPENAME.put(new Integer(Types.FLOAT),   TYPES[ HP_DOUBLE ]);
 
 	// generic numeric. could be integer or double
+	JDBCTYPE2TYPENAME.put(new Integer(Types.BIGINT),  TYPES[ HP_NUMERIC ]);
 	JDBCTYPE2TYPENAME.put(new Integer(Types.NUMERIC), TYPES[ HP_NUMERIC ]);
 	JDBCTYPE2TYPENAME.put(new Integer(Types.DECIMAL), TYPES[ HP_NUMERIC ]);
-	
+        JDBCTYPE2TYPENAME.put(new Integer(Types.BOOLEAN), TYPES[ HP_NUMERIC ]);
 	// generic integer.
 	JDBCTYPE2TYPENAME.put(new Integer(Types.INTEGER), TYPES[ HP_INTEGER ]);
 	JDBCTYPE2TYPENAME.put(new Integer(Types.SMALLINT),TYPES[ HP_INTEGER ]);
@@ -199,6 +201,7 @@ public class DumpCommand
 	    }
 	    catch (Exception e) {
 		HenPlus.msg().println("failed: " + e.getMessage());
+		e.printStackTrace();
 		return EXEC_FAILED;
 	    }
 	    finally {
@@ -228,6 +231,7 @@ public class DumpCommand
 	    }
 	    catch (Exception e) {
 		HenPlus.msg().println("failed: " + e.getMessage());
+		e.printStackTrace();
 		return EXEC_FAILED;
 	    }
 	    finally {
@@ -1285,10 +1289,15 @@ public class DumpCommand
 	    this.fieldName = fieldName;
 	    this.typeName = (String) JDBCTYPE2TYPENAME.get(new Integer(jdbcType));
 	    if (this.typeName == null) {
-		throw new IllegalArgumentException("cannot handle type '"
-						   + type + "'");
+		System.err.println("cannot handle type '"
+                                   + type 
+                                   + "' for field '" + this.fieldName + "'; trying String..");
+                this.type = HP_STRING;
+                this.typeName = TYPES[ this.type  ];
 	    }
-	    this.type = findType(typeName);
+            else {
+                this.type = findType(typeName);
+            }
 	}
 	public void setTypeName(String typeName) {
 	    this.type = findType(typeName);
