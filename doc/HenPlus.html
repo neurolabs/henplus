@@ -1,0 +1,81 @@
+<html>
+<head><title>HenPlus documentation</title></head>
+<body bgcolor="white">
+<!-- $Id: HenPlus.html,v 1.1 2002-04-22 16:15:17 hzeller Exp $ -->
+<h1 align="center">HenPlus</h1>
+
+<h3>Overview</h3>
+HenPlus is a SQL shell that works for any database that has JDBC support. So
+basically any database. Why do we need this ? Any database comes with some
+shell, but all of them have missing features (and several are simply unusable).
+And if you work with several
+databases at once (if you are a developer, then you do this all the time),
+then switching between these tools is tedious.
+<p>
+This is where <em>HenPlus</em> steps in. It supports:
+<ul>
+ <li>Any JDBC aware database.</li>
+ <li>Has commandline completion for commands and tables / columns
+     within SQL-commands. IMHO its much better than the command completion
+     provided by the mysql or pgsql (PostgreSQL) tools.</li>
+ <li>Multiple open connection-sessions can be handled in parallel. You can just
+     switch between them. So you can be connected to different databases to
+     experiemnt with the same statement in all of them, for example.<br>
+     All JDBC-Urls of opened sessions are stored for
+     later command line completion in the <code>connect</code> command.</li>
+ <li>Command line history</li>
+ <li>A <code>describe</code> command for database tables, that work all
+     JDBC-Drivers that unveil the appropriate MetaData.</li>
+ <li>supports variables (with commandline completion of their names)</li>
+ <li>loading files</li>
+ <li>supports some built-in commands (<code>start</code>, <code>@</code>,
+     <code>@@</code>, <code>spool</code>) and
+     syntax from the SQL-plus utility (like the single '/' on a line
+     to close a statement). Most SQL-plus scripts will run directly, so
+     its simple to switch to HenPlus.</li>
+ <li>allows to store the commandline history, variables and connections
+     per project</li>
+</ul>
+</body>
+
+<h3>Getting started</h3>
+compile, requires java-readline 0.7.3
+; help command
+<h3>Getting connected</h3>
+drivers - classpath.
+; connnect command / login
+; ctrl-d disconnect.
+
+<h3>Multiple connections</h3>
+switch command.
+
+<h3>Commandline completion</h3>
+tables, columns in selects. tables in describe command (with correction)
+
+<h3>Handling multiple projects</h3>
+<em>HenPlus</em> stores the commandline history, the connection-URLs and
+the variable settings persistently in the filesystem. This is written
+to a a directory <code>~/.henplus</code>, that is createted in your
+home directory.
+<p>
+If you have multiple projects you work on, this information might clobber
+up, since <em>HenPlus</em> remembers all the connection URLs and settings you
+use in any of these projects. Therefore <em>HenPlus</em> supports per project
+storage of this information.
+<p>
+To store only information you use in some project, just create an empty 
+<code>.henplus</code> directory in the directory you usually start the
+<em>HenPlus</em> utility -- then <em>HenPlus</em> will use this directory to
+store its configuration. More, if it does not find the <code>.henplus</code>
+directory within the current working dir, it goes up the directory tree
+until it finds the <code>.henplus</code> directory. If it still does
+not find the directory, it falls back to the <code>~/.henplus</code> in your
+home directory.
+<p>
+If you type 'help', then <em>HenPlus</em> tells you, where it loaded its
+initial configuration from.
+
+
+<h3>Im- and Export</h3>
+The import and export of SQL-tables is not yet supported ;-). I am thinking of
+some XML-format. Anyone wants to implement this ?
