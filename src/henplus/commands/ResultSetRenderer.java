@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.1 2002-01-20 22:59:02 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.2 2002-01-26 14:06:52 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package commands;
@@ -10,7 +10,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-
+import java.util.Vector;
+import java.util.Iterator;
 import java.io.PrintStream;
 /**
  * document me.
@@ -19,26 +20,75 @@ public class ResultSetRenderer {
     private static final int ALIGN_LEFT   = 1;
     private static final int ALIGN_CENTER = 2;
     private static final int ALIGN_RIGHT  = 3;
+    private static final int MAX_CACHE_ELEMENTS = 20000;
+    private static final int LIMIT = 2000;
 
     private final ResultSet rset;
-    public ResultSetRenderer(ResultSet rset) {
-	this.rset = rset;
-    }
+    private final ColumnMetaData meta[];
     
+    public ResultSetRenderer(ResultSet rset) throws SQLException {
+	this.rset = rset;
+	this.meta = getDisplayMeta(rset.getMetaData());
+    }
+
     public int writeTo(PrintStream out) throws SQLException {
 	int rows = 0;
-	ColumnMetaData meta[] = getDisplayMeta(rset.getMetaData());
-	
-	for (int i=0; i < meta.length ; ++i) {
-	    String txt;
-	    txt = formatString (meta[i].getLabel(), ' ',
-				meta[i].getWidth()+3,
-				ALIGN_CENTER);
-	    out.print(txt);
+	boolean beyondLimit = false;
+
+	Vector cacheRows = new Vector();
+	while (rset.next()) {
+	    String[] currentRow = new String[meta.length];
+	    for (int i = 0 ; i < meta.length ; ++i) {
+		String colString = rset.getString(i+1);
+		currentRow[i] = colString;
+		if (colString != null) {
+		    meta[i].updateWidth(colString.length());
+		}
+		else {
+		    meta[i].updateWidth("[NULL]".length());
+		}
+	    }
+	    cacheRows.add(currentRow);
+	    ++rows;
+	    if (rows >= LIMIT) {
+		beyondLimit = true;
+		break;
+	    }
 	}
-	out.println();
-	
-	// draw line -------------+------------+------
+
+	printTableHeader(out);
+	Iterator rowIterator = cacheRows.iterator();
+	while (rowIterator.hasNext()) {
+	    String[] currentRow = (String[]) rowIterator.next();
+	    for (int i = 0 ; i < meta.length ; ++i) {
+		String txt;
+		out.print(" ");
+		txt = formatString (currentRow[i], ' ',
+				    meta[i].getWidth(),
+				    meta[i].getAlignment());
+		
+		out.print(txt);
+		out.print(" |");
+	    }
+	    out.println();
+	}
+	// count stuff beyond limit.
+	if (beyondLimit) {
+	    System.err.println("limit " + LIMIT + " reached ..");
+	    /*
+	    while (rset.next()) {
+		++rows;
+	    }
+	    */
+	    rset.close();
+	}
+	if (rows > 0) {
+	    printHorizontalLine(out);
+	}
+	return rows;
+    }
+
+    private void printHorizontalLine(PrintStream out) {
 	for (int i = 0 ; i < meta.length ; ++i) {
 	    String txt;
 	    txt = formatString ("", '-', meta[i].getWidth()+2,
@@ -47,34 +97,22 @@ public class ResultSetRenderer {
 	    out.print('+');
 	}
 	out.println();
-	
-	
-	while (rset.next()) {
-	    for (int i = 0 ; i < meta.length ; ++i) {
-		String txt;
-		out.print(" ");
-		txt = formatString (rset.getString(i+1), ' ',
-				    meta[i].getWidth(),
-				    meta[i].getAlignment());
-		
-		out.print(txt);
-		out.print(" |");
-	    }
-	    out.println();
-	    ++rows;
-	}
-	
-	for (int i = 0 ; i < meta.length ; ++i) {
-	    String txt;
-	    txt = formatString ("", '-', meta[i].getWidth()+2, 
-				ALIGN_LEFT);
-	    out.print(txt);
-	    out.print('+');
-	}
-	out.println();
-	return rows;
     }
 
+    private void printTableHeader(PrintStream out) {
+	printHorizontalLine(out);
+	for (int i=0; i < meta.length ; ++i) {
+	    String txt;
+	    txt = formatString (meta[i].getLabel(), ' ',
+				meta[i].getWidth()+1,
+				ALIGN_CENTER);
+	    out.print(txt);
+	    out.print(" |");
+	}
+	out.println();
+	printHorizontalLine(out);
+    }
+    
     /**
      * determine meta data necesary for display.
      */
@@ -85,8 +123,10 @@ public class ResultSetRenderer {
 	for (int i = 1; i <= result.length; ++i) {
 	    int alignment  = ALIGN_LEFT;
 	    String columnLabel = m.getColumnLabel(i);
+	    /*
 	    int width = Math.max(m.getColumnDisplaySize(i),
 				 columnLabel.length());
+	    */
 	    switch (m.getColumnType(i)) {
 	    case Types.NUMERIC:  
 	    case Types.INTEGER: 
@@ -96,7 +136,7 @@ public class ResultSetRenderer {
 		alignment = ALIGN_RIGHT;
 		break;
 	    }
-	    result[i-1] = new ColumnMetaData(columnLabel,width,alignment);
+	    result[i-1] = new ColumnMetaData(columnLabel,alignment);
 	}
 	return result;
     }
@@ -140,18 +180,23 @@ public class ResultSetRenderer {
      * own wrapper for the column meta data.
      */
     private static final class ColumnMetaData {
-	private final int     width;
 	private final int     alignment;
 	private final String  label;
+	private       int     width;
 	
-	public ColumnMetaData(String l, int w, int align) {
+	public ColumnMetaData(String l, int align) {
 	    label = l;
-	    width = w;
+	    width = l.length();
 	    alignment = align;
 	}
 	public int getWidth()     { return width; }
 	public String getLabel()  { return label; }
 	public int getAlignment() { return alignment; }
+	public void updateWidth(int w) {
+	    if (w > width) {
+		width = w;
+	    }
+	}
     }
 }
 

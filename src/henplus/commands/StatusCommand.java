@@ -28,7 +28,8 @@ public class StatusCommand extends AbstractCommand {
     public int execute(SQLSession session, String command) {
 	System.err.println("URL:    " + session.getURL());
 	System.err.print  ("uptime: ");
-	printTime(session.getUptime());
+	TimeRenderer.printTime(session.getUptime(), System.err);
+	System.err.print("; statements: " + session.getStatementCount());
 	System.err.println();
 	return SUCCESS;
     }
@@ -38,29 +39,6 @@ public class StatusCommand extends AbstractCommand {
      */
     public String getShortDescription() {
 	return "show status of this connection";
-    }
-
-    private void printTime(long execTime) {
-	if (execTime > 60000) {
-	    System.err.print(execTime/60000);
-	    System.err.print(":");
-	    execTime %= 60000;
-	    if (execTime < 10000)
-		System.err.print("0");
-	}
-	if (execTime >= 1000) {
-	    System.err.print(execTime / 1000);
-	    System.err.print(".");
-	    execTime %= 1000;
-	    if (execTime < 100) System.err.print("0");
-	    if (execTime < 10)  System.err.print("0");
-	    System.err.print(execTime);
-	    System.err.print(" ");
-	}
-	else {
-	    System.err.print(execTime + " m");
-	}
-	System.err.print("sec");
     }
 }
 

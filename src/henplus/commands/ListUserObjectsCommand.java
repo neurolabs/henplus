@@ -9,6 +9,10 @@ package commands;
 import SQLSession;
 import AbstractCommand;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+
 /**
  * document me.
  */
@@ -26,7 +30,22 @@ public class ListUserObjectsCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String command) {
-	System.out.println("not yet.");
+	try {
+	    Connection conn = session.getConnection(); 
+	    DatabaseMetaData meta = conn.getMetaData();
+	    String catalog = conn.getCatalog();
+	    System.err.println("catalog: " + catalog);
+	    ResultSetRenderer renderer = 
+		new ResultSetRenderer(meta.getCatalogs());
+	    renderer.writeTo(System.out);
+	    renderer = new ResultSetRenderer(meta.getTables(catalog,
+							    null,null,null));
+	    renderer.writeTo(System.out);
+	}
+	catch (Exception e) {
+	    System.err.println(e.getMessage());
+	    return EXEC_FAILED;
+	}
 	return SUCCESS;
     }
 

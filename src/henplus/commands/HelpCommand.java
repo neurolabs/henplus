@@ -149,6 +149,9 @@ public class HelpCommand extends AbstractCommand {
 	if (desc != null) {
 	    System.err.println("DESCRIPTION");
 	    System.err.println(desc);
+	    if (c.requiresValidSession(cmdStr)) {
+		System.err.println("\tRequires valid session.");
+	    }
 	}
 	if (desc == null && synopsis == null) {
 	    System.err.println("no detailed help for '" + cmdStr + "'");

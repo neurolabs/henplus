@@ -57,7 +57,7 @@ public class LoadCommand extends AbstractCommand {
 	    }
 	}
 	catch (Exception e) {
-	    e.printStackTrace();
+	    System.err.println(e.getMessage());
 	    return EXEC_FAILED;
 	}
 	finally {
@@ -65,10 +65,11 @@ public class LoadCommand extends AbstractCommand {
 	}
 	long execTime = System.currentTimeMillis() - startTime;
 	System.err.print(commandCount + " commands in ");
-	printTime(execTime);
+	TimeRenderer.printTime(execTime, System.err);
 	System.err.print("; avg. time ");
-	printTime(execTime / commandCount);
-	System.err.println();
+	TimeRenderer.printTime(execTime / commandCount, System.err);
+	System.err.println("; " + 
+			   (1000 * commandCount / execTime) + " per second");
 	return SUCCESS;
     }
 
@@ -89,29 +90,6 @@ public class LoadCommand extends AbstractCommand {
 	return "\topens the file and reads the sql-commands line by line.\n"
 	    +  "\tThe commands 'load' and 'start' do exaclty the same;\n"
 	    +  "\t'start' is provided for compatibility with oracle SQLPLUS.";
-    }
-
-    private void printTime(long execTime) {
-	if (execTime > 60000) {
-	    System.err.print(execTime/60000);
-	    System.err.print(":");
-	    execTime %= 60000;
-	    if (execTime < 10000)
-		System.err.print("0");
-	}
-	if (execTime >= 1000) {
-	    System.err.print(execTime / 1000);
-	    System.err.print(".");
-	    execTime %= 1000;
-	    if (execTime < 100) System.err.print("0");
-	    if (execTime < 10)  System.err.print("0");
-	    System.err.print(execTime);
-	    System.err.print(" ");
-	}
-	else {
-	    System.err.print(execTime + " m");
-	}
-	System.err.print("sec");
     }
 }
 

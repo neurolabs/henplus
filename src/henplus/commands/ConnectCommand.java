@@ -34,6 +34,7 @@ public class ConnectCommand extends AbstractCommand {
     private static String CONNECTION_CONFIG = "connections";
     private final SortedMap/*<String,SQLSession>*/ sessions;
     private final SortedSet knownUrls;
+    private final HenPlus   henplus;
 
     /**
      * the current session we are in.
@@ -45,11 +46,12 @@ public class ConnectCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "connect", "disconnect", "switch", "sessions"
+	    "connect", "disconnect", "rename-session", "switch", "sessions"
 	};
     }
 
     public ConnectCommand(String argv[], HenPlus henplus) {
+	this.henplus = henplus;
 	sessions  = new TreeMap();
 	knownUrls = new TreeSet();
 
@@ -116,7 +118,7 @@ public class ConnectCommand extends AbstractCommand {
 	}
 
 	try {
-	    File urlFile = new File(HenPlus.getInstance().getConfigDir(),
+	    File urlFile = new File(henplus.getConfigDir(),
 				    CONNECTION_CONFIG);
 	    PrintWriter writer = new PrintWriter(new FileWriter(urlFile));
 	    Iterator urlIter = knownUrls.iterator();
@@ -273,6 +275,23 @@ public class ConnectCommand extends AbstractCommand {
 	    currentSessionName = sessionName;
 	}
 
+	else if ("rename-session".equals(cmd)) {
+	    String sessionName = null;
+	    if (argc != 1) {
+		return SYNTAX_ERROR;
+	    }
+	    sessionName = (String) st.nextElement();
+	    if (sessionName.length() < 1) {
+		return SYNTAX_ERROR;
+	    }
+	    session = (SQLSession) sessions.remove(currentSessionName);
+	    if (session == null) {
+		return EXEC_FAILED;
+	    }
+	    sessions.put(sessionName, session);
+	    currentSessionName = sessionName;
+	}
+
 	else if ("disconnect".equals(cmd)) {
 	    currentSessionName = null;
 	    if (argc != 0) {
@@ -297,12 +316,12 @@ public class ConnectCommand extends AbstractCommand {
 	}
 	
 	if (currentSessionName != null) {
-	    HenPlus.getInstance().setPrompt(currentSessionName + "> ");
+	    henplus.setPrompt(currentSessionName + "> ");
 	}
 	else {
-	    HenPlus.getInstance().setDefaultPrompt();
+	    henplus.setDefaultPrompt();
 	}
-	HenPlus.getInstance().setSession(session);
+	henplus.setSession(session);
 
 	return SUCCESS;
     }
@@ -311,17 +330,20 @@ public class ConnectCommand extends AbstractCommand {
      * return a descriptive string.
      */
     public String getShortDescription() {
-	return "[dis]connect/switch to session";
+	return "manage sessions";
     }
 
     public String getSynopsis(String cmd) {
 	if ("connect".equals(cmd)) {
-	    return "connect <url> [session-name]"; 
+	    return cmd + " <url> [session-name]"; 
 	}
 	else if ("switch".equals(cmd)) {
-	    return "switch <session-name>";
+	    return cmd + " <session-name>";
 	}
-	return cmd;
+	else if ("rename-session".equals(cmd)) {
+	    return cmd + " <new-session-name>";
+	}
+	return cmd; // disconnect
     }
 
     public String getLongDescription(String cmd) { 
@@ -338,6 +360,9 @@ public class ConnectCommand extends AbstractCommand {
 	}
 	else if ("sessions".equals(cmd)) {
 	    dsc="\tlist all active sessions.";
+	}
+	else if ("rename-session".equals(cmd)) {
+	    dsc="\trename current session. This influences the prompt.";
 	}
 	return dsc;
     }

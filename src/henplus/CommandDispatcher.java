@@ -98,7 +98,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     public void execute(SQLSession session, String cmd) {
 	if (cmd == null)
 	    return;
-	// bogus: ';' separated ..
+	// remove trailing ';'
 	StringBuffer cmdBuf = new StringBuffer(cmd.trim());
 	int i = 0;
 	for (i = cmdBuf.length()-1; i > 0; --i) {
@@ -107,10 +107,11 @@ public class CommandDispatcher implements ReadlineCompleter {
 		&& !Character.isWhitespace(c))
 		break;
 	}
+	if (i <= 0) {
+	    return;
+	}
 	cmdBuf.setLength(i+1);
 	cmd = cmdBuf.toString();
-	if (cmd.length() == 0) 
-	    return;
 	String cmdStr = getCommandNameFrom(cmd);
 	Command c = getCommandFrom(cmd);
 	if (c != null) {

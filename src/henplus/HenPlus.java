@@ -1,12 +1,15 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.8 2002-01-22 09:50:01 hzeller Exp $
+ * $Id: HenPlus.java,v 1.9 2002-01-26 14:06:51 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
 import java.util.Properties;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.HashMap;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.EOFException;
@@ -21,7 +24,24 @@ public class HenPlus {
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT     = "Hen*Plus> ";
 
+    private static final byte START           = 1;  // statement == start
+    private static final byte STATEMENT       = 1;
+    private static final byte START_COMMENT   = 3;
+    private static final byte COMMENT         = 4;
+    private static final byte PRE_END_COMMENT = 5;
+    private static final byte START_ANSI      = 6;
+    private static final byte ENDLINE_COMMENT = 7;
+    private static final byte STRING          = 8;
+    private static final byte SQLSTRING       = 9;
+    private static final byte POTENTIAL_END_FOUND = 10;
+
+    private static final byte LINE_EXECUTED   = 1;
+    private static final byte LINE_EMPTY      = 2;
+    private static final byte LINE_INCOMPLETE = 3;
+
     private static HenPlus instance = null; // singleton.
+    
+    private byte              _parseState;
 
     private CommandDispatcher dispatcher;
     private SQLSession        session;
@@ -29,12 +49,13 @@ public class HenPlus {
     private boolean           terminated;
     private String            prompt;
     private String            emptyPrompt;
-    private StringBuffer      commandBuffer;
+    private StringBuffer      _commandBuffer;
+    private SetCommand        _settingStore;
 
     private HenPlus(Properties properties, String argv[]) throws IOException {
 	terminated = false;
 	this.properties = properties;
-	commandBuffer = new StringBuffer();
+	_commandBuffer = new StringBuffer();
 
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
@@ -65,6 +86,7 @@ public class HenPlus {
 	}
 
 	dispatcher = new CommandDispatcher();
+	_settingStore = new SetCommand(this);
 	dispatcher.register(new HelpCommand());
 	dispatcher.register(new DescribeCommand());
 	dispatcher.register(new SQLCommand());
@@ -77,36 +99,65 @@ public class HenPlus {
 	dispatcher.register(new ConnectCommand( argv, this ));
 	dispatcher.register(new LoadCommand());
 	dispatcher.register(new AutocommitCommand()); // replace with 'set'
+	dispatcher.register(_settingStore);
 	Readline.setCompleter( dispatcher );
 	setDefaultPrompt();
+	// in case someone presses Ctrl-C
+	Runtime.getRuntime()
+	    .addShutdownHook(new Thread() {
+		    public void run() {
+			shutdown();
+		    }
+		});
     }
     
     public void resetBuffer() {
-	commandBuffer.setLength(0);
+	_commandBuffer.setLength(0);
+	_parseState = START;
     }
 
     /**
-     * add a new line. returns true if the line was complete.
+     * add a new line. returns true if the line completes a command.
      */
-    public boolean addLine(String line) {
-	commandBuffer.append(line);
-	commandBuffer.append('\n');
-	String completeCommand = commandBuffer.toString();
-	Command c = dispatcher.getCommandFrom(completeCommand);
-	if (c == null) {
-	    return false;
+    public byte addLine(String line) {
+	byte result = LINE_EMPTY;
+	StringBuffer lineBuf = new StringBuffer(line);
+	lineBuf.append('\n');
+	while (lineBuf.length() > 0) {
+	    parsePartialInput(lineBuf, _commandBuffer);
+	    if (_parseState == POTENTIAL_END_FOUND) {
+		//System.err.println(">'" + _commandBuffer.toString() + "'<");
+		String completeCommand = _commandBuffer.toString();
+		Command c = dispatcher.getCommandFrom(completeCommand);
+		if (c == null) {
+		    _parseState = START;
+		    result = LINE_EMPTY;
+		}
+		else if(!c.isComplete(completeCommand)) {
+		    _parseState = START;
+		    result = LINE_INCOMPLETE;
+		}
+		else {
+		    completeCommand = varsubst(completeCommand,
+					       _settingStore.getVariableMap());
+		    //System.err.println("SUBST: " + completeCommand);
+		    dispatcher.execute(session, completeCommand);
+		    resetBuffer();
+		    result = LINE_EXECUTED;
+		}
+	    }
+	    else {
+		System.err.println("#'" + _commandBuffer.toString() + "'#");
+		result = LINE_INCOMPLETE;
+	    }
 	}
-	if (!c.isComplete(completeCommand)) {
-	    return false; // wait until we are complete
-	}
-	resetBuffer();
-	dispatcher.execute(session, completeCommand);
-	return true;
+	return result;
     }
 
     public void run() {
 	String cmdLine = null;
 	String displayPrompt = prompt;
+	resetBuffer();
 	while (!terminated) {
 	    try {
 		cmdLine = Readline.readline( displayPrompt );
@@ -124,13 +175,20 @@ public class HenPlus {
 	    catch (Exception e) { /* ignore */ }
 	    if (cmdLine == null)
 		continue;
-	    boolean complete = false;
-	    complete = addLine(cmdLine);
-	    displayPrompt = (complete ? prompt : emptyPrompt);
+	    if (addLine(cmdLine) == LINE_INCOMPLETE) {
+		displayPrompt = emptyPrompt;
+	    }
+	    else {
+		displayPrompt = prompt;
+	    }
 	}
-	
-	dispatcher.shutdown();
-
+    }
+    
+    private void shutdown() {
+	System.err.println("storing settings..");
+	if (dispatcher != null) {
+	    dispatcher.shutdown();
+	}
 	try {
 	    Readline.writeHistoryFile(getHistoryLocation());
 	}
@@ -163,12 +221,163 @@ public class HenPlus {
 	setPrompt( PROMPT );
     }
 
+    /**
+     * parse partial input and set state to POTENTIAL_END_FOUND if we
+     * either reached end-of-line or a semicolon.
+     */
+    private void parsePartialInput (StringBuffer input, StringBuffer parsed) {
+	int pos = 0;
+	char current;
+	byte oldstate = -1;
+	byte state = _parseState; // local: faster access.
+	
+	while (state != POTENTIAL_END_FOUND && pos < input.length()) {
+	    current = input.charAt(pos);
+	    //System.out.print ("Pos: " + pos + "\t");
+	    switch (state) {
+	    case STATEMENT :
+		if (current == '\n' || current == '\r')
+		    state = POTENTIAL_END_FOUND;
+		else if (current == ';')  state = POTENTIAL_END_FOUND;
+		else if (current == '/')  state = START_COMMENT;
+		else if (current == '"')  state = STRING;
+		else if (current == '\'') state = SQLSTRING;
+		else if (current == '-')  state = START_ANSI;
+		break;
+	    case START_COMMENT:
+		if (current == '*')         state = COMMENT;
+		else if (current == '/')    state = ENDLINE_COMMENT;
+		else { parsed.append ('/'); state = STATEMENT; }
+		break;
+	    case COMMENT:
+		if (current == '*') state = PRE_END_COMMENT;
+		break;
+	    case PRE_END_COMMENT:
+		if (current == '/')      state = STATEMENT;
+		else if (current == '*') state = PRE_END_COMMENT;
+		else state = COMMENT;
+		break;
+	    case START_ANSI:
+		if (current == '-')        state = ENDLINE_COMMENT;
+		else { parsed.append('-'); state = STATEMENT; }
+		break;
+	    case ENDLINE_COMMENT:
+		if (current == '\n')      state = POTENTIAL_END_FOUND;
+		else if (current == '\r') state = POTENTIAL_END_FOUND;
+		break;
+	    case STRING:     
+		if (current == '"') state = STATEMENT;
+		break;
+	    case SQLSTRING:
+		if (current == '\'') state = STATEMENT;
+		break;
+	    }
+	    
+	    /* append to parsed; ignore comments */
+	    if ((state == STATEMENT && oldstate != PRE_END_COMMENT)
+		|| state == STRING
+		|| state == SQLSTRING
+		|| state == POTENTIAL_END_FOUND) {
+		parsed.append(current);
+	    }
+	    
+	    oldstate = state;
+	    pos++;
+	}
+	// we reached: POTENTIAL_END_FOUND. Store the rest in the input-buf
+	StringBuffer rest = new StringBuffer();
+	/* skip leading whitespaces of next statement .. */
+	while (pos < input.length() 
+	       && Character.isWhitespace (input.charAt(pos))) {
+	    ++pos;
+	}
+	while (pos < input.length()) { 
+	    rest.append(input.charAt(pos)); 
+	    pos++; 
+	}
+	input.setLength(0);
+	input.append(rest);
+	_parseState = state;
+    }
+    
+    public String varsubst (String in, Map variables) {
+        int pos             = 0;
+        int endpos          = 0;
+	int startVar        = 0;
+        StringBuffer result = new StringBuffer();
+        String      varname;
+        boolean     hasBrace= false;
+        boolean     knownVar= false;
+        
+        if (in == null) {
+            return null;
+        }
+        
+        if (variables == null) {
+            return in;
+        }
+        
+        while ((pos = in.indexOf ('$', pos)) >= 0) {
+	    startVar = pos;
+            if (in.charAt(pos+1) == '$') { // quoting '$'
+                pos++;
+                continue;
+            }
+            
+            hasBrace = (in.charAt(pos+1) == '{');
+            
+            // text between last variable and here
+            result.append(in.substring (endpos, pos));
+            
+            if (hasBrace) {
+                pos++;
+            }
+
+            endpos = pos+1;
+            while (endpos < in.length() 
+                   && Character.isJavaIdentifierPart(in.charAt(endpos))) {
+                endpos++;
+            }
+            varname=in.substring(pos+1,endpos);
+         
+            if (hasBrace) {
+                while (endpos < in.length() && in.charAt(endpos) != '}') {
+                    ++endpos;
+                }
+                ++endpos;
+            }
+	    if (endpos >= in.length()) {
+		if (variables.containsKey(varname)) {
+		    System.err.println("warning: missing '}' for variable '"
+				       + varname + "'.");
+		}
+		result.append(in.substring(startVar));
+		break;
+	    }
+
+            if (variables.containsKey(varname)) {
+		result.append(variables.get(varname));
+	    }
+	    else {
+		System.err.println("warning: variable '" 
+				   + varname + "' not set.");
+		result.append(in.substring(startVar, endpos));
+	    }
+   
+            pos = endpos;
+        }
+	if (endpos < in.length()) {
+	    result.append(in.substring(endpos));
+	}
+        return result.toString();
+    }
+    
     //*****************************************************************
     public static HenPlus getInstance() {
 	return instance;
     }
 
-    public final static void main(String argv[]) throws Exception {
+    public static final void main(String argv[]) throws Exception {
 	Properties properties = new Properties();
 	
 	properties.setProperty("driver.Oracle.class", 
