@@ -97,7 +97,7 @@ public class DescribeCommand
 
 	    DatabaseMetaData meta = session.getConnection().getMetaData();
 	    for (int i=0; i < DESC_META.length; ++i) {
-		DESC_META[i].reset();
+		DESC_META[i].resetWidth();
 	    }
 
 	    /*

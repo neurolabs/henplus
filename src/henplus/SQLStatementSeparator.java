@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.14 2003-05-01 16:50:43 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.15 2003-05-01 18:26:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -378,7 +378,7 @@ public class SQLStatementSeparator {
         }
         
         public String getLongDescription() {
-            String dsc = null;
+            String dsc;
             dsc= "\tSwitch the behaviour to remove all comments\n"
                 +"\tfound in the string sent to the database. Some databases\n"
                 +"\tcan not handle comments in JDBC-Strings.\n\nValues\n"

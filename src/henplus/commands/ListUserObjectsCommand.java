@@ -79,7 +79,7 @@ public class ListUserObjectsCommand
 		/**/
                   System.err.println("catalog: " + catalog);
                   ResultSetRenderer catalogrenderer = 
-                  new ResultSetRenderer(meta.getCatalogs(), System.out);
+                  new ResultSetRenderer(meta.getCatalogs(), "|", System.out);
                   catalogrenderer.execute();
                   /**/
 		ResultSetRenderer renderer;
@@ -104,7 +104,7 @@ public class ListUserObjectsCommand
                     columnDef = TABLE_DISP_COLS;
                 }
                 
-		renderer = new ResultSetRenderer(rset, System.out,
+		renderer = new ResultSetRenderer(rset, "|", System.out,
 						 columnDef);
 		int tables = renderer.execute();
 		if (tables > 0) {
@@ -195,7 +195,7 @@ public class ListUserObjectsCommand
      * fixme: add this to the cached values determined by rehash.
      */
     public Collection columnsFor(String tabName) {
-	SQLSession session = henplus.getSession();
+	SQLSession session = henplus.getCurrentSession();
         Set result = new HashSet();
 	Connection conn = session.getConnection();  // use createStmt
 	ResultSet rset = null;
@@ -246,14 +246,14 @@ public class ListUserObjectsCommand
      * used from diverse commands that need table name completion.
      */
     public Iterator completeTableName(String partialTable) {
-	SQLSession session = henplus.getSession();
+	SQLSession session = henplus.getCurrentSession();
 	if (session == null) return null;
 	NameCompleter completer = getTableCompleter(session);
 	return completer.getAlternatives(partialTable);
     }
     
     public Iterator completeAllColumns(String partialColumn) {
-	SQLSession session = henplus.getSession();
+	SQLSession session = henplus.getCurrentSession();
         if (session == null) return null;
         NameCompleter completer = getAllColumnsCompleter(session);
         return completer.getAlternatives(partialColumn);

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ColumnMetaData.java,v 1.4 2002-02-21 21:51:34 hzeller Exp $ 
+ * $Id: ColumnMetaData.java,v 1.5 2003-05-01 18:26:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
@@ -35,7 +35,8 @@ public final class ColumnMetaData {
 	this(header, ALIGN_LEFT);
     }
     
-    public void reset() { width = initialWidth; }
+    public void resetWidth() { width = initialWidth; }
+
     /**
      * set, whether a specific column should be displayed.
      */

@@ -1,6 +1,14 @@
+henplus (0.9.3-1) unstable; urgency=low
+  
+  * fix a bug that rendered set-var unusable.
+  * add property support: remove of comments is now a property
+  * make table column separator configurable with a property
+  
+ -- Henner Zeller <H.Zeller@acm.org>  Thu, 01 May 2003 22:54:38 +0200
+  
 henplus (0.9.2-2) unstable; urgency=low
 
-  * select CLOBs (.. that may be null as well ;-)
+  * select CLOBs
 
  -- Henner Zeller <H.Zeller@acm.org>  Tue, 18 Mar 2003 11:49:12 +0100
 

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.56 2003-05-01 16:50:43 hzeller Exp $
+ * $Id: HenPlus.java,v 1.57 2003-05-01 18:26:27 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -130,7 +130,7 @@ public class HenPlus implements Interruptable {
         /*** experimental ***/
 	_dispatcher.register(new TreeCommand(objectLister));
 
-	_dispatcher.register(new SQLCommand(objectLister));
+	_dispatcher.register(new SQLCommand(objectLister, _henplusProperties));
 
 	//_dispatcher.register(new ImportCommand());
 	//_dispatcher.register(new ExportCommand());
@@ -142,8 +142,13 @@ public class HenPlus implements Interruptable {
 	_dispatcher.register(new SpoolCommand()); // dummy command
 	_dispatcher.register(_settingStore);
 
+        PropertyCommand propertyCommand;
+        propertyCommand = new PropertyCommand(this, _henplusProperties);
+        _dispatcher.register(propertyCommand);
+
 	pluginCommand.load();
 	aliasCommand.load();
+        propertyCommand.load();
 
 	Readline.setCompleter( _dispatcher );
 
@@ -404,14 +409,14 @@ public class HenPlus implements Interruptable {
      * set current session. This is called from commands, that switch
      * the sessions (i.e. the ConnectCommand.
      */
-    public void setSession(SQLSession session) {
+    public void setCurrentSession(SQLSession session) {
 	_currentSession = session;
     }
 
     /**
      * get current session.
      */
-    public SQLSession getSession() {
+    public SQLSession getCurrentSession() {
 	return _currentSession;
     }
 

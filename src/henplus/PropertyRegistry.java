@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyRegistry.java,v 1.1 2003-05-01 16:51:17 hzeller Exp $ 
+ * $Id: PropertyRegistry.java,v 1.2 2003-05-01 18:26:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -47,6 +47,14 @@ public class PropertyRegistry {
             throw new IllegalArgumentException("Unknown Property " + name);
         }
         holder.setValue(value);
+    }
+
+    /**
+     * returns a Map view of property-Names to values. The returned Map
+     * must not be modified.
+     */
+    public SortedMap/*<String,PropertyHolder>*/ getPropertyMap() {
+        return _namedProperties;
     }
 }
 

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.6 2002-07-23 06:36:41 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.7 2003-05-01 18:26:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -143,9 +143,9 @@ public final class DriverCommand extends AbstractCommand {
 	if ("list-drivers".equals(cmd)) {
 	    if (argc == 0) {
 		System.err.println("loaded drivers are marked with '*' (otherwise not found in CLASSPATH)");
-		DRV_META[0].reset();
-		DRV_META[1].reset();
-		DRV_META[2].reset();
+		DRV_META[0].resetWidth();
+		DRV_META[1].resetWidth();
+		DRV_META[2].resetWidth();
 		TableRenderer table = new TableRenderer(DRV_META, System.out);
 		Iterator vars = _drivers.entrySet().iterator();
 		while (vars.hasNext()) {

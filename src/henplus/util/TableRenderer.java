@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.5 2002-03-01 09:51:22 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.6 2003-05-01 18:26:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.util;
@@ -19,10 +19,13 @@ public class TableRenderer {
     private final ColumnMetaData meta[];
     private final PrintStream    out;
     private final ArrayList      cacheRows;
+    private final String         colSeparator;
     private boolean              alreadyFlushed;
     private int                  writtenRows;
 
-    public TableRenderer(ColumnMetaData[] meta, PrintStream out) {
+    public TableRenderer(ColumnMetaData[] meta, PrintStream out,
+                         String colSeparator) 
+    {
 	this.meta = meta;
 	this.out = out;
 	/*
@@ -32,6 +35,11 @@ public class TableRenderer {
 	this.cacheRows   = new ArrayList( MAX_CACHE_ELEMENTS );
 	this.alreadyFlushed = false;
 	this.writtenRows = 0;
+        this.colSeparator = " " + colSeparator;
+    }
+
+    public TableRenderer(ColumnMetaData[] meta, PrintStream out) {
+        this(meta, out, "|");
     }
     
     public void addRow(Column[] row) {
@@ -77,7 +85,7 @@ public class TableRenderer {
 		    if (currentRow[i].isNull()) Terminal.grey(out);
 		    out.print(txt);
 		    if (currentRow[i].isNull()) Terminal.reset(out);
-		    out.print(" |");
+		    out.print(colSeparator);
 		}
 		out.println();
 	    }
@@ -109,7 +117,7 @@ public class TableRenderer {
 	    Terminal.boldface(out);
 	    out.print(txt);
 	    Terminal.reset(out);
-	    out.print(" |");
+	    out.print(colSeparator);
 	}
 	out.println();
 	printHorizontalLine();

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EnumeratedPropertyHolder.java,v 1.1 2003-05-01 16:50:45 hzeller Exp $ 
+ * $Id: EnumeratedPropertyHolder.java,v 1.2 2003-05-01 18:26:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
@@ -80,7 +80,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
      */
     protected abstract void enumeratedPropertyChanged(int index, String value);
 
-    protected Iterator completeValue(String partialValue) {
+    public Iterator completeValue(String partialValue) {
         return _completer.getAlternatives(partialValue);
     }
 }

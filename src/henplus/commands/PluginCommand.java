@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PluginCommand.java,v 1.1 2002-05-06 06:57:56 hzeller Exp $ 
+ * $Id: PluginCommand.java,v 1.2 2003-05-01 18:26:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -106,8 +106,8 @@ public final class PluginCommand extends AbstractCommand {
 	if ("list-plugins".equals(cmd)) {
 	    if (argc != 0) return SYNTAX_ERROR;
 	    System.err.println("loaded plugin are marked with '*'");
-	    DRV_META[0].reset();
-	    DRV_META[1].reset();
+	    DRV_META[0].resetWidth();
+	    DRV_META[1].resetWidth();
 	    TableRenderer table = new TableRenderer(DRV_META, System.out);
 	    Iterator it = _plugins.entrySet().iterator();
 	    while (it.hasNext()) {

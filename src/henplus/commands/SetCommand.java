@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.14 2003-05-01 16:50:45 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.15 2003-05-01 18:26:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -39,8 +39,6 @@ public final class SetCommand extends AbstractCommand {
 	SET_META = new ColumnMetaData[2];
 	SET_META[0] = new ColumnMetaData("Name");
 	SET_META[1] = new ColumnMetaData("Value");
-	//SET_META[2] = new ColumnMetaData("built-in");
-	//SET_META[3] = new ColumnMetaData("user");
     }
 
     private final SortedMap _variables;
@@ -88,8 +86,8 @@ public final class SetCommand extends AbstractCommand {
              * no args. only show.
              */
 	    if (argc == 0) {
-		SET_META[0].reset();
-		SET_META[1].reset();
+		SET_META[0].resetWidth();
+		SET_META[1].resetWidth();
 		TableRenderer table = new TableRenderer(SET_META, System.out);
 		Iterator vars = _variables.entrySet().iterator();
 		while (vars.hasNext()) {
@@ -97,8 +95,8 @@ public final class SetCommand extends AbstractCommand {
 		    Column[] row = new Column[4];
 		    row[0] = new Column((String) entry.getKey());
 		    row[1] = new Column((String) entry.getValue());
-		    row[2] = new Column("");
-		    row[3] = new Column("X");
+		    //row[2] = new Column("");
+		    //row[3] = new Column("X");
 		    table.addRow(row);
 		}
 		table.closeTable();

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyHolder.java,v 1.1 2003-05-01 16:50:45 hzeller Exp $ 
+ * $Id: PropertyHolder.java,v 1.2 2003-05-01 18:26:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
@@ -25,10 +25,14 @@ public abstract class PropertyHolder {
     /**
      * construct a PropertyHolder with an empty value.
      */
-    public PropertyHolder() {
-        _propertyValue = null;
+    protected PropertyHolder() {
+        this(null);
     }
     
+    protected PropertyHolder(String initialValue) {
+        _propertyValue = initialValue;
+    }
+
     /**
      * set the new value of this property. If changing the property
      * does not work for e.g. a constraint propblem, then this method will
@@ -78,7 +82,9 @@ public abstract class PropertyHolder {
      * @return an Iterator of values that all start with the given String or
      *         <code>null</code> if no such completion exists.
      */
-    protected abstract Iterator completeValue(String partialValue);
+    public Iterator completeValue(String partialValue) {
+        return null;
+    }
 
     //-- something for the build-in help
     /**

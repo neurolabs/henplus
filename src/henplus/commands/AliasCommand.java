@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.8 2003-01-25 10:38:55 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.9 2003-05-01 18:26:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -108,8 +108,8 @@ public final class AliasCommand extends AbstractCommand {
 	
 	if ("list-aliases".equals(cmd)) {
 	    if (argc != 0) return SYNTAX_ERROR;
-	    DRV_META[0].reset();
-	    DRV_META[1].reset();
+	    DRV_META[0].resetWidth();
+	    DRV_META[1].resetWidth();
 	    TableRenderer table = new TableRenderer(DRV_META, System.out);
 	    Iterator it = _aliases.entrySet().iterator();
 	    while (it.hasNext()) {

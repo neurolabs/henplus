@@ -88,7 +88,7 @@ public class ConnectCommand extends AbstractCommand {
 		sessions.put(currentSessionName, session);
 		knownUrls.add(url);
 		henplus.setPrompt(currentSessionName + "> ");
-		henplus.setSession(session);
+		henplus.setCurrentSession(session);
 	    }
 	    catch (Exception e) {
 		//e.printStackTrace();
@@ -251,9 +251,9 @@ public class ConnectCommand extends AbstractCommand {
 	
 	if ("sessions".equals(cmd)) {
 	    System.err.println("current session is marked with '*'");
-	    SESS_META[0].reset();
-	    SESS_META[1].reset();
-	    SESS_META[2].reset();
+	    SESS_META[0].resetWidth();
+	    SESS_META[1].resetWidth();
+	    SESS_META[2].resetWidth();
 	    TableRenderer table = new TableRenderer(SESS_META, System.out);
 	    Map.Entry entry = null;
 	    Iterator it = sessions.entrySet().iterator();
@@ -370,7 +370,7 @@ public class ConnectCommand extends AbstractCommand {
 	else {
 	    henplus.setDefaultPrompt();
 	}
-	henplus.setSession(session);
+	henplus.setCurrentSession(session);
 
 	return SUCCESS;
     }

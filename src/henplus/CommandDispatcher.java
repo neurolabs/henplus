@@ -283,7 +283,7 @@ public class CommandDispatcher implements ReadlineCompleter {
 		    if (!c.participateInCommandCompletion())
 			continue;
 		    if (c.requiresValidSession(nextKey) 
-			&& henplus.getSession() == null) {
+			&& henplus.getCurrentSession() == null) {
 			continue;
 		    }
 		}

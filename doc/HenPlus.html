@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.14 2003-01-27 20:51:44 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.15 2003-05-01 18:26:27 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -539,7 +539,10 @@ canonical lisp like text format that is easily parseable for the human eye and e
 Even though XML would be an idea here, I decided against it because it blows up the file size
 and is not very human readable due to the 'noise' 
 (But if you want to, just write a <a href="#plugins">plug-in</a> that does this..).
-[ "XML is readable but is not meant to be read" ].
+[ "XML is readable but is not meant to be read" ]. It does as well not fit to the way, SQL-data
+is used; for instance it is possible to create simple <tt>INSERT INTO</tt>-scripts from
+the given file format with an editor or an awk-script. With XML you'd need an parser and
+generator or at least a stylesheet to achive something similar.
 <p>
 One interesting feature of these commands is, that they automatically can read/write
 gziped files if the filenames have the '.gz' suffix.
@@ -583,4 +586,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.14 2003-01-27 20:51:44 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.15 2003-05-01 18:26:27 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>

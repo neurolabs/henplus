@@ -11,6 +11,8 @@ import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.SigIntHandler;
 import henplus.util.NameCompleter;
+import henplus.PropertyRegistry;
+import henplus.property.PropertyHolder;
 
 import java.text.DecimalFormat;
 
@@ -55,9 +57,13 @@ public class SQLCommand extends AbstractCommand {
     }
 
     private final ListUserObjectsCommand tableCompleter;
-    
-    public SQLCommand(ListUserObjectsCommand tc) {
+    private String columnDelimiter;
+
+    public SQLCommand(ListUserObjectsCommand tc, PropertyRegistry registry) {
 	tableCompleter = tc;
+        columnDelimiter = "|";
+        registry.registerProperty("column-delimiter",
+                                  new SQLColumnDelimiterProperty());
     }
 
     /**
@@ -99,6 +105,14 @@ public class SQLCommand extends AbstractCommand {
 		return true;
 	}
 	return false;
+    }
+
+    public void setColumnDelimiter(String value) {
+        columnDelimiter = value;
+    }
+    
+    public String getColumnDelimiter() {
+        return columnDelimiter;
     }
 
     /**
@@ -191,7 +205,8 @@ public class SQLCommand extends AbstractCommand {
 		if (hasResultSet) {
 		    rset = stmt.getResultSet();
 		    ResultSetRenderer renderer;
-		    renderer = new ResultSetRenderer(rset, System.out);
+		    renderer = new ResultSetRenderer(rset, columnDelimiter,
+                                                     System.out);
 		    SigIntHandler.getInstance().pushInterruptable(renderer);
 		    int rows = renderer.execute();
 		    if (renderer.limitReached()) {
@@ -484,6 +499,29 @@ public class SQLCommand extends AbstractCommand {
                 +"\t  call-procedure foobar(42);\n";
         }
 	return dsc;
+    }
+
+    private class SQLColumnDelimiterProperty extends PropertyHolder {
+        public SQLColumnDelimiterProperty() {
+            super(SQLCommand.this.getColumnDelimiter());
+        }
+
+        protected String propertyChanged(String newValue) {
+            SQLCommand.this.setColumnDelimiter(newValue);
+            return newValue;
+        }
+        
+        public String getShortDescription() {
+            return "modify column separator in query results";
+        }
+
+        public String getLongDescription() {
+            String dsc;
+            dsc= "\tSet another string that is used to separate columns in\n"
+                +"\tSQL result sets. Usually this is a pipe-symbol '|', but\n"
+                +"\tmaybe you want to have an empty string ?";
+            return dsc;
+        }
     }
 }
 
