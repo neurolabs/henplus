@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.1 2002-02-15 00:02:27 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.2 2002-02-15 07:42:33 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -57,14 +57,30 @@ public final class DriverCommand extends AbstractCommand {
     }
 
     private final static class DriverDescription {
-	private final String className;
-	private final String sampleURL;
+	private final String  className;
+	private final String  sampleURL;
+	private boolean loaded;
 	public DriverDescription(String cn, String surl) {
 	    className = cn;
 	    sampleURL = surl;
+	    load();
 	}
 	public String getClassName() { return className; }
 	public String getSampleURL() { return sampleURL; }
+	public boolean isLoaded() { return loaded; }
+	public boolean load() {
+	    try {
+		if (verbose) System.err.print("loading .. '" + className + "'");
+		Class.forName(className);
+		if (verbose) System.err.println(" done.");
+		loaded = true;
+	    }
+	    catch (Throwable t) {
+		if (verbose) System.err.println(" failed: " + t.getMessage());
+		loaded = false;
+	    }
+	    return loaded;
+	}
     }
 
     private final SortedMap/*<String,DriverDescription>*/ _drivers;
@@ -111,28 +127,6 @@ public final class DriverCommand extends AbstractCommand {
 		_drivers.put(row[0], new DriverDescription(row[1], row[2]));
 	    }
 	}
-	loadDrivers();
-    }
-
-    private boolean loadDriver(String drvClass) {
-	try {
-	    if (verbose) System.err.print("loading .. '" + drvClass + "'");
-	    Class.forName(drvClass);
-	    if (verbose) System.err.println(" done.");
-	    return true;
-	}
-	catch (Throwable t) {
-	    if (verbose) System.err.println(" failed: " + t.getMessage());
-	}
-	return false;
-    }
-
-    private void loadDrivers() {
-	Iterator it = _drivers.values().iterator();
-	while (it.hasNext()) {
-	    DriverDescription desc = (DriverDescription) it.next();
-	    loadDriver(desc.getClassName());
-	}
     }
 
     public boolean requiresValidSession(String cmd) { return false; }
@@ -147,6 +141,7 @@ public final class DriverCommand extends AbstractCommand {
 	
 	if ("list-drivers".equals(cmd)) {
 	    if (argc == 0) {
+		System.err.println("loaded drivers are marked with '*'");
 		DRV_META[0].reset();
 		DRV_META[1].reset();
 		DRV_META[2].reset();
@@ -155,8 +150,10 @@ public final class DriverCommand extends AbstractCommand {
 		while (vars.hasNext()) {
 		    Map.Entry entry = (Map.Entry) vars.next();
 		    Column[] row = new Column[3];
-		    row[0] = new Column((String) entry.getKey());
 		    DriverDescription desc=(DriverDescription)entry.getValue();
+		    String dbName = (String) entry.getKey();
+		    row[0] = new Column(((desc.isLoaded()) ? "* ":"  ")
+					+ dbName);
 		    row[1] = new Column( desc.getClassName());
 		    row[2] = new Column( desc.getSampleURL());
 		    table.addRow(row);
@@ -176,14 +173,15 @@ public final class DriverCommand extends AbstractCommand {
 	    if (argc >= 3) {
 		sampleURL = (String) st.nextElement();
 	    }
-	    if (!loadDriver(driverClass)) {
+	    DriverDescription drv;
+	    drv = new DriverDescription(driverClass, sampleURL);
+	    if (! drv.isLoaded() ) {
 		System.err.println("cannot load driver class '" 
 				   + driverClass + "'");
 		return EXEC_FAILED;
 	    }
 	    else {
-		_drivers.put(shortname, new DriverDescription(driverClass,
-							      sampleURL));
+		_drivers.put(shortname, drv);
 	    }
 	}
 	else if ("unregister".equals(cmd)) {

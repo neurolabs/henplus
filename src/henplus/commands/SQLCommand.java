@@ -27,19 +27,20 @@ public class SQLCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    // these commands will be expanded ..
-	    "select", "insert", "update",
-	    "create", "alter", "drop",
+	    // provide tab-completion at least for these command starts..
+	    "select", 
+	    "insert", "update", "delete",
+	    "create", "alter",  "drop",
 	    "commit", "rollback",
 	    // we support _any_ string, that is not part of the
-	    // henplus buildin-stuff.
+	    // henplus buildin-stuff; the following empty string flags this.
 	    ""
 	};
     }
 
     /**
-     * don't show the number of commands available in the toplevel
-     * command list ..
+     * don't show the commands available in the toplevel
+     * command completion list ..
      */
     public boolean participateInCommandCompletion() { return false; }
 
@@ -126,7 +127,7 @@ public class SQLCommand extends AbstractCommand {
 		execTime = System.currentTimeMillis() - startTime;
 		System.err.print(" (");
 		if (lapTime > 0) {
-		    System.err.print("response: ");
+		    System.err.print("first row: ");
 		    TimeRenderer.printTime(lapTime, System.err);
 		    System.err.print("; total: ");
 		}
@@ -152,8 +153,8 @@ public class SQLCommand extends AbstractCommand {
 
     public String getLongDescription(String cmd) {
 	String dsc;
-	dsc="\tThis is a possible SQL-command. But I don't know anything\n"+
-	    "\tabout it.";
+	dsc="\t'" + cmd + "': this is a possible SQL-command.\n"
+	    + "\tBut I don't know anything about it. RTFSQLM.";
 	if ("select".equals(cmd)) {
 	    dsc="\tselect from tables.";
 	}
