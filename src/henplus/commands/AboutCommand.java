@@ -1,14 +1,14 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AboutCommand.java,v 1.9 2004-03-06 10:57:43 hzeller Exp $ 
+ * $Id: AboutCommand.java,v 1.10 2004-03-22 23:41:44 magrokosmos Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import henplus.SQLSession;
-import henplus.HenPlus;
 import henplus.AbstractCommand;
+import henplus.HenPlus;
+import henplus.SQLSession;
 import henplus.Version;
 
 /**
