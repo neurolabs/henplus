@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.9 2002-02-15 20:11:42 hzeller Exp $
+ * $Id: SQLSession.java,v 1.10 2002-06-09 11:02:47 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -37,6 +37,7 @@ public class SQLSession {
     private String     _url;
     private String     _username;
     private String     _password;
+    private String     _databaseInfo;
     private Connection _conn;
     private boolean    _terminated = false;
 
@@ -70,8 +71,9 @@ public class SQLSession {
 	
 	int transactionIsolation = Connection.TRANSACTION_NONE;
 	DatabaseMetaData meta = _conn.getMetaData();
-	System.err.println(" " + meta.getDatabaseProductName()
-			   + " - " + meta.getDatabaseProductVersion());
+	_databaseInfo = (meta.getDatabaseProductName()
+			 + " - " + meta.getDatabaseProductVersion());
+	System.err.println(" " + _databaseInfo);
 	try {
 	    if (meta.supportsTransactions()) {
 		transactionIsolation = _conn.getTransactionIsolation();
@@ -104,6 +106,10 @@ public class SQLSession {
 	    System.err.println(" " + descript
 			       + ((current == iLevel) ? " *" : " "));
 	}
+    }
+
+    public String getDatabaseInfo() {
+	return _databaseInfo;
     }
 
     public String getURL() {

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.37 2002-05-30 19:48:48 hzeller Exp $
+ * $Id: HenPlus.java,v 1.38 2002-06-09 11:02:47 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -109,8 +109,9 @@ public class HenPlus {
 	dispatcher.register(new DescribeCommand(objectLister));
 	dispatcher.register(new SQLCommand(objectLister));
 
-	dispatcher.register(new ImportCommand());
-	dispatcher.register(new ExportCommand());
+	//dispatcher.register(new ImportCommand());
+	//dispatcher.register(new ExportCommand());
+	dispatcher.register(new DumpCommand(objectLister));
 
 	dispatcher.register(new AutocommitCommand()); // replace with 'set'
 	dispatcher.register(new ShellCommand());
