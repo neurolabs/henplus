@@ -1,20 +1,31 @@
-<!-- $Id: build.xml,v 1.1.1.1 2002-01-19 21:10:45 hzeller Exp $ -->
-<project name="HenPlus" default="main" basedir=".">
+<!-- $Id: build.xml,v 1.2 2002-01-22 09:49:59 hzeller Exp $ -->
+<project name="HenPlus" default="compile" basedir=".">
      <!-- properties -->
      <property name="src"                  value="src" />
-     <property name="classes"              value="classes" />
+     <property name="build"                value="build" />
+     <property name="classes"              value="${build}/classes" />
      <property name="build.compiler"       value="jikes" />
      <property name="build.compiler.emacs" value="true" />
      
      <target name="prepare">
+        <mkdir dir="${build}"/>
         <mkdir dir="${classes}"/>
      </target>
 
-     <target name="main" depends="prepare" description="compile it">
+     <target name="compile" depends="prepare" description="compile it">
         <javac srcdir="${src}" destdir="${classes}" />
+     </target>
+     
+     <target name="jar" depends="compile" description="make jar">
+        <jar file="${build}/henplus.jar">
+           <fileset dir="${classes}">
+              <include name="**/*.class"/>
+           </fileset>
+        </jar>
      </target>
 
      <target name="clean" description="remove">
         <delete dir="${classes}"/>
+        <delete dir="${build}"/>
      </target>
 </project>

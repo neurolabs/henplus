@@ -25,7 +25,7 @@ public class LoadCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "load"
+	    "load", "start"
 	};
     }
     
@@ -41,6 +41,8 @@ public class LoadCommand extends AbstractCommand {
 	if (argc != 1) {
 	    return SYNTAX_ERROR;
 	}
+	long startTime = System.currentTimeMillis();
+	int  commandCount = 0;
 
 	HenPlus henplus = HenPlus.getInstance();
 	try {
@@ -48,7 +50,10 @@ public class LoadCommand extends AbstractCommand {
 	    BufferedReader reader = new BufferedReader(new FileReader(f));
 	    String line;
 	    while ((line = reader.readLine()) != null) {
-		henplus.addLine(line);
+		boolean isComplete = henplus.addLine(line);
+		if (isComplete) {
+		    ++commandCount;
+		}
 	    }
 	}
 	catch (Exception e) {
@@ -58,8 +63,16 @@ public class LoadCommand extends AbstractCommand {
 	finally {
 	    henplus.resetBuffer(); // no open state ..
 	}
+	long execTime = System.currentTimeMillis() - startTime;
+	System.err.print(commandCount + " commands in ");
+	printTime(execTime);
+	System.err.print("; avg. time ");
+	printTime(execTime / commandCount);
+	System.err.println();
 	return SUCCESS;
     }
+
+    public boolean requiresValidSession(String cmd) { return false; }
 
     /**
      * return a descriptive string.
@@ -69,7 +82,36 @@ public class LoadCommand extends AbstractCommand {
     }
 
     public String getSynopsis(String cmd) {
-	return "load <filename>";
+	return cmd + " <filename>";
+    }
+
+    public String getLongDescription(String cmd) {
+	return "\topens the file and reads the sql-commands line by line.\n"
+	    +  "\tThe commands 'load' and 'start' do exaclty the same;\n"
+	    +  "\t'start' is provided for compatibility with oracle SQLPLUS.";
+    }
+
+    private void printTime(long execTime) {
+	if (execTime > 60000) {
+	    System.err.print(execTime/60000);
+	    System.err.print(":");
+	    execTime %= 60000;
+	    if (execTime < 10000)
+		System.err.print("0");
+	}
+	if (execTime >= 1000) {
+	    System.err.print(execTime / 1000);
+	    System.err.print(".");
+	    execTime %= 1000;
+	    if (execTime < 100) System.err.print("0");
+	    if (execTime < 10)  System.err.print("0");
+	    System.err.print(execTime);
+	    System.err.print(" ");
+	}
+	else {
+	    System.err.print(execTime + " m");
+	}
+	System.err.print("sec");
     }
 }
 

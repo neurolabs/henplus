@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.2 2002-01-20 22:59:00 hzeller Exp $
+ * $Id: SQLSession.java,v 1.3 2002-01-22 09:50:01 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 import java.util.*;
@@ -90,12 +90,12 @@ public class SQLSession {
 			   + " - " + meta.getDatabaseProductVersion());
 	try {
 	    if (meta.supportsTransactions()) {
-		conn.setAutoCommit(false);
 		transactionIsolation = conn.getTransactionIsolation();
 	    }
 	    else {
 		System.err.println("no transactions.");
 	    }
+	    conn.setAutoCommit(false);
 	}
 	catch (SQLException ignore_me) {
 	}
