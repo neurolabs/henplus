@@ -1,17 +1,20 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: Table.java,v 1.4 2004-06-07 08:31:56 hzeller Exp $ 
+ * @version $Id: Table.java,v 1.5 2004-09-22 11:49:32 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.sqlmodel;
 
 import henplus.util.ListMap;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Set;
 
-public final class Table {
+public final class Table implements Comparable {
+    
     private String _name;
     private ListMap /*<String, Column>*/ _columns;
 
@@ -58,6 +61,79 @@ public final class Table {
                     }
                 }
             }
+        }
+        return result;
+    }
+    
+    /**
+     * @return <code>true</code>, if this <code>Table</code> has any foreign key, otherwise <code>false</code>.
+     */
+    public boolean hasForeignKeys() {
+        return getForeignKeys() != null;
+    }
+    
+    /**
+     * @return A <code>Set</code> of <code>ColumnFkInfo</code> objects or <code>null</code>.
+     */
+    public Set/*<ColumnFkInfo>*/ getForeignKeys() {
+        Set result = null;
+
+        if (_columns != null) {
+            final Iterator iter = _columns.values().iterator();
+            while ( iter.hasNext() ) {
+                Column c = (Column) iter.next();
+                if ( c.getFkInfo() != null ) {
+                    if ( result == null )
+                        result = new HashSet();
+                    result.add( c.getFkInfo() );
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return _name;
+    }
+    
+    public int hashCode() {
+        return _name.hashCode();
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals( Object other ) {
+        boolean result = false;
+        
+        if ( other == this )
+            result = true;
+        
+        else if ( other instanceof Table ) {
+            Table o = (Table)other;
+            
+            if ( _name != null && _name.equals( o.getName() ) )
+                result = true;
+            
+            else if ( _name == null && o.getName() == null )
+                result = true;
+        }
+        
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo( Object other ) {
+        int result = 0;
+        if ( other instanceof Table ) {
+            Table o = (Table)other;
+            result = _name.compareTo( o.getName() );
         }
         return result;
     }

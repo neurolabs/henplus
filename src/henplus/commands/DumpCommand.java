@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.29 2004-07-24 13:29:24 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.30 2004-09-22 11:49:31 magrokosmos Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -10,11 +10,18 @@ import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.Interruptable;
+import henplus.SQLMetaData;
+import henplus.SQLMetaDataBuilder;
 import henplus.SQLSession;
 import henplus.SigIntHandler;
 import henplus.Version;
+import henplus.sqlmodel.Table;
+import henplus.util.DependencyResolver;
+import henplus.util.DependencyResolver.ResolverResult;
+import henplus.view.Column;
+import henplus.view.ColumnMetaData;
+import henplus.view.TableRenderer;
 import henplus.view.util.NameCompleter;
-import henplus.view.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -231,11 +239,70 @@ public class DumpCommand
 	    PrintStream out = null;
             String tabName = null;
 	    try {
+
+        Set alreadyDumped = new HashSet();      // which tables got already dumped?
+            
 		out = openOutputStream(fileName, FILE_ENCODING);
 		while (st.hasMoreElements()) {
-		    tabName  = (String) st.nextElement();
-		    int result = dumpTable(session, tabName, null, out,
-					   FILE_ENCODING);
+		    int result = EXEC_FAILED;
+            String nextToken = st.nextToken();
+            
+            if ( "*".equals( nextToken ) || nextToken.indexOf( '*' ) > -1 ) {
+                long start = System.currentTimeMillis();
+                HenPlus.msg().println( "Retrieving and sorting tables. This may take a while, please be patient." );
+                
+                Iterator iter = null;
+                
+                if ( "*".equals( nextToken ) )
+                    iter = _tableCompleter.getTableNamesIteratorForSession( session );
+                else if ( nextToken.indexOf( '*' ) > -1 ) {
+                    String tablePrefix = nextToken.substring( 0, nextToken.length() -1 );
+                    SortedSet tableNames = _tableCompleter.getTableNamesForSession( session );
+                    NameCompleter compl = new NameCompleter( tableNames );
+                    iter = compl.getAlternatives( tablePrefix );
+                }
+                
+                // get sorted tables
+                SQLMetaData meta = new SQLMetaDataBuilder().getMetaData( session, iter );
+                DependencyResolver dr = new DependencyResolver( meta.getTables() );
+                ResolverResult rr = dr.sortTables();
+                List tables= rr.getTables();
+                HenPlus.msg().println( "Found " + tables.size() + " tables to dump." );
+                if ( tables.size() > 0 ) {
+                    iter = tables.iterator();
+                    while ( iter.hasNext() ) {
+                        Table table = (Table)iter.next();
+                        if ( !alreadyDumped.contains( table.getName() ) ) {
+                		    result = dumpTable(session, table.getName(), null, out,
+             					   FILE_ENCODING, alreadyDumped);
+                        }
+                    }
+                    HenPlus.msg().println( "Dumping " + tables.size() + " tables took " +
+                            (System.currentTimeMillis() - start) + " msec." );
+                    // print detected cyclic deps
+                    if ( rr.getCyclicDependencies() != null && rr.getCyclicDependencies().size() > 0 ) {
+                        HenPlus.msg().println( "NOTE: There were cyclic dependencies between several tables detected.\n" +
+                        		"These may cause trouble when dumping in the currently dumped data." );
+                        iter = rr.getCyclicDependencies().iterator();
+                        int count = 0;
+                        StringBuffer sb = new StringBuffer();
+                        while ( iter.hasNext() ) {
+                            Iterator iter2 = ((List)iter.next()).iterator();
+                            sb.append( "Cycle " ).append( count ).append( ": " );;
+                            while ( iter2.hasNext() ) {
+                                sb.append( ((Table)iter2.next()).getName() ).append( " -> " );
+                            }
+                            sb.delete( sb.length() - 4 , sb.length() ).append( '\n' );
+                        }
+                        HenPlus.msg().print( sb.toString() );
+                    }
+                }
+            }
+            else {
+    		    result = dumpTable(session, nextToken, null, out,
+    					   FILE_ENCODING);
+            }
+            
 		    if (result != SUCCESS) {
 			return result;
 		    }
@@ -370,6 +437,15 @@ public class DumpCommand
 	for (int i = s.length(); i < width; ++i) {
 	    out.print(' ');
         }
+    }
+    
+    private int dumpTable(SQLSession session, String tabName, 
+			  String whereClause,
+			  PrintStream dumpOut, String fileEncoding, Set/*<String>*/ alreadyDumped) throws Exception {
+        int result = dumpTable(session, tabName, whereClause, dumpOut,
+                	fileEncoding);
+        alreadyDumped.add( tabName );
+        return result;
     }
 
     private int dumpTable(SQLSession session, String tabName, 
@@ -1245,7 +1321,7 @@ public class DumpCommand
 
     public String getSynopsis(String cmd) {
 	if ("dump-out".equals(cmd)) {
-	    return cmd + " <filename> <tablename> [<tablename> ..]";
+	    return cmd + " <filename> (<tablename> | <prefix>* | *)+;";
 	}
 	if ("dump-conditional".equals(cmd)) {
 	    return cmd + " <filename> <tablename> [<where-clause>]";
@@ -1264,7 +1340,14 @@ public class DumpCommand
 	if ("dump-out".equals(cmd)) {
 	    dsc= "\tDump out the contents of the table(s) given to the file\n"
 		+"\twith the given name. If the filename ends with '.gz', the\n"
-		+"\tcontent is gzip'ed automatically .. that saves space.\n\n"
+		+"\tcontent is gzip'ed automatically .. that saves space.\n"
+		+"\n"
+        +"\tFor the selection of the tables you want to dump-out,\n"
+        +"\tyou are able to use wildcards (*) to match all tables or\n"
+        +"\ta specific set of tables.\n"
+        +"\tE.g. you might specify \"*\" to match all tables, or\"tb_*\"\n"
+        +"\tto match all tables starting with \"tb_\".\n"
+        +"\n"
 		+"\tThe dump-format allows to read in the data back into\n"
 		+"\tthe database ('dump-in' command). And unlike pure SQL-insert\n"
 		+"\tstatements, this works even across databases.\n"

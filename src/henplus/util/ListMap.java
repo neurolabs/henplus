@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: ListMap.java,v 1.3 2004-03-07 14:22:03 hzeller Exp $ 
+ * @version $Id: ListMap.java,v 1.4 2004-09-22 11:49:32 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.util;
@@ -112,5 +112,14 @@ public final class ListMap implements Map, Serializable {
         /**@todo Implement this java.util.Map method*/
         throw new java.lang.UnsupportedOperationException(
             "Method equals() not yet implemented.");
+    }
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append( "ListMap [");
+        for ( int i = 0; i < keys.size(); i++ )
+            sb.append( keys.get(i) ).append( ", " );
+        sb.delete( sb.length()-2, sb.length() );
+        sb.append( "]" );
+        return sb.toString();
     }
 }

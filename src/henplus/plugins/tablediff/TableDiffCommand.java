@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: TableDiffCommand.java,v 1.6 2004-03-23 11:23:52 magrokosmos Exp $ 
+ * @version $Id: TableDiffCommand.java,v 1.7 2004-09-22 11:49:31 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
@@ -116,8 +116,17 @@ public final class TableDiffCommand implements Command, Interruptable {
                 
                 String nextToken = st.nextToken();
         
-                if ( "*".equals( nextToken ) ) {
-                    Iterator iter = objectLister.getTableNamesIteratorForSession( first );
+                if ( "*".equals( nextToken ) || nextToken.indexOf( '*' ) > -1 ) {
+                    Iterator iter = null;
+                    
+                    if ( "*".equals( nextToken ) )
+                        iter = objectLister.getTableNamesIteratorForSession( first );
+                    else if ( nextToken.indexOf( '*' ) > -1 ) {
+                        String tablePrefix = nextToken.substring( 0, nextToken.length() -1 );
+                        NameCompleter compl = new NameCompleter( tablesOne );
+                        iter = compl.getAlternatives( tablePrefix );
+                    }
+                    
                     while ( iter.hasNext() ) {
                         Object objTableName = iter.next();
                         count =
@@ -131,26 +140,6 @@ public final class TableDiffCommand implements Command, Interruptable {
                                 missedFromWildcards,
                                 count);
                     }
-                }
-                else if ( nextToken.indexOf( '*' ) > -1 ) {
-                    String tablePrefix = nextToken.substring( 0, nextToken.length() -1 );
-                    
-                    NameCompleter compl = new NameCompleter( tablesOne );
-                    Iterator iter = compl.getAlternatives( tablePrefix );
-                    while ( iter.hasNext() ) {
-                        Object match = iter.next();
-                        count =
-                            diffConditionally(
-                                match,
-                                colNameIgnoreCase,
-                                first,
-                                second,
-                                tablesTwo,
-                                alreadyDiffed,
-                                missedFromWildcards,
-                                count);
-                    }
-                    
                 }
                 else if ( !alreadyDiffed.contains( nextToken ) ) {
                     diffTable(first, second, nextToken, colNameIgnoreCase);
@@ -414,7 +403,7 @@ public final class TableDiffCommand implements Command, Interruptable {
      * @see henplus.Command#getSynopsis(java.lang.String)
      */
     public String getSynopsis(String cmd) {
-        return _command + " <sessionname-1> <sessionname-2> ( <tablename> | <prefix>\\* | \\* )+;";
+        return _command + " <sessionname-1> <sessionname-2> (<tablename> | <prefix>* | *)+;";
     }
 
     /* (non-Javadoc)

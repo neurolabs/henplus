@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SQLMetaDataBuilder.java,v 1.4 2004-06-07 08:31:56 hzeller Exp $ 
+ * @version $Id: SQLMetaDataBuilder.java,v 1.5 2004-09-22 11:49:31 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus;
@@ -84,9 +84,14 @@ public final class SQLMetaDataBuilder {
 	}
         return getMetaData(session, tableList);
     }
-
+    
     public SQLMetaData getMetaData(SQLSession session, 
                                    Collection /*<String>*/ tableNames) {
+        return getMetaData( session, tableNames.iterator() );
+    }
+
+    public SQLMetaData getMetaData(SQLSession session, 
+                                   final Iterator /*<String>*/ tableNamesIter) {
         SQLMetaData result = new SQLMetaData();
 
         ResultSet rset = null;
@@ -99,10 +104,9 @@ public final class SQLMetaDataBuilder {
                 return null;
 
             DatabaseMetaData meta = session.getConnection().getMetaData();
-
-            final Iterator tableIter = tableNames.iterator();
-            while (tableIter.hasNext() && !_interrupted) {
-                String tableName = (String)tableIter.next();
+            
+            while (tableNamesIter.hasNext() && !_interrupted) {
+                String tableName = (String)tableNamesIter.next();
                 rset = meta.getColumns(catalog, null, tableName, null);
                 Table table = buildTable(catalog, meta, tableName, rset);
                 result.addTable(table);
@@ -166,7 +170,8 @@ public final class SQLMetaDataBuilder {
             table = new Table(tableName);
             PrimaryKey pk = getPrimaryKey(meta, tableName);
             Map fks = getForeignKeys(meta, tableName);
-            rset = meta.getColumns(catalog, null, tableName, null);
+            // what about the following duplicate?
+            // rset = meta.getColumns(catalog, null, tableName, null);
             while (!_interrupted && rset.next()) {
                 String colname = rset.getString(COLUMN_NAME);
                 Column column = new Column(colname);

@@ -8,7 +8,7 @@ package henplus.sqlmodel;
  * <p>Title: ColumnFkInfo</p>
  * <p>Description:<br>
  * Created on: 01.08.2003</p>
- * @version $Id: ColumnFkInfo.java,v 1.3 2004-03-07 14:22:03 hzeller Exp $ 
+ * @version $Id: ColumnFkInfo.java,v 1.4 2004-09-22 11:49:32 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class ColumnFkInfo {
@@ -60,10 +60,19 @@ public final class ColumnFkInfo {
     }
 
     /**
-     * @return the primary key table (should this return a Table?)
+     * @return the name of the primary key table (should this return a Table?)
      */
     public String getPkTable() {
         return _pkTable;
+    }
+    
+    public String toString() {
+        StringBuffer sb = new StringBuffer( "ColumnFkInfo [" );
+        sb.append( "fkName: " ).append( _fkName );
+        sb.append( ", pkTable: " ).append( _pkTable );
+        sb.append( ", pkColumn: " ).append( _pkColumn );
+        sb.append( "]" );
+        return sb.toString();
     }
 
 }
