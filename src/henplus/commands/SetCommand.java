@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.20 2004-03-06 00:15:28 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.21 2004-03-07 11:59:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -168,10 +168,14 @@ public final class SetCommand extends AbstractCommand {
 	}
 	final boolean hasBrace = variable.startsWith("${");
 	final String prefix = (hasBrace ? "${" : "$");
+        final String postfix = (hasBrace ? "}" : "");
 	final String name   =  variable.substring(prefix.length());
 	//HenPlus.msg().println("VAR: " + variable);
 	//HenPlus.msg().println("NAME: " + name);
-        return new SortedMatchIterator(name, _variables);
+        SortedMatchIterator it = new SortedMatchIterator(name, _variables);
+        it.setPrefix(prefix);
+        it.setSuffix(postfix);
+        return it;
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.25 2004-03-06 00:15:28 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.26 2004-03-07 11:59:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -64,8 +64,8 @@ import java.util.zip.GZIPOutputStream;
  (rows 4))
  ---------------------------
  *
- * QUICK AND DIRTY HACK .. NOT YET NICE. Too long.
- *
+ * QUICK AND DIRTY HACK .. NOT YET NICE. Too long. grown. Refactor..!
+ * (create an henplus.dump package so that this can be used
  * @author Henner Zeller
  */
 public class DumpCommand 
@@ -104,8 +104,8 @@ public class DumpCommand
 	JDBCTYPE2TYPENAME.put(new Integer(Types.CHAR),    TYPES[ HP_STRING ]);
 	JDBCTYPE2TYPENAME.put(new Integer(Types.VARCHAR), TYPES[ HP_STRING ]);
 
-	// proprietary oracle types. Is there a better way than this ?
-	JDBCTYPE2TYPENAME.put(new Integer(1111),          TYPES[ HP_DOUBLE ]);
+        // hope that, 'OTHER' can be read/written as String..
+	JDBCTYPE2TYPENAME.put(new Integer(Types.OTHER),   TYPES[ HP_STRING ]);
 
 	JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARBINARY), TYPES[ HP_BLOB ]);
 	JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARCHAR), TYPES[ HP_CLOB ]);

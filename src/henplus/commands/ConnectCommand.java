@@ -421,7 +421,8 @@ public class ConnectCommand extends AbstractCommand {
                 +"\tallows to later connect simply with\n"
                 +"\t\tconnect myAlias\n"
                 +"\tOf course, all URLs and aliases are stored in your \n"
-                +"\t~/.henplus configuration.";
+                +"\t~/.henplus configuration. All connects and aliases \n"
+                +"\tare provided in the TAB-completion of this command.\n";
 	}
 	else if ("disconnect".equals(cmd)) {
 	    dsc="\tdisconnect current session. You can leave a session as\n"

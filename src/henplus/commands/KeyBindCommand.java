@@ -53,7 +53,8 @@ public class KeyBindCommand extends AbstractCommand {
     public String[] getCommandList() {
 	return new String[] {
             "list-key-bindings",
-	    "bind-key-cmd-string",
+	    "bind-key-cmd",
+	    //"unbind-key",
             //"test-bind-all" // uncomment for tests.
 	};
     }
@@ -106,7 +107,7 @@ public class KeyBindCommand extends AbstractCommand {
         _keyNames.put("Shift-F12",  new String[]{"\"\\e[24;2~\""});
         _functionKeyNameCompleter = new NameCompleter(_keyNames.keySet());
         _bindings = new TreeMap();
-        bindKey("F1", "help"); // a common default binding.
+        bindKey("F1", "help\n"); // a common default binding.
         load();
     }
 
@@ -138,6 +139,7 @@ public class KeyBindCommand extends AbstractCommand {
                 return SYNTAX_ERROR;
             
             String value = param.substring(key.length()+1).trim();
+            value = stripQuotes(value);
             if (value.length() == 0) 
                 return SYNTAX_ERROR;
             
@@ -152,6 +154,17 @@ public class KeyBindCommand extends AbstractCommand {
             return null;
         }
         return _functionKeyNameCompleter.getAlternatives(lastWord);
+    }
+
+    private String stripQuotes(String value) {
+        if (value.length() < 2) return value;
+	if (value.startsWith("\"") && value.endsWith("\"")) {
+	    value = value.substring(1, value.length()-1);
+	}
+	else if (value.startsWith("\'") && value.endsWith("\'")) {
+	    value = value.substring(1, value.length()-1);
+	}
+	return value;
     }
 
     /**
@@ -263,8 +276,8 @@ public class KeyBindCommand extends AbstractCommand {
     public String getLongDescription(String cmd) {
 	String dsc = null;
         if ("list-key-bindings".equals(cmd)) {
-            dsc= "\tList all key bindings that can be set with\n"
-                +"\tbind-key-cmd-string";
+            dsc= "\tList all key bindings that have been set with\n"
+                +"\tbind-key-cmd";
         }
         else if ("bind-key-cmd-string".equals(cmd)) {
             dsc= "\tBind a key to a command. Keys can be the function keys\n"
