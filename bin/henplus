@@ -1,8 +1,17 @@
 #!/bin/sh
-# $Id: henplus,v 1.5 2002-02-18 09:11:33 hzeller Exp $
+# $Id: henplus,v 1.6 2002-03-11 08:47:58 hzeller Exp $
 ##
+# additional flags you might want to pass to the java interpreter
+JAVA_FLAGS=
+
+##------------------
 THISDIR=`dirname $0`
 HENPLUSDIR=$THISDIR/../share/henplus
+
+# not yet installed ? Then look in the build directory
+if [ ! -d "$HENPLUSDIR" ] ; then
+	HENPLUSDIR=$THISDIR/../build
+fi
 
 # location of the readline lib.
 LD_LIBRARY_PATH=$THISDIR/../lib:$LD_LIBRARY_PATH
@@ -17,4 +26,4 @@ done
 
 export CLASSPATH LD_LIBRARY_PATH
 
-exec java henplus.HenPlus "$@"
+exec java $JAVA_FLAGS henplus.HenPlus "$@"
