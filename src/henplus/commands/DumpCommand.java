@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.1 2002-06-09 11:02:47 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.2 2002-06-10 17:37:48 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -12,6 +12,8 @@ import java.io.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import henplus.Interruptable;
+import henplus.SigIntHandler;
 import henplus.Version;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
@@ -39,7 +41,10 @@ import henplus.CommandDispatcher;
  *
  * @author Henner Zeller
  */
-public class DumpCommand extends AbstractCommand {
+public class DumpCommand 
+    extends AbstractCommand
+    implements Interruptable 
+{
     private final static int DUMP_VERSION = 1;
     private final static int PROGRESS_WIDTH = 65;
     private final static String NULL_STR = "NULL";
@@ -99,9 +104,11 @@ public class DumpCommand extends AbstractCommand {
     }
 
     private final ListUserObjectsCommand tableCompleter;
+    private boolean _running;
 
     public DumpCommand(ListUserObjectsCommand tc) {
 	tableCompleter = tc;
+	_running = false;
     }
 
     /**
@@ -181,10 +188,15 @@ public class DumpCommand extends AbstractCommand {
 		    return SYNTAX_ERROR;
 		}
 	    }
+	    
+	    long startTime = System.currentTimeMillis();
 	    try {
-		long startTime = System.currentTimeMillis();
+		SigIntHandler.getInstance().registerInterrupt(this);
 		int result = readTableDump(session, fileName, true, 
 					   commitPoint);
+		if (!_running) {
+		    System.err.print("interrupted after ");
+		}
 		TimeRenderer.printTime(System.currentTimeMillis()-startTime,
 				       System.err);
 		System.err.println();
@@ -200,7 +212,16 @@ public class DumpCommand extends AbstractCommand {
 	    if (argc != 1) return SYNTAX_ERROR;
 	    String fileName = (String) st.nextElement();
 	    try {
-		return readTableDump(session, fileName, false, -1);
+		SigIntHandler.getInstance().registerInterrupt(this);
+		int result = readTableDump(session, fileName, false, -1);
+		if (!_running) {
+		    System.err.print("interrupted.");
+		}
+		return result;
+	    }
+	    catch (InterruptedException ie) {
+		System.err.println("interrupted.");
+		return SUCCESS;
 	    }
 	    catch (Exception e) {
 		System.err.println("failed: " + e.getMessage());
@@ -446,7 +467,7 @@ public class DumpCommand extends AbstractCommand {
 
     private int readTableDump(SQLSession session, String filename, boolean hot,
 			      int commitPoint)
-	throws IOException, SQLException {
+	throws IOException, SQLException, InterruptedException {
 	MetaProperty[] metaProperty = null;
 	String tableName = null;
 	int    dumpVersion = -1;
@@ -474,7 +495,8 @@ public class DumpCommand extends AbstractCommand {
 	if (!"tabledump".equals(token)) raiseException(reader, 
 						       "'tabledump' expected");
 	tableName = readString(reader);
-	for (;;) {
+	_running = true; // interruptable
+	while (_running) {
 	    skipWhite(reader);
 	    char inCh = (char) reader.read();
 	    if (inCh == ')') break;
@@ -558,10 +580,13 @@ public class DumpCommand extends AbstractCommand {
 				   + "\nfor table           : " + tableName
 				   + "\nfrom database       : " + databaseInfo 
 				   + "\ndump format version : " + dumpVersion);
+		System.err.print("reading rows..");
+		System.err.flush();
 		boolean rowBefore = false;
 		importedRows = 0;
 		problemRows = 0;
-		for (;;) {
+		_running = true;
+		while (_running) {
 		    skipWhite(reader);
 		    inCh = (char) reader.read();
 		    if (inCh == ')') break;
@@ -831,6 +856,11 @@ public class DumpCommand extends AbstractCommand {
 	throws IOException {
 	throw new IOException ("line " + (in.getLineNumber()+1)
 			       + ": " + msg);
+    }
+    
+    //-- Interruptable interface
+    public void interrupt() {
+	_running = false;
     }
 
     /**
