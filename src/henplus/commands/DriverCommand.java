@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.2 2002-02-15 07:42:33 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.3 2002-02-26 21:15:19 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -134,9 +134,8 @@ public final class DriverCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession currentSession, String command) {
-	StringTokenizer st = new StringTokenizer(command);
-	String cmd = (String) st.nextElement();
+    public int execute(SQLSession currentSession, String cmd, String param) {
+	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 	
 	if ("list-drivers".equals(cmd)) {

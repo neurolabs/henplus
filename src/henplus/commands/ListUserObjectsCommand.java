@@ -54,7 +54,7 @@ public class ListUserObjectsCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String cmd) {
+    public int execute(SQLSession session, String cmd, String param) {
 	if (cmd.equals("rehash")) {
 	    rehash(session);
 	}

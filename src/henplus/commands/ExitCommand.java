@@ -33,7 +33,7 @@ public class ExitCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
+    public int execute(SQLSession session, String cmd, String param) {
 	HenPlus.getInstance().terminate();
 	return SUCCESS;
     }

@@ -25,7 +25,7 @@ public class StatusCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
+    public int execute(SQLSession session, String cmd, String param) {
 	System.err.println("URL:    " + session.getURL());
 	System.err.print  ("uptime: ");
 	TimeRenderer.printTime(session.getUptime(), System.err);

@@ -33,14 +33,14 @@ public class AutocommitCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
+    public int execute(SQLSession session, String cmd, String param) {
 	try {
-	    if (command.startsWith("autocommit-on")) {
+	    if ("autocommit-on".equals(cmd)) {
 		session.getConnection().setAutoCommit(true);
 		System.err.println("set autocommit on");
 	    }
 	    
-	    else if (command.startsWith("autocommit-off")) {
+	    else if ("autocommit-off".equals(cmd)) {
 		session.getConnection().setAutoCommit(false);
 		System.err.println("set autocommit off");
 	    }

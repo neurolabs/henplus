@@ -25,7 +25,7 @@ public class ImportCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
+    public int execute(SQLSession session, String cmd, String param) {
 	return SUCCESS;
     }
 

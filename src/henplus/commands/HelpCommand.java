@@ -27,23 +27,6 @@ public class HelpCommand extends AbstractCommand {
      */
     public String[] getCommandList() { return new String[]{"help", "?"}; }
     
-    /**
-     * extract the detail request from some help command. For
-     * 'help export-xml', this would be 'export-xml', for
-     * just 'help', this would be null.
-     */
-    private String extractDetail(String help) {
-	String result = null;
-	Enumeration tok = new StringTokenizer(help);
-	if (tok.hasMoreElements()) {
-	    tok.nextElement();
-	    if (tok.hasMoreElements()) {
-		result = (String) tok.nextElement();
-	    }
-	}
-	return (result != null) ? result.trim() : null;
-    }
-
     public boolean requiresValidSession(String cmd) { return false; }
 
     /**
@@ -84,16 +67,15 @@ public class HelpCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
+    public int execute(SQLSession session, String cmdstr, String param) {
 	//System.err.println("invoked help: "  + command);
-	int argc = argumentCount(command);
-	if (argc > 2)
+	int argc = argumentCount(param);
+	if (argc > 1)
 	    return SYNTAX_ERROR;
-	String detailHelp = extractDetail(command);
 	/*
 	 * nothing given: provide generic help.
 	 */
-	if (detailHelp == null) {
+	if (param == null || param.length() == 0) {
 	    Iterator it = HenPlus.getInstance()
 		.getDispatcher().getRegisteredCommands();
 	    while (it.hasNext()) {
@@ -125,18 +107,18 @@ public class HelpCommand extends AbstractCommand {
 		System.err.print(": ");
 		System.err.println(description);
 	    }
+	    System.err.println("config read from [" 
+			       + HenPlus.getInstance().getConfigDir() + "]");
 	}
 	else {
 	    Command c = HenPlus.getInstance().getDispatcher()
-		.getCommandFrom(detailHelp);
+		.getCommandFrom(param);
 	    if (c == null) {
-		System.err.println("Help: unknown command '"+detailHelp+"'");
+		System.err.println("Help: unknown command '"+param+"'");
 		return EXEC_FAILED;
 	    }
-	    printDescription(detailHelp, c);
+	    printDescription(param, c);
 	}
-	System.err.println("config read from [" 
-			   + HenPlus.getInstance().getConfigDir() + "]");
 	return SUCCESS;
     }
 

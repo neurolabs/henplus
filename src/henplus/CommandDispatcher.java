@@ -76,25 +76,35 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
     
     private String getCommandNameFrom(String completeCmd) {
-	Enumeration tok = new StringTokenizer(completeCmd, " ;\t\n\r\f");
-	if (tok.hasMoreElements()) {
-	    return (String) tok.nextElement();
+	if (completeCmd == null || completeCmd.length() == 0) return null;
+	String cmd = completeCmd.toLowerCase();
+	Iterator it = getRegisteredCommandNames(cmd.substring(0, 1));
+	String longestMatch = null;
+	while (it.hasNext()) {
+	    String testMatch = (String) it.next();
+	    if (cmd.startsWith(testMatch)) {
+		longestMatch = testMatch;
+	    }
+	    else if (longestMatch != null) {
+		break; // ok, we already found the longest match.
+	    }
 	}
-	return null;
+	if (longestMatch == null) {
+	    Enumeration tok = new StringTokenizer(completeCmd, " ;\t\n\r\f");
+	    if (tok.hasMoreElements()) {
+		return (String) tok.nextElement();
+	    }
+	}
+	return longestMatch;
     }
 
-    /**
-     * returns the command from the complete command string.
-     */
     public Command getCommandFrom(String completeCmd) {
-	String cmd = getCommandNameFrom(completeCmd);
-	if (cmd == null) {
-	    return null;
-	}
-	Command c = (Command) commandMap.get(cmd);
-	if (c == null) {
-	    c = (Command) commandMap.get(cmd.toLowerCase());
-	}
+	return getCommandFromCooked(getCommandNameFrom(completeCmd));
+    }
+
+    private Command getCommandFromCooked(String completeCmd) {
+	if (completeCmd == null) return null;
+	Command c = (Command) commandMap.get(completeCmd);
 	if (c == null) {
 	    c = (Command) commandMap.get(""); // "" matches everything.
 	}
@@ -132,15 +142,16 @@ public class CommandDispatcher implements ReadlineCompleter {
 	cmd = cmdBuf.toString();
 	//System.err.println("## '" + cmd + "'");
 	String cmdStr = getCommandNameFrom(cmd);
-	Command c = getCommandFrom(cmd);
+	Command c = getCommandFromCooked(cmdStr);
 	//System.err.println("name: "+  cmdStr + "; c=" + c);
 	if (c != null) {
 	    try {
+		cmd = cmd.substring(cmdStr.length());
 		if (session == null && c.requiresValidSession(cmdStr)) {
 		    System.err.println("not connected.");
 		    return;
 		}
-		switch (c.execute(session, cmd)) {
+		switch (c.execute(session, cmdStr, cmd)) {
 		case Command.SYNTAX_ERROR: {
 		    String synopsis = c.getSynopsis(cmdStr);
 		    if (synopsis != null) {

@@ -95,9 +95,10 @@ public class SQLCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
+    public int execute(SQLSession session, String cmd, String param) {
 	Statement stmt = null;
 	ResultSet rset = null;
+	String command = cmd + " " + param;
 	if (command.endsWith("/")) {
 	    command = command.substring(0, command.length()-1);
 	}

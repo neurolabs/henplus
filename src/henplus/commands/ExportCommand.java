@@ -25,9 +25,9 @@ public class ExportCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
-	int argc = argumentCount(command);
-	return (argc == 4) ? SUCCESS : SYNTAX_ERROR;
+    public int execute(SQLSession session, String cmd, String param) {
+	int argc = argumentCount(param);
+	return (argc == 2) ? SUCCESS : SYNTAX_ERROR;
     }
 
     /**

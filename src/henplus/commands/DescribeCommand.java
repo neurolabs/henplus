@@ -52,9 +52,8 @@ public class DescribeCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
-	final StringTokenizer st = new StringTokenizer(command);
-	final String cmd = (String) st.nextElement();
+    public int execute(SQLSession session, String cmd, String param) {
+	final StringTokenizer st = new StringTokenizer(param);
 	final int argc = st.countTokens();
 	if (argc != 1) {
 	    return SYNTAX_ERROR;

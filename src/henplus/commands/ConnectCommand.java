@@ -243,11 +243,10 @@ public class ConnectCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession currentSession, String command) {
+    public int execute(SQLSession currentSession, String cmd, String param) {
 	SQLSession session = null;
 
-	StringTokenizer st = new StringTokenizer(command);
-	String cmd = (String) st.nextElement();
+	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 	
 	if ("sessions".equals(cmd)) {

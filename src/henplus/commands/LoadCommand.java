@@ -42,9 +42,8 @@ public class LoadCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
-	StringTokenizer st = new StringTokenizer(command);
-	st.nextElement(); // remove load.
+    public int execute(SQLSession session, String cmd, String param) {
+	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 	if (argc < 1) {
 	    return SYNTAX_ERROR;
@@ -113,7 +112,10 @@ public class LoadCommand extends AbstractCommand {
 	return "\topens one file or a sequence of files and and reads the\n"
 	    +  "\tcontained sql-commands line by line.\n"
 	    +  "\tThe commands 'load' and 'start' do exaclty the same;\n"
-	    +  "\t'start' is provided for compatibility with oracle SQLPLUS.";
+	    +  "\t'start', '@' and '@@' are provided for compatibility \n"
+	    +  "\twith oracle SQLPLUS scripts. However, there is no\n"
+	    +  "\tdistinction between '@' and '@@' as in SQLPLUS; henplus\n"
+	    +  "\talways reads subfiles relative to the contained file.\n";
     }
 }
 

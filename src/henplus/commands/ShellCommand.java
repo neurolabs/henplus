@@ -15,6 +15,7 @@ import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.SigIntHandler;
+import henplus.util.Terminal;
 
 /**
  * This command executes stuff on the shell. Supports the most common
@@ -52,25 +53,18 @@ public class ShellCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
-	int argc = argumentCount(command);
-	if (argc == 1)
+    public int execute(SQLSession session, String cmd, String param) {
+	if (param.trim().length() == 0) {
 	    return SYNTAX_ERROR;
-	// cut off command.
-	int i;
-	for (i=0; i < command.length(); ++i) {
-	    if (Character.isWhitespace(command.charAt(i)))
-		break;
 	}
-	command = command.substring(i).trim();
-
 	Process   p = null;
 	IOHandler ioHandler = null;
+	int exitStatus = -1;
 	SigIntHandler.getInstance().registerInterrupt(Thread.currentThread());
 	try {
 	    try {
 		p = Runtime.getRuntime().exec(new String[] { "sh", "-c",
-							     command });
+							     param });
 		ioHandler = new IOHandler(p);
 	    }
 	    catch (IOException e) {
@@ -78,12 +72,15 @@ public class ShellCommand extends AbstractCommand {
 		return EXEC_FAILED;
 	    }
 	    
-	    p.waitFor();
+	    exitStatus = p.waitFor();
 	}
 	catch (InterruptedException e) {
 	    p.destroy();
 	    System.err.println("Shell command interrupted.");
 	}
+	Terminal.grey(System.err);
+	System.err.println("[exit "+ exitStatus + "]");
+	Terminal.reset(System.err);
 	ioHandler.stop();
 	return SUCCESS;
     }
@@ -94,7 +91,7 @@ public class ShellCommand extends AbstractCommand {
     }
 
     public String getSynopsis(String cmd) {
-	return "system <system-shell-commandline>";
+	return cmd + " <system-shell-commandline>";
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * 
+ * $Id: Command.java,v 1.5 2002-02-26 21:15:17 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -39,12 +39,13 @@ public interface Command {
      * {@link #isComplete(String)} method, if this command is complete.
      *
      * @param session the SQLsession this command is executed from.
-     * @param command the full command as one string.
+     * @param command the command as string.
+     * @param parameters the rest parameters following the command.
      * @return one of SUCCESS, SYNTAX_ERROR, EXEC_FAILED to indicate
      *         the exit status of this command. On SYNTAX_ERROR, the
      *         CommandDispatcher displays a synopsis if possible.
      */
-    int execute(SQLSession session, String command);
+    int execute(SQLSession session, String command, String parameters);
     
     /**
      * Returns a list of strings that are possible at this stage. Used

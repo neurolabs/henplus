@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.8 2002-02-14 17:09:48 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.9 2002-02-26 21:15:19 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -79,9 +79,8 @@ public final class SetCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession currentSession, String command) {
-	StringTokenizer st = new StringTokenizer(command);
-	String cmd = (String) st.nextElement();
+    public int execute(SQLSession currentSession, String cmd,  String param) {
+	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 	
 	if ("set".equals(cmd)) {
@@ -106,21 +105,21 @@ public final class SetCommand extends AbstractCommand {
 		String varname = (String) st.nextElement();
 		int pos = "set".length();
 		// skip whitespace after 'set'
-		while (pos < command.length() 
-		       && Character.isWhitespace(command.charAt(pos))) {
+		while (pos < param.length() 
+		       && Character.isWhitespace(param.charAt(pos))) {
 		    ++pos;
 		}
 		// skip non-whitespace after 'set  ': variable name
-		while (pos < command.length() 
-		       && !Character.isWhitespace(command.charAt(pos))) {
+		while (pos < param.length() 
+		       && !Character.isWhitespace(param.charAt(pos))) {
 		    ++pos;
 		}
 		// skip whitespace before vlue..
-		while (pos < command.length() 
-		       && Character.isWhitespace(command.charAt(pos))) {
+		while (pos < param.length() 
+		       && Character.isWhitespace(param.charAt(pos))) {
 		    ++pos;
 		}
-		String value = command.substring(pos);
+		String value = param.substring(pos);
 		if (value.startsWith("\"") && value.endsWith("\"")) {
 		    value = value.substring(1, value.length()-1);
 		}
