@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TimeRenderer.java,v 1.3 2002-06-10 18:11:49 hzeller Exp $ 
+ * $Id: TimeRenderer.java,v 1.4 2002-07-01 09:30:42 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -59,7 +59,10 @@ public class TimeRenderer {
 	    }
 	    out.print(usec);
 	}
-	
+	else if (execTime == 0) {
+	    out.print("0 ");
+	}
+
 	if (totalTime > 60000) return;
 	else if (totalTime > 0 && totalTime < 1000) out.print(" m");
 	else if (totalTime == 0 && usec > 0) out.print(" µ");
