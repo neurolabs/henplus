@@ -1,11 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.6 2004-01-27 18:16:33 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.7 2004-01-28 09:25:48 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
+import henplus.HenPlus;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.PropertyRegistry;
@@ -66,7 +67,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
                     holder.setValue(defaultValue);
                 }
                 catch (Exception e) {
-                    System.err.println("setting to default '" 
+                    HenPlus.msg().println("setting to default '" 
                                        + defaultValue + "' failed.");
                     return EXEC_FAILED;
                 }
@@ -81,7 +82,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
         if (argc == 0) {
             PROP_META[0].resetWidth();
             PROP_META[1].resetWidth();
-            TableRenderer table = new TableRenderer(PROP_META, System.out);
+            TableRenderer table = new TableRenderer(PROP_META, HenPlus.out());
             Iterator propIt = (getRegistry()
                                .getPropertyMap()
                                .entrySet().iterator());
@@ -147,7 +148,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
                 getRegistry().setProperty(varname, value);
             }
             catch (Exception e) {
-                System.err.println(e.getMessage());
+                HenPlus.msg().println(e.getMessage());
                 return EXEC_FAILED;
             }
             return SUCCESS;
@@ -165,13 +166,13 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
 	}
 
 	if (desc != null) {
-	    Terminal.boldface(System.err);
-	    System.err.println("DESCRIPTION");
-	    Terminal.reset(System.err);
-	    System.err.println(desc);
+	    Terminal.boldface(HenPlus.msg());
+	    HenPlus.msg().println("DESCRIPTION");
+	    Terminal.reset(HenPlus.msg());
+	    HenPlus.msg().println(desc);
 	}
 	if (desc == null) {
-	    System.err.println("no detailed help for '" + propName + "'");
+	    HenPlus.msg().println("no detailed help for '" + propName + "'");
 	}
     }
 

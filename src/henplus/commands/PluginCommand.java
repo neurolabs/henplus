@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PluginCommand.java,v 1.3 2004-01-27 18:16:33 hzeller Exp $ 
+ * $Id: PluginCommand.java,v 1.4 2004-01-28 09:25:48 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -71,7 +71,7 @@ public final class PluginCommand extends AbstractCommand {
 		    plugin = loadPlugin(line);
 		}
 		catch (Exception e) {
-		    System.err.println("couldn't load plugin '" + line + "' "
+		    HenPlus.msg().println("couldn't load plugin '" + line + "' "
 				       + e.getMessage());
 		}
 		_plugins.put(line, plugin);
@@ -106,10 +106,10 @@ public final class PluginCommand extends AbstractCommand {
 	
 	if ("list-plugins".equals(cmd)) {
 	    if (argc != 0) return SYNTAX_ERROR;
-	    System.err.println("loaded plugin are marked with '*'");
+	    HenPlus.msg().println("loaded plugins are marked with '*'");
 	    DRV_META[0].resetWidth();
 	    DRV_META[1].resetWidth();
-	    TableRenderer table = new TableRenderer(DRV_META, System.out);
+	    TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
 	    Iterator it = _plugins.entrySet().iterator();
 	    while (it.hasNext()) {
 		Map.Entry entry = (Map.Entry) it.next();
@@ -138,7 +138,7 @@ public final class PluginCommand extends AbstractCommand {
 	    if (argc != 1) return SYNTAX_ERROR;
 	    String pluginClass = (String) st.nextElement();
 	    if (_plugins.containsKey(pluginClass)) {
-		System.err.println("plugin '" + pluginClass 
+		HenPlus.msg().println("plugin '" + pluginClass 
 				   + "' already loaded");
 		return EXEC_FAILED;
 	    }
@@ -147,25 +147,25 @@ public final class PluginCommand extends AbstractCommand {
 		plugin = loadPlugin(pluginClass);
 	    }
 	    catch (Exception e) {
-		System.err.println("couldn't load plugin." + e.getMessage());
+		HenPlus.msg().println("couldn't load plugin." + e.getMessage());
 		return EXEC_FAILED;
 	    }
 	    if (plugin != null) {
 		_plugins.put(pluginClass, plugin);
 		String[] cmds = plugin.getCommandList();
-		System.out.print("adding commands: ");
+		HenPlus.out().print("adding commands: ");
 		for (int i=0; i < cmds.length; ++i) {
-		    if (i!=0) System.out.print(", ");
-		    System.out.print(cmds[i]);
+		    if (i!=0) HenPlus.out().print(", ");
+		    HenPlus.out().print(cmds[i]);
 		}
-		System.out.println();
+		HenPlus.out().println();
 	    }
 	}
 	else if ("plug-out".equals(cmd)) {
 	    if (argc != 1) return SYNTAX_ERROR;
 	    String pluginClass = (String) st.nextElement();
 	    if (!_plugins.containsKey(pluginClass)) {
-		System.err.println("unknown plugin '" + pluginClass + "'");
+		HenPlus.msg().println("unknown plugin '" + pluginClass + "'");
 		return EXEC_FAILED;
 	    }
 	    else {

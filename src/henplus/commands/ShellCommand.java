@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+import henplus.HenPlus;
 import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
@@ -87,12 +88,12 @@ public class ShellCommand
 	}
 	catch (InterruptedException e) {
 	    p.destroy();
-	    System.err.println("Shell command interrupted.");
+	    HenPlus.msg().println("Shell command interrupted.");
 	}
 	ioHandler.stop();
-	Terminal.grey(System.err);
-	System.err.println("[exit "+ exitStatus + "]");
-	Terminal.reset(System.err);
+	Terminal.grey(HenPlus.msg());
+	HenPlus.msg().println("[exit "+ exitStatus + "]");
+	Terminal.reset(HenPlus.msg());
 	return SUCCESS;
     }
 
@@ -133,10 +134,10 @@ public class ShellCommand
 	public IOHandler(Process p) throws IOException {
 	    this.process = p;
 	    stdoutThread = new Thread(new CopyWorker(p.getInputStream(), 
-						     System.out));
+						     HenPlus.out()));
 	    stdoutThread.setDaemon(true);
 	    stderrThread = new Thread(new CopyWorker(p.getErrorStream(),
-						     System.err));
+						     HenPlus.msg()));
 	    stderrThread.setDaemon(true);
 	    /*
 	    stdinThread = new Thread(new CopyWorker(System.in,

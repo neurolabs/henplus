@@ -152,7 +152,7 @@ public class SQLCommand extends AbstractCommand {
 
         if (command.endsWith("&")) {
             command = command.substring(0, command.length()-1);
-            System.err.println("## executing command in the background not yet supported");
+            HenPlus.msg().println("## executing command in the background not yet supported");
             background = true;
         }
 
@@ -189,7 +189,7 @@ public class SQLCommand extends AbstractCommand {
                             //pstmt.registerOutParameter(1, Types.REF);
                             pstmt.registerOutParameter(1, Types.VARCHAR);
                             pstmt.execute();
-                            //System.err.println("call this .." + command);
+                            //HenPlus.msg().println("call this .." + command);
                             //pstmt.setR
                             hasResultSet = false;
                             hasSingleResult = true;
@@ -206,7 +206,7 @@ public class SQLCommand extends AbstractCommand {
 			if (retry == 1) {
 			    return EXEC_FAILED;
 			}
-			System.err.println("Problem: " + e.getMessage()
+			HenPlus.msg().println("Problem: " + e.getMessage()
 					   + "; trying reconnect...");
 			session.connect();
 		    }
@@ -218,7 +218,7 @@ public class SQLCommand extends AbstractCommand {
 		    renderer = new ResultSetRenderer(rset, 
                                                      getColumnDelimiter(),
                                                      getRowLimit(),
-                                                     System.out);
+                                                     HenPlus.out());
 		    SigIntHandler.getInstance().pushInterruptable(renderer);
 		    int rows = renderer.execute();
 		    if (renderer.limitReached()) {
@@ -232,7 +232,7 @@ public class SQLCommand extends AbstractCommand {
 		    lapTime = renderer.getFirstRowTime() - startTime;
 		}
                 else if (hasSingleResult) {
-                    System.err.println(((CallableStatement)stmt).getString(1));
+                    HenPlus.msg().println(((CallableStatement)stmt).getString(1));
                 }
 		else {
 		    int updateCount = stmt.getUpdateCount();
@@ -248,12 +248,12 @@ public class SQLCommand extends AbstractCommand {
 		if (lapTime > 0) {
 		    session.print("first row: ");
 		    if (session.printMessages()) {
-			TimeRenderer.printTime(lapTime, System.err);
+			TimeRenderer.printTime(lapTime, HenPlus.msg());
 		    }
 		    session.print("; total: ");
 		}
 		if (session.printMessages()) {
-		    TimeRenderer.printTime(execTime, System.err);
+		    TimeRenderer.printTime(execTime, HenPlus.msg());
 		}
 		session.println(")");
 	    }
@@ -269,7 +269,7 @@ public class SQLCommand extends AbstractCommand {
 	catch (InterruptedException ie) {
 	    session.print("interrupted after ");
 	    execTime = System.currentTimeMillis() - startTime;
-	    TimeRenderer.printTime(execTime, System.err);
+	    TimeRenderer.printTime(execTime, HenPlus.msg());
 	    session.println(".");
 	    return SUCCESS;
 	}
@@ -278,7 +278,7 @@ public class SQLCommand extends AbstractCommand {
 	    String msg = e.getMessage();
 	    if (msg != null) {
 		// oracle appends a newline to the message for some reason.
-		System.err.println("FAILURE: " + msg.trim());
+		HenPlus.msg().println("FAILURE: " + msg.trim());
 	    }
 	    if (verbose) e.printStackTrace();
 	    return EXEC_FAILED;

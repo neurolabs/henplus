@@ -84,7 +84,7 @@ public class DescribeCommand
 	    String alternative = tableCompleter.correctTableName(tabName);
 	    if (alternative != null && !alternative.equals(tabName)) {
 		tabName = alternative;
-		System.out.println("describing table: '" + tabName 
+		HenPlus.out().println("describing table: '" + tabName 
 				   + "' (corrected name)");
 	    }
 	}
@@ -155,7 +155,7 @@ public class DescribeCommand
             rset = meta.getImportedKeys(null, null, tabName);
         } catch ( NoSuchElementException e ) {
             if (verbose)
-                System.err.println("Database problem reading meta data: " + e);
+                HenPlus.msg().println("Database problem reading meta data: " + e);
         }
 	    if (rset != null) {
             while (!interrupted && rset.next()) {
@@ -172,9 +172,9 @@ public class DescribeCommand
 	    }
 	    rset.close();
 
-        if (catalog != null) System.err.println("catalog: " + catalog);
-	    if (anyLeftArrow)  System.err.println(" '<-' : referenced by");
-	    if (anyRightArrow) System.err.println(" '->' : referencing");
+        if (catalog != null) HenPlus.msg().println("catalog: " + catalog);
+	    if (anyLeftArrow)  HenPlus.msg().println(" '<-' : referenced by");
+	    if (anyRightArrow) HenPlus.msg().println(" '->' : referencing");
 
 	    /*
 	     * if all columns belong to the same table name, then don't
@@ -230,7 +230,7 @@ public class DescribeCommand
 	     * will show the first column or not.
 	     */
 	    DESC_META[1].setDisplay(!allSameTableName);
-	    TableRenderer table = new TableRenderer(DESC_META, System.out);
+	    TableRenderer table = new TableRenderer(DESC_META, HenPlus.out());
 	    Iterator it = rows.iterator();
 	    while (it.hasNext()) {
                 table.addRow((Column[]) it.next());
@@ -248,7 +248,7 @@ public class DescribeCommand
 	     * index info.
 	     */
             if (interrupted) return SUCCESS;
-	    System.out.println("index information:");
+	    HenPlus.out().println("index information:");
 	    boolean anyIndex = false;
 	    rset = meta.getIndexInfo(null, null, tabName, false, true);
 	    if (rset != null) while (!interrupted && rset.next()) {
@@ -259,29 +259,29 @@ public class DescribeCommand
 		if (idxName == null) continue; // statistics, otherwise.
 		// output part.
 		anyIndex = true;
-		System.out.print("\t");
-		if (!nonUnique) System.out.print("unique ");
-		System.out.print("index " + idxName);
+		HenPlus.out().print("\t");
+		if (!nonUnique) HenPlus.out().print("unique ");
+		HenPlus.out().print("index " + idxName);
 		String colName = rset.getString(9);
 		// work around postgres-JDBC-driver bug:
 		if (colName != null && colName.length() > 0) {
-		    System.out.print(" on " + colName);
+		    HenPlus.out().print(" on " + colName);
 		}
-		System.out.println();
+		HenPlus.out().println();
 	    }
 	    rset.close();
 	    if (!anyIndex) {
-		System.out.println("\t<none>");
+		HenPlus.out().println("\t<none>");
 	    }
             TimeRenderer.printTime(System.currentTimeMillis() - startTime,
-                                   System.out);
-            System.out.println();
+                                   HenPlus.out());
+            HenPlus.out().println();
 	}
 	catch (Exception e) {
 	    if (verbose)
             e.printStackTrace();
         String ex = ( e.getMessage() != null ) ? e.getMessage().trim() : e.toString();
-        System.err.println("Database problem reading meta data: " + ex);
+        HenPlus.msg().println("Database problem reading meta data: " + ex);
 	    return EXEC_FAILED;
 	}
 	finally {

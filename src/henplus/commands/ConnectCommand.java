@@ -92,7 +92,7 @@ public class ConnectCommand extends AbstractCommand {
     	    }
     	    catch (Exception e) {
     		//e.printStackTrace();
-    		System.err.println(e.getMessage());
+    		HenPlus.msg().println(e.getMessage());
     	    }
     	}
     }
@@ -245,11 +245,11 @@ public class ConnectCommand extends AbstractCommand {
 	int argc = st.countTokens();
 	
 	if ("sessions".equals(cmd)) {
-	    System.err.println("current session is marked with '*'");
+	    HenPlus.msg().println("current session is marked with '*'");
 	    SESS_META[0].resetWidth();
 	    SESS_META[1].resetWidth();
 	    SESS_META[2].resetWidth();
-	    TableRenderer table = new TableRenderer(SESS_META, System.out);
+	    TableRenderer table = new TableRenderer(SESS_META, HenPlus.out());
 	    Map.Entry entry = null;
 	    Iterator it = _sessionManager.getSessionNames().iterator();
 	    while (it.hasNext()) {
@@ -283,7 +283,7 @@ public class ConnectCommand extends AbstractCommand {
         _sessionManager.setCurrentSession(session);
 	    }
 	    catch (Exception e) {
-		System.err.println(e);
+		HenPlus.msg().println(e);
 		return EXEC_FAILED;
 	    }
 	}
@@ -307,7 +307,7 @@ public class ConnectCommand extends AbstractCommand {
 	    }
 	    session = _sessionManager.getSessionByName(sessionName);
 	    if (session == null) {
-		System.err.println("'" + sessionName + "': no such session");
+		HenPlus.msg().println("'" + sessionName + "': no such session");
 		return EXEC_FAILED;
 	    }
 	    currentSessionName = sessionName;
@@ -326,7 +326,7 @@ public class ConnectCommand extends AbstractCommand {
         /*  // moved to sessionmanager.renameSession
          * 
             if (_sessionManager.sessionNameExists(sessionName)) {
-                System.err.println("A session with that name already exists");
+                HenPlus.err().println("A session with that name already exists");
                 return EXEC_FAILED;
             }
 
@@ -350,7 +350,7 @@ public class ConnectCommand extends AbstractCommand {
 		  return SYNTAX_ERROR;
 	    }
         _sessionManager.closeCurrentSession();
-        System.err.println("session closed.");
+        HenPlus.msg().println("session closed.");
             
 	    if (_sessionManager.hasSessions()) {
             currentSessionName = _sessionManager.getFirstSessionName();

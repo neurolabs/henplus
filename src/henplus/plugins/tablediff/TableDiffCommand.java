@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: TableDiffCommand.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: TableDiffCommand.java,v 1.3 2004-01-28 09:25:49 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
@@ -99,10 +99,10 @@ public final class TableDiffCommand implements Command, Interruptable {
                 TableDiffResult diffResult = TableDiffer.diffTables(ref, diff, colNameIgnoreCase);
                 // TableDiffResult diffResult = getMockResult();
                 if (diffResult == null) {
-                    System.out.println("no diff for table " + table);
+                    HenPlus.msg().println("no diff for table " + table);
                 }
                 else {
-                    System.out.println("diff result for table " + table + ":");
+                    HenPlus.msg().println("diff result for table " + table + ":");
                     ResultTablePrinter.printResult(diffResult);
                 }
                 count++;
@@ -110,7 +110,7 @@ public final class TableDiffCommand implements Command, Interruptable {
             StringBuffer msg = new StringBuffer();
             msg.append("diffing ").append(count).append((count == 1)?" table took ":" tables took ").
             append(System.currentTimeMillis() - start).append(" ms.");
-            System.out.println(msg.toString());
+            HenPlus.msg().println(msg.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }

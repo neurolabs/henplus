@@ -22,6 +22,8 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import java.io.PrintStream;
+
 /*
  * foo
  * |-- bar
@@ -52,25 +54,26 @@ public class TreeCommand extends AbstractCommand {
             return n;
         }
 
-        public void print() {
-            print(new TreeSet(), new StringBuffer(), "");
+        public void print(PrintStream out) {
+            print(new TreeSet(), new StringBuffer(), "", out);
         }
 
         private void print(SortedSet alreadyPrinted,
                            StringBuffer currentIndent,
-                           String indentString) 
+                           String indentString,
+                           PrintStream out) 
         {
             if (indentString.length() > 0) { // otherwise we are toplevel.
-                System.out.print("-- ");
+                out.print("-- ");
             }
             String name = getName();
             boolean cyclic = alreadyPrinted.contains(name);
-            //Terminal.blue(System.out);
-            if (cyclic) System.out.print("(");
-            System.out.print(name);
-            if (cyclic) System.out.print(")");
-            //Terminal.reset(System.out);
-            System.out.println();
+            //Terminal.blue(out);
+            if (cyclic) out.print("(");
+            out.print(name);
+            if (cyclic) out.print(")");
+            //Terminal.reset(out);
+            out.println();
             if (cyclic) {
                 return;
             }
@@ -82,10 +85,10 @@ public class TreeCommand extends AbstractCommand {
                 Iterator it = _children.iterator();
                 while (it.hasNext()) {
                     Node n = (Node) it.next();
-                    System.out.print(currentIndent);
-                    System.out.print((remaining == 1) ? '`' : '|');
+                    out.print(currentIndent);
+                    out.print((remaining == 1) ? '`' : '|');
                     n.print(alreadyPrinted, currentIndent,
-                            (remaining == 1) ? "    " : "|   ");
+                            (remaining == 1) ? "    " : "|   ", out);
                     --remaining;
                 }
                 currentIndent.setLength(previousLength);
@@ -151,14 +154,14 @@ public class TreeCommand extends AbstractCommand {
             long startTime = System.currentTimeMillis();
             DatabaseMetaData dbMeta = session.getConnection().getMetaData();
             Node tree = buildTree(dbMeta, new TreeMap(), tabName);
-            tree.print();
+            tree.print(HenPlus.out());
             TimeRenderer.printTime(System.currentTimeMillis()-startTime,
-                                   System.err);
-            System.err.println();
+                                   HenPlus.msg());
+            HenPlus.msg().println();
         }
         catch (Exception e) {
-            System.err.println("problem getting database meta data: " 
-                               + e.getMessage());
+            HenPlus.msg().println("problem getting database meta data: " 
+                                  + e.getMessage());
             return EXEC_FAILED;
         }
         return SUCCESS;

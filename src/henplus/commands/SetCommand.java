@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.17 2004-01-27 18:16:33 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.18 2004-01-28 09:25:49 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -89,7 +89,7 @@ public final class SetCommand extends AbstractCommand {
 	    if (argc == 0) {
 		SET_META[0].resetWidth();
 		SET_META[1].resetWidth();
-		TableRenderer table = new TableRenderer(SET_META, System.out);
+		TableRenderer table = new TableRenderer(SET_META, HenPlus.out());
 		Iterator vars = _variables.entrySet().iterator();
 		while (vars.hasNext()) {
 		    Map.Entry entry = (Map.Entry) vars.next();
@@ -142,7 +142,7 @@ public final class SetCommand extends AbstractCommand {
 		while (st.hasMoreElements()) {
 		    String varname = (String) st.nextElement();
 		    if (!_variables.containsKey(varname)) {
-			System.err.println("unknown variable '" 
+			HenPlus.msg().println("unknown variable '" 
 					   + varname + "'");
 		    }
 		    else {
@@ -169,8 +169,8 @@ public final class SetCommand extends AbstractCommand {
 	final String prefix = (hasBrace ? "${" : "$");
 	final String name   =  variable.substring(prefix.length());
 	final Iterator it   = _variables.tailMap(name).keySet().iterator();
-	//System.err.println("VAR: " + variable);
-	//System.err.println("NAME: " + name);
+	//HenPlus.msg().println("VAR: " + variable);
+	//HenPlus.msg().println("NAME: " + name);
 	return new Iterator() {
 		String current = null;
 		public boolean hasNext() {

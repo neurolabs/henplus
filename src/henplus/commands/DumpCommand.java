@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.19 2004-01-27 18:16:33 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.20 2004-01-28 09:25:48 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -51,17 +51,17 @@ import java.util.zip.GZIPOutputStream;
  * This reads directly from the stream, so only needs not much
  * memory, no matter the size of the file.
  ---------------------------
-          (tabledump 'student'
-            (dump-version 1 1)
-            (henplus-version 0.3.3)
-            (database-info 'MySQL - 3.23.47')
-            (meta ('name',   'sex',    'student_id')
-                  ('STRING', 'STRING', 'INTEGER'   ))
-            (data ('Megan','F',1)
-                  ('Joseph','M',2)
-                  ('Kyle','M',3)
-                  ('Mac Donald\'s','M',44))
-            (rows 4))
+ (tabledump 'student'
+ (dump-version 1 1)
+ (henplus-version 0.3.3)
+ (database-info 'MySQL - 3.23.47')
+ (meta ('name',   'sex',    'student_id')
+ ('STRING', 'STRING', 'INTEGER'   ))
+ (data ('Megan','F',1)
+ ('Joseph','M',2)
+ ('Kyle','M',3)
+ ('Mac Donald\'s','M',44))
+ (rows 4))
  ---------------------------
  *
  * QUICK AND DIRTY HACK .. NOT YET NICE. Too long.
@@ -175,7 +175,7 @@ public class DumpCommand
 
 	if ("dump-conditional".equals(cmd)) {
 	    if (session == null) {
-		System.err.println("not connected.");
+		HenPlus.msg().println("not connected.");
 		return EXEC_FAILED;
 	    }
 	    if ((argc < 2)) return SYNTAX_ERROR;
@@ -198,7 +198,7 @@ public class DumpCommand
 		return result;
 	    }
 	    catch (Exception e) {
-		System.err.println("failed: " + e.getMessage());
+		HenPlus.msg().println("failed: " + e.getMessage());
 		return EXEC_FAILED;
 	    }
 	    finally {
@@ -208,7 +208,7 @@ public class DumpCommand
 	
 	else if ("dump-out".equals(cmd)) {
 	    if (session == null) {
-		System.err.println("not connected.");
+		HenPlus.msg().println("not connected.");
 		return EXEC_FAILED;
 	    }
 	    if ((argc < 2)) return SYNTAX_ERROR;
@@ -227,7 +227,7 @@ public class DumpCommand
 		return SUCCESS;
 	    }
 	    catch (Exception e) {
-		System.err.println("failed: " + e.getMessage());
+		HenPlus.msg().println("failed: " + e.getMessage());
 		return EXEC_FAILED;
 	    }
 	    finally {
@@ -237,7 +237,7 @@ public class DumpCommand
 
 	else if ("dump-in".equals(cmd)) {
 	    if (session == null) {
-		System.err.println("not connected. Only verify-dump possible.");
+		HenPlus.msg().println("not connected. Only verify-dump possible.");
 		return EXEC_FAILED;
 	    }
 	    if (argc < 1 || argc > 2) return SYNTAX_ERROR;
@@ -249,7 +249,7 @@ public class DumpCommand
 		    commitPoint = Integer.valueOf(val).intValue();
 		}
 		catch (NumberFormatException e) {
-		    System.err.println("commit point number expected: " + e);
+		    HenPlus.msg().println("commit point number expected: " + e);
 		    return SYNTAX_ERROR;
 		}
 	    }
@@ -283,7 +283,7 @@ public class DumpCommand
                                                    session, hot, commitPoint);
                         retryPossible = false;
                         if (!_running) {
-                            System.err.print("interrupted.");
+                            HenPlus.msg().print("interrupted.");
                             return result;
                         }
                         if (result != SUCCESS) {
@@ -297,14 +297,14 @@ public class DumpCommand
                         throw new Exception("got file encoding problem twice");
                     }
                     fileEncoding = e.getEncoding();
-                    System.err.println("got a different encoding; retry with " + fileEncoding);
+                    HenPlus.msg().println("got a different encoding; retry with " + fileEncoding);
                 }
             }
             while (retryPossible);
             return SUCCESS;
         }
         catch (Exception e) {
-            System.err.println("failed: " + e.getMessage());
+            HenPlus.msg().println("failed: " + e.getMessage());
             return EXEC_FAILED;
         }
         finally {
@@ -312,7 +312,7 @@ public class DumpCommand
                 if (in != null) in.close(); 
             } 
             catch (IOException e) {
-                System.err.println("closing file failed.");
+                HenPlus.msg().println("closing file failed.");
             }
         }
     }
@@ -369,8 +369,8 @@ public class DumpCommand
 	    String alternative = _tableCompleter.correctTableName(tabName);
 	    if (alternative != null && !alternative.equals(tabName)) {
 		tabName = alternative;
-		System.out.println("dumping table: '" + tabName 
-				   + "' (corrected name)");
+		HenPlus.out().println("dumping table: '" + tabName 
+                                      + "' (corrected name)");
 	    }
 	}
 
@@ -401,8 +401,8 @@ public class DumpCommand
 	}
 	MetaProperty[] metaProperty = (MetaProperty[]) metaList.toArray(new MetaProperty[metaList.size()]);
 	if (metaList.size() == 0) {
-	    System.err.println("No fields in table '" + tabName 
-			       + "' found.");
+	    HenPlus.msg().println("No fields in table '" + tabName 
+                                  + "' found.");
 	    return EXEC_FAILED;
 	}
 	
@@ -473,7 +473,7 @@ public class DumpCommand
 	if (whereClause != null) {
 	    selectStmt.append(" WHERE ").append(whereClause);
 	}
-	//System.err.println(selectStmt.toString());
+	//HenPlus.msg().println(selectStmt.toString());
 
 	dumpOut.print("  (data ");
 	stmt = null;
@@ -490,10 +490,10 @@ public class DumpCommand
 		    long newDots = (PROGRESS_WIDTH * rows) / expectedRows;
 		    if (newDots > progressDots) {
 			while (progressDots <= newDots) {
-			    System.err.print(".");
+			    HenPlus.msg().print(".");
 			    ++progressDots;
 			}
-			System.err.flush();
+			HenPlus.msg().flush();
 		    }
 		}
 		if (!isFirst) dumpOut.print("\n\t");
@@ -569,21 +569,21 @@ public class DumpCommand
 	    dumpOut.println(")");
 	    dumpOut.println("  (rows " + rows + "))\n");
 
-	    System.err.print("(" + rows + " rows)\n");
+	    HenPlus.msg().print("(" + rows + " rows)\n");
 	    long execTime = System.currentTimeMillis()-startTime;
-	    TimeRenderer.printTime(execTime, System.err);
-	    System.err.print(" total; ");
-	    TimeRenderer.printFraction(execTime, rows, System.err);
-	    System.err.println(" / row");
+	    TimeRenderer.printTime(execTime, HenPlus.msg());
+	    HenPlus.msg().print(" total; ");
+	    TimeRenderer.printFraction(execTime, rows, HenPlus.msg());
+	    HenPlus.msg().println(" / row");
 	    if (expectedRows >= 0 && rows != expectedRows) {
-		System.err.println("\nWarning: 'select count(*)' in the"
-				   + " beginning resulted in " + expectedRows
-				   + " but the dump exported " + rows 
-				   + " rows");
+		HenPlus.msg().println("\nWarning: 'select count(*)' in the"
+                                      + " beginning resulted in " + expectedRows
+                                      + " but the dump exported " + rows 
+                                      + " rows");
 	    }
 	}
 	catch (Exception e) {
-	    System.err.println(selectStmt.toString());
+	    HenPlus.msg().println(selectStmt.toString());
 	    throw e; // handle later.
 	}
 	finally {
@@ -744,24 +744,24 @@ public class DumpCommand
 			if (i+1 < metaProperty.length) prep.append(",");
 		    }
 		    prep.append(")");
-		    //System.err.println(prep.toString());
+		    //HenPlus.msg().println(prep.toString());
 		    conn = session.getConnection();
 		    stmt = conn.prepareStatement(prep.toString());
 		}
 
-		System.err.println((hot ? "importing" : "verifying")
-				   + " table dump created with HenPlus "
-				   + henplusVersion 
-				   + "\nfor table           : " + tableName
-				   + "\nfrom database       : " + databaseInfo
-				   + "\nat                  : " + dumpTime
-				   + "\ndump format version : " + dumpVersion);
+		HenPlus.msg().println((hot ? "importing" : "verifying")
+                                      + " table dump created with HenPlus "
+                                      + henplusVersion 
+                                      + "\nfor table           : " + tableName
+                                      + "\nfrom database       : " + databaseInfo
+                                      + "\nat                  : " + dumpTime
+                                      + "\ndump format version : " + dumpVersion);
 		if (whereClause != null) {
-		    System.err.println("projection          : " + whereClause);
+		    HenPlus.msg().println("projection          : " + whereClause);
 		}
 
-		System.err.print("reading rows..");
-		System.err.flush();
+		HenPlus.msg().print("reading rows..");
+		HenPlus.msg().flush();
 		boolean rowBefore = false;
 		importedRows = 0;
 		problemRows = 0;
@@ -889,7 +889,7 @@ public class DumpCommand
 	    }
 	    
 	    else {
-		System.err.println("ignoring unknown token " + token);
+		HenPlus.msg().println("ignoring unknown token " + token);
 		dumpTime = readString(reader);
 		expect(reader, ')');
 	    }
@@ -913,20 +913,20 @@ public class DumpCommand
         }
 
 	if (expectedRows >= 0 && expectedRows != importedRows) {
-	    System.err.println("WARNING: expected " + expectedRows 
-			       + " but got " + importedRows + " rows");
+	    HenPlus.msg().println("WARNING: expected " + expectedRows 
+                                  + " but got " + importedRows + " rows");
 	}
 	else {
-	    System.err.print("ok. ");
+	    HenPlus.msg().print("ok. ");
 	}
-	System.err.print("(" + importedRows + " rows total");
-	if (hot) System.err.print(" / " + problemRows + " with errors");
-	System.err.print("; ");
+	HenPlus.msg().print("(" + importedRows + " rows total");
+	if (hot) HenPlus.msg().print(" / " + problemRows + " with errors");
+	HenPlus.msg().print("; ");
 	long execTime = System.currentTimeMillis()-startTime;
-	TimeRenderer.printTime(execTime, System.err);
-	System.err.print(" total; ");
-	TimeRenderer.printFraction(execTime, importedRows, System.err);
-	System.err.println(" / row)");
+	TimeRenderer.printTime(execTime, HenPlus.msg());
+	HenPlus.msg().print(" total; ");
+	TimeRenderer.printFraction(execTime, importedRows, HenPlus.msg());
+	HenPlus.msg().println(" / row)");
 	return SUCCESS;
     }
 
@@ -964,17 +964,17 @@ public class DumpCommand
         else {
             finishProblemReports();
             problemCount = 1;
-            System.err.print("Problem: " + msg);
+            HenPlus.msg().print("Problem: " + msg);
             lastProblem = msg;
         }
     }
 
     private void finishProblemReports() {
         if (problemCount > 1) {
-            System.err.print("   (" + problemCount + " times)");
+            HenPlus.msg().print("   (" + problemCount + " times)");
         }
         if (problemCount > 0) {
-            System.err.println();
+            HenPlus.msg().println();
         }
         lastProblem = null;
         problemCount = 0;

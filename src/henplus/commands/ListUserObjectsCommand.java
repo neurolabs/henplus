@@ -72,10 +72,10 @@ public class ListUserObjectsCommand
 		DatabaseMetaData meta = conn.getMetaData();
 		String catalog = conn.getCatalog();
 		/**/
-                  System.err.println("catalog: " + catalog);
+                  HenPlus.msg().println("catalog: " + catalog);
                   ResultSetRenderer catalogrenderer = 
                   new ResultSetRenderer(meta.getCatalogs(), "|", 
-                                        2000, System.out);
+                                        2000, HenPlus.out());
                   catalogrenderer.execute();
                   /**/
 		ResultSetRenderer renderer;
@@ -84,14 +84,14 @@ public class ListUserObjectsCommand
                 int[] columnDef;
                 if ("procedures".equals(cmd)) {
                     objectType = "Procecdures";
-                    System.err.println(objectType);
+                    HenPlus.msg().println(objectType);
                     rset = meta.getProcedures(catalog, null, null);
                     columnDef = PROC_DISP_COLS;
                 }
                 else {
                     boolean showViews = "views".equals(cmd);
                     objectType = ((showViews) ? "Views" : "Tables");
-                    System.err.println(objectType);
+                    HenPlus.msg().println(objectType);
                     rset = meta.getTables(catalog,
                                           null, null,
                                           (showViews)
@@ -100,18 +100,19 @@ public class ListUserObjectsCommand
                     columnDef = TABLE_DISP_COLS;
                 }
                 
-		renderer = new ResultSetRenderer(rset, "|", 2000, System.out,
+		renderer = new ResultSetRenderer(rset, "|", 2000, 
+                                                 HenPlus.out(),
 						 columnDef);
 		int tables = renderer.execute();
 		if (tables > 0) {
-		    System.err.println(tables + " " + objectType + " found.");
+		    HenPlus.msg().println(tables + " " + objectType + " found.");
 		    if (renderer.limitReached()) {
-			System.err.println("..and probably more; reached display limit");
+			HenPlus.msg().println("..and probably more; reached display limit");
 		    }
 		}
 	    }
 	    catch (Exception e) {
-		System.err.println(e.getMessage());
+		HenPlus.msg().println(e.getMessage());
 		return EXEC_FAILED;
 	    }
 	}

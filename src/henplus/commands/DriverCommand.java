@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.8 2004-01-27 18:16:33 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.9 2004-01-28 09:25:48 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -71,13 +71,13 @@ public final class DriverCommand extends AbstractCommand {
 	public boolean isLoaded() { return loaded; }
 	public boolean load() {
 	    try {
-		if (verbose) System.err.print("loading .. '" + className + "'");
+		if (verbose) HenPlus.msg().print("loading .. '" + className + "'");
 		Class.forName(className);
-		if (verbose) System.err.println(" done.");
+		if (verbose) HenPlus.msg().println(" done.");
 		loaded = true;
 	    }
 	    catch (Throwable t) {
-		if (verbose) System.err.println(" failed: " + t.getMessage());
+		if (verbose) HenPlus.msg().println(" failed: " + t.getMessage());
 		loaded = false;
 	    }
 	    return loaded;
@@ -143,11 +143,11 @@ public final class DriverCommand extends AbstractCommand {
 	
 	if ("list-drivers".equals(cmd)) {
 	    if (argc == 0) {
-		System.err.println("loaded drivers are marked with '*' (otherwise not found in CLASSPATH)");
+		HenPlus.msg().println("loaded drivers are marked with '*' (otherwise not found in CLASSPATH)");
 		DRV_META[0].resetWidth();
 		DRV_META[1].resetWidth();
 		DRV_META[2].resetWidth();
-		TableRenderer table = new TableRenderer(DRV_META, System.out);
+		TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
 		Iterator vars = _drivers.entrySet().iterator();
 		while (vars.hasNext()) {
 		    Map.Entry entry = (Map.Entry) vars.next();
@@ -178,7 +178,7 @@ public final class DriverCommand extends AbstractCommand {
 	    DriverDescription drv;
 	    drv = new DriverDescription(driverClass, sampleURL);
 	    if (! drv.isLoaded() ) {
-		System.err.println("cannot load driver class '" 
+		HenPlus.msg().println("cannot load driver class '" 
 				   + driverClass + "'");
 		return EXEC_FAILED;
 	    }
@@ -191,7 +191,7 @@ public final class DriverCommand extends AbstractCommand {
 		return SYNTAX_ERROR;
 	    String shortname   = (String) st.nextElement();
 	    if (!_drivers.containsKey(shortname)) {
-		System.err.println("unknown driver for '" + shortname + "'");
+		HenPlus.msg().println("unknown driver for '" + shortname + "'");
 		return EXEC_FAILED;
 	    }
 	    else {

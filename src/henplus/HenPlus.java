@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.60 2004-01-27 22:52:39 hzeller Exp $
+ * $Id: HenPlus.java,v 1.61 2004-01-28 09:25:48 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.io.PrintStream;
 
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
@@ -48,12 +49,15 @@ public class HenPlus implements Interruptable {
     private File              _configDir;
     private boolean           _alreadyShutDown;
     private BufferedReader    _fileReader;
+    private PrintStream       _output;
 
     private volatile boolean   _interrupted;
 
     private HenPlus(String argv[]) throws IOException {
 	_terminated = false;
 	_alreadyShutDown = false;
+        setOutput(System.out);
+
 	boolean quiet = false;
 
 	_commandSeparator = new SQLStatementSeparator();
@@ -138,7 +142,7 @@ public class HenPlus implements Interruptable {
 
 	_dispatcher.register(new ShellCommand());
 
-	_dispatcher.register(new SpoolCommand()); // dummy command
+	_dispatcher.register(new SpoolCommand(this));
 	_dispatcher.register(_settingStore);
 
         PropertyCommand propertyCommand;
@@ -554,6 +558,22 @@ public class HenPlus implements Interruptable {
     //*****************************************************************
     public static HenPlus getInstance() {
 	return instance;
+    }
+    
+    public void setOutput(PrintStream out) {
+        _output = out;
+    }
+    
+    public PrintStream getOutput() {
+        return _output;
+    }
+
+    public static PrintStream out() {
+        return getInstance().getOutput();
+    }
+    
+    public static PrintStream msg() {
+        return System.err;
     }
 
     public static final void main(String argv[]) throws Exception {

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.11 2004-01-27 18:16:33 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.12 2004-01-28 09:25:48 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -111,7 +111,7 @@ public final class AliasCommand extends AbstractCommand {
 	    if (argc != 0) return SYNTAX_ERROR;
 	    DRV_META[0].resetWidth();
 	    DRV_META[1].resetWidth();
-	    TableRenderer table = new TableRenderer(DRV_META, System.out);
+	    TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
 	    Iterator it = _aliases.entrySet().iterator();
 	    while (it.hasNext()) {
 		Map.Entry entry = (Map.Entry) it.next();
@@ -135,7 +135,7 @@ public final class AliasCommand extends AbstractCommand {
 	    // exists.
 	    if (!_aliases.containsKey(alias)
 		&& _dispatcher.containsCommand(alias)) {
-		System.err.println("cannot alias built-in command!");
+		HenPlus.msg().println("cannot alias built-in command!");
 		return EXEC_FAILED;
 	    }
 	    param = param.trim();
@@ -154,7 +154,7 @@ public final class AliasCommand extends AbstractCommand {
 		while (st.hasMoreElements()) {
 		    String alias = (String) st.nextElement();
 		    if (!_aliases.containsKey(alias)) {
-			System.err.println("unknown alias '" 
+			HenPlus.msg().println("unknown alias '" 
 					   + alias + "'");
 		    }
 		    else {
@@ -168,19 +168,19 @@ public final class AliasCommand extends AbstractCommand {
 
 	else {
 	    String toExecute = (String) _aliases.get(cmd);
-            System.err.println("key: '" + cmd + "' - exec: " + toExecute);
+            HenPlus.msg().println("key: '" + cmd + "' - exec: " + toExecute);
 	    if (toExecute == null) {
 		return EXEC_FAILED;
 	    }
 	    // not session-proof:
 	    if (_currentExecutedAliases.contains(cmd)) {
-		System.err.println("Recursive call to aliases ["
+		HenPlus.msg().println("Recursive call to aliases ["
 				   + cmd 
 				   + "]. Stopping this senseless venture.");
 		_currentExecutedAliases.clear();
 		return EXEC_FAILED;
 	    }
-	    System.err.println("execute alias: " + toExecute + param);
+	    HenPlus.msg().println("execute alias: " + toExecute + param);
 	    _currentExecutedAliases.add(cmd);
 	    _dispatcher.execute(currentSession, toExecute + param);
 	    _currentExecutedAliases.clear();

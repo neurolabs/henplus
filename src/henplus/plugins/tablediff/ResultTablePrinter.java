@@ -4,6 +4,7 @@
  */
 package henplus.plugins.tablediff;
 
+import henplus.HenPlus;
 import henplus.Command;
 import henplus.sqlmodel.ColumnFkInfo;
 import henplus.sqlmodel.ColumnPkInfo;
@@ -23,7 +24,7 @@ import java.util.SortedSet;
  * <p>Title: ResultTablePrinter</p>
  * <p>Description:<br>
  * Created on: 24.07.2003</p>
- * @version $Id: ResultTablePrinter.java,v 1.2 2004-01-27 18:16:33 hzeller Exp $ 
+ * @version $Id: ResultTablePrinter.java,v 1.3 2004-01-28 09:25:49 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class ResultTablePrinter {
@@ -86,7 +87,8 @@ public final class ResultTablePrinter {
          * we render the table now, since we only know know, whether we
          * will show the first column or not.
          */
-        ExtendedTableRenderer table = new ExtendedTableRenderer(DESC_META, System.out);
+        ExtendedTableRenderer table = new ExtendedTableRenderer(DESC_META, 
+                                                                HenPlus.out());
         Iterator it = rows.iterator();
         while (it.hasNext()) {
             table.addRow((Column[])it.next());

@@ -1,11 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EchoCommand.java,v 1.6 2002-02-26 21:15:19 hzeller Exp $ 
+ * $Id: EchoCommand.java,v 1.7 2004-01-28 09:25:48 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
+import henplus.HenPlus;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 
@@ -29,7 +30,7 @@ public final class EchoCommand extends AbstractCommand {
      */
     public int execute(SQLSession currentSession, String cmd, String param) {
 	String outStr = param.trim();
-	System.out.println(stripQuotes(outStr));
+	HenPlus.out().println(stripQuotes(outStr));
 	return SUCCESS;
     }
     
