@@ -4,8 +4,9 @@
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
-package henplus;
+package henplus.event;
 
+import henplus.SQLSession;
 import java.util.EventListener;
 
 /**

@@ -1,10 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EchoCommandProperty.java,v 1.2 2004-03-05 23:34:38 hzeller Exp $
+ * $Id: EchoCommandProperty.java,v 1.3 2004-03-07 12:04:15 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
+
+import henplus.event.ExecutionListener;
 
 import henplus.property.BooleanPropertyHolder;
 
