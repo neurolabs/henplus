@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.26 2002-11-21 17:50:51 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.27 2003-01-25 18:49:28 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
@@ -70,6 +70,7 @@
             <include name="${src}/**" />
             <include name="${bin}/**" />
             <include name="doc/**" />
+	    <include name="debian/*" />
             <include name="build.xml" />
             <include name="henplus.spec.in" />
             <include name="henplus.spec" />
@@ -86,10 +87,13 @@
        <tar tarfile="${tarbase}.tar">
          <tarfileset dir="." mode="755">
            <include name="${tarbase}/bin/henplus" />
+	   <include name="${tarbase}/debian/rules" />
          </tarfileset>
          <tarfileset dir=".">
            <include name="${tarbase}/**"/>
            <exclude name="${tarbase}/bin/henplus" />
+	   <exclude name="${tarbase}/debian/rules" />
+           <exclude name="${tarbase}/bin/" />
          </tarfileset>
        </tar>
        <gzip zipfile="${tarbase}.tar.gz" src="${tarbase}.tar" />

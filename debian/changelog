@@ -1,0 +1,6 @@
+henplus (0.9-1) unstable; urgency=low
+
+  * Initial Release as debian package.
+
+ -- Henner Zeller <H.Zeller@acm.org>  Sat, 25 Jan 2003 18:11:14 +0100
+

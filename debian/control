@@ -1,0 +1,15 @@
+Source: henplus
+Section: devel
+Priority: optional
+Maintainer: Henner Zeller <H.Zeller@acm.org>
+Build-Depends: debhelper (>> 3.0.0), ant (>=1.4), libreadline-java (>=0.7.3)
+Standards-Version: 3.5.8
+
+Package: henplus
+Architecture: all
+Depends: libreadline-java (>=0.7.3), java1-runtime 
+Description: JDBC SQL commandline frondend with TAB-completion
+ HenPlus is a SQL shell written in Java that works for any database that 
+ has JDBC support. It provides commandline history, commandline completion,
+ and can handle multiple connects to different databases at once.
+ Database-independant table dumps, aliases, and variables are also supported.
