@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.3 2002-04-03 07:08:25 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.4 2002-05-06 06:56:57 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -48,14 +48,22 @@ public class SQLStatementSeparator {
     private static final byte SQLSTRING       = 10;
     private static final byte SQLSTRING_QUOTE = 11;
     private static final byte STATEMENT_QUOTE = 12;  // backslash in statement
-    private static final byte POTENTIAL_END_FOUND = 13;
+    private static final byte FIRST_SEMICOLON_ON_LINE_SEEN  = 13;
+    private static final byte POTENTIAL_END_FOUND = 14;
 
     private static class ParseState {
 	private byte         _state;
 	private StringBuffer _inputBuffer;
 	private StringBuffer _commandBuffer;
+	/*
+	 * instead of adding new states, we store the
+	 * fact, that the last 'potential_end_found' was
+	 * a newline here.
+	 */
+	private boolean      _eolineSeen;
 
 	public ParseState() {
+	    _eolineSeen = true; // we start with a new line.
 	    _state = START;
 	    _inputBuffer = new StringBuffer();
 	    _commandBuffer = new StringBuffer();
@@ -63,6 +71,8 @@ public class SQLStatementSeparator {
 	
 	public byte getState() { return _state; }
 	public void setState(byte s) { _state = s; }
+	public boolean hasNewlineSeen() { return _eolineSeen; }
+	public void setNewlineSeen(boolean n) { _eolineSeen = n; }
 	public StringBuffer getInputBuffer() { return _inputBuffer; }
 	public StringBuffer getCommandBuffer() { return _commandBuffer; }
     };
@@ -149,6 +159,8 @@ public class SQLStatementSeparator {
 
 	// local variables: faster access.
 	byte state = _currentState.getState();
+	boolean lastEoline = _currentState.hasNewlineSeen();
+
 	final StringBuffer input  = _currentState.getInputBuffer();
 	final StringBuffer parsed = _currentState.getCommandBuffer();
 
@@ -164,8 +176,17 @@ public class SQLStatementSeparator {
 		reIterate = false;
 		switch (state) {
 		case STATEMENT :
-		    if (current == '\n')      state = POTENTIAL_END_FOUND;
-		    else if (current == ';')  state = POTENTIAL_END_FOUND;
+		    if (current == '\n') {
+			state = POTENTIAL_END_FOUND;
+			_currentState.setNewlineSeen(true);
+		    }
+		    else if (lastEoline && current== ';' ) {
+			state = FIRST_SEMICOLON_ON_LINE_SEEN;
+		    }
+		    else if (!lastEoline && current==';') {
+			_currentState.setNewlineSeen(false);
+			state = POTENTIAL_END_FOUND;
+		    }
 		    else if (current == '/')  state = START_COMMENT;
 		    else if (current == '"')  state = STRING;
 		    else if (current == '\'') state = SQLSTRING;
@@ -174,6 +195,17 @@ public class SQLStatementSeparator {
 		    break;
 		case STATEMENT_QUOTE:
 		    state = STATEMENT;
+		    break;
+		case FIRST_SEMICOLON_ON_LINE_SEEN:
+		    if (current == ';') state = ENDLINE_COMMENT;
+		    else {
+			state = POTENTIAL_END_FOUND;
+			current = ';';
+			/*
+			 * we've read too much. Reset position.
+			 */
+			--pos;
+		    }
 		    break;
 		case START_COMMENT:
 		    if (current == '*')         state = COMMENT;
@@ -243,6 +275,11 @@ public class SQLStatementSeparator {
 	    
 	    oldstate = state;
 	    pos++;
+	    /*
+	     * we maintain the state of 'just seen newline' as long
+	     * as we only skip whitespaces..
+	     */
+	    lastEoline &= Character.isWhitespace(current);
 	}
 	// we reached: POTENTIAL_END_FOUND. Store the rest, that
 	// has not been parsed in the input-buffer.

@@ -102,7 +102,9 @@ public class ShellCommand extends AbstractCommand {
 	return "\tExecute a system command in the shell. You can only invoke\n"
 	    +  "\tcommands,  that do  not expect  anything  from  stdin: the\n"
 	    +  "\tinteractive  input  from HenPlus  is disconnected from the\n"
-	    +  "\tsubprocess' stdin.";
+	    +  "\tsubprocess' stdin. But this is useful to call some small\n"
+	    +  "\tcommands in the middle of the sesion. Like 'ls':\n"
+	    +  "\t!ls";
     }
     
     //-------- Helper class to handle the output of an process.

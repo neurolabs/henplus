@@ -7,6 +7,7 @@
 package henplus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -70,8 +71,23 @@ public class CommandDispatcher implements ReadlineCompleter {
 	String[] cmdStrings = c.getCommandList();
 	for (int i = 0; i < cmdStrings.length; ++i) {
 	    if (commandMap.containsKey(cmdStrings[i]))
-		throw new Error("DEVELOPER: please choose another name, this one is already used: '" + cmdStrings[i] + "'");
+		throw new IllegalArgumentException("attempt to register command '" + cmdStrings[i] + "', that is already used");
 	    commandMap.put(cmdStrings[i], c);
+	}
+    }
+
+    /**
+     * unregister command. This is an 'expensive' operation, since we
+     * go through the internal list until we find the command and remove
+     * it. But since the number of commands is low and this is a rare
+     * operation (the plugin-mechanism does this) .. we don't care.
+     */
+    public void unregister(Command c) {
+	commands.remove(c);
+	Iterator entries = commandMap.entrySet().iterator();
+	while (entries.hasNext()) {
+	    Map.Entry e = (Map.Entry) entries.next();
+	    if (e.getValue() == c) entries.remove();
 	}
     }
 

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.34 2002-04-22 16:16:54 hzeller Exp $
+ * $Id: HenPlus.java,v 1.35 2002-05-06 06:56:57 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -95,6 +95,8 @@ public class HenPlus {
 	dispatcher.register(new AboutCommand(_quiet));
 	dispatcher.register(new ExitCommand());
 	dispatcher.register(new EchoCommand());
+	PluginCommand pluginCommand = new PluginCommand(this);
+	dispatcher.register(pluginCommand);
 	dispatcher.register(new DriverCommand(this));
 	dispatcher.register(new LoadCommand());
 
@@ -111,10 +113,11 @@ public class HenPlus {
 	dispatcher.register(new AutocommitCommand()); // replace with 'set'
 	dispatcher.register(new ShellCommand());
 
-	// dummy command:
-	dispatcher.register(new SpoolCommand());
-
+	dispatcher.register(new SpoolCommand()); // dummy command
 	dispatcher.register(_settingStore);
+
+	pluginCommand.load();
+
 	Readline.setCompleter( dispatcher );
 
 	// in case someone presses Ctrl-C
@@ -196,7 +199,7 @@ public class HenPlus {
 		_commandSeparator.consumed();
 		result = LINE_EMPTY;
 	    }
-	    else if(!c.isComplete(completeCommand)) {
+	    else if (!c.isComplete(completeCommand)) {
 		_commandSeparator.cont();
 		result = LINE_INCOMPLETE;
 	    }
@@ -257,7 +260,7 @@ public class HenPlus {
 	    else {
 		displayPrompt = prompt;
 	    }
-	    if (lineExecState == LINE_EXECUTED) {
+	    if (lineExecState != LINE_INCOMPLETE) {
 		Readline.addToHistory(_historyLine.toString());
 		_historyLine.setLength(0);
 	    }

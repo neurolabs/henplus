@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Command.java,v 1.6 2002-04-22 16:16:53 hzeller Exp $
+ * $Id: Command.java,v 1.7 2002-05-06 06:56:57 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -28,7 +28,10 @@ public interface Command {
      * returns 'false', if the commands supported by this Commands should
      * not be part of the toplevel command completion. So if the user
      * presses TAB on an empty string to get the full list of possible
-     * commands, this command should not show up.
+     * commands, this command should not show up. This returns 'false' for
+     * the SQL-commands ('select', 'update', 'drop' ..), since this would
+     * clobber the toplevel list of available commands. If unsure, return
+     * 'true'
      */
     boolean participateInCommandCompletion();
 
@@ -87,7 +90,10 @@ public interface Command {
     boolean isComplete(String command);
 
     /**
-     * returns true, if this command requires a valid SQLSession.
+     * returns true, if this command requires a valid SQLSession, i.e. if the
+     * {@link #execute(SQLSession,String,String)} method makes use of the
+     * session (e.g. to get some Database connection) or not. Return 'true'
+     * if unsure (you should be sure..).
      */
     boolean requiresValidSession(String cmd);
 

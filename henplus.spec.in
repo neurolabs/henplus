@@ -1,4 +1,4 @@
-# $Id: henplus.spec.in,v 1.5 2002-04-24 12:37:07 hzeller Exp $
+# $Id: henplus.spec.in,v 1.6 2002-05-06 06:56:57 hzeller Exp $
 #
 %define version @HENPLUS_VERSION@
 
@@ -36,7 +36,9 @@ ant -Dprefix=%{prefix} -DDESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %files
+%defattr(-,root,root,755)
 %{prefix}/bin/henplus
+%defattr(-,root,root,-)
 %dir %{prefix}/share/henplus
 %{prefix}/share/henplus/henplus.jar
 %doc doc/HenPlus.html

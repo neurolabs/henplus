@@ -174,6 +174,12 @@ public class SQLCommand extends AbstractCommand {
 		TimeRenderer.printTime(execTime, System.err);
 		System.err.println(")");
 	    }
+
+	    // be smart and retrigger hashing of the tablenames.
+	    if ("drop".equals(cmd) || "create".equals(cmd)) {
+		tableCompleter.unhash(session);
+	    }
+
 	    return SUCCESS;
 	}
 	/*

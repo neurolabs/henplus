@@ -100,7 +100,14 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	NameCompleter compl = (NameCompleter) sessionTables.get(session);
 	return (compl == null) ? rehash(session) : compl;
     }
+    
+    public void unhash(SQLSession session) {
+	sessionTables.remove(session);
+    }
 
+    /**
+     * rehash table names.
+     */
     private NameCompleter rehash(SQLSession session) {
 	NameCompleter result = new NameCompleter();
 	Connection conn = session.getConnection();  // use createStmt

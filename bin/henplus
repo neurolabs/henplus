@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: henplus,v 1.6 2002-03-11 08:47:58 hzeller Exp $
+# $Id: henplus,v 1.7 2002-05-06 06:56:57 hzeller Exp $
 ##
 # additional flags you might want to pass to the java interpreter
 JAVA_FLAGS=
@@ -20,9 +20,12 @@ CLASSPATH=$CLASSPATH:$THISDIR/../share/java/libreadline-java.jar
 # you may just throw your own jar files in this dir.
 # (like additional JDBC-drivers, that are not in default
 # classpath)
-for f in $HENPLUSDIR/*.jar ; do
-    CLASSPATH=$CLASSPATH:$f
+for f in $HENPLUSDIR/*.jar $HENPLUSDIR/*.zip ; do
+    if [ -r "$f" ] ; then
+	CLASSPATH=$CLASSPATH:$f
+    fi
 done
+echo $CLASSPATH
 
 export CLASSPATH LD_LIBRARY_PATH
 
