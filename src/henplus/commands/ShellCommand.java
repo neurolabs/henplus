@@ -32,9 +32,11 @@ public class ShellCommand extends AbstractCommand {
     /**
      * shell commands always have the semicolon as special character.
      */
+    /*
     public boolean isComplete(String command) {
 	return (!command.endsWith(";"));
     }
+    */
 
     public boolean requiresValidSession(String cmd) { return false; }
 

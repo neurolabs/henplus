@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.10 2002-01-26 14:23:21 hzeller Exp $
+ * $Id: HenPlus.java,v 1.11 2002-01-26 18:28:25 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 
@@ -9,6 +9,7 @@ import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Stack;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,13 +50,17 @@ public class HenPlus {
     private boolean           terminated;
     private String            prompt;
     private String            emptyPrompt;
+    private boolean           _alreadyShutDown;
     private StringBuffer      _commandBuffer;
     private SetCommand        _settingStore;
+    private Stack             _inputBufferStack;
 
     private HenPlus(Properties properties, String argv[]) throws IOException {
 	terminated = false;
 	this.properties = properties;
 	_commandBuffer = new StringBuffer();
+	_inputBufferStack = new Stack();
+	_alreadyShutDown = false;
 
 	try {
 	    Readline.load(ReadlineLibrary.GnuReadline);
@@ -94,6 +99,7 @@ public class HenPlus {
 	dispatcher.register(new ExportCommand());
 	dispatcher.register(new ImportCommand());
 	dispatcher.register(new ShellCommand());
+	dispatcher.register(new EchoCommand());
 	dispatcher.register(new ExitCommand());
 	dispatcher.register(new StatusCommand());
 	dispatcher.register(new ConnectCommand( argv, this ));
@@ -103,14 +109,33 @@ public class HenPlus {
 	Readline.setCompleter( dispatcher );
 	setDefaultPrompt();
 	// in case someone presses Ctrl-C
-	Runtime.getRuntime()
-	    .addShutdownHook(new Thread() {
-		    public void run() {
-			shutdown();
-		    }
-		});
+	try {
+	    Runtime.getRuntime()
+		.addShutdownHook(new Thread() {
+			public void run() {
+			    shutdown();
+			}
+		    });
+	}
+	catch (NoSuchMethodError e) {
+	    System.err.println("== This JDK is OLD. ==");
+	    System.err.println(" - No final save on CTRL-C supported.");
+	    System.err.println(" - and if your shell is broken after use of henplus: same reason.");
+	    System.err.println("Bottomline: update your JDK (>= 1.3)!");
+	}
     }
     
+    public void pushBuffer() {
+	_inputBufferStack.push(_commandBuffer);
+	_commandBuffer = new StringBuffer();
+	_parseState = START;  // FIXME: we have to push the state as well.
+    }
+
+    public void popBuffer() {
+	_commandBuffer = (StringBuffer) _inputBufferStack.pop();
+	_parseState = START;  // FIXME: we have to pop the state as well.
+    }
+
     public void resetBuffer() {
 	_commandBuffer.setLength(0);
 	_parseState = START;
@@ -147,7 +172,7 @@ public class HenPlus {
 		}
 	    }
 	    else {
-		System.err.println("#'" + _commandBuffer.toString() + "'#");
+		//System.err.println("#'" + _commandBuffer.toString() + "'#");
 		result = LINE_INCOMPLETE;
 	    }
 	}
@@ -185,14 +210,23 @@ public class HenPlus {
     }
     
     private void shutdown() {
+	if (_alreadyShutDown) {
+	    return;
+	}
 	System.err.println("storing settings..");
-	if (dispatcher != null) {
-	    dispatcher.shutdown();
-	}
 	try {
-	    Readline.writeHistoryFile(getHistoryLocation());
+	    if (dispatcher != null) {
+		dispatcher.shutdown();
+	    }
+	    try {
+		Readline.writeHistoryFile(getHistoryLocation());
+	    }
+	    catch (Exception ignore) {}
+	    Readline.cleanup();
 	}
-	catch (Exception ignore) {}
+	finally {
+	    _alreadyShutDown = true;
+	}
     }
 
     public void terminate() {
@@ -296,7 +330,7 @@ public class HenPlus {
 	    pos++; 
 	}
 	input.setLength(0);
-	input.append(rest);
+	input.append(rest.toString()); // stuid jdk 1.2.2
 	_parseState = state;
     }
     
@@ -417,6 +451,7 @@ public class HenPlus {
 
 	instance = new HenPlus(properties, argv);
 	instance.run();
+	instance.shutdown();
 	System.err.println( EXIT_MSG );
     }
 

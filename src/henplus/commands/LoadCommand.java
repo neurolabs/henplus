@@ -46,7 +46,9 @@ public class LoadCommand extends AbstractCommand {
 
 	HenPlus henplus = HenPlus.getInstance();
 	try {
+	    henplus.pushBuffer();
 	    File f = new File((String) st.nextElement());
+	    System.err.println(f.getName());
 	    BufferedReader reader = new BufferedReader(new FileReader(f));
 	    String line;
 	    while ((line = reader.readLine()) != null) {
@@ -60,7 +62,7 @@ public class LoadCommand extends AbstractCommand {
 	    return EXEC_FAILED;
 	}
 	finally {
-	    henplus.resetBuffer(); // no open state ..
+	    henplus.popBuffer(); // no open state ..
 	}
 	long execTime = System.currentTimeMillis() - startTime;
 	System.err.print(commandCount + " commands in ");

@@ -353,7 +353,8 @@ public class ConnectCommand extends AbstractCommand {
 		+"\tIf no session name is given, a session name is chosen.";
 	}
 	else if ("disconnect".equals(cmd)) {
-	    dsc="\tdisconnect current session.";
+	    dsc="\tdisconnect current session. You can leave a session as\n"
+	    +"\twell if you just type CTRL-D";
 	}
 	else if ("switch".equals(cmd)) {
 	    dsc="\tswitch to session with the given session name.";
