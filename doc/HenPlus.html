@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.9 2002-12-20 17:51:28 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.10 2003-01-06 11:59:22 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -116,7 +116,7 @@ which will install henplus in
 <table bgcolor="#DDDDFF" border=1>
 <tr valign="top">
    <td>/usr/share/henplus/henplus.jar</td><td>The jar-file containing
-                         the HenPlus classes. You can add additonal
+                         the HenPlus classes. You can add additional
 			 jar files in this directory. All of them are
 			 added to the classpath in the henplus shellscript
 			 (use this for JDBC-drivers).
@@ -173,7 +173,7 @@ command or by just typing EOF-Character (CTRL-D).
 <p>
 Just explore the commands by typing <code>help [commandname]</code> and
 learn what the built-in commands are all about. Start with the 
-<code>connect</code> commmand
+<code>connect</code> command
 <pre>
 Hen*Plus&gt; help connect
 </pre>
@@ -236,7 +236,7 @@ the C/C++/Java style comments, that comment out a range between
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 /*
    This is a longer comment that goes
-   accross several lines
+   across several lines
  */
  select * from foobar;
 </pre></td></tr></table>
@@ -281,7 +281,7 @@ supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
 <h3><a name="getting-connected"/>Getting connected</h3>
 Getting connected to a database is simple: you need the JDBC driver
 from your database vendor, put it in the classpath, register the driver
--- thats it. HenPlus provides the commands register, unregister and 
+-- that&apos;s it. HenPlus provides the commands register, unregister and 
 list-drivers to manage the drivers (you know it already: the <code>help</code>
 command tells you more details). Some of the common drivers
 are already registered by default .. however, they still need to be in 
@@ -342,7 +342,7 @@ is because its not possible with Java to switch the tty in non-echo mode (or
 is it? Please let <a href="mailto:H.Zeller@acm.org">me</a> know);
 this is a known misfeature and will be fixed sometime.
 <p>
-Typing JDBC-URLs is tedious ? Thats right, so HenPlus remembers all the
+Typing JDBC-URLs is tedious ? That&apos;s right, so HenPlus remembers all the
 connection URLs you were connected to and provides it in the context
 sensitive commandline completion for the connect command. So next time you
 connect, you just type
@@ -423,7 +423,7 @@ variable names after typing '<code>$</code>'. Just try it ..
 <h3><a name="per-project-config"/>Per Project Configuration</h3>
 <em>HenPlus</em> stores the commandline history, the connection-URLs and
 the variable settings persistently in the filesystem. This is written
-to a directory <code>~/.henplus</code>, that is createted in your
+to a directory <code>~/.henplus</code>, that is created in your
 home directory.
 <p>
 If you have multiple projects you work on, all this information about any
@@ -488,15 +488,15 @@ command peeks into the original command that is executed when you type 'size'.
 All aliases can be shown with <code>list-aliases</code>; they are stored, so that they
 are available on next startup.
 
-<h3><a name="table-dumps"/>Database independant table dumps</h3>
-You can dump out tables in a database independant format. See the online help for
+<h3><a name="table-dumps"/>Database independent table dumps</h3>
+You can dump out tables in a database independent format. See the online help for
 <code>dump-out</code> and <code>dump-in</code>. You even can dump only selected
 values of a certain table; see <code>dump-conditional</code> for this.
 <p>
-The format that is written must be database independant, thus it is not possible to store
+The format that is written must be database independent, thus it is not possible to store
 them as simple 'INSERT INTO..' statements, as the different databases have different
 assumption how different data types should be parsed :-( Thus the dump format is a
-canonical lisp like text format that is easily parsable for the human eye and external tools:
+canonical lisp like text format that is easily parseable for the human eye and external tools:
 <hr noshade='noshade' size="1" />
 <pre>
 (tabledump 'student'
@@ -559,4 +559,4 @@ This will eventually be the FAQ. But for now, there is only one question..
 <br>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.9 2002-12-20 17:51:28 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.10 2003-01-06 11:59:22 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
