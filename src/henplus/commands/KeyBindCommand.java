@@ -52,8 +52,8 @@ public class KeyBindCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "bind-key-cmd-string",
             "list-key-bindings",
+	    "bind-key-cmd-string",
             //"test-bind-all" // uncomment for tests.
 	};
     }
@@ -252,7 +252,7 @@ public class KeyBindCommand extends AbstractCommand {
      * return a descriptive string.
      */
     public String getShortDescription() {
-	return "bind a key to a command string";
+	return "handle function key bindings";
     }
     public String getSynopsis(String cmd) {
         if ("bind-key-cmd-string".equals(cmd)) {

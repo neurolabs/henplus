@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.65 2004-03-05 23:34:38 hzeller Exp $
+ * $Id: HenPlus.java,v 1.66 2004-03-06 11:04:31 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -131,6 +131,10 @@ public class HenPlus implements Interruptable {
 	_dispatcher.register(new DriverCommand(this));
 	AliasCommand aliasCommand = new AliasCommand(this);
 	_dispatcher.register(aliasCommand);
+        if (_fromTerminal) {
+            _dispatcher.register(new KeyBindCommand(this));
+        }
+
         LoadCommand loadCommand = new LoadCommand();
 	_dispatcher.register(loadCommand);
 
@@ -149,9 +153,6 @@ public class HenPlus implements Interruptable {
 	_dispatcher.register(new DumpCommand(_objectLister, loadCommand));
 
 	_dispatcher.register(new ShellCommand());
-        if (_fromTerminal) {
-            _dispatcher.register(new KeyBindCommand(this));
-        }
 	_dispatcher.register(new SpoolCommand(this));
 	_dispatcher.register(_settingStore);
 
