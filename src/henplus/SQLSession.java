@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.30 2004-03-07 14:22:02 hzeller Exp $
+ * $Id: SQLSession.java,v 1.31 2004-06-07 08:31:56 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -19,6 +19,7 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -185,12 +186,26 @@ public class SQLSession implements Interruptable {
             _conn = null;
 	}
 
+        Properties props = new Properties();
+        /*
+         * FIXME
+         * make generic plugin for specific database drivers that handle
+         * the specific stuff. For now this is a quick hack.
+         */
+        if (_url.startsWith("jdbc:oracle:")) {
+            /* this is needed to make comment in oracle show up in 
+             * the remarks
+             * http://forums.oracle.com/forums/thread.jsp?forum=99&thread=225790
+             */
+            props.put("remarksReporting","true");
+        }
+
 	/* try to connect directly with the url. Several JDBC-Drivers
          * allow to embed the username and password directly in the URL.
          */
 	if (_username == null || _password == null) {
 	    try {
-		_conn = DriverManager.getConnection(_url);
+		_conn = DriverManager.getConnection(_url, props);
 	    }
 	    catch (SQLException e) {
                 HenPlus.msg().println(e.getMessage());

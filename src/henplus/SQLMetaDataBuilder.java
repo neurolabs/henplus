@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SQLMetaDataBuilder.java,v 1.3 2004-02-01 14:12:52 hzeller Exp $ 
+ * @version $Id: SQLMetaDataBuilder.java,v 1.4 2004-06-07 08:31:56 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus;
@@ -20,10 +20,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.SortedSet;
+import java.util.Collection;
+import java.util.List;
+import java.util.ArrayList;
 
 public final class SQLMetaDataBuilder {
-
+    final private static String[] LIST_TABLES = { "TABLE" };
     private static final boolean _verbose = false;
 
     // column description
@@ -62,8 +64,29 @@ public final class SQLMetaDataBuilder {
         _interrupted = true;
     }
 
-    public SQLMetaData getMetaData(SQLSession session, SortedSet /*<String>*/
-                                   tableNames) {
+    public SQLMetaData getMetaData(SQLSession session) {
+	ResultSet rset = null;
+        List tableList = new ArrayList();
+	try {
+	    DatabaseMetaData meta = session.getConnection().getMetaData();
+	    rset = meta.getTables(null, null, null, LIST_TABLES);
+	    while (rset.next()) {
+		tableList.add(rset.getString(3));
+	    }
+	}
+	catch (Exception e) {
+	    // ignore.
+	}
+	finally {
+	    if (rset != null) {
+		try { rset.close(); } catch (Exception e) {}
+	    }
+	}
+        return getMetaData(session, tableList);
+    }
+
+    public SQLMetaData getMetaData(SQLSession session, 
+                                   Collection /*<String>*/ tableNames) {
         SQLMetaData result = new SQLMetaData();
 
         ResultSet rset = null;

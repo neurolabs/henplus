@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.18 2004-03-07 17:20:36 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.19 2004-06-07 08:31:56 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -323,10 +323,27 @@ public class SQLStatementSeparator {
 		    break;
 		case STRING_QUOTE:
 		    vetoAppend = (current == '\n');
+                    if (current == 'n') current = '\n';
+                    else if (current == 'r') current = '\r';
+                    else if (current == 't') current = '\t';
+                    else if (current != '\n' && current != '"') {
+                        // if we do not recognize the escape sequence,
+                        // pass it through.
+                        parsed.append("\\");
+                    }
 		    state = STRING;
 		    break;
 		case SQLSTRING_QUOTE:
+                    // convert a "\'" to a correct SQL-Quote "''"
 		    if (current == '\'') parsed.append("'");
+                    else if (current == 'n') current = '\n';
+                    else if (current == 'r') current = '\r';
+                    else if (current == 't') current = '\t';
+                    else if (current != '\n') {
+                        // if we do not recognize the escape sequence,
+                        // pass it through.
+                        parsed.append("\\");
+                    }
 		    vetoAppend = (current == '\n');
 		    state = SQLSTRING;
 		    break;

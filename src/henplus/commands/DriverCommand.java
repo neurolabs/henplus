@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.11 2004-03-06 00:15:28 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.12 2004-06-07 08:31:56 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -29,6 +29,8 @@ import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.SQLSession;
 
+import java.sql.Driver;
+
 /**
  * document me.
  */
@@ -52,16 +54,20 @@ public final class DriverCommand extends AbstractCommand {
     private final static String DRIVERS_FILENAME = "drivers";
     private final static ColumnMetaData[] DRV_META;
     static {
-	DRV_META = new ColumnMetaData[3];
+	DRV_META = new ColumnMetaData[4];
 	DRV_META[0] = new ColumnMetaData("for");
 	DRV_META[1] = new ColumnMetaData("driver class");
-	DRV_META[2] = new ColumnMetaData("sample url");
+	DRV_META[2] = new ColumnMetaData("Version");
+	DRV_META[3] = new ColumnMetaData("sample url");
     }
 
     private final static class DriverDescription {
-	private final String  className;
-	private final String  sampleURL;
+	private final String className;
+	private final String sampleURL;
+
+        private String version; // known after loading.
 	private boolean loaded;
+
 	public DriverDescription(String cn, String surl) {
 	    className = cn;
 	    sampleURL = surl;
@@ -69,12 +75,21 @@ public final class DriverCommand extends AbstractCommand {
 	}
 	public String getClassName() { return className; }
 	public String getSampleURL() { return sampleURL; }
+        public String getVersion() { return version; }
 	public boolean isLoaded() { return loaded; }
 	public boolean load() {
 	    try {
 		if (verbose) HenPlus.msg().print("loading .. '" + className + "'");
-		Class.forName(className);
-		if (verbose) HenPlus.msg().println(" done.");
+		Class cls = Class.forName(className);
+                if (verbose) HenPlus.msg().println(" done.");
+                try {
+                    Driver driver = (Driver) cls.newInstance();
+                    version = (driver.getMajorVersion() + "."
+                              + driver.getMinorVersion());
+                }
+                catch (Throwable t) {
+                    // ign.
+                }
 		loaded = true;
 	    }
 	    catch (Throwable t) {
@@ -148,17 +163,19 @@ public final class DriverCommand extends AbstractCommand {
 		DRV_META[0].resetWidth();
 		DRV_META[1].resetWidth();
 		DRV_META[2].resetWidth();
+		DRV_META[3].resetWidth();
 		TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
 		Iterator vars = _drivers.entrySet().iterator();
 		while (vars.hasNext()) {
 		    Map.Entry entry = (Map.Entry) vars.next();
-		    Column[] row = new Column[3];
+		    Column[] row = new Column[4];
 		    DriverDescription desc=(DriverDescription)entry.getValue();
 		    String dbName = (String) entry.getKey();
 		    row[0] = new Column(((desc.isLoaded()) ? "* ":"  ")
 					+ dbName);
-		    row[1] = new Column( desc.getClassName());
-		    row[2] = new Column( desc.getSampleURL());
+		    row[1] = new Column( desc.getClassName() );
+                    row[2] = new Column( desc.getVersion() );
+		    row[3] = new Column( desc.getSampleURL() );
 		    table.addRow(row);
 		}
 		table.closeTable();

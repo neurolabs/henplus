@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.5 2004-03-05 23:34:38 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.6 2004-06-07 08:31:56 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
@@ -72,11 +72,19 @@ public class TableRenderer {
     }
     
     /**
+     * return the meta data that is used to display this table.
+     */
+    public ColumnMetaData[] getMetaData() {
+        return meta;
+    }
+
+    /**
      * Overwrite this method if you need to handle customized columns.
      * @param row
      */
     protected void updateColumnWidths(Column[] row) {
         for (int i = 0; i < meta.length; ++i) {
+            row[i].setAutoWrap(meta[i].getAutoWrap());
             meta[i].updateWidth(row[i].getWidth());
         }
     }

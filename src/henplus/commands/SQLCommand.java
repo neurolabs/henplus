@@ -222,6 +222,14 @@ public class SQLCommand extends AbstractCommand {
                         }
                         else {
                             stmt = session.createStatement();
+                            try {
+                                // Postgres otherwise tries to load the
+                                // whole result set at once :-(
+                                stmt.setFetchSize(200);
+                            }
+                            catch (Exception e) {
+                                // ignore
+                            }
                             hasResultSet = stmt.execute(command);
                         }
 			break;

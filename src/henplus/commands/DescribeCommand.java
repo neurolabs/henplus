@@ -38,7 +38,7 @@ public class DescribeCommand
     implements Interruptable 
 {
     final private static String[] LIST_TABLES = { "TABLE" };
-    static final boolean verbose     = false;
+    static final boolean verbose     = false; // FIXME: make property.
     private final static ColumnMetaData[] DESC_META;
     static {
 	DESC_META = new ColumnMetaData[9];
@@ -50,7 +50,8 @@ public class DescribeCommand
 	DESC_META[5] = new ColumnMetaData("default");
 	DESC_META[6] = new ColumnMetaData("pk");
 	DESC_META[7] = new ColumnMetaData("fk");
-	DESC_META[8] = new ColumnMetaData("remark");
+	DESC_META[8] = new ColumnMetaData("remark", ColumnMetaData.ALIGN_LEFT,
+                                          60);
     }
 
     private boolean interrupted;

@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * document me.
+ * FIXME: use SQLMetaData stuff instead.
  */
 public class ListUserObjectsCommand 
     extends AbstractCommand implements Interruptable 
@@ -43,12 +43,12 @@ public class ListUserObjectsCommand
     final private HenPlus                        henplus;
     
     private boolean interrupted;
-
+    
     public ListUserObjectsCommand(HenPlus hp) {
-	   sessionTables = new HashMap();
-       sessionColumns = new HashMap();
-	   henplus = hp;
-       interrupted = false;
+        sessionTables = new HashMap();
+        sessionColumns = new HashMap();
+        henplus = hp;
+        interrupted = false;
     }
 
     /**
@@ -104,6 +104,8 @@ public class ListUserObjectsCommand
 		renderer = new ResultSetRenderer(rset, "|", true, true, 2000,
                                                  HenPlus.out(),
 						 columnDef);
+                renderer.getDisplayMetaData()[2].setAutoWrap(78);
+
 		int tables = renderer.execute();
 		if (tables > 0) {
 		    HenPlus.msg().println(tables + " " + objectType + " found.");
