@@ -271,6 +271,7 @@ public class ConnectCommand extends AbstractCommand {
 	    }
 	    session = (SQLSession) sessions.get(sessionName);
 	    if (session == null) {
+		System.err.println("'" + sessionName + "': no such session");
 		return EXEC_FAILED;
 	    }
 	    currentSessionName = sessionName;

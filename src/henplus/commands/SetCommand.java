@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.7 2002-02-10 09:35:29 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.8 2002-02-14 17:09:48 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -86,6 +86,8 @@ public final class SetCommand extends AbstractCommand {
 	
 	if ("set".equals(cmd)) {
 	    if (argc == 0) {
+		SET_META[0].reset();
+		SET_META[1].reset();
 		TableRenderer table = new TableRenderer(SET_META, System.out);
 		Iterator vars = _variables.entrySet().iterator();
 		while (vars.hasNext()) {

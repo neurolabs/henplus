@@ -17,6 +17,9 @@ import java.sql.SQLException;
  * document me.
  */
 public class ListUserObjectsCommand extends AbstractCommand {
+    final String[] LIST_TABLES = { "TABLE" };
+    final String[] LIST_VIEWS  = { "VIEW" };
+
     /**
      * returns the command-strings this command can handle.
      */
@@ -29,7 +32,7 @@ public class ListUserObjectsCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String command) {
+    public int execute(SQLSession session, String cmd) {
 	try {
 	    Connection conn = session.getConnection();  // use createStmt
 	    DatabaseMetaData meta = conn.getMetaData();
@@ -39,7 +42,10 @@ public class ListUserObjectsCommand extends AbstractCommand {
 		new ResultSetRenderer(meta.getCatalogs(), System.out);
 	    renderer.execute();
 	    renderer = new ResultSetRenderer(meta.getTables(catalog,
-							    null,null,null),
+							    null, null,
+							    "views".equals(cmd)
+							    ? LIST_VIEWS
+							    : LIST_TABLES),
 					     System.out);
 	    renderer.execute();
 	}

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLSession.java,v 1.7 2002-02-11 20:53:23 hzeller Exp $
+ * $Id: SQLSession.java,v 1.8 2002-02-14 17:09:47 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -173,7 +173,17 @@ public class SQLSession {
 
     public Statement createStatement() {
 	Statement result = null;
-	for (int retries=2; retries > 0; --retries) {
+	int retries = 2;
+	try {
+	    if (_conn.isClosed()) { 
+		System.err.println("connection is closed; reconnect.");
+		connect();
+		--retries;
+	    }
+	}
+	catch (Exception e) { /* ign */	}
+
+	while (retries > 0) {
 	    try {
 		result = _conn.createStatement();
 		++_statementCount;
@@ -183,6 +193,7 @@ public class SQLSession {
 		System.err.println("connection failure. Try to reconnect.");
 		try { connect(); } catch (Exception e) {}
 	    }
+	    --retries;
 	}
 	return result;
     }
