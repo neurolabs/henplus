@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.10 2002-02-15 13:36:36 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.11 2002-02-15 20:11:15 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- properties -->
      <property name="version"              value="0.2.5" />
@@ -51,6 +51,7 @@
             <include name="${src}/**" />
             <include name="${bin}/**" />
             <include name="build.xml" />
+            <include name="henplus.spec.in" />
             <include name="henplus.spec" />
             <include name="manifest.txt" />
 	    <exclude name="**/CVS" />
