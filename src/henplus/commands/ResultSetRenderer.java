@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.6 2002-02-11 16:33:05 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.7 2002-02-14 22:38:59 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -24,6 +24,8 @@ public class ResultSetRenderer {
     private final ResultSet rset;
     private final TableRenderer table;
     private final int columns;
+    private boolean beyondLimit;
+    private long    firstRowTime;
 
     public ResultSetRenderer(ResultSet rset, PrintStream out) 
 	throws SQLException {
@@ -31,14 +33,18 @@ public class ResultSetRenderer {
 	ResultSetMetaData meta = rset.getMetaData();
 	columns = meta.getColumnCount();
 	table = new TableRenderer(getDisplayMeta(meta),  out);
+	beyondLimit = false;
+	firstRowTime = -1;
     }
 
-    public String execute() throws SQLException {
+    public int execute() throws SQLException {
 	int rows = 0;
-	boolean beyondLimit = false;
-
+	
 	try {
 	    while (rset.next()) {
+		if (firstRowTime < 0) {
+		    firstRowTime = System.currentTimeMillis();
+		}
 		Column[] currentRow = new Column[ columns ];
 		for (int i = 0 ; i < columns ; ++i) {
 		    String colString = rset.getString(i+1);
@@ -54,19 +60,21 @@ public class ResultSetRenderer {
 	    }
 	    
 	    table.closeTable();
-
-	    // count stuff beyond limit.
-	    if (beyondLimit) {
-		System.err.println("limit " + LIMIT + " reached ..");
-		return "> " + String.valueOf(LIMIT);
-	    }
 	}
 	finally {
 	    rset.close();
 	}
-	return String.valueOf(rows);
+	return rows;
     }
     
+    public boolean limitReached() {
+	return beyondLimit;
+    }
+    
+    public long getFirstRowTime() {
+	return firstRowTime;
+    }
+
     /**
      * determine meta data necesary for display.
      */

@@ -65,6 +65,7 @@ public class SQLCommand extends AbstractCommand {
 	ResultSet rset = null;
 	try {
 	    long startTime = System.currentTimeMillis();
+	    long lapTime  = -1;
 	    long execTime = -1;
 	    if (command.startsWith("commit")) {
 		System.err.print("commit..");
@@ -98,15 +99,20 @@ public class SQLCommand extends AbstractCommand {
 			session.connect();
 		    }
 		}
-
+		
 		if (hasResultSet) {
+		    rset = stmt.getResultSet();
 		    ResultSetRenderer renderer;
-		    renderer = new ResultSetRenderer(stmt.getResultSet(),
-						     System.out);
-		    String rows = renderer.execute();
+		    renderer = new ResultSetRenderer(rset, System.out);
+		    int rows = renderer.execute();
+		    if (renderer.limitReached()) {
+			System.err.println("limit reached ..");
+			System.err.print("> ");
+		    }
 		    System.err.print(rows + " row" + 
-				     (("1".equals(rows))?"":"s")
+				     ((rows == 1)? "" : "s")
 				     + " in result");
+		    lapTime = renderer.getFirstRowTime() - startTime;
 		}
 		else {
 		    int updateCount = stmt.getUpdateCount();
@@ -119,6 +125,11 @@ public class SQLCommand extends AbstractCommand {
 		}
 		execTime = System.currentTimeMillis() - startTime;
 		System.err.print(" (");
+		if (lapTime > 0) {
+		    System.err.print("response: ");
+		    TimeRenderer.printTime(lapTime, System.err);
+		    System.err.print("; total: ");
+		}
 		TimeRenderer.printTime(execTime, System.err);
 		System.err.println(")");
 	    }
