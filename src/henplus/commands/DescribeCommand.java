@@ -23,7 +23,7 @@ import henplus.CommandDispatcher;
  * document me.
  */
 public class DescribeCommand extends AbstractCommand {
-    static final boolean verbose     = true;
+    static final boolean verbose     = false;
     private final static ColumnMetaData[] DESC_META;
     static {
 	DESC_META = new ColumnMetaData[7];
@@ -62,6 +62,8 @@ public class DescribeCommand extends AbstractCommand {
 	final String tabName = (String) st.nextElement();
 	ResultSet rset = null;
 	try {
+	    boolean anyLeftArrow  = false;
+	    boolean anyRightArrow = false;
 	    DatabaseMetaData meta = session.getConnection().getMetaData();
 	    for (int i=0; i < DESC_META.length; ++i) {
 		DESC_META[i].reset();
@@ -73,15 +75,34 @@ public class DescribeCommand extends AbstractCommand {
 	    rset = meta.getPrimaryKeys(null, null, tabName);
 	    while (rset.next()) {
 		String col = rset.getString(4);
-		String pkseq  = rset.getString(5);
+		int pkseq  = rset.getInt(5);
 		String pkname = rset.getString(6);
 		String desc = (pkname != null) ? pkname : "*";
-		if (pkseq != null) {
+		if (pkseq > 1) {
 		    desc += "{" + pkseq + "}";
 		}
 		pks.put(col, desc);
 	    }
 	    rset.close();
+
+	    /*
+	     * get referenced primary keys.
+	     */
+	    rset = meta.getExportedKeys(null, null, tabName);
+	    while (rset.next()) {
+		String col = rset.getString(4);
+		String fktable = rset.getString(7);
+		String fkcolumn  = rset.getString(8);
+		fktable = fktable + "(" + fkcolumn + ")";
+		String desc = (String) pks.get(col);
+		desc = (desc == null) 
+		    ? " <- "  + fktable
+		    : desc + "\n <- " + fktable;
+		anyLeftArrow = true;
+		pks.put(col, desc);
+	    }
+	    rset.close();
+
 	    /*
 	     * get foreign keys.
 	     */
@@ -93,18 +114,27 @@ public class DescribeCommand extends AbstractCommand {
 		table = table + "(" + pkcolumn + ")";
 		String col = rset.getString(8);
 		String fkname = rset.getString(12);
-		String desc = (fkname != null) ? fkname +"\n-> " : "-> ";
+		String desc = (fkname != null) ? fkname +"\n -> " : " -> ";
 		desc += table;
+		anyRightArrow = true;
 		fks.put(col, desc);
 	    }
 	    rset.close();
-	    rset = meta.getColumns(null, null, tabName, null);
+
+	    if (anyLeftArrow)  System.err.println(" '<-' : referenced by");
+	    if (anyRightArrow) System.err.println(" '->' : referencing");
+
 	    /*
 	     * if all columns belong to the same table name, then don't
 	     * report it. A different table name may only occur in rare
 	     * circumstance like object oriented databases.
 	     */
 	    boolean allSameTableName = true;
+
+	    /*
+	     * build up actual describe table.
+	     */
+	    rset = meta.getColumns(null, null, tabName, null);
 	    List rows = new ArrayList();
 	    while (rset.next()) {
 		Column[] row = new Column[7];
@@ -121,18 +151,13 @@ public class DescribeCommand extends AbstractCommand {
 		row[3] = new Column( rset.getString(18) );
 		row[4] = new Column( defaultVal );
 		String pkdesc = (String) pks.get(colname);
-		if (pkdesc != null && pks.size() == 1) {
-		    int curlPos = pkdesc.indexOf('{');
-		    if (curlPos >= 0) {
-			pkdesc = pkdesc.substring(0, curlPos);
-		    }
-		}
 		row[5] = new Column( (pkdesc != null) ? pkdesc : "");
 		String fkdesc = (String) fks.get(colname);
 		row[6] = new Column( (fkdesc != null) ? fkdesc : "");
 		rows.add(row);
 	    }
 	    rset.close();
+
 	    /*
 	     * we render the table now, since we only know know, whether we
 	     * will show the first column or not.
@@ -142,20 +167,22 @@ public class DescribeCommand extends AbstractCommand {
 	    Iterator it = rows.iterator();
 	    while (it.hasNext()) table.addRow((Column[]) it.next());
 	    table.closeTable();
+
 	    /*
 	     * index info.
 	     */
 	    System.out.println("index information:");
 	    boolean anyIndex = false;
-	    rset = meta.getIndexInfo(null, null, tabName, false, false);
+	    rset = meta.getIndexInfo(null, null, tabName, false, true);
 	    while (rset.next()) {
-		anyIndex = true;
-		System.out.print("\t");
 		boolean nonUnique;
 		String idxName = null;
 		nonUnique = rset.getBoolean(4);
 		idxName = rset.getString(6);
 		if (idxName == null) continue; // statistics, otherwise.
+		// output part.
+		anyIndex = true;
+		System.out.print("\t");
 		if (!nonUnique) System.out.print("unique ");
 		System.out.print("index " + idxName);
 		String colName = rset.getString(9);

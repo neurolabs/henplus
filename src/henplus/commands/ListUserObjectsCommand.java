@@ -129,27 +129,30 @@ public class ListUserObjectsCommand extends AbstractCommand {
 	SQLSession session = henplus.getSession();
 	if (session == null) return null;
 	final SortedSet tableSet = getTableSet(session);
-	Iterator it0 = tableSet.tailSet(partialTable).iterator();
-	if (!it0.hasNext()) {
+
+	// first test, if we might need to correct this to upper-case
+	Iterator testIt = tableSet.tailSet(partialTable).iterator();
+	String testMatch = (testIt.hasNext()) ? (String) testIt.next() : null;
+	if (testMatch == null || !testMatch.startsWith(partialTable)) {
 	    // test uppercase, then:
 	    partialTable = partialTable.toUpperCase();
 	    //System.err.println("test upper case: " + partialTable);
-	    it0 = tableSet.tailSet(partialTable).iterator();
 	}
-	final Iterator tableIterator = it0;
+
+	final Iterator tableIt = tableSet.tailSet(partialTable).iterator();
 	final String   tablePattern  = partialTable;
 
 	return new Iterator() {
 		String current = null;
 		public boolean hasNext() {
-		    if (tableIterator.hasNext()) {
-			current = (String) tableIterator.next();
+		    if (tableIt.hasNext()) {
+			current = (String) tableIt.next();
 			if (current.startsWith(tablePattern))
 			    return true;
 		    }
 		    return false;
 		}
-		public Object  next() { 
+		public Object  next() {
 		    return current;
 		}
 		public void remove() { 
