@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.11 2002-04-22 16:16:54 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.12 2003-01-25 10:41:12 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -51,7 +51,7 @@ public final class SetCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "set", "unset"
+	    "set-var", "unset-var"
 	};
     }
     
@@ -83,7 +83,7 @@ public final class SetCommand extends AbstractCommand {
 	StringTokenizer st = new StringTokenizer(param);
 	int argc = st.countTokens();
 	
-	if ("set".equals(cmd)) {
+	if ("set-var".equals(cmd)) {
 	    if (argc == 0) {
 		SET_META[0].reset();
 		SET_META[1].reset();
@@ -103,7 +103,7 @@ public final class SetCommand extends AbstractCommand {
 	    }
 	    else if (argc >= 2) {
 		String varname = (String) st.nextElement();
-		int pos = "set".length();
+		int pos = "set-var".length();
 		// skip whitespace after 'set'
 		while (pos < param.length() 
 		       && Character.isWhitespace(param.charAt(pos))) {
@@ -131,7 +131,7 @@ public final class SetCommand extends AbstractCommand {
 	    }
 	    return SYNTAX_ERROR;
 	}
-	else if ("unset".equals(cmd)) {
+	else if ("unset-var".equals(cmd)) {
 	    if (argc >= 1) {
 		while (st.hasMoreElements()) {
 		    String varname = (String) st.nextElement();
@@ -196,7 +196,7 @@ public final class SetCommand extends AbstractCommand {
 	String cmd = (String) st.nextElement();
 	int argc = st.countTokens();
 	final HashSet  alreadyGiven = new HashSet();
-	if ("set".equals(cmd)) {
+	if ("set-var".equals(cmd)) {
 	    if (argc > ("".equals(lastWord) ? 0 : 1)) {
 		return null;
 	    }
@@ -254,18 +254,18 @@ public final class SetCommand extends AbstractCommand {
     }
 
     public String getSynopsis(String cmd) {
-	if ("set".equals(cmd)) {
-	    return "set [<varname> <value>]"; 
+	if ("set-var".equals(cmd)) {
+	    return cmd + " [<varname> <value>]"; 
 	}
-	else if ("unset".equals(cmd)) {
-	    return "unset <varname> [<varname> ..]";
+	else if ("unset-var".equals(cmd)) {
+	    return cmd + " <varname> [<varname> ..]";
 	}
 	return cmd;
     }
 
     public String getLongDescription(String cmd) { 
 	String dsc = null;
-	if ("set".equals(cmd)) {
+	if ("set-var".equals(cmd)) {
 	    dsc= "\twithout parameters,  show all  variable settings.  With\n"
 		+"\tparameters, set variable with name <varname> to <value>.\n"
 		+"\tVariables are  expanded in any  command you issue on the\n"
@@ -279,7 +279,7 @@ public final class SetCommand extends AbstractCommand {
 		+"\tIf you want to quote the dollarsign explicitly, write\n"
 		+"\ttwo dollars: $$FOO means $FOO";
 	}
-	else if ("unset".equals(cmd)) {
+	else if ("unset-var".equals(cmd)) {
 	    dsc="\tunset the variable with name <varname>. You may provide\n"
 		+"\tmultiple variables to be unset.";
 	}
