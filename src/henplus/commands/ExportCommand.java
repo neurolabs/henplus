@@ -27,7 +27,8 @@ public class ExportCommand extends AbstractCommand {
      */
     public int execute(SQLSession session, String cmd, String param) {
 	int argc = argumentCount(param);
-	return (argc == 2) ? SUCCESS : SYNTAX_ERROR;
+	System.err.println("sorry, not implemented yet.");
+	return (argc == 3) ? SUCCESS : SYNTAX_ERROR;
     }
 
     /**

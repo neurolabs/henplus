@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.32 2002-03-01 09:51:19 hzeller Exp $
+ * $Id: HenPlus.java,v 1.33 2002-03-01 14:34:54 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -76,7 +76,7 @@ public class HenPlus {
 	Terminal.setTerminalAvailable(_fromTerminal);
 
 	if (!_quiet) {
-	    System.err.println("using GNU readline wrapper by Bernhard Bablok");
+	    System.err.println("using GNU readline (Brian Fox, Chet Ramey), Java wrapper by Bernhard Bablok");
 	}
 	Readline.initReadline("HenPlus");
 	try {

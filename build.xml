@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.17 2002-03-01 10:08:00 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.18 2002-03-01 14:34:53 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- properties -->
      <property name="version"              value="0.3.1" />
@@ -12,12 +12,16 @@
      <property name="tarbase"              value="henplus-${version}" />
 
      <target name="prepare">
+        <tstamp>
+          <format property="COMPTIME" pattern="MMMM dd yyyy HH:mm"/>
+        </tstamp>
         <mkdir dir="${build}"/>
         <mkdir dir="${classes}"/>
      </target>
 
      <target name="Version.java">
        <filter token="HENPLUS_VERSION" value="${version}"/>
+       <filter token="COMPILE_TIME" value="${COMPTIME}"/>
        <copy file="${src}/henplus/Version.java.in"
              tofile="${src}/henplus/Version.java"
              filtering="yes"/>
