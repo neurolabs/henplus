@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.3 2002-05-06 06:50:24 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.4 2002-05-22 08:40:26 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -97,7 +97,10 @@ uses the JNI java wrapper library:
 <a href="http://sourceforge.net/projects/java-readline">java-readline 0.7.3</a>.
 <p>
 Building requires the <a href="http://jakarta.apache.org/ant">ant build
-tool</a>. To compile HenPlus just type
+tool</a>. To compile HenPlus, make sure that the libreadline-java.jar is
+in the classpath. By default, the java-readline package installs this
+in <code>/usr/share/java/libreadline-java.jar</code>.
+<p>Now, just type
 <pre>
 $ ant jar
 </pre>
@@ -164,7 +167,8 @@ Hen*Plus&gt; help connect
 </pre>
 (more details on connection to the database in the 
 <a href="#getting-connected">Getting connected</a> section).
-<p>
+
+<h5>Semicolon is Separator</h5>
 Usually, there is one line per command. However, you can have multiple
 commands on one line if you separate them with a semicolon:
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
@@ -183,6 +187,7 @@ ok. (70 msec)
 oracle:localhost&gt;
 </pre></td></tr></table>
 <p>
+<h5>SQL-Comments</h5>
 That should be enough to start working with HenPlus. But especially if you are
 running scripts (with the <code>load</code>-command)
 there is one additional piece of information you might
@@ -193,8 +198,10 @@ this is supported by HenPlus:
   select * from foobar; -- this is a comment
 </pre></td></tr></table>
 <p>
-HenPlus ignores as well the C/C++/Java style comments, that comment
-out a range between <code>/*&nbsp;some&nbsp;comment&nbsp;*/</code>.
+However, other non-standard types of comments have come to use in
+several SQL-shells so HenPlus ignores these as well. One style are
+the C/C++/Java style comments, that comment out a range between 
+<code>/*&nbsp;some&nbsp;comment&nbsp;*/</code>.
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 /*
    This is a longer comment that goes
@@ -203,14 +210,35 @@ out a range between <code>/*&nbsp;some&nbsp;comment&nbsp;*/</code>.
  select * from foobar;
 </pre></td></tr></table>
 <p>
+Another style of comments, allowed for instance in the 
+MySQL-Shell is the UNIX-shell like '#' endline comment:
+<table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+# this is a comment.
+ select * from foobar;  # a comment at the end of a line
+</pre></td></tr></table>
+
 One beta tester <!-- Andi G. --> requested an additional type of 
 comment: Two semicolons at 
-<em>the beginning</em> of a line comment out the whole line:
+<em>the beginning</em> of a line comment out the whole line. The problem
+with semicolon is, that it is as well used as separator between commands and
+as such may of course occur twice in a row. Therefore, two 
+semicolons are <em>only</em> regarded as comment, if they are the
+first on a line:
 <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
 ;; This line is commented out
    ;; this one as well, since there are only whitespaces on the left
 select * from foobar ;; echo "this echo is executed as usual"
 </pre></td></tr></table>
+<p>
+To make a long story short -- the supported types of comments are
+<ul>
+  <li>Ansi-Style <b><code>--</code></b> comment until end of line</li>
+  <li>UNIX-Shell Style <b><code>#</code></b> comment until end of line</li>
+  <li>Lisp-like <b><code>;;</code></b> comment until end of line</li>
+  <li>C/C++/Java like <b><code>/*&nbsp;range&nbsp;comment&nbsp;*/</code></b>
+</ul>
+If you encounter another reasonable style of comments you want that it is
+supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
 
 <h3><a name="getting-connected"/>Getting connected</h3>
 Getting connected to a database is simple: you need the JDBC driver
@@ -359,4 +387,4 @@ This will once be the FAQ. But for now, there is only one question..
 	 (HenPlus command: <code>autocommit-on</code>).
 <br>
 <hr noshade="noshade" size="1"/>
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.3 2002-05-06 06:50:24 hzeller Exp $ &copy; Henner Zeller</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.4 2002-05-22 08:40:26 hzeller Exp $ &copy; Henner Zeller</font></div>
