@@ -327,6 +327,12 @@ public class ConnectCommand extends AbstractCommand {
 	    if (sessionName.length() < 1) {
 		return SYNTAX_ERROR;
 	    }
+
+            if (sessions.containsKey(sessionName)) {
+                System.err.println("A session with this name already exists");
+                return EXEC_FAILED;
+            }
+
 	    session = (SQLSession) sessions.remove(currentSessionName);
 	    if (session == null) {
 		return EXEC_FAILED;
