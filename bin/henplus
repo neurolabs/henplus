@@ -1,10 +1,17 @@
 #!/bin/sh
-# $Id: henplus,v 1.10 2002-10-15 07:54:52 hzeller Exp $
+# $Id: henplus,v 1.11 2003-08-27 11:11:41 hzeller Exp $
 ##
 
 # additional flags you might want to pass to the java interpreter
 # like -Dfile.encoding=ISO-8859-1
 JAVA_FLAGS=
+
+if [ -z "$JAVA_HOME" ] ; then
+    # try to use java in path
+    JAVA=java
+else
+    JAVA=$JAVA_HOME/bin/java
+fi
 
 ##------------------
 THISDIR=`dirname $0`
@@ -16,7 +23,9 @@ if [ ! -d "$HENPLUSDIR" ] ; then
 fi
 
 # location of the readline lib.
-LD_LIBRARY_PATH=$THISDIR/../lib:$LD_LIBRARY_PATH
+# Modify this, if you installation stores this at a different
+# position.
+LD_LIBRARY_PATH=$THISDIR/../lib:/usr/lib/jni:$LD_LIBRARY_PATH
 CLASSPATH=$CLASSPATH:$THISDIR/../share/java/libreadline-java.jar
 
 # you may just throw your own jar files in this dir.
@@ -24,10 +33,38 @@ CLASSPATH=$CLASSPATH:$THISDIR/../share/java/libreadline-java.jar
 # classpath)
 for f in $HENPLUSDIR/*.jar $HENPLUSDIR/*.zip ; do
     if [ -r "$f" ] ; then
-	CLASSPATH=$CLASSPATH:$f
+        CLASSPATH=$CLASSPATH:$f
+    fi
+done
+
+# starting at the current directory we look for additional
+# JDBC-drivers in .henplus/lib-directories up the path. 
+# if no directory like that has been found the one in the 
+# home directory will be used
+DIR=`pwd`
+CUSTOM_HENPLUSDIR=""
+
+while [ $DIR != "/" ] ; do
+        if [ -d $DIR"/.henplus/lib" ]; then
+            CUSTOM_HENPLUSDIR=$DIR"/.henplus/lib"
+        fi
+        DIR=`dirname $DIR`
+done
+
+if [ -z $CUSTOM_HENPLUSDIR ]; then
+     if [ -d "/.henplus/lib" ]; then
+         CUSTOM_HENPLUSDIR="/.henplus/lib"
+     else
+         CUSTOM_HENPLUSDIR=$HOME/.henplus/lib
+     fi
+fi
+
+for f in $CUSTOM_HENPLUSDIR/*.jar $CUSTOM_HENPLUSDIR/*.zip ; do
+    if [ -r "$f" ] ; then
+        CLASSPATH=$CLASSPATH:$f
     fi
 done
 
 export CLASSPATH LD_LIBRARY_PATH
 
-exec java $JAVA_FLAGS henplus.HenPlus "$@"
+exec $JAVA $JAVA_FLAGS henplus.HenPlus "$@"
