@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SystemInfoCommand.java,v 1.1 2004-03-23 11:06:40 magrokosmos Exp $ 
+ * @version $Id: SystemInfoCommand.java,v 1.2 2004-03-23 11:23:03 magrokosmos Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.commands;
@@ -161,7 +161,7 @@ public final class SystemInfoCommand implements Command {
      * @see henplus.Command#getLongDescription(java.lang.String)
      */
     public String getLongDescription(String cmd) {
-        return "print out some system information like memory usage.";
+        return "\tPrint out some system information like memory usage.";
     }
     
     //  ==================  rendering  ================
