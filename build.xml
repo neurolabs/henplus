@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.35 2004-03-07 14:22:02 hzeller Exp $ -->
+<!-- $Id: build.xml,v 1.36 2004-03-08 10:34:49 magrokosmos Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
@@ -117,7 +117,13 @@
        <delete dir="${tarbase}"/>
      </target>
 
-     <target name="rpm" depends="dist" description="create distribution rpm">
+     <target name="check.rpmbuild" description="Tests whether the rpmbuild command is available on this system. If so, the rpmbuild.executable property is set to 'rpmbuild', default it's 'rpm'.">
+         <property name="rpmbuild.executable" value="rpm" />
+         <available property="rpmbuild.executable" value="rpmbuild"
+                    file="rpmbuild" type="file" filepath="/usr/bin:/bin" />
+     </target>
+
+     <target name="rpm" depends="dist,check.rpmbuild" description="create distribution rpm">
         <mkdir dir="${build}" />
         <mkdir dir="${build}/SPECS" />
         <mkdir dir="${build}/SOURCES" />
@@ -126,7 +132,13 @@
         <mkdir dir="${build}/RPMS" />
 	<copy file="${tarbase}.tar.gz" todir="${build}/SOURCES" />
 	<copy file="henplus.spec" todir="${build}/SPECS" />
-        <rpm specFile="henplus.spec" topDir="${build}" command="-ba" />
+        <!--rpm specFile="henplus.spec" topDir="${build}" command="-ba" /-->
+        <!--echo message="${rpmbuild.executable}"/-->
+        <exec dir="${build}" executable="${rpmbuild.executable}">
+           <arg line="-ba"/>
+           <arg line="--buildroot=${build}"/>
+           <arg line="SPECS/henplus.spec"/>
+        </exec>
      </target>
 
      <target name="deb" depends="dist" description="create distribution debian package">
