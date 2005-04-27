@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.32 2005-03-24 13:57:46 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.33 2005-04-27 14:37:14 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -220,10 +220,11 @@ public class DumpCommand
                 statement.append(" ").append(st.nextToken());
             }
             PrintStream out = null;
+            beginInterruptableSection();
             try {
                 out = openOutputStream(fileName, FILE_ENCODING);
-                int result = dumpSelect(session, tabName, statement.toString(), out,
-                                       FILE_ENCODING);
+                int result = dumpSelect(session, tabName, statement.toString(),
+                                        out, FILE_ENCODING);
                 return result;
             }
             catch (Exception e) {
@@ -232,7 +233,8 @@ public class DumpCommand
                 return EXEC_FAILED;
             }
             finally {
-                if (out != null) out.close(); 
+                if (out != null) out.close();
+                endInterruptableSection();
             }
         }
 
@@ -573,8 +575,9 @@ public class DumpCommand
                                       + "' (corrected name)");
             }
         }
-        return dumpTable(session, 
-                         new TableDumpSource(schema, tabName, !correctName, session),
+        final TableDumpSource tableSource = new TableDumpSource(schema, tabName, !correctName, session);
+        tableSource.setWhereClause(whereClause);
+        return dumpTable(session, tableSource,
                          dumpOut, fileEncoding);
     }
 

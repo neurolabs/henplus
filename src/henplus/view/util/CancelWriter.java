@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: CancelWriter.java,v 1.1 2005-03-24 13:57:46 hzeller Exp $ 
+ * $Id: CancelWriter.java,v 1.2 2005-04-27 14:37:15 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
@@ -66,6 +66,7 @@ public final class CancelWriter {
             writeChars(lenDiff, " ");
             writeChars(lenDiff, BACKSPACE);
         }
+        _out.flush();
     }
 
     /**
@@ -92,6 +93,7 @@ public final class CancelWriter {
         if (wipeOut) {
             writeChars(backspaceCount, " ");
             writeChars(backspaceCount, BACKSPACE );
+            _out.flush();
         }
         _writtenString = null;
         return backspaceCount;
