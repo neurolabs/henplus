@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.33 2005-04-27 14:37:14 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.34 2005-06-04 18:22:41 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -1096,7 +1096,7 @@ public class DumpCommand
                                   + " but got " + importedRows + " rows");
         }
         else {
-            HenPlus.msg().print("ok. ");
+            HenPlus.msg().println("ok. ");
         }
         HenPlus.msg().print("(" + importedRows + " rows total");
         if (hot) HenPlus.msg().print(" / " + problemRows + " with errors");

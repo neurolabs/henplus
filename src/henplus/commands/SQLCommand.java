@@ -211,7 +211,7 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
                 }
 
                 if (!_running) {
-                    HenPlus.msg().print("cancel statement...");
+                    HenPlus.msg().println("cancel statement...\n" + command);
                     HenPlus.msg().flush();
                     CancelWriter info = new CancelWriter(HenPlus.msg());
                     info.print("please wait");
