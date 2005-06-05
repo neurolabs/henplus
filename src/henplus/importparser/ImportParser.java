@@ -80,9 +80,11 @@ public class ImportParser {
                     if (colPatternPos >= colPattern.length) { // match!
                         if (currentColumn < _parsers.length) {
                             TypeParser colParser = _parsers[currentColumn];
-                            colParser.parse(buffer, fieldStart, 
-                                            pos - fieldStart - colPattern.length,
-                                            recipient);
+                            if (colParser != null) {
+                                colParser.parse(buffer, fieldStart, 
+                                                pos - fieldStart - colPattern.length,
+                                                recipient);
+                            }
                         }
                         colPatternPos = 0;
                         fieldStart = pos;
@@ -102,11 +104,15 @@ public class ImportParser {
                         }
                         if (currentColumn < _parsers.length) {
                             TypeParser colParser = _parsers[currentColumn];
-                            colParser.parse(buffer, fieldStart, 
-                                            pos - fieldStart - rowPattern.length,
-                                            recipient);
+                            if (colParser != null) {
+                                colParser.parse(buffer, fieldStart, 
+                                                pos - fieldStart - rowPattern.length,
+                                                recipient);
+                            }
                         }
-                        recipient.finishRow();
+                        if (recipient.finishRow()) {
+                            return;
+                        }
                         fieldStart = pos;
                         rowPatternPos = 0;
                         currentColumn = 0;
@@ -131,16 +137,17 @@ public class ImportParser {
         ValueRecipient v = new ValueRecipient() {
                 public void setLong(int fieldNumber, long value) { }
                 public void setString(int fieldNumber, String value) { 
-                    //System.out.println("'" + value + "'");
+                    System.out.println("'" + value + "'");
                 }
                 public void setDate(int fieldNumber, Calendar cal) { }
                 
-                public void finishRow() { 
-                    //System.out.println(">>row done..<<");
+                public boolean finishRow() { 
+                    System.out.println(">>row done..<<");
                     count++;
+                    return false;
                 }
             };
-        ImportParser parser = new ImportParser(parsers, "\t", "\n");
+        ImportParser parser = new ImportParser(parsers, "\",\"", "\n\"");
         parser.parse(r, v);
         System.err.println("COUNT: " + count);
     }

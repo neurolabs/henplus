@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.34 2005-06-04 18:22:41 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.35 2005-06-05 16:23:46 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -453,7 +453,7 @@ public class DumpCommand
                                                    session, hot, commitPoint);
                         retryPossible = false;
                         if (!_running) {
-                            HenPlus.msg().println("\ninterrupted.");
+                            HenPlus.msg().println("interrupted.");
                             return result;
                         }
                         if (result != SUCCESS) {

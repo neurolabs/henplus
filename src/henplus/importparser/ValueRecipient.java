@@ -16,5 +16,13 @@ public interface ValueRecipient {
     void setString(int fieldNumber, String value) throws Exception;
     void setDate(int fieldNumber, Calendar cal) throws Exception;
 
-    void finishRow() throws Exception;
+    /**
+     * Signal the Value Recipient, that a complete row
+     * has been read.
+     *
+     * @return true, if the ValueRecipient has read all
+     *         rows and does not want to receive further
+     *         rows.
+     */
+    boolean finishRow() throws Exception;
 }

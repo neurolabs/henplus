@@ -7,9 +7,11 @@
 package henplus.commands;
 
 import henplus.HenPlus;
+import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.SigIntHandler;
 
 import java.util.StringTokenizer;
 import java.util.Iterator;
@@ -25,7 +27,7 @@ import java.io.IOException;
  * The Load command loads scripts; it implemnts the
  * commands 'load', 'start', '@' and '@@'.
  */
-public class LoadCommand extends AbstractCommand {
+public class LoadCommand extends AbstractCommand implements Interruptable {
     /**
      * to determine recursively loaded files, we remember all open files.
      */
@@ -36,6 +38,8 @@ public class LoadCommand extends AbstractCommand {
      * the currently open file.
      */
     private final Stack/*<File>*/ _cwdStack;
+    
+    private volatile boolean _running;
 
     /**
      * returns the command-strings this command can handle.
@@ -91,11 +95,11 @@ public class LoadCommand extends AbstractCommand {
 	if (argc < 1) {
 	    return SYNTAX_ERROR;
 	}
-	HenPlus henplus = HenPlus.getInstance();
+	final HenPlus henplus = HenPlus.getInstance();
 	while (st.hasMoreElements()) {
 	    int  commandCount = 0;
-	    String filename = (String) st.nextElement();
-	    long startTime = System.currentTimeMillis();
+	    final String filename = (String) st.nextElement();
+	    final long startTime = System.currentTimeMillis();
 	    File currentFile = null;
 	    try {
 		henplus.pushBuffer();
@@ -110,8 +114,10 @@ public class LoadCommand extends AbstractCommand {
 		_openFiles.add(currentFile);
 		_cwdStack.push(currentFile.getParentFile());
 		BufferedReader reader = new BufferedReader(new FileReader(currentFile));
+                _running = true;
+                SigIntHandler.getInstance().pushInterruptable(this);
 		String line;
-		while ((line = reader.readLine()) != null) {
+		while (_running && (line = reader.readLine()) != null) {
 		    byte execResult = henplus.executeLine(line);
 		    if (execResult == HenPlus.LINE_EXECUTED) {
 			++commandCount;
@@ -129,11 +135,17 @@ public class LoadCommand extends AbstractCommand {
 	    }
 	    finally {
 		henplus.popBuffer(); // no open state ..
+                if (!_running) {
+                    HenPlus.msg().println("cancel file loading " 
+                                          + currentFile);
+                }
 		henplus.getDispatcher().endBatch();
 		if (currentFile != null) {
 		    _openFiles.remove(currentFile);
 		    _cwdStack.pop();
 		}
+                SigIntHandler.getInstance().popInterruptable();
+
 	    }
 	    long execTime = System.currentTimeMillis() - startTime;
 	    HenPlus.msg().print(commandCount + " commands in ");
@@ -151,6 +163,10 @@ public class LoadCommand extends AbstractCommand {
 	    HenPlus.msg().println(" (" + filename + ")");
 	}
 	return SUCCESS;
+    }
+
+    public void interrupt() {
+        _running = false;
     }
 
     public boolean requiresValidSession(String cmd) { return false; }

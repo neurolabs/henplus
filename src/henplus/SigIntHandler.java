@@ -1,12 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SigIntHandler.java,v 1.7 2003-01-24 21:41:17 hzeller Exp $ 
+ * $Id: SigIntHandler.java,v 1.8 2005-06-05 16:23:45 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
 import java.util.Stack;
+import java.util.ListIterator;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
@@ -58,8 +59,11 @@ public class SigIntHandler implements SignalHandler {
 
 	once = true;
 	if (!toInterruptStack.empty()) {
-            Interruptable toInterrupt = (Interruptable)toInterruptStack.peek();
-	    toInterrupt.interrupt();
+            ListIterator it = toInterruptStack.listIterator(toInterruptStack.size());
+            while (it.hasPrevious()) {
+                Interruptable toInterrupt = (Interruptable)it.previous();
+                toInterrupt.interrupt();
+            }
 	}
 	else {
 	    System.err.println("[Ctrl-C ; interrupted]");

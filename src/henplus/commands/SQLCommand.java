@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
 /**
  * document me.
  */
-public class SQLCommand extends AbstractCommand implements Interruptable {
+public class SQLCommand extends AbstractCommand {
     private static final boolean verbose = false; // debug.
     private final static String[] TABLE_COMPLETER_KEYWORD = {
 	"FROM", "INTO", "UPDATE", "TABLE", /*create index*/"ON"
@@ -58,12 +58,13 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
     }
 
     private final ListUserObjectsCommand tableCompleter;
-    private final SQLExecutorThread _sqlExecutor;
+    private Statement _stmt;
     private String _columnDelimiter;
     private int    _rowLimit;
     private boolean _showHeader;
     private boolean _showFooter;
     private volatile boolean _running;
+    private StatementCanceller _statementCanceller;
 
     public SQLCommand(ListUserObjectsCommand tc, PropertyRegistry registry) {
 	tableCompleter = tc;
@@ -79,8 +80,8 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
                                   new ShowHeaderProperty());
         registry.registerProperty("sql-result-showfooter",
                                   new ShowFooterProperty());
-        _sqlExecutor = new SQLExecutorThread();
-        new Thread(_sqlExecutor).start();
+        _statementCanceller = new StatementCanceller(new CurrentStatementCancelTarget());
+        new Thread(_statementCanceller).start();
     }
 
     /**
@@ -156,6 +157,25 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
         return _showFooter;
     }
 
+    private final class CurrentStatementCancelTarget
+        implements StatementCanceller.CancelTarget {
+        public void cancelRunningStatement() {
+            try {
+                HenPlus.msg().println("cancel statement...");
+                HenPlus.msg().flush();
+                CancelWriter info = new CancelWriter(HenPlus.msg());
+                info.print("please wait");
+                _stmt.cancel();
+                info.cancel();
+                HenPlus.msg().println("done.");
+                _running = false;
+            }
+            catch (Exception e) {
+                if (verbose) e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * looks, if this word is contained in 'all', preceeded and followed by
      * a whitespace.
@@ -188,8 +208,9 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
 	final long startTime = System.currentTimeMillis();
 	long lapTime  = -1;
 	long execTime = -1;
+        ResultSet rset = null;
         _running = true;
-        SigIntHandler.getInstance().pushInterruptable(this);
+        SigIntHandler.getInstance().pushInterruptable(_statementCanceller);
 	try {
 	    if (command.startsWith("commit")) {
 		session.print("commit..");
@@ -202,39 +223,26 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
 		session.println(".done.");
 	    }
 	    else {
-                _sqlExecutor.executeAsync(session, command);
-                synchronized (_sqlExecutor) {
-                    // check every once in a while the running flag.
-                    while (_running && _sqlExecutor.isExecuting()) {
-                        _sqlExecutor.wait(300);
-                    }
+                _stmt = session.createStatement();
+                try {
+                    _stmt.setFetchSize(200);
                 }
+                catch (Exception e) {
+                    /* ignore */
+                }
+
+                _statementCanceller.arm();
+                final boolean hasResultSet = _stmt.execute(command);
 
                 if (!_running) {
-                    HenPlus.msg().println("cancel statement...\n" + command);
-                    HenPlus.msg().flush();
-                    CancelWriter info = new CancelWriter(HenPlus.msg());
-                    info.print("please wait");
-                    _sqlExecutor.cancel();
-                    info.cancel();
-                    HenPlus.msg().println("done.");
+                    HenPlus.msg().println("cancelled");
                     return SUCCESS;
                 }
-
-                if (_sqlExecutor.getException() != null) {
-                    final Exception e = _sqlExecutor.getException(); 
-                    String msg = e.getMessage();
-                    if (msg != null) {
-                        // oracle appends a newline to the message for some reason.
-                        HenPlus.msg().println("FAILURE: " + msg.trim());
-                    }
-                    if (verbose) e.printStackTrace();
-                    return EXEC_FAILED;
-                }
                 
-		if (_sqlExecutor.getResult() != null) {
+		if (hasResultSet) {
+                    rset = _stmt.getResultSet();
 		    ResultSetRenderer renderer;
-		    renderer = new ResultSetRenderer(_sqlExecutor.getResult(),
+		    renderer = new ResultSetRenderer(rset,
                                                      getColumnDelimiter(),
                                                      isShowHeader(),
                                                      isShowFooter(),
@@ -254,7 +262,7 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
 		    lapTime = renderer.getFirstRowTime() - startTime;
 		}
 		else {
-		    int updateCount = _sqlExecutor.getUpdateCount();
+		    int updateCount = _stmt.getUpdateCount();
 		    if (updateCount >= 0) {
 			session.print("affected "+updateCount+" rows");
 		    }
@@ -303,6 +311,9 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
 	    return EXEC_FAILED;
 	}
 	finally {
+            _statementCanceller.disarm();
+            try { if (rset != null) rset.close(); } catch (Exception e) {}
+            try { if (_stmt != null) _stmt.close(); } catch (Exception e) {}
             SigIntHandler.getInstance().popInterruptable();
 	}
     }
@@ -341,12 +352,19 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
 	else if (canonCmd.indexOf("INSERT") >= 0) {
 	    endTabMatch = canonCmd.indexOf ("(");
 	}
-	else {
-	    endTabMatch = canonCmd.indexOf ("WHERE");
-	    if (endTabMatch < 0) {
-		endTabMatch = canonCmd.indexOf (";");
-	    }
+	else if (canonCmd.indexOf ("WHERE") >= 0) {
+	    endTabMatch = canonCmd.indexOf("WHERE");
 	}
+	else if (canonCmd.indexOf ("ORDER BY") >= 0) {
+	    endTabMatch = canonCmd.indexOf("ORDER BY");
+	}
+	else if (canonCmd.indexOf ("GROUP BY") >= 0) {
+	    endTabMatch = canonCmd.indexOf("GROUP BY");
+	}
+        if (endTabMatch < 0) {
+            endTabMatch = canonCmd.indexOf (";");
+        }
+
 	if (endTabMatch > tableMatch) {
             /*
              * column completion for the tables mentioned between in the
@@ -467,11 +485,7 @@ public class SQLCommand extends AbstractCommand implements Interruptable {
     }
 
     public void shutdown() {
-        _sqlExecutor.stopThread();
-    }
-
-    public void interrupt() {
-        _running = false;
+        _statementCanceller.stopThread();
     }
 
     public String getSynopsis(String cmd) { 

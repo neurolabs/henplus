@@ -7,21 +7,32 @@
 package henplus.commands;
 
 import henplus.importparser.TypeParser;
+import henplus.importparser.ImportParser;
 import henplus.importparser.StringParser;
+import henplus.importparser.ValueRecipient;
 import henplus.importparser.IgnoreTypeParser;
+import henplus.Interruptable;
+
 import henplus.SQLSession;
 import henplus.CommandDispatcher;
+import henplus.SigIntHandler;
 import henplus.HenPlus;
 import henplus.AbstractCommand;
 import henplus.view.util.NameCompleter;
 import henplus.view.util.SortedMatchIterator;
 import java.nio.charset.Charset;
 
+import java.io.File;
+import java.io.Reader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
 import java.util.StringTokenizer;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Calendar;
 
 /**
  * document me.
@@ -37,7 +48,7 @@ public class ImportCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "import", "import-check"
+	    "import", "import-check", "import-print"
 	};
     }
     
@@ -45,8 +56,9 @@ public class ImportCommand extends AbstractCommand {
         _tableCompleter = tc;
     }
 
-    // FIXME: TEMPORARY for testing.
-    public boolean requiresValidSession(String cmd) { return false; }
+    public boolean requiresValidSession(String cmd) { 
+        return "import".equals(cmd); 
+    }
 
     public Iterator complete(CommandDispatcher disp,
 			     String partialCommand, final String lastWord) {
@@ -74,18 +86,184 @@ public class ImportCommand extends AbstractCommand {
      * execute the command given.
      */
     public int execute(SQLSession session, String cmd, String param) {
-	HenPlus.msg().println("sorry, not implemented yet.");
+        /*
 	HenPlus.msg().println("cmd='" + cmd + "';"
                               + "param='" + param + "'");
+        */
         ConfigurationParser parser = new ConfigurationParser(param);
         String error = parser.getParseError();
         if (error != null) {
             HenPlus.msg().println(error);
             return SYNTAX_ERROR;
         }
+        final ImportConfiguration config = parser.getConfig();
+
+        try {
+            final long startTime = System.currentTimeMillis();
+            final long startRow = config.getStartRow();
+            final long rowCount = config.getRowCount();
+            long endRow = -1;
+            if (rowCount >= 0) {
+                endRow = startRow > 0 ? startRow + rowCount : rowCount;
+            }
+            long rows = -1;
+            if ("import-print".equals(cmd)) {
+                final PrintRecipient printRecipient = new PrintRecipient(config.getColumns(),
+                                                                         startRow,
+                                                                         endRow);
+                SigIntHandler.getInstance().pushInterruptable(printRecipient);
+                importFile(config, printRecipient);
+                rows = printRecipient.getRowCount();
+            }
+            else if ("import-check".equals(cmd)) {
+                final CountRecipient countRecipient = new CountRecipient();
+                importFile(config, countRecipient);
+                rows = countRecipient.getRowCount();
+            }
+            else if ("import".equals(cmd)) {
+                //final ImportProcessor importProcessor = new ImportProcessor();
+            }
+            final long execTime = System.currentTimeMillis()-startTime;
+
+            // TODO: procssed rows ?
+            HenPlus.msg().print("reading " + rows + " rows from '" + config.getFilename() + "' took ");
+            TimeRenderer.printTime(execTime, HenPlus.msg());
+            HenPlus.msg().print(" total; ");
+            TimeRenderer.printFraction(execTime, rows, HenPlus.msg());
+            HenPlus.msg().println(" / row");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return EXEC_FAILED;
+        }
 	return SUCCESS;
     }
 
+    private void importFile(ImportConfiguration config, ValueRecipient recipient) 
+        throws Exception 
+    {
+        final File file = new File(config.getFilename());
+        final String encoding = ((config.getEncoding() != null) 
+                                 ? config.getEncoding()
+                                 : "ISO-8859-1");
+        final Reader reader = new InputStreamReader(new FileInputStream(file), encoding);
+        final int colCount = config.getColumns().length;
+
+        // TODO: parse type after colon.
+        final TypeParser[] colParser = new TypeParser[ colCount ];
+        for (int i=0; i < colCount; ++i) {
+            colParser[i] = new StringParser(i);
+        }
+        try {
+            final String colDelim = (config.getColDelimiter() != null
+                                     ? config.getColDelimiter()
+                                     : DEFAULT_COL_DELIM);
+            final String rowDelim = (config.getRowDelimiter() != null
+                                     ? config.getRowDelimiter()
+                                     : DEFAULT_ROW_DELIM);
+            ImportParser parser = new ImportParser(colParser, colDelim,
+                                                   rowDelim);
+            parser.parse(reader, recipient);
+        }
+        finally {
+            reader.close();
+        }
+    }
+
+    private final static class CountRecipient implements ValueRecipient, Interruptable {
+        private long _rows;
+        private volatile boolean _finished;
+
+        CountRecipient() {
+            _rows = 0;
+            _finished = false;
+        }
+
+        public void setLong(int fieldNumber, long value) { }
+        public void setString(int fieldNumber, String value) { }
+        public void setDate(int fieldNumber, Calendar cal) { }
+        public boolean finishRow() { 
+            ++_rows;
+            return _finished;
+        }
+
+        public void interrupt() {
+            _finished = true;
+        }
+
+        long getRowCount() { return _rows; }
+    }
+
+    private final static class PrintRecipient implements ValueRecipient, Interruptable {
+        private final String[] _columnNames;
+        private final long _startRow;
+        private final long _endRow;
+        private long _rows;
+        private volatile boolean _finished;
+
+        public PrintRecipient(String[] columnNames,
+                              long startRow,
+                              long endRow) 
+        {
+            _columnNames = columnNames;
+            _rows = 0;
+            _startRow = startRow;
+            _endRow = endRow;
+        }
+        
+        private boolean rangeValid() {
+            if (_startRow >= 0) {
+                if (_rows < _startRow)
+                    return false;
+            }
+            if (_endRow >= 0) {
+                if (_rows >= _endRow) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private boolean printColName(int fieldNumber) {
+            if (!rangeValid()) return false;
+            if (fieldNumber > _columnNames.length) return false;
+            final String colName = _columnNames[fieldNumber];
+            if (colName == null) return false;
+            HenPlus.msg().print(colName); // TODO: padding.
+            HenPlus.msg().print(" = ");
+            return true;
+        }
+
+        public void setLong(int fieldNumber, long value) {
+            if (printColName(fieldNumber)) {
+                HenPlus.msg().println(String.valueOf(value));
+            }
+        }
+        public void setString(int fieldNumber, String value) {
+            if (printColName(fieldNumber)) {
+                HenPlus.msg().println(value);
+            }
+        }
+        public void setDate(int fieldNumber, Calendar cal) {
+            if (printColName(fieldNumber)) {
+                HenPlus.msg().println(cal != null ? cal.getTime().toString() : null);
+            }
+        }
+
+        public void interrupt() {
+            _finished = true;
+        }
+        
+        long getRowCount() { return _rows; }
+        public boolean finishRow() throws Exception {
+            if (rangeValid()) {
+                HenPlus.msg().println("----------> finished row " + _rows + " <----------");
+            }
+            _rows++;
+            return _finished || (_endRow >= 0 && _rows >= _endRow);
+        }
+    }
+    
     /**
      * return a descriptive string.
      */
@@ -128,7 +306,7 @@ public class ImportCommand extends AbstractCommand {
             { "encoding", new EncodingCompleterFactory() },/*(+) any supported encoding */
             { "start-row", null },                       /* integer */
             { "row-count", null },                       /* integer */
-            { "end-row", null }                          /* integer */
+            //{ "end-row", null }                          /* integer */
         };
         
         private String _parseError;
@@ -259,7 +437,13 @@ public class ImportCommand extends AbstractCommand {
                 else if ("encoding".equals(commandName)) {
                     _config.setEncoding(commandValue);
                 }
-                // start-row, row-count, end-row missing.
+                else if ("start-row".equals(commandName)) {
+                    _config.setStartRow(Long.parseLong(commandValue));
+                }
+                else if ("row-count".equals(commandName)) {
+                    _config.setRowCount(Long.parseLong(commandValue));
+                }
+                // end-row missing.
                 else {
                     addError("unknown option '" + commandName + "'");
                 }
@@ -311,8 +495,8 @@ public class ImportCommand extends AbstractCommand {
         private String _colDelimiter;
         private String _rowDelimiter;
         private Charset _charset;
-        private int _startRow = -1;
-        private int _rowCount = -1;
+        private long _startRow = -1;
+        private long _rowCount = -1;
         private String[] _columns;
 
         public void setFilename(String filename) { _filename = filename; }
@@ -340,11 +524,11 @@ public class ImportCommand extends AbstractCommand {
         public Charset getCharset() {
             return _charset;
         }
-        public void setStartRow(int startRow) { _startRow = startRow; }
-        public int getStartRow() { return _startRow; }
+        public void setStartRow(long startRow) { _startRow = startRow; }
+        public long getStartRow() { return _startRow; }
 
-        public void setRowCount(int rowCount) { _rowCount = rowCount; }
-        public int getRowCount() { return _rowCount; }
+        public void setRowCount(long rowCount) { _rowCount = rowCount; }
+        public long getRowCount() { return _rowCount; }
 
         public void setRawColumns(String commaDelimColumns) {
             if (!commaDelimColumns.startsWith("(")) {
@@ -356,7 +540,7 @@ public class ImportCommand extends AbstractCommand {
             for (int i=0; tok.hasMoreElements(); ++i) {
                 String token = tok.nextToken();
                 result[i] = "-".equals(token) ? null : token;
-                System.err.println(result[i]);
+                //System.err.println(result[i]);
             }
             setColumns(result);
             if (!commaDelimColumns.endsWith(")")) {
