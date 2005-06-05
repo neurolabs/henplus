@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.19 2004-06-07 08:31:56 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.20 2005-06-05 22:27:29 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -322,7 +322,7 @@ public class SQLStatementSeparator {
 		    if (current == '\'') state = STATEMENT;
 		    break;
 		case STRING_QUOTE:
-		    vetoAppend = (current == '\n');
+		    vetoAppend = (current == '\n'); // line continuation
                     if (current == 'n') current = '\n';
                     else if (current == 'r') current = '\r';
                     else if (current == 't') current = '\t';
@@ -334,6 +334,7 @@ public class SQLStatementSeparator {
 		    state = STRING;
 		    break;
 		case SQLSTRING_QUOTE:
+		    vetoAppend = (current == '\n'); // line continuation
                     // convert a "\'" to a correct SQL-Quote "''"
 		    if (current == '\'') parsed.append("'");
                     else if (current == 'n') current = '\n';
@@ -344,7 +345,6 @@ public class SQLStatementSeparator {
                         // pass it through.
                         parsed.append("\\");
                     }
-		    vetoAppend = (current == '\n');
 		    state = SQLSTRING;
 		    break;
 		}
