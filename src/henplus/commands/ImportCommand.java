@@ -294,8 +294,10 @@ public class ImportCommand extends AbstractCommand {
             // find max length and col-number
             for (int i=0; i < columnNames.length; ++i) {
                 final String colName = columnNames[i];
-                if (colName != null && colName.length() > maxLen) {
-                    maxLen = colName.length();
+                if (colName != null) {
+                    if (colName.length() > maxLen) {
+                        maxLen = colName.length();
+                    }
                     maxIndex++;
                 }
             }
