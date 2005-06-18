@@ -1,22 +1,21 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SystemInfoCommand.java,v 1.3 2004-10-09 17:56:58 hzeller Exp $ 
+ * @version $Id: SystemInfoCommand.java,v 1.4 2005-06-18 04:58:13 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.commands;
 
 import henplus.AbstractCommand;
-import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.SQLSession;
+import henplus.util.ListMap;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
 import henplus.view.util.Formatter;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -65,7 +64,7 @@ public final class SystemInfoCommand extends AbstractCommand {
      */
     public int execute(SQLSession session, String command, String parameters) {
         
-        final Map info = new LinkedHashMap();
+        final Map info = new ListMap();
         info.put("Java Version", System.getProperty("java.version") );
         info.put("Java VM", System.getProperty("java.vm.info") );
         info.put("Java Home",System.getProperty("java.home") );

@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.6 2004-06-07 08:31:56 hzeller Exp $ 
+ * $Id: TableRenderer.java,v 1.7 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
@@ -11,7 +11,6 @@ import henplus.OutputDevice;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
-import henplus.OutputDevice;
 
 /**
  * document me.

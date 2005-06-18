@@ -23,7 +23,7 @@ import java.util.SortedSet;
  * <p>Title: ResultTablePrinter</p>
  * <p>Description:<br>
  * Created on: 24.07.2003</p>
- * @version $Id: ResultTablePrinter.java,v 1.5 2004-03-05 23:34:38 hzeller Exp $ 
+ * @version $Id: ResultTablePrinter.java,v 1.6 2005-06-18 04:58:13 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class ResultTablePrinter {
@@ -55,13 +55,12 @@ public final class ResultTablePrinter {
          * report it. A different table name may only occur in rare
          * circumstance like object oriented databases.
          */
-        boolean allSameTableName = true;
+        //boolean allSameTableName = true;
 
         /*
          * build up actual describe table.
          */
-        List rows = new ArrayList();
-        int colNum = 0;
+        final List rows = new ArrayList();
         if (result != null) {
             // first, print removed columns
             SortedSet removed = result.getRemovedColumns();

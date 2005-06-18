@@ -19,7 +19,6 @@ import henplus.SigIntHandler;
 import henplus.HenPlus;
 import henplus.AbstractCommand;
 import henplus.view.util.NameCompleter;
-import henplus.view.util.SortedMatchIterator;
 import java.nio.charset.Charset;
 
 import java.io.File;
@@ -117,7 +116,6 @@ public class ImportCommand extends AbstractCommand {
             if (rowCount >= 0) {
                 endRow = startRow > 0 ? startRow + rowCount : rowCount;
             }
-            long rows = -1;
             RowCountingRecipient innerRecipient = null;
             if ("import-print".equals(cmd)) {
                 innerRecipient = new PrintRecipient(config.getColumns());

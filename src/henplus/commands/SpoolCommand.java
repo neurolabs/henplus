@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SpoolCommand.java,v 1.5 2005-03-24 13:57:46 hzeller Exp $ 
+ * $Id: SpoolCommand.java,v 1.6 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -15,7 +15,6 @@ import henplus.PrintStreamOutputDevice;
 import java.util.Stack;
 import java.util.Date;
 import java.io.PrintStream;
-import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 

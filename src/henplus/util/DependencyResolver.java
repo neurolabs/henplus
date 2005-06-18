@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: DependencyResolver.java,v 1.2 2005-03-24 13:57:46 hzeller Exp $ 
+ * @version $Id: DependencyResolver.java,v 1.3 2005-06-18 04:58:13 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.util;
@@ -16,14 +16,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 
 /**
  * Resolves dependencies between a given set of tables in respect to their foreign keys.<br>
  * Created on: Sep 20, 2004<br>
  * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
- * @version $Id: DependencyResolver.java,v 1.2 2005-03-24 13:57:46 hzeller Exp $
+ * @version $Id: DependencyResolver.java,v 1.3 2005-06-18 04:58:13 hzeller Exp $
  */
 public final class DependencyResolver {
     
@@ -119,6 +118,7 @@ public final class DependencyResolver {
      * @return
      * 
      */
+    /* Martin: needed ?
     private Set restructureDeps() {
         Set deps = null;
         if ( cyclicDependencies != null ) {
@@ -129,12 +129,13 @@ public final class DependencyResolver {
         }
         return deps;
     }
-
+*/
     /**
      * @param resolved
      * @param unresolved
      * @return A Map which contains all yet unresolved Tables mapped to their names.
      */
+    /* Martin: needed ?
     private Map cleanUnresolved( Map resolved, Map unresolved ) {
         Map result = null;
         
@@ -148,7 +149,7 @@ public final class DependencyResolver {
         
         return null;
     }
-
+*/
     /**
      * @param t
      * @param cyclePath	The path of tables which have cyclic dependencies

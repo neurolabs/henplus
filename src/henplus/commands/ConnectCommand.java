@@ -370,7 +370,6 @@ public class ConnectCommand extends AbstractCommand {
             SESS_META[i].resetWidth();
         }
         TableRenderer table = new TableRenderer(SESS_META, HenPlus.out());
-        Map.Entry entry = null;
         Iterator it = _sessionManager.getSessionNames().iterator();
         while (it.hasNext()) {
             String sessName = (String)it.next();

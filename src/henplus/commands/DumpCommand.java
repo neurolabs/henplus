@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.35 2005-06-05 16:23:46 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.36 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -98,7 +98,6 @@ public class DumpCommand
     
     private final String FILE_ENCODING = "UTF-8";
     private final static int DUMP_VERSION = 1;
-    private final static int PROGRESS_WIDTH = 65;
     private final static String NULL_STR = "NULL";
     private final static Map JDBCTYPE2TYPENAME = new HashMap();
     
@@ -248,7 +247,7 @@ public class DumpCommand
             String tabName  = (String) st.nextElement();
             String whereClause = null;
             if (argc >= 3) {
-                whereClause = (String) st.nextToken("\n"); // till EOL
+                whereClause = st.nextToken("\n"); // till EOL
                 whereClause = whereClause.trim();
                 if (whereClause.toUpperCase().startsWith("WHERE")) {
                     whereClause = whereClause.substring(5);
@@ -795,8 +794,6 @@ public class DumpCommand
         String databaseInfo = null;
         String dumpTime = null;
         String whereClause = null;
-        int c;
-        char ch;
         String token;
         long importedRows = -1;
         long expectedRows = -1;
@@ -928,7 +925,6 @@ public class DumpCommand
 
                 ProgressWriter progressWriter = new ProgressWriter(estimatedRows,
                                                                    HenPlus.msg());
-                boolean rowBefore = false;
                 importedRows = 0;
                 problemRows = 0;
                 _running = true;
@@ -1041,7 +1037,6 @@ public class DumpCommand
                         }
                         expect(reader, (i+1 < metaProperty.length) ?',':')');
                     }
-                    rowBefore = true;
                     try {
                         if (stmt != null) stmt.execute();
                     }
@@ -1344,7 +1339,7 @@ public class DumpCommand
                  * commandline.
                  */
                 while (st.hasMoreElements()) {
-                    alreadyGiven.add((String) st.nextElement());
+                    alreadyGiven.add(st.nextElement());
                 }
 
                 final Iterator it = _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
@@ -1373,13 +1368,6 @@ public class DumpCommand
             }
         }
         return null;
-    }
-
-    private String stripQuotes(String value) {
-        if (value.startsWith("\"") && value.endsWith("\"")) {
-            value = value.substring(1, value.length()-1);
-        }
-        return value;
     }
 
     /**
@@ -1601,7 +1589,6 @@ public class DumpCommand
             List metaList = new ArrayList();
             Connection conn = _session.getConnection();
             ResultSet rset = null;
-            Statement stmt = null;
             try {
                 /*
                  * if the same column is in more than one schema defined, then
@@ -1761,6 +1748,7 @@ public class DumpCommand
     }
 
     private static class EncodingMismatchException extends IOException {
+        private static final long serialVersionUID = 1;
         private final String _encoding;
         public EncodingMismatchException(String encoding) {
             super("file encoding Mismatch Exception; got " + encoding);

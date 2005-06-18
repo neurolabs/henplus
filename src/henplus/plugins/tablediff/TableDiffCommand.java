@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: TableDiffCommand.java,v 1.8 2004-10-06 11:11:29 magrokosmos Exp $ 
+ * @version $Id: TableDiffCommand.java,v 1.9 2005-06-18 04:58:13 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
@@ -9,7 +9,6 @@ package henplus.plugins.tablediff;
 import henplus.Command;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
-import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.SessionManager;
 import henplus.commands.ListUserObjectsCommand;
@@ -25,27 +24,17 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 
-public final class TableDiffCommand implements Command, Interruptable {
-    
-    //private final ListUserObjectsCommand _tableCompleter;
-    private static final boolean verbose     = true;
-    
+public final class TableDiffCommand implements Command {
     protected static final String _command = "tablediff";
     protected static final String COMMAND_DELIMITER = ";";
     protected static final String OPTION_SINGLE_DB = "-singledb";
     
-    private volatile boolean _interrupted = false;
-
     /**
      * 
      */
     public TableDiffCommand() {
     }
     
-    public void interrupt() {
-        this._interrupted = true;
-    }
-
     /* (non-Javadoc)
      * @see henplus.Command#getCommandList()
      */
@@ -279,6 +268,7 @@ public final class TableDiffCommand implements Command, Interruptable {
         }
     }
     
+    /* leave this for testing */
     private TableDiffResult getMockResult() {
         TableDiffResult result = new TableDiffResult();
         
@@ -321,11 +311,11 @@ public final class TableDiffCommand implements Command, Interruptable {
      * @see henplus.Command#complete(henplus.CommandDispatcher, java.lang.String, java.lang.String)
      */
     public Iterator complete(CommandDispatcher disp, 
-                                            String partialCommand, 
-                                            final String lastWord) {
+                             String partialCommand, 
+                             final String lastWord) {
         
         StringTokenizer st = new StringTokenizer(partialCommand);
-        String cmd = st.nextToken();
+        st.nextToken(); // skip cmd.
         int argIndex = st.countTokens();
         
         // System.out.println("[complete] partialCommand: '"+partialCommand+"', lastWord: '" + lastWord+"'");

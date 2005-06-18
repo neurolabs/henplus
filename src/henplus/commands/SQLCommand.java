@@ -7,7 +7,6 @@
 package henplus.commands;
 
 import henplus.AbstractCommand;
-import henplus.Interruptable;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.PropertyRegistry;
@@ -18,11 +17,8 @@ import henplus.property.BooleanPropertyHolder;
 import henplus.view.util.NameCompleter;
 import henplus.view.util.CancelWriter;
 
-import java.sql.CallableStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;

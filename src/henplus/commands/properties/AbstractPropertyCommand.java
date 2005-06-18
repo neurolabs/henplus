@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.3 2004-03-06 00:15:28 hzeller Exp $ 
+ * $Id: AbstractPropertyCommand.java,v 1.4 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands.properties;
@@ -19,7 +19,6 @@ import henplus.view.util.SortedMatchIterator;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.StringTokenizer;
 
 /**

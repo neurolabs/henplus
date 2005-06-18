@@ -1,35 +1,37 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PluginCommand.java,v 1.6 2004-03-06 00:15:28 hzeller Exp $ 
+ * $Id: PluginCommand.java,v 1.7 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
+import henplus.AbstractCommand;
+import henplus.Command;
+import henplus.CommandDispatcher;
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.view.Column;
+import henplus.view.ColumnMetaData;
+import henplus.view.TableRenderer;
+import henplus.view.util.SortedMatchIterator;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Properties;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.StringTokenizer;
-
-import java.io.*;
-
-import henplus.HenPlus;
-import henplus.Command;
-import henplus.util.*;
-import henplus.view.*;
-import henplus.view.util.SortedMatchIterator;
-import henplus.AbstractCommand;
-import henplus.CommandDispatcher;
-import henplus.SQLSession;
+import java.util.TreeMap;
 
 /**
  * A Command that handles Plugins.
  */
 public final class PluginCommand extends AbstractCommand {
-    private final static boolean verbose = false; // debug.
     private final static String PLUGINS_FILENAME = "plugins";
     private final static ColumnMetaData[] DRV_META;
     static {

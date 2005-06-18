@@ -1,37 +1,35 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.22 2004-03-07 15:29:04 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.23 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import henplus.util.*;
-import henplus.view.*;
+import henplus.AbstractCommand;
+import henplus.CommandDispatcher;
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.event.ExecutionListener;
+import henplus.view.Column;
+import henplus.view.ColumnMetaData;
+import henplus.view.TableRenderer;
 import henplus.view.util.SortedMatchIterator;
 
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.util.Properties;
-
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-
-import henplus.HenPlus;
-import henplus.SQLSession;
-import henplus.AbstractCommand;
-import henplus.CommandDispatcher;
-
-import henplus.event.ExecutionListener;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 /**
  * document me.
@@ -221,7 +219,7 @@ public final class SetCommand extends AbstractCommand {
 	     * the commandline and exclude from completion..
 	     */
 	    while (st.hasMoreElements()) {
-		alreadyGiven.add((String) st.nextElement());
+		alreadyGiven.add(st.nextElement());
 	    }
 	}
         return new SortedMatchIterator(lastWord, _variables) {

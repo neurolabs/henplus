@@ -1,12 +1,11 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.21 2005-03-24 13:57:46 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.22 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import henplus.util.*;
 import henplus.view.*;
 import henplus.OutputDevice;
 import henplus.HenPlus;
@@ -18,8 +17,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.io.Reader;
-import java.io.IOException;
-import java.util.StringTokenizer;
 
 /**
  * document me.

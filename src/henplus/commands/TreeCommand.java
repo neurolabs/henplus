@@ -23,7 +23,6 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Iterator;
 
 import henplus.OutputDevice;
 
@@ -304,8 +303,7 @@ public class TreeCommand extends AbstractCommand {
 			     String partialCommand, String lastWord) 
     {
 	StringTokenizer st = new StringTokenizer(partialCommand);
-	String cmd = (String) st.nextElement();
-	int argc = st.countTokens();
+	st.nextElement(); // skip cmd.
 	// we accept only one argument.
 	if (lastWord.startsWith("\"")) {
 	    lastWord = lastWord.substring(1);

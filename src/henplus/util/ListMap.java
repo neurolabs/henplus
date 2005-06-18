@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: ListMap.java,v 1.4 2004-09-22 11:49:32 magrokosmos Exp $ 
+ * @version $Id: ListMap.java,v 1.5 2005-06-18 04:58:13 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.util;
@@ -23,7 +23,8 @@ import java.util.Set;
  * @author Martin Grotzke
  */
 public final class ListMap implements Map, Serializable {
-
+    private static final long serialVersionUID = 1;
+    
     private List keys;
     private List values;
 

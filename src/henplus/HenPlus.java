@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.73 2005-04-27 14:37:14 hzeller Exp $
+ * $Id: HenPlus.java,v 1.74 2005-06-18 04:58:13 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -21,7 +21,6 @@ import org.gnu.readline.ReadlineLibrary;
 
 public class HenPlus implements Interruptable {
     public static final boolean verbose = false; // debug.
-    private static final String EXIT_MSG   = "good bye.";
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT     = "Hen*Plus> ";
 

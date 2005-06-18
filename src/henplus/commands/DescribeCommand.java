@@ -367,7 +367,6 @@ public class DescribeCommand extends AbstractCommand implements Interruptable
     {
         StringTokenizer st = new StringTokenizer(partialCommand);
         st.nextElement(); // consume first element.
-        int argc = st.countTokens();
         if (lastWord.startsWith("\"")) {
             lastWord = lastWord.substring(1);
         }

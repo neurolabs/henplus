@@ -1,12 +1,11 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Column.java,v 1.5 2004-08-27 09:24:03 hzeller Exp $ 
+ * $Id: Column.java,v 1.6 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 

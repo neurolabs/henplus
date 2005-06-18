@@ -1,14 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyCommand.java,v 1.2 2004-03-05 23:34:38 hzeller Exp $ 
+ * $Id: PropertyCommand.java,v 1.3 2005-06-18 04:58:13 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands.properties;
 
 import henplus.HenPlus;
 import henplus.PropertyRegistry;
-import henplus.SQLSession;
 import henplus.property.PropertyHolder;
 
 import java.util.Properties;
@@ -70,23 +69,23 @@ public class PropertyCommand extends AbstractPropertyCommand {
     }
 
     public void shutdown() {
-	try {
-	    File settingsFile = new File(_henplus.getConfigDir(),
-					 SETTINGS_FILENAME);
-	    OutputStream stream = new FileOutputStream(settingsFile);
-	    Properties p = new Properties();
-           
+        try {
+            File settingsFile = new File(_henplus.getConfigDir(),
+                                         SETTINGS_FILENAME);
+            OutputStream stream = new FileOutputStream(settingsFile);
+            Properties p = new Properties();
+            
             Iterator propIt = (_registry.getPropertyMap()
-                               .entrySet().iterator());
+                    .entrySet().iterator());
             while (propIt.hasNext()) {
                 Map.Entry entry = (Map.Entry) propIt.next();
                 PropertyHolder holder = (PropertyHolder) entry.getValue();
-                p.put((String) entry.getKey(), holder.getValue());
+                p.put(entry.getKey(), holder.getValue());
             }
-	    p.store(stream, "user properties");
+            p.store(stream, "user properties");
             stream.close();
-	}
-	catch (IOException dont_care) {}
+        }
+        catch (IOException dont_care) {}
     }
 }
 

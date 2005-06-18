@@ -5,7 +5,6 @@
 package henplus.plugins.tablediff;
 
 import henplus.sqlmodel.Column;
-import henplus.sqlmodel.Table;
 import henplus.util.ListMap;
 
 import java.util.SortedSet;
@@ -15,11 +14,10 @@ import java.util.TreeSet;
  * <p>Title: TableDiffResult</p>
  * <p>Description: Represents the result of two diffed tables.<br>
  * Created on: 24.07.2003</p>
- * @version $Id: TableDiffResult.java,v 1.3 2004-03-07 14:22:02 hzeller Exp $ 
+ * @version $Id: TableDiffResult.java,v 1.4 2005-06-18 04:58:13 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class TableDiffResult {    
-    private Table _table;
     private SortedSet/*<Column>*/ _removedColumns;
     private SortedSet/*<Column>*/ _addedColumns;
     private ListMap/*<Column, Column>*/ _modifiedColumns; // key: reference, value: modified
