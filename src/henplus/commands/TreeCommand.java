@@ -382,6 +382,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
 	return value;
     }
     
+    /** interrupt interface */
     public void interrupt() {
         interrupted = true;
     }
@@ -414,7 +415,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             +"\t    foo\n"
             +"\t    |-- bar\n"
             +"\t    |   |-- blah\n"
-            +"\t    |   `-- (foo)            <-- cylic reference\n"
+            +"\t    |   `-- (foo)            <-- cylic/already printed reference\n"
             +"\t    `-- baz\n"
             +"\tSo in order to limit the potential cyclic graph in the\n"
             +"\ttree view from infinite to finite, cyclic nodes or nodes already\n"
