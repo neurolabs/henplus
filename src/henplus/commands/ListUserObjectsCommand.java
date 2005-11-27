@@ -30,6 +30,7 @@ import java.util.SortedSet;
 public class ListUserObjectsCommand 
     extends AbstractCommand implements Interruptable 
 {
+    final private static String[] LIST_TABLES_VIEWS = { "TABLE", "VIEW" };
     final private static String[] LIST_TABLES = { "TABLE" };
     final private static String[] LIST_VIEWS  = { "VIEW" };
     final private static int[]    TABLE_DISP_COLS   = { 2, 3, 4, 5 };
@@ -173,7 +174,7 @@ public class ListUserObjectsCommand
 	ResultSet rset = null;
 	try {
 	    DatabaseMetaData meta = conn.getMetaData();
-	    rset = meta.getTables(null, null, null, LIST_TABLES);
+	    rset = meta.getTables(null, null, null, LIST_TABLES_VIEWS);
 	    while (rset.next()) {
 		result.addName(rset.getString(3));
 	    }

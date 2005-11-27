@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
  */
 public class DescribeCommand extends AbstractCommand implements Interruptable
 {
-    private final static String[] LIST_TABLES = { "TABLE" };
+    private final static String[] LIST_TABLES = { "TABLE", "VIEW" };
     private final static ColumnMetaData[] DESC_META;
     static {
         DESC_META    = new ColumnMetaData[9];

@@ -9,7 +9,9 @@ package henplus.commands;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
+import henplus.Interruptable;
 import henplus.SQLSession;
+import henplus.SigIntHandler;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -40,14 +42,16 @@ import henplus.OutputDevice;
 /**
  * creates a dependency graph.
  */
-public class TreeCommand extends AbstractCommand {
+public class TreeCommand extends AbstractCommand implements Interruptable {
     private final static int IMP_PRIMARY_KEY_TABLE = 3;
     /** reference in exported/imported key */
     private final static int EXP_FOREIGN_KEY_TABLE = 7;
 
     static final boolean verbose     = false;
+    
     private final ListUserObjectsCommand tableCompleter;
-
+    private volatile boolean interrupted;
+    
     /**
      * A node in a cyclic graph.
      */
@@ -255,6 +259,9 @@ public class TreeCommand extends AbstractCommand {
             final DatabaseMetaData dbMeta = 
                 session.getConnection().getMetaData();
 
+            interrupted = false;
+            SigIntHandler.getInstance().pushInterruptable(this);
+            
             // build a tree of all tables I depend on..
             Node myParents = buildTree(new ReferenceMetaDataSource() {
                     public ResultSet getReferenceMetaData(String schema, 
@@ -263,6 +270,7 @@ public class TreeCommand extends AbstractCommand {
                         return dbMeta.getImportedKeys(null, schema, table);
                     }
                 }, IMP_PRIMARY_KEY_TABLE, new TreeMap(), schema, tabName);
+            if (interrupted) return SUCCESS;
             myParents.markDepths();
             
             // build a tree of all tables that depend on me ...
@@ -273,6 +281,7 @@ public class TreeCommand extends AbstractCommand {
                         return dbMeta.getExportedKeys(null, schema, table);
                     }
                 }, EXP_FOREIGN_KEY_TABLE, new TreeMap(), schema, tabName);
+            if (interrupted) return SUCCESS;
             myChilds.markDepths();
             
             int reversIndent = myParents.printReverse(HenPlus.out());
@@ -338,6 +347,7 @@ public class TreeCommand extends AbstractCommand {
             Iterator it = refTables.iterator();
             while (it.hasNext()) {
                 String referencingTable = (String) it.next();
+                if (interrupted) return null;
                 n.add(buildTree(source, sourceColumn,
                                 knownNodes, schema, referencingTable));
             }
@@ -370,6 +380,10 @@ public class TreeCommand extends AbstractCommand {
 	    value = value.substring(1, value.length()-1);
 	}
 	return value;
+    }
+    
+    public void interrupt() {
+        interrupted = true;
     }
     
     /**
