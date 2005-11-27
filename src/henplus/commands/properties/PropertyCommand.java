@@ -1,25 +1,19 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyCommand.java,v 1.3 2005-06-18 04:58:13 hzeller Exp $ 
+ * $Id: PropertyCommand.java,v 1.4 2005-11-27 16:20:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands.properties;
 
 import henplus.HenPlus;
 import henplus.PropertyRegistry;
+import henplus.io.ConfigurationContainer;
 import henplus.property.PropertyHolder;
 
-import java.util.Properties;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 
 /**
  * Set global HenPlus properties.
@@ -28,10 +22,12 @@ public class PropertyCommand extends AbstractPropertyCommand {
     private final static String SETTINGS_FILENAME = "properties";
     private final HenPlus          _henplus;
     private final PropertyRegistry _registry;
-
+    private final ConfigurationContainer _config;
+    
     public PropertyCommand(HenPlus henplus, PropertyRegistry registry) {
         _henplus = henplus;
         _registry = registry;
+        _config = _henplus.createConfigurationContainer(SETTINGS_FILENAME);
     }
     
     protected String getSetCommand() { return "set-property"; }
@@ -46,14 +42,7 @@ public class PropertyCommand extends AbstractPropertyCommand {
     }
 
     public void load() {
-        Properties props = new Properties();
-	try {
-	    File settingsFile = new File(_henplus.getConfigDir(),
-					 SETTINGS_FILENAME);
-	    InputStream stream = new FileInputStream(settingsFile);
-	    props.load(stream);
-	}
-	catch (IOException dont_care) {}
+        Map props = _config.readProperties();
 
         Iterator it = props.entrySet().iterator();
         while (it.hasNext()) {
@@ -69,23 +58,15 @@ public class PropertyCommand extends AbstractPropertyCommand {
     }
 
     public void shutdown() {
-        try {
-            File settingsFile = new File(_henplus.getConfigDir(),
-                                         SETTINGS_FILENAME);
-            OutputStream stream = new FileOutputStream(settingsFile);
-            Properties p = new Properties();
-            
-            Iterator propIt = (_registry.getPropertyMap()
-                    .entrySet().iterator());
-            while (propIt.hasNext()) {
-                Map.Entry entry = (Map.Entry) propIt.next();
-                PropertyHolder holder = (PropertyHolder) entry.getValue();
-                p.put(entry.getKey(), holder.getValue());
-            }
-            p.store(stream, "user properties");
-            stream.close();
+        Map writeMap = new HashMap();
+        Iterator propIt = (_registry.getPropertyMap()
+                .entrySet().iterator());
+        while (propIt.hasNext()) {
+            Map.Entry entry = (Map.Entry) propIt.next();
+            PropertyHolder holder = (PropertyHolder) entry.getValue();
+            writeMap.put(entry.getKey(), holder.getValue());
         }
-        catch (IOException dont_care) {}
+        _config.storeProperties(writeMap, true, "user properties");
     }
 }
 

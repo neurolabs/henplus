@@ -8,7 +8,7 @@ package henplus.commands;
 
 import henplus.importparser.TypeParser;
 import henplus.importparser.ImportParser;
-import henplus.importparser.StringParser;
+import henplus.importparser.QuotedStringParser;
 import henplus.importparser.ValueRecipient;
 import henplus.importparser.IgnoreTypeParser;
 import henplus.Interruptable;
@@ -171,7 +171,7 @@ public class ImportCommand extends AbstractCommand {
             String colName = config.getColumns()[i];
             colParser[i] = ((colName == null) 
                             ? (TypeParser) new IgnoreTypeParser()
-                            : (TypeParser) new StringParser(colIndex++));
+                            : (TypeParser) new QuotedStringParser(colIndex++));
         }
         try {
             final String colDelim = (config.getColDelimiter() != null
@@ -427,7 +427,7 @@ public class ImportCommand extends AbstractCommand {
             dsc= "\tDry-run: read the file but do not insert anything\n";
         }
         else {
-            dsc="\tImport the content of the file into table according to the format";
+            dsc="\tImport the content of the file into table according to the format\n";
         }
         dsc+="\tIf the filename ends with '.gz', the\n"
             +"\tcontent is unzipped automatically\n\n";
@@ -741,6 +741,7 @@ public class ImportCommand extends AbstractCommand {
                 //...
             }
             String tab = parser.getConfig().getTable();
+            // TODO: read columns from meta-data
             return null;
         }
     }

@@ -6,8 +6,12 @@
  */
 package henplus;
 
-import java.util.StringTokenizer;
 import java.util.Iterator;
+import java.util.StringTokenizer;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 /**
  * Implementation of a Command with default settings. Override
@@ -17,6 +21,9 @@ import java.util.Iterator;
  * @author Henner Zeller
  */
 public abstract class AbstractCommand implements Command {
+    
+    private Options options;
+    
     // no description by default.
     public String getShortDescription() { return null; }
     public String getLongDescription(String cmd) { return null; }
@@ -44,6 +51,29 @@ public abstract class AbstractCommand implements Command {
      */
     protected int argumentCount(String command) {
 	return (new StringTokenizer(command)).countTokens();
+    }
+    
+    
+    protected Options getOptions() {
+        return options;
+    }
+    public void setOptions(Options options) {
+        this.options = options;
+    }
+    public Option getOption(String arg0) {
+        return options.getOption(arg0);
+    }
+    
+    /**
+     * Override this method if you want to register command-specific options
+     * @param r
+     */
+    public void registerOptions(Options r){
+        
+    }
+    
+    public void handleCommandline(CommandLine line){
+        
     }
 }
 

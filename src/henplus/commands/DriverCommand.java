@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.13 2005-06-18 04:58:13 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.14 2005-11-27 16:20:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -10,22 +10,16 @@ import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.SQLSession;
+import henplus.io.ConfigurationContainer;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
 import henplus.view.util.SortedMatchIterator;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.Driver;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -100,8 +94,8 @@ public final class DriverCommand extends AbstractCommand {
     }
 
     private final SortedMap/*<String,DriverDescription>*/ _drivers;
-    private final HenPlus   _henplus;
-
+    private final ConfigurationContainer _config;
+    
     /**
      * returns the command-strings this command can handle.
      */
@@ -112,34 +106,25 @@ public final class DriverCommand extends AbstractCommand {
     }
     
     public DriverCommand(HenPlus henplus) {
-	_henplus = henplus;
 	_drivers = new TreeMap();
-	try {
-	    File driversFile = new File(henplus.getConfigDir(),
-					DRIVERS_FILENAME);
-	    InputStream stream = new FileInputStream(driversFile);
-	    Properties p = new Properties();
-	    p.load(stream);
-	    stream.close();
-	    Enumeration props = p.propertyNames();
-	    while (props.hasMoreElements()) {
-		String name = (String) props.nextElement();
-		if (name.startsWith("driver.") && name.endsWith(".class")) {
-		    String databaseName = name.substring("driver.".length(),
-							 name.length() - 
-							 ".class".length());
-		    String exampleName = "driver." + databaseName + ".example";
-		    DriverDescription desc;
-		    
-		    desc = new DriverDescription(p.getProperty(name),
-						 p.getProperty(exampleName));
-		    _drivers.put(databaseName, desc);
-		}
-	    }
-	}
-	catch (IOException dont_care) {
-	}
-	if (_drivers.size() == 0) {
+        _config = henplus.createConfigurationContainer(DRIVERS_FILENAME);
+        Map props = _config.readProperties();
+        final Iterator propNames = props.keySet().iterator();
+        while (propNames.hasNext()) {
+            final String name = (String) propNames.next();
+            if (name.startsWith("driver.") && name.endsWith(".class")) {
+                String databaseName = name.substring("driver.".length(),
+                                                     name.length() - 
+                                                     ".class".length());
+                String exampleName = "driver." + databaseName + ".example";
+                DriverDescription desc;
+                
+                desc = new DriverDescription((String) props.get(name),
+                                             (String) props.get(exampleName));
+                _drivers.put(databaseName, desc);
+            }
+        }
+        if (_drivers.size() == 0) {
 	    for (int i=0; i < KNOWN_DRIVERS.length; ++i) {
 		String[] row = KNOWN_DRIVERS[i];
 		_drivers.put(row[0], new DriverDescription(row[1], row[2]));
@@ -235,23 +220,16 @@ public final class DriverCommand extends AbstractCommand {
     }
 
     public void shutdown() {
-	try {
-	    File driversFile = new File(_henplus.getConfigDir(),
-					DRIVERS_FILENAME);
-	    OutputStream stream = new FileOutputStream(driversFile);
-	    Properties p = new Properties();
-	    Iterator drvs = _drivers.entrySet().iterator();
-	    while (drvs.hasNext()) {
-		Map.Entry entry = (Map.Entry) drvs.next();
-		String shortName = (String) entry.getKey();
-		DriverDescription desc=(DriverDescription)entry.getValue();
-		p.put("driver." + shortName + ".class", desc.getClassName());
-		p.put("driver." + shortName + ".example",desc.getSampleURL());
-	    }
-	    p.store(stream, "JDBC drivers");
-            stream.close();
-	}
-	catch (IOException dont_care) {}
+        Map result = new HashMap();
+        Iterator drvs = _drivers.entrySet().iterator();
+        while (drvs.hasNext()) {
+            Map.Entry entry = (Map.Entry) drvs.next();
+            String shortName = (String) entry.getKey();
+            DriverDescription desc=(DriverDescription)entry.getValue();
+            result.put("driver." + shortName + ".class", desc.getClassName());
+            result.put("driver." + shortName + ".example",desc.getSampleURL());
+        }
+        _config.storeProperties(result, true, "JDBC drivers");
     }
 
     /**

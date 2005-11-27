@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TimeRenderer.java,v 1.7 2004-03-07 11:58:19 hzeller Exp $ 
+ * $Id: TimeRenderer.java,v 1.8 2005-11-27 16:20:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -29,64 +29,64 @@ public class TimeRenderer {
     }
 
     /** render time as string */
-    public static String renderTime(long execTime) {
-        return renderTime(execTime, 0);
+    public static String renderTime(long execTimeInMs) {
+        return renderTime(execTimeInMs, 0);
     }
 
     /** render time as string */
-    public static String renderTime(long execTime, long usec) {
+    public static String renderTime(long execTimeInMs, long usec) {
         final StringBuffer result = new StringBuffer();
-        printTime(execTime, usec, new AbstractOutputDevice() {
+        printTime(execTimeInMs, usec, new AbstractOutputDevice() {
                 public void print(String s) { result.append(s); }
             });
         return result.toString();
     }
 
     /** print time to output device */
-    public static void printTime(long execTime, OutputDevice out) {
-	printTime(execTime, 0, out);
+    public static void printTime(long execTimeInMs, OutputDevice out) {
+	printTime(execTimeInMs, 0, out);
     }
 
     /** print time to output device */
-    public static void printTime(long execTime, long usec, OutputDevice out) {
-	final long totalTime = execTime;
+    public static void printTime(long execTimeInMs, long usec, OutputDevice out) {
+	final long totalTime = execTimeInMs;
 
         boolean hourPrinted = false;
         boolean minutePrinted = false;
 
-        if (execTime > HOUR_MILLIS) {
-            out.print(String.valueOf(execTime/HOUR_MILLIS));
+        if (execTimeInMs > HOUR_MILLIS) {
+            out.print(String.valueOf(execTimeInMs/HOUR_MILLIS));
             out.print("h ");
-            execTime %= HOUR_MILLIS;
+            execTimeInMs %= HOUR_MILLIS;
             hourPrinted = true;
         }
 
-	if (hourPrinted || execTime > MINUTE_MILLIS) {
-            long minute = execTime/60000;
+	if (hourPrinted || execTimeInMs > MINUTE_MILLIS) {
+            long minute = execTimeInMs/60000;
             if (hourPrinted && minute < 10) {
                 out.print("0"); // need padding.
             }
 	    out.print(String.valueOf(minute));
 	    out.print("m ");
-	    execTime %= MINUTE_MILLIS;
+	    execTimeInMs %= MINUTE_MILLIS;
             minutePrinted = true;
 	}
 
-	if (minutePrinted || execTime >= SECOND_MILLIS) {
-            long seconds = execTime/SECOND_MILLIS;
+	if (minutePrinted || execTimeInMs >= SECOND_MILLIS) {
+            long seconds = execTimeInMs/SECOND_MILLIS;
 	    if (minutePrinted && seconds < 10) {
 		out.print("0"); // need padding.
 	    }
 	    out.print(String.valueOf(seconds));
 	    out.print(".");
-	    execTime %= SECOND_MILLIS;
+	    execTimeInMs %= SECOND_MILLIS;
             // milliseconds
-	    if (execTime < 100) out.print("0");
-	    if (execTime < 10)  out.print("0");
-	    out.print(String.valueOf(execTime));
+	    if (execTimeInMs < 100) out.print("0");
+	    if (execTimeInMs < 10)  out.print("0");
+	    out.print(String.valueOf(execTimeInMs));
 	}
-	else if (execTime > 0) {
-	    out.print(String.valueOf(execTime));
+	else if (execTimeInMs > 0) {
+	    out.print(String.valueOf(execTimeInMs));
 	}
 	
 	if (usec > 0) {
@@ -97,7 +97,7 @@ public class TimeRenderer {
 	    }
 	    out.print(String.valueOf(usec));
 	}
-	else if (execTime == 0) {
+	else if (execTimeInMs == 0) {
 	    out.print("0 ");
 	}
 

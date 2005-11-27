@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PluginCommand.java,v 1.7 2005-06-18 04:58:13 hzeller Exp $ 
+ * $Id: PluginCommand.java,v 1.8 2005-11-27 16:20:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -11,16 +11,17 @@ import henplus.Command;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.SQLSession;
+import henplus.io.ConfigurationContainer;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
 import henplus.view.util.SortedMatchIterator;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,7 +43,8 @@ public final class PluginCommand extends AbstractCommand {
 
     private final SortedMap/*<ClassName-String,Command-Class>*/ _plugins;
     private final HenPlus   _henplus;
-
+    private final ConfigurationContainer _config;
+    
     /**
      * returns the command-strings this command can handle.
      */
@@ -55,34 +57,34 @@ public final class PluginCommand extends AbstractCommand {
     public PluginCommand(HenPlus henplus) {
 	_henplus = henplus;
 	_plugins = new TreeMap();
+        _config = henplus.createConfigurationContainer(PLUGINS_FILENAME);
     }
 
     /**
      * initial load of plugins.
      */
     public void load() {
-	try {
-	    File pluginFile = new File(_henplus.getConfigDir(),
-				       PLUGINS_FILENAME);
-	    BufferedReader in = new BufferedReader(new FileReader(pluginFile));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-		line = line.trim();
-		if (line.length() == 0) continue;
-		Command plugin = null;
-		try {
-		    plugin = loadPlugin(line);
-		}
-		catch (Exception e) {
-		    HenPlus.msg().println("couldn't load plugin '" + line + "' "
-				       + e.getMessage());
-		}
-		_plugins.put(line, plugin);
-	    }
-	    in.close();
-	}
-	catch (IOException dont_care) {
-	}
+        _config.read(new ConfigurationContainer.ReadAction() {
+            public void readConfiguration(InputStream inStream) throws Exception {
+                if (inStream == null) return;
+                BufferedReader in = new BufferedReader(new InputStreamReader(inStream, "UTF-8"));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    line = line.trim();
+                    if (line.length() == 0) continue;
+                    Command plugin = null;
+                    try {
+                        plugin = loadPlugin(line);
+                    }
+                    catch (Exception e) {
+                        HenPlus.msg().println("couldn't load plugin '" + line + "' "
+                                              + e.getMessage());
+                    }
+                    _plugins.put(line, plugin);
+                }
+                in.close();
+            }
+        });
     }
     
     public boolean requiresValidSession(String cmd) { return false; }
@@ -196,17 +198,16 @@ public final class PluginCommand extends AbstractCommand {
     }
 
     public void shutdown() {
-	try {
-	    File pluginFile = new File(_henplus.getConfigDir(),
-				       PLUGINS_FILENAME);
-	    PrintWriter out = new PrintWriter(new FileWriter(pluginFile));
-	    Iterator it = _plugins.keySet().iterator();
-	    while (it.hasNext()) {
-		out.println((String) it.next());
-	    }
-	    out.close();
-	}
-	catch (IOException dont_care) {}
+	_config.write(new ConfigurationContainer.WriteAction() {
+            public void writeConfiguration(OutputStream outStream) throws Exception {
+                PrintWriter out = new PrintWriter(new OutputStreamWriter(outStream, "UTF-8"));
+                Iterator it = _plugins.keySet().iterator();
+                while (it.hasNext()) {
+                    out.println((String) it.next());
+                }
+                out.close();
+            }
+	});
     }
     
     /**

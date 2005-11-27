@@ -6,21 +6,14 @@
  */
 package henplus.commands;
 
+import henplus.io.ConfigurationContainer;
 import henplus.view.util.NameCompleter;
 import henplus.CommandDispatcher;
 import henplus.SQLSession;
 import henplus.HenPlus;
 import henplus.AbstractCommand;
 
-import java.io.IOException;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.File;
-
 import henplus.view.*;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,8 +34,8 @@ public class KeyBindCommand extends AbstractCommand {
 	DRV_META[1] = new ColumnMetaData("execute command");
     }
 
-    private final HenPlus _henplus;
-
+    private final ConfigurationContainer _config;
+    
     private final Map/*<String:keyname,String:readlinename>*/ _keyNames;
     private final NameCompleter _functionKeyNameCompleter;
     private final Map/*<String:key,String:cmd>*/ _bindings;
@@ -60,7 +53,6 @@ public class KeyBindCommand extends AbstractCommand {
     }
     
     public KeyBindCommand(HenPlus henplus) {
-        _henplus = henplus;
         _keyNames = new HashMap();
         //-- there are different mappings for some function keys and terminals
         _keyNames.put("F1",  new String[]{"\"\\e[11~\"", 
@@ -106,6 +98,7 @@ public class KeyBindCommand extends AbstractCommand {
         _keyNames.put("F12", new String[]{"\"\\e[24~\""});
         _keyNames.put("Shift-F12",  new String[]{"\"\\e[24;2~\""});
         _functionKeyNameCompleter = new NameCompleter(_keyNames.keySet());
+        _config = henplus.createConfigurationContainer(KEYBIND_FILENAME);
         _bindings = new TreeMap();
         bindKey("F1", "help\n"); // a common default binding.
         load();
@@ -210,37 +203,19 @@ public class KeyBindCommand extends AbstractCommand {
     }
 
     public void shutdown() {
-	try {
-	    File bindingFile = new File(_henplus.getConfigDir(),
-                                        KEYBIND_FILENAME);
-	    OutputStream stream = new FileOutputStream(bindingFile);
-	    Properties p = new Properties();
-	    p.putAll(_bindings);
-	    p.store(stream, "Key-Bindings..");
-            stream.close();
-	}
-	catch (IOException dont_care) {}
+        _config.storeProperties(_bindings, true, "Key-Bindings..");
     }
 
     /**
      * initial load of key bindings
      */
     private void load() {
-	try {
-	    File bindingFile = new File(_henplus.getConfigDir(),
-                                        KEYBIND_FILENAME);
-	    InputStream stream = new FileInputStream(bindingFile);
-	    Properties p = new Properties();
-	    p.load(stream);
-	    stream.close();
-	    Iterator it = p.entrySet().iterator();
-	    while (it.hasNext()) {
-		Map.Entry entry = (Map.Entry) it.next();
-		bindKey((String) entry.getKey(),
-                        (String) entry.getValue());
-	    }
-	}
-	catch (IOException dont_care) {
+	Map bindings = _config.readProperties(_bindings);
+	Iterator it = bindings.entrySet().iterator();
+	while (it.hasNext()) {
+	    Map.Entry entry = (Map.Entry) it.next();
+	    bindKey((String) entry.getKey(),
+	            (String) entry.getValue());
 	}
     }
 

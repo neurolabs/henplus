@@ -1,25 +1,58 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.74 2005-06-18 04:58:13 hzeller Exp $
+ * $Id: HenPlus.java,v 1.75 2005-11-27 16:20:27 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
-import henplus.commands.*;
-import henplus.commands.properties.*;
+import henplus.commands.AboutCommand;
+import henplus.commands.AliasCommand;
+import henplus.commands.ConnectCommand;
+import henplus.commands.DescribeCommand;
+import henplus.commands.DriverCommand;
+import henplus.commands.DumpCommand;
+import henplus.commands.EchoCommand;
+import henplus.commands.ExitCommand;
+import henplus.commands.HelpCommand;
+import henplus.commands.ImportCommand;
+import henplus.commands.KeyBindCommand;
+import henplus.commands.ListUserObjectsCommand;
+import henplus.commands.LoadCommand;
+import henplus.commands.PluginCommand;
+import henplus.commands.SQLCommand;
+import henplus.commands.SetCommand;
+import henplus.commands.ShellCommand;
+import henplus.commands.SpoolCommand;
+import henplus.commands.StatusCommand;
+import henplus.commands.SystemInfoCommand;
+import henplus.commands.TreeCommand;
+import henplus.commands.properties.PropertyCommand;
+import henplus.commands.properties.SessionPropertyCommand;
+import henplus.io.ConfigurationContainer;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
+import java.util.Iterator;
 import java.io.IOException;
+import java.io.InputStream;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Map;
 
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
 
 public class HenPlus implements Interruptable {
+    private static final String HISTORY_NAME = "history";
     public static final boolean verbose = false; // debug.
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT     = "Hen*Plus> ";
@@ -35,7 +68,8 @@ public class HenPlus implements Interruptable {
     private final StringBuffer          _historyLine;
 
     private final boolean               _quiet;
-
+    private final ConfigurationContainer _historyConfig;
+    
     private SetCommand             _settingStore;
     private SessionManager         _sessionManager;
     private CommandDispatcher      _dispatcher;
@@ -90,11 +124,13 @@ public class HenPlus implements Interruptable {
 	if (!_quiet) {
 	    System.err.println("using GNU readline (Brian Fox, Chet Ramey), Java wrapper by Bernhard Bablok");
 	}
+        _historyConfig = createConfigurationContainer(HISTORY_NAME);
 	Readline.initReadline("HenPlus");
-	try {
-	    HistoryWriter.readReadlineHistory(getHistoryLocation());
-	}
-	catch (Exception ignore) { /* ign */ }
+	_historyConfig.read(new ConfigurationContainer.ReadAction() {
+            public void readConfiguration(InputStream in) throws Exception {
+                HistoryWriter.readReadlineHistory(in);
+            }
+        });
 	
 	Readline.setWordBreakCharacters(" ,/()<>=\t\n"); // TODO..
 	setDefaultPrompt();
@@ -137,7 +173,7 @@ public class HenPlus implements Interruptable {
         LoadCommand loadCommand = new LoadCommand();
 	_dispatcher.register(loadCommand);
 
-	_dispatcher.register(new ConnectCommand( argv, this, _sessionManager ));
+	_dispatcher.register(new ConnectCommand( this, _sessionManager ));
 	_dispatcher.register(new StatusCommand());
 
 	_dispatcher.register(_objectLister);
@@ -161,13 +197,50 @@ public class HenPlus implements Interruptable {
         _dispatcher.register(new SessionPropertyCommand(this));
     
         _dispatcher.register( new SystemInfoCommand() );
-     
+   
+    
 	pluginCommand.load();
 	aliasCommand.load();
         propertyCommand.load();
-
+        
+        Options opt = new Options();
+        opt.addOption(new Option("h", "help",true,"print this message"));
+        for (Iterator iter = _dispatcher.getRegisteredCommands(); iter.hasNext();) {
+            Command element = (Command) iter.next();
+            try {
+                element.registerOptions(opt);
+            }
+            catch (Throwable e) {
+                System.err.println("while registering "+element);
+                e.printStackTrace();
+            }
+        }
+        CommandLineParser parser = new PosixParser();
+        CommandLine line;
+        try {
+            line = parser.parse(opt, argv);
+            for (Iterator iter = _dispatcher.getRegisteredCommands(); iter.hasNext();) {
+                Command element = (Command) iter.next();
+                try {
+                    element.setOptions(opt);
+                    element.handleCommandline(line);
+                }
+                catch (Throwable e) {
+                }
+            }
+        } 
+        catch (ParseException e1) {
+           line=null;
+        }
+        if (line == null || opt.hasOption("help")){
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp( "henplus", opt );
+            System.exit(0);
+        }
+        
 	Readline.setCompleter( _dispatcher );
 
+        /* FIXME: do this platform independently */
 	// in case someone presses Ctrl-C
 	try {
 	    Runtime.getRuntime()
@@ -409,10 +482,11 @@ public class HenPlus implements Interruptable {
 	    if (_dispatcher != null) {
 		_dispatcher.shutdown();
 	    }
-	    try {
-		HistoryWriter.writeReadlineHistory(getHistoryLocation());
-	    }
-	    catch (Exception ignore) { /* ign */ }
+	    _historyConfig.write(new ConfigurationContainer.WriteAction() {
+	        public void writeConfiguration(OutputStream out) throws Exception {
+	            HistoryWriter.writeReadlineHistory(out);
+	        }
+	    });
 	    Readline.cleanup();
 	}
 	finally {
@@ -610,7 +684,19 @@ public class HenPlus implements Interruptable {
         System.exit(0);
     }
 
-    public File getConfigDir() {
+    /**
+     * returns an InputStream for a named configuration. That stream
+     * must be closed on finish.
+     */
+    public ConfigurationContainer createConfigurationContainer(String configName) {
+        return new ConfigurationContainer(new File(getConfigDir(), configName));        
+    }
+        
+    public String getConfigurationDirectoryInfo() {
+        return getConfigDir().getAbsolutePath();
+    }
+    
+    private File getConfigDir() {
 	if (_configDir != null) {
 	    return _configDir;
 	}
@@ -664,11 +750,7 @@ public class HenPlus implements Interruptable {
 	    System.err.println("henplus config at " + _configDir);
 	}
 	return _configDir;
-    }
-
-    private String getHistoryLocation() {
-	return getConfigDir().getAbsolutePath() + File.separator + "history";
-    }
+    }    
 }
 
 /*

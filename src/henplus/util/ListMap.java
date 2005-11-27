@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: ListMap.java,v 1.5 2005-06-18 04:58:13 hzeller Exp $ 
+ * @version $Id: ListMap.java,v 1.6 2005-11-27 16:20:28 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.util;
@@ -70,7 +70,7 @@ public final class ListMap implements Map, Serializable {
         values.clear();
     }
     public Set keySet() {
-        return new HashSet( (Collection)((ArrayList)values).clone() );
+        return new HashSet(keys);
     }
     /**
      * Returns a <code>List</code> containing all keys.

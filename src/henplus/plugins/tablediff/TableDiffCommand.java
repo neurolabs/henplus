@@ -1,12 +1,12 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: TableDiffCommand.java,v 1.9 2005-06-18 04:58:13 hzeller Exp $ 
+ * @version $Id: TableDiffCommand.java,v 1.10 2005-11-27 16:20:28 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
 
-import henplus.Command;
+import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.SQLSession;
@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 
-public final class TableDiffCommand implements Command {
+public final class TableDiffCommand extends AbstractCommand {
     protected static final String _command = "tablediff";
     protected static final String COMMAND_DELIMITER = ";";
     protected static final String OPTION_SINGLE_DB = "-singledb";

@@ -1,16 +1,17 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HistoryWriter.java,v 1.2 2004-03-05 23:34:38 hzeller Exp $ 
+ * $Id: HistoryWriter.java,v 1.3 2005-11-27 16:20:27 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 
@@ -25,10 +26,9 @@ import org.gnu.readline.Readline;
  */
 public class HistoryWriter {
 
-    public static void writeReadlineHistory(String filename) 
+    public static void writeReadlineHistory(OutputStream out) 
 	throws IOException {
-	File f = new File(filename);
-	PrintWriter w = new PrintWriter(new FileWriter(f));
+	PrintWriter w = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
 	int len = Readline.getHistorySize();
 	for (int i=0; i < len; ++i) {
 	    String line = Readline.getHistoryLine(i);
@@ -39,10 +39,15 @@ public class HistoryWriter {
 	w.close();
     }
 
-    public static void readReadlineHistory(String filename) 
+    public static void readReadlineHistory(InputStream in) throws IOException {
+        // todo: check first utf-8, then default-encoding to be
+        // backward-compatible.
+        readReadlineHistory(new InputStreamReader(in, "UTF-8"));
+    }
+    
+    private static void readReadlineHistory(Reader in) 
 	throws IOException {
-	File f = new File(filename);
-	Reader r = new BufferedReader(new FileReader(f));
+	final Reader r = new BufferedReader(in);
 	StringBuffer line = new StringBuffer();
 	int c;
 	do {

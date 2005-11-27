@@ -61,7 +61,13 @@ public class SQLCommand extends AbstractCommand {
     private boolean _showFooter;
     private volatile boolean _running;
     private StatementCanceller _statementCanceller;
-
+    protected SQLCommand(ListUserObjectsCommand tc) {
+        _columnDelimiter = "|";
+        _rowLimit = 2000;
+        tableCompleter = tc;
+    }
+    private LongRunningTimeDisplay _longRunningDisplay;
+    
     public SQLCommand(ListUserObjectsCommand tc, PropertyRegistry registry) {
 	tableCompleter = tc;
         _columnDelimiter = "|";
@@ -78,6 +84,8 @@ public class SQLCommand extends AbstractCommand {
                                   new ShowFooterProperty());
         _statementCanceller = new StatementCanceller(new CurrentStatementCancelTarget());
         new Thread(_statementCanceller).start();
+        _longRunningDisplay = new LongRunningTimeDisplay("statement running", 30000);
+        new Thread(_longRunningDisplay).start();
     }
 
     /**
@@ -100,7 +108,7 @@ public class SQLCommand extends AbstractCommand {
 	if (command.startsWith("COMMIT")
 	    || command.startsWith("ROLLBACK"))
 	    return true;
-	// FIXME: this is a very dumb parser. 
+	// FIXME: this is a very dumb 'parser'. 
         // i.e. string literals are not considered.
 	boolean anyProcedure = (command.startsWith("BEGIN")
                                 || command.startsWith("DECLARE")
@@ -154,6 +162,10 @@ public class SQLCommand extends AbstractCommand {
         return _showFooter;
     }
 
+    /** 
+     * A statement cancel target that accesses the instance
+     * wide statement.
+     */
     private final class CurrentStatementCancelTarget
         implements StatementCanceller.CancelTarget {
         public void cancelRunningStatement() {
@@ -190,17 +202,17 @@ public class SQLCommand extends AbstractCommand {
      */
     public int execute(SQLSession session, String cmd, String param) {
 	String command = cmd + " " + param;
-        boolean background = false;
+        //boolean background = false;
 
 	if (command.endsWith("/")) {
 	    command = command.substring(0, command.length()-1);
 	}
 
-        if (command.endsWith("&")) {
-            command = command.substring(0, command.length()-1);
-            HenPlus.msg().println("## executing command in the background not yet supported");
-            background = true;
-        }
+//        if (command.endsWith("&")) {
+//            command = command.substring(0, command.length()-1);
+//            HenPlus.msg().println("## executing command in the background not yet supported");
+//            background = true;
+//        }
 
 	final long startTime = System.currentTimeMillis();
 	long lapTime  = -1;
@@ -229,8 +241,10 @@ public class SQLCommand extends AbstractCommand {
                 }
 
                 _statementCanceller.arm();
+                _longRunningDisplay.arm();
                 final boolean hasResultSet = _stmt.execute(command);
-
+                _longRunningDisplay.disarm();
+                
                 if (!_running) {
                     HenPlus.msg().println("cancelled");
                     return SUCCESS;
@@ -309,6 +323,7 @@ public class SQLCommand extends AbstractCommand {
 	}
 	finally {
             _statementCanceller.disarm();
+            _longRunningDisplay.disarm();
             try { if (rset != null) rset.close(); } catch (Exception e) {}
             try { if (_stmt != null) _stmt.close(); } catch (Exception e) {}
             SigIntHandler.getInstance().popInterruptable();

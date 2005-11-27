@@ -1,12 +1,15 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Command.java,v 1.9 2004-03-07 14:22:02 hzeller Exp $
+ * $Id: Command.java,v 1.10 2005-11-27 16:20:27 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
 import java.util.Iterator;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 
 /**
  * Interface to be implemented for user level commands.
@@ -23,7 +26,7 @@ import java.util.Iterator;
  * and you are immune to NoSuchMethodErrors if this interface changes
  * but not yet your plugin...</p>
  *
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @author Henner Zeller
  */
 public interface Command {
@@ -190,6 +193,32 @@ public interface Command {
      *            {@link #getCommandList()}.
      */
     String getLongDescription(String cmd);
+    
+    
+    
+    /**
+     * Options are set, after the commandline has been parsed. 
+     * @param options
+     */
+    public void setOptions(Options options);
+    
+    /**
+     * This method is called before parsing the commandline. You can register command-specific options here.
+     * @param r
+     */
+    public void registerOptions(Options r);
+    
+    /**
+     * After parsing the parameters, this method is called.
+     * 
+     * there can be some default options left. 
+     * These are set to the commands through this method. This is only
+     * for compatibility with the old commandline options, please use 
+     * named options only! 
+     * @param line TODO
+     */
+    public void handleCommandline(CommandLine line);        
+    
 }
 
 /*

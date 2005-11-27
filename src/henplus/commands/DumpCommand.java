@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.36 2005-06-18 04:58:13 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.37 2005-11-27 16:20:28 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -1388,7 +1388,7 @@ public class DumpCommand
             return cmd + " <filename> <exported-tablename> select ...";
         }
         else if ("dump-in".equals(cmd)) {
-            return cmd + " <filename> [<commitpoints>]";
+            return cmd + " <filename> [<commit-intervall>]";
         }
         else if ("verify-dump".equals(cmd)) {
             return cmd + " <filename>";
@@ -1456,7 +1456,7 @@ public class DumpCommand
                 +"\tbetween databases and of course enhances speed compared\n"
                 +"\tto non-prepared statements.\n\n"
                 +"\tThe import is done in the current transaction, unless\n"
-                +"\tyou specify the commitpoints. The commitpoints specify\n"
+                +"\tyou specify the commit-interval. The commit-interval specify\n"
                 +"\tthe number of inserts, that are executed before an commit\n"
                 +"\tis done. For a large amount of data this option is\n"
                 +"\tnecessary, since otherwise your rollback-segments\n"

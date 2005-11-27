@@ -95,7 +95,7 @@ public class HelpCommand extends AbstractCommand {
 		HenPlus.msg().println(description);
 	    }
 	    HenPlus.msg().println("config read from [" 
-                                  + HenPlus.getInstance().getConfigDir() + "]");
+                                  + HenPlus.getInstance().getConfigurationDirectoryInfo() + "]");
 	}
 	else {
 	    CommandDispatcher disp = HenPlus.getInstance().getDispatcher();

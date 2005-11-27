@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.16 2005-06-18 04:58:13 hzeller Exp $ 
+ * $Id: AliasCommand.java,v 1.17 2005-11-27 16:20:27 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -11,21 +11,15 @@ import henplus.Command;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.SQLSession;
+import henplus.io.ConfigurationContainer;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
 import henplus.view.util.SortedMatchIterator;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
@@ -43,8 +37,8 @@ public final class AliasCommand extends AbstractCommand {
 	DRV_META[1] = new ColumnMetaData("execute command");
     }
 
+    private final ConfigurationContainer _config;
     private final SortedMap/*<ClassName-String,Command-Class>*/ _aliases;
-    private final HenPlus   _henplus;
     private final CommandDispatcher _dispatcher;
 
     /**
@@ -63,32 +57,22 @@ public final class AliasCommand extends AbstractCommand {
     }
     
     public AliasCommand(HenPlus henplus) {
-	_henplus = henplus;
 	_dispatcher = henplus.getDispatcher();
 	_aliases = new TreeMap();
 	_currentExecutedAliases = new HashSet();
+        _config = henplus.createConfigurationContainer(ALIAS_FILENAME);
     }
 
     /**
      * initial load of aliases.
      */
     public void load() {
-	try {
-	    File aliasFile = new File(_henplus.getConfigDir(),
-				      ALIAS_FILENAME);
-	    InputStream stream = new FileInputStream(aliasFile);
-	    Properties p = new Properties();
-	    p.load(stream);
-	    stream.close();
-	    _aliases.clear();
-	    Iterator it = p.entrySet().iterator();
-	    while (it.hasNext()) {
-		Map.Entry entry = (Map.Entry) it.next();
-		putAlias((String) entry.getKey(),
-			 (String) entry.getValue());
-	    }
-	}
-	catch (IOException dont_care) {
+	Map props = _config.readProperties();
+	Iterator it = props.entrySet().iterator();
+	while (it.hasNext()) {
+	    Map.Entry entry = (Map.Entry) it.next();
+	    putAlias((String) entry.getKey(),
+	             (String) entry.getValue());
 	}
     }
     
@@ -276,16 +260,7 @@ public final class AliasCommand extends AbstractCommand {
     }
 
     public void shutdown() {
-	try {
-	    File aliasFile = new File(_henplus.getConfigDir(),
-				       ALIAS_FILENAME);
-	    OutputStream stream = new FileOutputStream(aliasFile);
-	    Properties p = new Properties();
-	    p.putAll(_aliases);
-	    p.store(stream, "Aliases..");
-            stream.close();
-	}
-	catch (IOException dont_care) {}
+        _config.storeProperties(_aliases, true, "Aliases...");
     }
     
     /**

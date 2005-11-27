@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SystemInfoCommand.java,v 1.4 2005-06-18 04:58:13 hzeller Exp $ 
+ * @version $Id: SystemInfoCommand.java,v 1.5 2005-11-27 16:20:28 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.commands;
@@ -96,7 +96,7 @@ public final class SystemInfoCommand extends AbstractCommand {
         info.put("Free memory [KB]", Formatter.formatNumber( freeMemory, 2 ) );
         info.put("Used memory [KB]", Formatter.formatNumber( memoryUsed, 2 ) );
         info.put("Diff. of used memory (now-before) [KB]", Formatter.formatNumber( diffMemory, 2 ) );
-        
+
         renderInfo( info );
         
         return SUCCESS;

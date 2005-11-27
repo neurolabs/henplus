@@ -26,12 +26,15 @@ import java.util.TreeSet;
 
 import henplus.OutputDevice;
 
-/*
- * foo
- * |-- bar
- * |   |-- blah
- * |   `-- (foo)            <-- cylic reference
- * `-- baz
+/*     fop --+
+ * abc--+    |
+ * xyz--|    |
+ *    blub --|
+ *           foo
+ *             |-- bar
+ *             |    |-- blah
+ *             |    `-- (foo)            <-- cylic reference
+ *             `-- baz
  */
 
 /**
@@ -50,9 +53,11 @@ public class TreeCommand extends AbstractCommand {
      */
     private static abstract class Node implements Comparable {
         private final Set/*<Node>*/ _children;
-
+        private int _displayDepth;
+        
         protected Node() {
             _children = new TreeSet();
+            _displayDepth = -1;
         }
         
         public Node add(Node n) {
@@ -60,31 +65,60 @@ public class TreeCommand extends AbstractCommand {
             return n;
         }
 
-        public void print(OutputDevice out) {
-            print(new TreeSet(), new StringBuffer(), "", out);
+        boolean markDepth(int target, int current) {
+            if (target == current) {
+                if (_displayDepth < 0) {
+                    _displayDepth = current;
+                    return true;
+                }
+                return false;
+            }
+            boolean anyChange = false;
+            final Iterator it = _children.iterator();
+            while (it.hasNext()) {
+                Node n = (Node) it.next();
+                anyChange |= n.markDepth(target, current + 1);
+            }
+            return anyChange;
+        }
+        
+        public void markDepths() {
+            _displayDepth = 0;
+            for (int depth = 1; markDepth(depth, 0); ++depth) 
+                ;
+        }
+        
+        public void print(OutputDevice out, int indentCount) {
+            StringBuffer indent = new StringBuffer();
+            for (int i=0; i < indentCount; ++i) { 
+                indent.append(" "); 
+            }
+            print(0, new TreeSet(), new StringBuffer(), indent.toString(), out);
         }
 
-        private void print(SortedSet alreadyPrinted,
+        private void print(int depth,   
+                           SortedSet alreadyPrinted,
                            StringBuffer currentIndent,
                            String indentString,
-                           OutputDevice out) 
+                           OutputDevice out)
         {
-            if (indentString.length() > 0) { // otherwise we are toplevel.
+            final String name = getName();
+            if (depth != 0) {
                 out.print("-- ");
-            }
-            String name = getName();
-            boolean cyclic = alreadyPrinted.contains(name);
-            if (cyclic) {
-                out.print("(" + name + ")");
-            }
-            else {
-                out.print(name);
-            }
-            out.println();
-            if (cyclic) {
-                return;
+                boolean cyclic = (depth != _displayDepth) || alreadyPrinted.contains(name);
+                if (cyclic) {
+                    out.print("(" + name + ")");
+                }
+                else {
+                    out.print(name);
+                }
+                out.println();
+                if (cyclic) {
+                    return;
+                }
             }
             alreadyPrinted.add(name);
+            
             int remaining = _children.size();
             if (remaining > 0) {
                 int previousLength = currentIndent.length();
@@ -94,7 +128,7 @@ public class TreeCommand extends AbstractCommand {
                     Node n = (Node) it.next();
                     out.print(String.valueOf(currentIndent));
                     out.print((remaining == 1) ? "`" : "|");
-                    n.print(alreadyPrinted, currentIndent,
+                    n.print(depth + 1, alreadyPrinted, currentIndent,
                             (remaining == 1) ? "    " : "|   ", out);
                     --remaining;
                 }
@@ -102,16 +136,33 @@ public class TreeCommand extends AbstractCommand {
             }
         }
 
-        public void printReverse(OutputDevice out) {
-            printReverse(new TreeSet(), "", false, out);
+        public int printReverse(OutputDevice out) {
+            List result = new ArrayList();
+            printReverse(0, new TreeSet(), result, "", false);
+            Iterator it = result.iterator();
+            int maxLen = 0;
+            while (it.hasNext()) {
+                String line = (String) it.next();
+                if (line.length() > maxLen) maxLen = line.length();
+            }
+            it = result.iterator();
+            while (it.hasNext()) {
+                String line = (String) it.next();
+                int len = line.length();
+                for (int i=len; i < maxLen; ++i) {
+                    out.print(" ");
+                }
+                out.println(line);
+            }
+            return maxLen;
         }
-
-        private int printReverse(SortedSet alreadyPrinted,
-                                 String indentString, boolean isLast,
-                                 OutputDevice out)
+                                 
+        private int printReverse(int depth, SortedSet alreadyPrinted,
+                                 List output,
+                                 String indentString, boolean isLast)
         {
             String name = getName();
-            boolean cyclic = alreadyPrinted.contains(name);
+            boolean cyclic = (depth != _displayDepth) || alreadyPrinted.contains(name);
             String printName = cyclic ? "("+name+")--" : name+"--";
             int myIndent = indentString.length() + printName.length();
             int maxIndent = myIndent;
@@ -125,10 +176,9 @@ public class TreeCommand extends AbstractCommand {
                     while (it.hasNext()) {
                         Node n = (Node) it.next();
                         int nIndent;
-                        nIndent = n.printReverse(alreadyPrinted, 
-                                                 indentString + "    |",
-                                                 isFirst,
-                                                 out);
+                        nIndent = n.printReverse(depth + 1, alreadyPrinted, output,
+                                                 (depth==0) ? "" : indentString + "    |",
+                                                 isFirst);
                         if (nIndent > maxIndent)
                             maxIndent = nIndent;
                         --remaining;
@@ -136,14 +186,11 @@ public class TreeCommand extends AbstractCommand {
                     }
                 }
             }
-            int space = maxIndent - myIndent;
-            for (int i=0; i < space; ++i) 
-                out.print("x");
-            out.print(printName);
-            out.print(isLast ? "\\" : "|");
-            out.print(indentString);
-            out.println();
 
+            if (depth != 0) {
+                String outputString = printName + (isLast ? "\\" : "|") + indentString;
+                output.add(outputString);
+            }
             return maxIndent;
         }
 
@@ -208,7 +255,7 @@ public class TreeCommand extends AbstractCommand {
             final DatabaseMetaData dbMeta = 
                 session.getConnection().getMetaData();
 
-            // build a tree of all tables I depend on ..
+            // build a tree of all tables I depend on..
             Node myParents = buildTree(new ReferenceMetaDataSource() {
                     public ResultSet getReferenceMetaData(String schema, 
                                                           String table) 
@@ -216,6 +263,7 @@ public class TreeCommand extends AbstractCommand {
                         return dbMeta.getImportedKeys(null, schema, table);
                     }
                 }, IMP_PRIMARY_KEY_TABLE, new TreeMap(), schema, tabName);
+            myParents.markDepths();
             
             // build a tree of all tables that depend on me ...
             Node myChilds = buildTree(new ReferenceMetaDataSource() {
@@ -225,13 +273,19 @@ public class TreeCommand extends AbstractCommand {
                         return dbMeta.getExportedKeys(null, schema, table);
                     }
                 }, EXP_FOREIGN_KEY_TABLE, new TreeMap(), schema, tabName);
+            myChilds.markDepths();
+            
+            int reversIndent = myParents.printReverse(HenPlus.out());
 
-            HenPlus.out().println("I depend on ..");
-            myParents.printReverse(HenPlus.out());
+            int tabLen = tabName.length();
+            int startPos = reversIndent - tabLen / 2;
+            if (startPos < 0) startPos = 0;
+            for (int i=0; i < startPos; ++i) HenPlus.out().print(" ");
+            HenPlus.out().attributeBold();
+            HenPlus.out().println(tabName);
+            HenPlus.out().attributeReset();
 
-            HenPlus.out().println();
-            HenPlus.out().println("these depend on me ..");
-            myChilds.print(HenPlus.out());
+            myChilds.print(HenPlus.out(), startPos + tabLen / 2);
 
             TimeRenderer.printTime(System.currentTimeMillis()-startTime,
                                    HenPlus.msg());
@@ -335,8 +389,8 @@ public class TreeCommand extends AbstractCommand {
             +"\ttree like manner. This is very helpful in exploring\n"
             +"\tcomplicated data structures or simply check if all\n"
             +"\tforeign keys are applied. This command works of course\n"
-            +"\tonly with databases that support foreign keys (so _not_\n"
-            +"\tMySQL). Invoke on the toplevel table you are interested in\n"
+            +"\tonly with databases that support foreign keys.\n"
+            +"\tInvoke on the toplevel table you are interested in\n"
             +"\tExample:\n"
             +"\tConsider tables 'bar' and 'baz' that have a foreign key\n"
             +"\ton the table 'foo'. Further a table 'blah', that references\n"
@@ -349,8 +403,8 @@ public class TreeCommand extends AbstractCommand {
             +"\t    |   `-- (foo)            <-- cylic reference\n"
             +"\t    `-- baz\n"
             +"\tSo in order to limit the potential cyclic graph in the\n"
-            +"\ttree view from infinite to finite, cyclic nodes are shown\n"
-            +"\tin parenthesis.";
+            +"\ttree view from infinite to finite, cyclic nodes or nodes already\n"
+            +"\tdisplayed unfolded are shown in parenthesis.";
         return dsc;
     }
 }
