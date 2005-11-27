@@ -124,7 +124,8 @@ public class DescribeCommand extends AbstractCommand implements Interruptable
                     long startTime = System.currentTimeMillis();
                     String catalog = session.getConnection().getCatalog();
                     String description = null;
-
+                    String tableType = null;
+                    
                     if (interrupted) return SUCCESS;
 
                     DatabaseMetaData meta = session.getConnection().getMetaData();
@@ -134,6 +135,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable
 
                     rset = meta.getTables(catalog, schema, tabName, LIST_TABLES);
                     if (rset != null && rset.next()) {
+                        tableType = rset.getString(4);
                         description = rset.getString(5); // remark
                     }
                     rset.close();
@@ -207,7 +209,8 @@ public class DescribeCommand extends AbstractCommand implements Interruptable
                     }
                     rset.close();
                     
-                    HenPlus.out().println("Table: " + tabName);
+                    HenPlus.out().println(("VIEW".equals(tableType) ? "View: " : "Table: ") 
+                                          + tabName);
                     if (description != null) {
                         HenPlus.out().println(description);
                     }
