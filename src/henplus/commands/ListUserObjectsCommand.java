@@ -102,7 +102,7 @@ public class ListUserObjectsCommand
                     columnDef = TABLE_DISP_COLS;
                 }
                 
-		renderer = new ResultSetRenderer(rset, "|", true, true, 2000,
+		renderer = new ResultSetRenderer(rset, "|", true, true, 10000,
                                                  HenPlus.out(),
 						 columnDef);
                 renderer.getDisplayMetaData()[2].setAutoWrap(78);
