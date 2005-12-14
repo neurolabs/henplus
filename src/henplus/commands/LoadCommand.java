@@ -19,9 +19,11 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.HashSet;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * The Load command loads scripts; it implemnts the
@@ -113,7 +115,9 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
 		currentFile = f;
 		_openFiles.add(currentFile);
 		_cwdStack.push(currentFile.getParentFile());
-		BufferedReader reader = new BufferedReader(new FileReader(currentFile));
+                String encoding = System.getProperty("file.encoding");//"UTF-8";
+                FileInputStream is = new FileInputStream(currentFile);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is, encoding));
                 _running = true;
                 SigIntHandler.getInstance().pushInterruptable(this);
 		String line;

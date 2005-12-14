@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SigIntHandler.java,v 1.8 2005-06-05 16:23:45 hzeller Exp $ 
+ * $Id: SigIntHandler.java,v 1.9 2005-12-14 10:53:03 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -14,20 +14,26 @@ import sun.misc.SignalHandler;
 /**
  * Signal handler, that reacts on CTRL-C.
  */
-public class SigIntHandler implements SignalHandler {
+public class SigIntHandler implements SignalHandler, InterruptHandler {
+    private static InterruptHandler DUMMY_HANDLER = new InterruptHandler() {
+        public void popInterruptable() { }            
+        public void pushInterruptable(Interruptable t) { }
+        public void reset() { }
+    };
+    
     private boolean once;
     private static SigIntHandler instance = null;
     private final Stack toInterruptStack;
-
-    public static SigIntHandler install() {
+    
+    public static void install() {
 	Signal interruptSignal = new Signal("INT"); // Interrupt: Ctrl-C
         instance = new SigIntHandler();
 	// don't care about the original handler.
 	Signal.handle(interruptSignal, instance);
-	return instance;
     }
     
-    public static SigIntHandler getInstance() {
+    public static InterruptHandler getInstance() {
+        if (instance == null) return DUMMY_HANDLER;
 	return instance;
     }
 

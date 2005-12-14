@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * @version $Id: SystemInfoCommand.java,v 1.5 2005-11-27 16:20:28 hzeller Exp $ 
+ * @version $Id: SystemInfoCommand.java,v 1.6 2005-12-14 10:53:03 hzeller Exp $ 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.commands;
@@ -78,6 +78,8 @@ public final class SystemInfoCommand extends AbstractCommand {
         osInfo.append( System.getProperty("os.arch") );
         info.put("Operating System", osInfo.toString());
 
+        info.put("Default File Encoding", System.getProperty("file.encoding"));
+        
         //-- make sure we get almost reliable memory usage information.
         System.gc();
         System.gc();
