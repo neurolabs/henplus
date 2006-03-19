@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: henplus,v 1.12 2004-01-29 22:31:52 hzeller Exp $
+# $Id: henplus,v 1.13 2006-03-19 22:41:56 hzeller Exp $
 ##
 
 # additional flags you might want to pass to the java interpreter
@@ -15,11 +15,16 @@ fi
 
 ##------------------
 THISDIR=`dirname $0`
+# install layout is: script in /usr/bin/henplus and libs in /usr/share/henplus
 HENPLUSDIR=$THISDIR/../share/henplus
 
-# not yet installed ? Then look in the build directory
+# not yet installed ? Then look in the local build directory
 if [ ! -d "$HENPLUSDIR" ] ; then
-	HENPLUSDIR=$THISDIR/../build
+	HENPLUSDIR=$THISDIR/..
+	for f in $HENPLUSDIR/lib/*.jar ; do
+	    CLASSPATH=$CLASSPATH:$f
+	done
+	CLASSPATH=$HENPLUSDIR/build/classes:$CLASSPATH
 fi
 
 # location of the readline lib.

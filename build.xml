@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.43 2004-10-06 11:11:29 magrokosmos Exp $ -->
+<!-- $Id: build.xml,v 1.44 2006-03-19 22:41:56 hzeller Exp $ -->
 <project name="HenPlus" default="compile" basedir=".">
      <!-- installation properties -->
      <property name="prefix"               value="/usr" />
@@ -16,9 +16,14 @@
      <property name="build.compiler.emacs" value="true" />
      <property name="tarbase"              value="henplus-${version}" />
 
+     <!-- libs -->
+     <property name="commons-cli" value="commons-cli-1.0.jar"/>
+     <property name="libreadline-java" value="libreadline-java-0.8.0.jar"/>
+
      <path id="compile.classpath">
         <fileset dir="${lib}">
-           <include name="**/*.jar"/>
+           <include name="${libreadline-java}"/>
+           <include name="${commons-cli}"/>
         </fileset>
      </path>
 
@@ -29,7 +34,7 @@
 
      <taskdef name="ant-server" classname="net.sweetohm.ant.server.ServerTask">
         <classpath>
-           <pathelement location="${lib}/sat-0.7.jar" />
+           <pathelement location="${lib}/build/sat-0.7.jar" />
         </classpath>
      </taskdef>
 
@@ -55,7 +60,7 @@
 
      <target name="compile" depends="prepare,Version.java" 
 	     description="compile it">
-        <javac debug="true" source="1.3" target="1.3" srcdir="${src}" destdir="${classes}">
+        <javac debug="true" source="1.3" target="1.3" encoding="ISO-8859-1" srcdir="${src}" destdir="${classes}">
            <classpath refid="compile.classpath" />
         </javac>
      </target>
@@ -84,6 +89,8 @@
 	  <chmod file="${DESTDIR}/${prefix}/bin/henplus" perm="ugo+x" />
           <copy file="${build}/henplus.jar"
 	        todir="${DESTDIR}/${prefix}/share/henplus" />
+          <copy file="${lib}/${commons-cli}"
+	        todir="${DESTDIR}/${prefix}/share/henplus" />
      </target>
 
      <target name="henplus.spec" description="create RPM spec file">
@@ -98,7 +105,7 @@
        <mkdir  dir="${javadoc}"/>
        <javadoc destdir="${javadoc}/api"
 	        doctitle="HenPlus ${version}"
-	        bottom="&#169; 1997..2004 Henner Zeller">
+	        bottom="&#169; 1997..2006 Henner Zeller">
 
          <fileset dir="." defaultexcludes="yes">
            <include name="src/henplus/**/*.java" />
@@ -115,6 +122,7 @@
             <include name="${src}/**" />
             <include name="${bin}/**" />
             <include name="${lib}/*.jar"/>
+            <include name="${lib}/build/*.jar"/>
             <include name="doc/**" />
 	    <include name="debian/*" />
             <include name="build.xml" />

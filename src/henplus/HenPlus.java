@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.75 2005-11-27 16:20:27 hzeller Exp $
+ * $Id: HenPlus.java,v 1.76 2006-03-19 22:41:57 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -204,7 +204,7 @@ public class HenPlus implements Interruptable {
         propertyCommand.load();
         
         Options opt = new Options();
-        opt.addOption(new Option("h", "help",true,"print this message"));
+        opt.addOption(new Option("h", "help", true, "print this message"));
         for (Iterator iter = _dispatcher.getRegisteredCommands(); iter.hasNext();) {
             Command element = (Command) iter.next();
             try {
@@ -216,22 +216,19 @@ public class HenPlus implements Interruptable {
             }
         }
         CommandLineParser parser = new PosixParser();
-        CommandLine line;
+        CommandLine line = null;
         try {
             line = parser.parse(opt, argv);
             for (Iterator iter = _dispatcher.getRegisteredCommands(); iter.hasNext();) {
                 Command element = (Command) iter.next();
-                try {
-                    element.setOptions(opt);
-                    element.handleCommandline(line);
-                }
-                catch (Throwable e) {
-                }
+		element.setOptions(opt);
+		element.handleCommandline(line);
             }
         } 
-        catch (ParseException e1) {
-           line=null;
+        catch (Exception e) {
+           line = null;
         }
+
         if (line == null || opt.hasOption("help")){
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp( "henplus", opt );
