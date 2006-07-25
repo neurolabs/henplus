@@ -1,9 +1,9 @@
-# $Id: henplus.spec.in,v 1.8 2004-02-01 21:12:21 hzeller Exp $
+# $Id: henplus.spec.in,v 1.9 2006-07-25 19:56:51 hzeller Exp $
 #
 %define version @HENPLUS_VERSION@
 
 Summary: JDBC SQL utility with readline commandline editing
-Copyright: GNU General Public License (GPL)
+License: GNU General Public License (GPL)
 Group: Application/Java
 Name: henplus
 Prefix: /usr

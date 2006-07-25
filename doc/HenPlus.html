@@ -1,7 +1,7 @@
 <html>
 <head><title>HenPlus documentation</title></head>
 <body bgcolor="white">
-<!-- $Id: HenPlus.html,v 1.29 2006-03-19 22:41:56 hzeller Exp $ -->
+<!-- $Id: HenPlus.html,v 1.30 2006-07-25 19:56:51 hzeller Exp $ -->
 <h1 align="center">HenPlus</h1>
 <h3 align="center">JDBC SQL-shell</h3>
 
@@ -105,26 +105,10 @@ You can download source and binary packages of HenPlus at the
 As of March 2005, HenPlus is included in some distributions, for example <a href="http://www.debian.org/">Debian</a>
 testing and unstable, <a href="http://www.ubuntulinux.org/">Ubuntu</a> and <a href="http://www.gentoo.org/">Gentoo</a>.
 Use the respective package management tool to install HenPlus on these distributions.
-For an installation on <a href="http://fink.sourceforge.net/">fink</a> have a look at <a href="http://blog.wannawork.de/index.php/2005/09/18/henplus_on_mac_os_using_fink">Bodo Tasche's blog</a>.
 </p>
 <p>
-If you are using <a href="http://www.debian.org/">Debian</a> stable, you can install HenPlus by adding the following
-line to your <code>/etc/apt/sources.list</code>
-<pre>
-  deb http://osdn.dl.sourceforge.net/henplus ./
-</pre>
-or, in case the above does not work, with the generic
-<pre>
-  deb http://dl.sourceforge.net/henplus ./
-</pre>
-After that, run
-<pre>
-  apt-get update
-</pre> 
-then
-<pre>
-  apt-get install henplus
-</pre>
+For an installation on <a href="http://fink.sourceforge.net/">fink</a> for Mac have a look at <a href="http://blog.wannawork.de/index.php/2005/09/18/henplus_on_mac_os_using_fink">Bodo Tasche's blog</a>.
+If you have a hard time to get the java-readline compiled on Mac OS X, then you might want to check out <a href="http://toonetown.blogspot.com/2006/07/java-readline-on-mac-os-x-update.html">Nathan Toone's blog</a> for an installation description.
 </p>
 
 <h4>Compilation</h4>
@@ -137,6 +121,7 @@ an additional library.
 HenPlus uses the features of the GNU-readline library and therefore
 needs the JNI java wrapper library &gt;=
 <a href="http://sourceforge.net/project/showfiles.php?group_id=48669">java-readline 0.7.3</a>.
+( <a href="http://toonetown.blogspot.com/2006/07/java-readline-on-mac-os-x-update.html">compilation on Mac OS X</a> )
 </p>
 <p>
 To build HenPlus the <a href="http://jakarta.apache.org/ant">ant build
@@ -1073,7 +1058,21 @@ This will eventually be the FAQ. But for now, there is only one question..
 	 might be to switch on autocommit 
 	 (HenPlus command: <code>set-session-property auto-commit on</code>).
 <br>
+<p>
+<b>Q:  </b><em>Is it possible to have henplus use the vi-editing mode rather than
+               the default emacs like editing mode ?</em>
+<br/>
+<b>A:  </b>Create/edit the ~/.inputrc configuration file to influence the behaviour of
+           readline. Add a line
+	   <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+           set editing-mode vi</pre></td></tr></table>
+           To this file. Then set the environment-variable INPUTRC to point to this
+           file:
+           <table width="100%" bgcolor="#DDDDFF"><tr><td><pre>
+           export INPUTRC=~/.inputrc</pre></td></tr></table>
+           <font size="-1">(thanks to Scott Plante)</font>
+<p/>
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.29 2006-03-19 22:41:56 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+<div align="right"><font size="-2">$Id: HenPlus.html,v 1.30 2006-07-25 19:56:51 hzeller Exp $ &copy; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
 </body>
