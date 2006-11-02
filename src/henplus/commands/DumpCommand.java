@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.37 2005-11-27 16:20:28 hzeller Exp $ 
+ * $Id: DumpCommand.java,v 1.38 2006-11-02 17:55:14 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -693,6 +693,8 @@ public class DumpCommand
                         break;
                     }
 
+                    case HP_BLOB:  // we try our best by reading BLOB/CLOB
+                    case HP_CLOB:  // as String (known not to work on Oracle)
                     case HP_STRING: {
                         String val = rset.getString(col);
                         if (rset.wasNull())
@@ -702,7 +704,7 @@ public class DumpCommand
                         }
                         break;
                     }
-                              
+                     
                     default:
                         throw new IllegalArgumentException("type " + 
                                                            TYPES[thisType]
@@ -1021,6 +1023,8 @@ public class DumpCommand
                             break;
                         }
           
+                        case HP_BLOB:  // we try our best by reading BLOB/CLOB
+                        case HP_CLOB:  // as String (known not to work on Oracle
                         case HP_STRING: {
                             String val = readString(reader);
                             metaProperty[i].updateMaxLength(val);

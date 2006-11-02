@@ -94,6 +94,7 @@ public class HelpCommand extends AbstractCommand {
 		HenPlus.msg().print(": ");
 		HenPlus.msg().println(description);
 	    }
+	    HenPlus.msg().println("Full documentation at http://henplus.sf.net/");
 	    HenPlus.msg().println("config read from [" 
                                   + HenPlus.getInstance().getConfigurationDirectoryInfo() + "]");
 	}
