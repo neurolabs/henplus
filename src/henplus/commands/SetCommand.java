@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.24 2005-11-27 16:20:28 hzeller Exp $ 
+ * $Id: SetCommand.java,v 1.25 2006-11-29 17:57:53 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -50,7 +50,7 @@ public final class SetCommand extends AbstractCommand {
      */
     public String[] getCommandList() {
 	return new String[] {
-	    "set-var", "unset-var"
+	    "set-var", "unset-var", "unset-all"
 	};
     }
     
@@ -159,6 +159,14 @@ public final class SetCommand extends AbstractCommand {
 	    }
 	    return SYNTAX_ERROR;
 	}
+	else if ("unset-all".equals(cmd)) {
+            if (argc == 0) {
+                _variables.clear();
+            }
+            else {
+                return SYNTAX_ERROR;
+            }
+	}
 	return SUCCESS;
     }
 
@@ -245,6 +253,9 @@ public final class SetCommand extends AbstractCommand {
 	else if ("unset-var".equals(cmd)) {
 	    return cmd + " <varname> [<varname> ..]";
 	}
+        else if ("unset-all".equals(cmd)) {
+            return cmd;
+        }
 	return cmd;
     }
 
@@ -268,6 +279,9 @@ public final class SetCommand extends AbstractCommand {
 	    dsc="\tunset the variable with name <varname>. You may provide\n"
 		+"\tmultiple variables to be unset.";
 	}
+        else if ("unset-all".equals(cmd)) {
+            dsc="\tunset all variables.";
+        }
 	return dsc;
     }
 }

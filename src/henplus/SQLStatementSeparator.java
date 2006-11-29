@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.20 2005-06-05 22:27:29 hzeller Exp $ 
+ * $Id: SQLStatementSeparator.java,v 1.21 2006-11-29 17:57:53 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -326,6 +326,7 @@ public class SQLStatementSeparator {
                     if (current == 'n') current = '\n';
                     else if (current == 'r') current = '\r';
                     else if (current == 't') current = '\t';
+                    else if (current == '\\') /* ignore quoted backslash */ ;
                     else if (current != '\n' && current != '"') {
                         // if we do not recognize the escape sequence,
                         // pass it through.
@@ -340,6 +341,7 @@ public class SQLStatementSeparator {
                     else if (current == 'n') current = '\n';
                     else if (current == 'r') current = '\r';
                     else if (current == 't') current = '\t';
+                    else if (current == '\\') /* ignore quoted backslash */ ;
                     else if (current != '\n') {
                         // if we do not recognize the escape sequence,
                         // pass it through.
