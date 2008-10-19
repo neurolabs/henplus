@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Command.java,v 1.10 2005-11-27 16:20:27 hzeller Exp $
+ * $Id: Command.java,v 1.11 2008-10-19 09:14:49 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -26,7 +26,7 @@ import org.apache.commons.cli.Options;
  * and you are immune to NoSuchMethodErrors if this interface changes
  * but not yet your plugin...</p>
  *
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  * @author Henner Zeller
  */
 public interface Command {
@@ -203,10 +203,12 @@ public interface Command {
     public void setOptions(Options options);
     
     /**
-     * This method is called before parsing the commandline. You can register command-specific options here.
+     * This method is called before parsing the commandline.
+     * You can register your command-specific options here and get it back
+     * in setOptions() after the commandline is parsed.
      * @param r
      */
-    public void registerOptions(Options r);
+    public void registerOptions(Options allOptions);
     
     /**
      * After parsing the parameters, this method is called.
@@ -217,8 +219,7 @@ public interface Command {
      * named options only! 
      * @param line TODO
      */
-    public void handleCommandline(CommandLine line);        
-    
+    public void handleCommandline(CommandLine line);
 }
 
 /*

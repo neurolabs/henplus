@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HenPlus.java,v 1.76 2006-03-19 22:41:57 hzeller Exp $
+ * $Id: HenPlus.java,v 1.77 2008-10-19 09:14:49 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
@@ -203,12 +203,12 @@ public class HenPlus implements Interruptable {
 	aliasCommand.load();
         propertyCommand.load();
         
-        Options opt = new Options();
-        opt.addOption(new Option("h", "help", true, "print this message"));
-        for (Iterator iter = _dispatcher.getRegisteredCommands(); iter.hasNext();) {
-            Command element = (Command) iter.next();
+        Options availableOptions = new Options();
+        availableOptions.addOption(new Option("h", "help", false, "print this message"));
+        for (Iterator it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
+            Command element = (Command) it.next();
             try {
-                element.registerOptions(opt);
+                element.registerOptions(availableOptions);
             }
             catch (Throwable e) {
                 System.err.println("while registering "+element);
@@ -218,20 +218,21 @@ public class HenPlus implements Interruptable {
         CommandLineParser parser = new PosixParser();
         CommandLine line = null;
         try {
-            line = parser.parse(opt, argv);
-            for (Iterator iter = _dispatcher.getRegisteredCommands(); iter.hasNext();) {
-                Command element = (Command) iter.next();
-		element.setOptions(opt);
+            line = parser.parse(availableOptions, argv);
+            for (Iterator it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
+                Command element = (Command) it.next();
+		element.setOptions(availableOptions);
 		element.handleCommandline(line);
             }
         } 
         catch (Exception e) {
-           line = null;
+            System.err.println(e.getMessage());
+            line = null;
         }
 
-        if (line == null || opt.hasOption("help")){
+        if (line == null || line.hasOption("h")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( "henplus", opt );
+            formatter.printHelp( "henplus", availableOptions );
             System.exit(0);
         }
         
