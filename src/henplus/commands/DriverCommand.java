@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.14 2005-11-27 16:20:28 hzeller Exp $ 
+ * $Id: DriverCommand.java,v 1.15 2008-10-19 08:53:25 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -28,7 +28,7 @@ import java.util.TreeMap;
  * document me.
  */
 public final class DriverCommand extends AbstractCommand {
-    private final static boolean verbose = false; // debug.
+    private final static boolean verbose = HenPlus.verbose;
     private final static String[][] KNOWN_DRIVERS = {
 	{ "Oracle", "oracle.jdbc.driver.OracleDriver", 
 	  "jdbc:oracle:thin:@localhost:1521:ORCL" },

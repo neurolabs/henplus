@@ -1,8 +1,13 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SigIntHandler.java,v 1.9 2005-12-14 10:53:03 hzeller Exp $ 
+ * $Id: SigIntHandler.java,v 1.10 2008-10-19 08:53:25 hzeller Exp $ 
  * author: Henner Zeller <H.Zeller@acm.org>
+ *
+ * ---
+ * Note, this is not portable. If anyone knows a portable form that works
+ * accross different implementations of JVMs, please let me know
+ * ---
  */
 package henplus;
 

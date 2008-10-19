@@ -50,8 +50,8 @@ public class DescribeCommand extends AbstractCommand implements Interruptable
         DESC_META[8] = new ColumnMetaData("remark", ColumnMetaData.ALIGN_LEFT, 60);
     }
 
-    private boolean interrupted;
-    private boolean verbose;
+    private volatile boolean interrupted;
+    private boolean verbose = HenPlus.verbose;
     private final ListUserObjectsCommand tableCompleter;
 
     public DescribeCommand(ListUserObjectsCommand tc){
@@ -146,38 +146,41 @@ public class DescribeCommand extends AbstractCommand implements Interruptable
                     if (interrupted) return SUCCESS;
                     Map pks = new HashMap();
                     rset = meta.getPrimaryKeys(null, schema, tabName);
-                    if (rset != null) while (!interrupted && rset.next()) {
-                        String col = rset.getString(4);
-                        int pkseq = rset.getInt(5);
-                        String pkname = rset.getString(6);
-                        String desc = (pkname != null) ? pkname : "*";
-                        if (pkseq > 1) {
-                            desc = StringAppender.getInstance().append(desc).append("{").append(pkseq).append("}").toString();
-                            // desc += "{" + pkseq + "}";
+                    if (rset != null) {
+                        while (!interrupted && rset.next()) {
+                            String col = rset.getString(4);
+                            int pkseq = rset.getInt(5);
+                            String pkname = rset.getString(6);
+                            String desc = (pkname != null) ? pkname : "*";
+                            if (pkseq > 1) {
+                                desc = StringAppender.getInstance().append(desc).append("{").append(pkseq).append("}").toString();
+                                // desc += "{" + pkseq + "}";
+                            }
+                            pks.put(col, desc);
                         }
-                        pks.put(col, desc);
+                        rset.close();
                     }
-                    rset.close();
 
                     /*
                      * get referenced primary keys.
                      */
                     if (interrupted) return SUCCESS;
                     rset = meta.getExportedKeys(null, schema, tabName);
-                    if (rset != null)
-                            while (!interrupted && rset.next()) {
-                                String col = rset.getString(4);
-                                String fktable = rset.getString(7);
-                                String fkcolumn = rset.getString(8);
-                                fktable = StringAppender.getInstance().append(fktable).append("(").append(fkcolumn).append(")")
-                                        .toString();
-                                String desc = (String) pks.get(col);
-                                desc = (desc == null) ? StringAppender.start(" <- ").append(fktable).toString()
-                                        : StringAppender.start(desc).append("\n <- ").append(fktable).toString();
-                                anyLeftArrow = true;
-                                pks.put(col, desc);
-                            }
-                    rset.close();
+                    if (rset != null) {
+                        while (!interrupted && rset.next()) {
+                            String col = rset.getString(4);
+                            String fktable = rset.getString(7);
+                            String fkcolumn = rset.getString(8);
+                            fktable = StringAppender.getInstance().append(fktable).append("(").append(fkcolumn).append(")")
+                                .toString();
+                            String desc = (String) pks.get(col);
+                            desc = (desc == null) ? StringAppender.start(" <- ").append(fktable).toString()
+                                : StringAppender.start(desc).append("\n <- ").append(fktable).toString();
+                            anyLeftArrow = true;
+                            pks.put(col, desc);
+                        }
+                        rset.close();
+                    }
 
                     /*
                      * get foreign keys.
@@ -206,8 +209,8 @@ public class DescribeCommand extends AbstractCommand implements Interruptable
                             anyRightArrow = true;
                             fks.put(col, desc);
                         }
+                        rset.close();
                     }
-                    rset.close();
                     
                     HenPlus.out().println(("VIEW".equals(tableType) ? "View: " : "Table: ") 
                                           + tabName);

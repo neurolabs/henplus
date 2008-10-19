@@ -47,7 +47,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
     /** reference in exported/imported key */
     private final static int EXP_FOREIGN_KEY_TABLE = 7;
 
-    static final boolean verbose     = false;
+    static final boolean verbose     = HenPlus.verbose;
     
     private final ListUserObjectsCommand tableCompleter;
     private volatile boolean interrupted;

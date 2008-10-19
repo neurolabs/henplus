@@ -31,9 +31,9 @@ import java.util.StringTokenizer;
  * document me.
  */
 public class SQLCommand extends AbstractCommand {
-    private static final boolean verbose = false; // debug.
+    private static final boolean verbose = HenPlus.verbose;
     private final static String[] TABLE_COMPLETER_KEYWORD = {
-	"FROM", "INTO", "UPDATE", "TABLE", /*create index*/"ON"
+	"FROM", "INTO", "UPDATE", "TABLE", "ALIAS", "VIEW", /*create index*/"ON"
     };
     
     /**
@@ -516,7 +516,7 @@ public class SQLCommand extends AbstractCommand {
 	    syn="update <table> set <column>=<value>[,...] [ where <where-clause> ]";
 	}
 	else if ("drop".equals(cmd)) {
-	    syn="drop <table|index|view|...>";
+	    syn="drop <table|index|view|alias|...>";
 	}
 	else if ("commit".equals(cmd))   { syn = cmd; }
 	else if ("rollback".equals(cmd)) { syn = cmd; }
@@ -528,7 +528,7 @@ public class SQLCommand extends AbstractCommand {
 	dsc="\t'" + cmd + "': this is not a build-in command, so would be\n"
 	    + "\tconsidered as SQL-command and handed over to the JDBC-driver.\n"
 	    + "\tHowever, I don't know anything about its syntax. RTFSQLM.\n"
-	    + "\ttry <http://www.google.de/search?q=sql+syntax+" + cmd + ">";
+	    + "\ttry <http://www.google.com/search?q=sql+syntax+" + cmd + ">";
 	cmd = cmd.toLowerCase();
 	if ("select".equals(cmd)) {
 	    dsc="\tselect from tables.";
