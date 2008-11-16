@@ -1,4 +1,4 @@
-# $Id: henplus.spec.in,v 1.9 2006-07-25 19:56:51 hzeller Exp $
+# $Id: henplus.spec.in,v 1.10 2008-11-16 04:24:59 magrokosmos Exp $
 #
 %define version @HENPLUS_VERSION@
 
@@ -8,7 +8,7 @@ Group: Application/Java
 Name: henplus
 Prefix: /usr
 Packager: Henner Zeller <H.Zeller@acm.org>
-Release: 1
+Release: 2
 Source: http://prdownloads.sourceforge.net/henplus/henplus-%{version}.tar.gz
 URL: http://sourceforge.net/projects/henplus/ 
 Version: %{version}
@@ -40,6 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/bin/henplus
 %defattr(-,root,root,-)
 %dir %{prefix}/share/henplus
-%{prefix}/share/henplus/henplus.jar
+%{prefix}/share/henplus/henplus-%{version}.jar
 %doc doc/HenPlus.html
+
 
