@@ -12,6 +12,7 @@ package henplus;
 public class Version {
     public static String getVersion() { return "@HENPLUS_VERSION@"; }
     public static String getCompileTime() { return "@COMPILE_TIME@"; }
+    public static String getVersionTitle() { return "@HENPLUS_VERSION_TITLE@"; }
 }
 
 /*

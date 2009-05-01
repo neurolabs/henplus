@@ -5,7 +5,8 @@
      <property name="DESTDIR"              value="/" />
 
      <!-- properties -->
-     <property name="version"              value="0.9.7" />
+     <property name="version"              value="0.9.8" />
+     <property name="title"                value="Yay Labor Day" />
      <property name="src"                  value="src" />
      <property name="bin"                  value="bin" />
      <property name="lib"                  value="lib" />
@@ -17,7 +18,7 @@
      <property name="tarbase"              value="henplus-${version}" />
 
      <!-- libs -->
-     <property name="commons-cli" value="commons-cli-1.0.jar"/>
+     <property name="commons-cli" value="commons-cli-1.2.jar"/>
      <property name="libreadline-java" value="libreadline-java-0.8.0.jar"/>
 
      <path id="compile.classpath">
@@ -52,6 +53,7 @@
 
      <target name="Version.java">
        <filter token="HENPLUS_VERSION" value="${version}"/>
+       <filter token="HENPLUS_VERSION_TITLE" value="${title}"/>
        <filter token="COMPILE_TIME" value="${COMPTIME}"/>
        <copy file="${src}/henplus/Version.java.in"
              tofile="${src}/henplus/Version.java"
