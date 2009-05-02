@@ -33,13 +33,13 @@
         <pathelement path="${classes}" />
      </path>
 
-     <taskdef name="ant-server" classname="net.sweetohm.ant.server.ServerTask">
-        <classpath>
-           <pathelement location="${lib}/build/sat-0.7.jar" />
-        </classpath>
-     </taskdef>
-
      <target name="server">
+        <taskdef name="ant-server" classname="net.sweetohm.ant.server.ServerTask">
+           <classpath>
+              <pathelement location="${lib}/build/sat-0.7.jar" />
+           </classpath>
+        </taskdef>
+
         <ant-server/>
      </target>
 
