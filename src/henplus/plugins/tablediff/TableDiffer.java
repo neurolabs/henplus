@@ -7,6 +7,7 @@ package henplus.plugins.tablediff;
 import henplus.sqlmodel.Column;
 import henplus.sqlmodel.Table;
 
+import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
@@ -41,7 +42,7 @@ public final class TableDiffer {
         if (referenceTable != null && diffTable != null) {
             result = new TableDiffResult();
             // first check for all columns of the reference table
-            final ListIterator refIter = referenceTable.getColumnIterator();
+            final Iterator<Column> refIter = referenceTable.getColumnIterator();
             if (refIter != null) {
                 while (refIter.hasNext()) {
                     final Column col = (Column) refIter.next();
@@ -62,10 +63,10 @@ public final class TableDiffer {
                 }
             }
             // now check for columns which were added to the second table
-            final ListIterator diffIter = diffTable.getColumnIterator();
+            final Iterator<Column> diffIter = diffTable.getColumnIterator();
             if (diffIter != null) {
                 while (diffIter.hasNext()) {
-                    final Column col = (Column) diffIter.next();
+                    final Column col = diffIter.next();
                     final Column ref = referenceTable.getColumnByName(col.getName(),
                             colNameIgnoreCase);
                     if (ref == null) {

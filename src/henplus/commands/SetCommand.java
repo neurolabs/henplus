@@ -174,7 +174,7 @@ public final class SetCommand extends AbstractCommand {
      * used, if the command dispatcher notices the attempt to expand a variable.
      * This is a partial variable name, that starts with '$' or '${'.
      */
-    public Iterator completeUserVar(final String variable) {
+    public Iterator<String> completeUserVar(final String variable) {
         if (!variable.startsWith("$")) {
             return null; // strange, shouldn't happen.
         }

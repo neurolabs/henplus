@@ -31,7 +31,7 @@ public class SigIntHandler implements SignalHandler, InterruptHandler {
         }
     };
 
-    private boolean once;
+    private boolean _once;
     private static SigIntHandler instance = null;
     private final Stack toInterruptStack;
 
@@ -50,7 +50,7 @@ public class SigIntHandler implements SignalHandler, InterruptHandler {
     }
 
     public SigIntHandler() {
-        once = false;
+        _once = false;
         toInterruptStack = new Stack();
     }
 
@@ -59,23 +59,23 @@ public class SigIntHandler implements SignalHandler, InterruptHandler {
     }
 
     public void popInterruptable() {
-        once = false;
+        _once = false;
         toInterruptStack.pop();
     }
 
     public void reset() {
-        once = false;
+        _once = false;
         toInterruptStack.clear();
     }
 
     public void handle(final Signal sig) {
-        if (once) {
+        if (_once) {
             // got the interrupt more than once. May happen if you press
             // Ctrl-C multiple times .. or with broken thread lib on Linux.
             return;
         }
 
-        once = true;
+        _once = true;
         if (!toInterruptStack.empty()) {
             final ListIterator it = toInterruptStack.listIterator(toInterruptStack
                     .size());

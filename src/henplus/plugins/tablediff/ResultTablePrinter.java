@@ -8,7 +8,6 @@ import henplus.HenPlus;
 import henplus.Command;
 import henplus.sqlmodel.ColumnFkInfo;
 import henplus.sqlmodel.ColumnPkInfo;
-import henplus.util.ListMap;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.ExtendedColumn;
@@ -16,6 +15,7 @@ import henplus.view.ExtendedTableRenderer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -79,7 +79,7 @@ public final class ResultTablePrinter {
                 appendLines(STAT_ADDED, rows, added);
             }
             // at last, print modified columns
-            final ListMap modified = result.getModifiedColumns();
+            final LinkedHashMap<henplus.sqlmodel.Column, henplus.sqlmodel.Column> modified = result.getModifiedColumns();
             if (modified != null) {
                 appendModified(rows, modified);
             }
@@ -136,12 +136,12 @@ public final class ResultTablePrinter {
         return type;
     }
 
-    private static void appendModified(final List rows, final ListMap modified) {
-        final Iterator iter = modified.keysListIterator();
+    private static void appendModified(final List rows, 
+            final LinkedHashMap<henplus.sqlmodel.Column, henplus.sqlmodel.Column> modified) {
+        final Iterator<henplus.sqlmodel.Column> iter = modified.keySet().iterator();
         while (iter.hasNext()) {
-            final henplus.sqlmodel.Column org = (henplus.sqlmodel.Column) iter.next();
-            final henplus.sqlmodel.Column mod = (henplus.sqlmodel.Column) modified
-            .get(org);
+            final henplus.sqlmodel.Column org = iter.next();
+            final henplus.sqlmodel.Column mod = modified.get(org);
 
             final ExtendedColumn[] orgView = new ExtendedColumn[8];
             final ExtendedColumn[] modView = new ExtendedColumn[8];

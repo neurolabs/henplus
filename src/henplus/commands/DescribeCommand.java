@@ -82,10 +82,10 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
 
         // this was a flag to ensure that all options come before the tablenames
         // can probably be removed...
-        final boolean more_options = true;
+        final boolean moreOptions = true;
         while (st.hasMoreTokens()) {
             String tabName = st.nextToken();
-            if (more_options && tabName.startsWith("-")) {
+            if (moreOptions && tabName.startsWith("-")) {
                 if (tabName.indexOf('i') > -1) {
                     showIndex = !showIndex;
                 }

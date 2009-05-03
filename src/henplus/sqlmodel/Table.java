@@ -6,17 +6,16 @@
  */
 package henplus.sqlmodel;
 
-import henplus.util.ListMap;
-
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.ListIterator;
 import java.util.Set;
 
 public final class Table implements Comparable {
 
     private String _name;
-    private final ListMap /* <String, Column> */_columns;
+    private final LinkedHashMap<String, Column> _columns;
 
     // private PrimaryKey _pk;
 
@@ -24,7 +23,7 @@ public final class Table implements Comparable {
 
     public Table(final String name) {
         _name = name;
-        _columns = new ListMap();
+        _columns = new LinkedHashMap<String, Column>();
     }
 
     public String getName() {
@@ -39,10 +38,10 @@ public final class Table implements Comparable {
         _columns.put(column.getName(), column);
     }
 
-    public ListIterator getColumnIterator() {
-        ListIterator result = null;
+    public Iterator<Column> getColumnIterator() {
+        Iterator<Column> result = null;
         if (_columns != null) {
-            result = _columns.valuesListIterator();
+            result = _columns.values().iterator();
         }
         return result;
     }
@@ -52,7 +51,7 @@ public final class Table implements Comparable {
         if (_columns != null) {
             result = (Column) _columns.get(name);
             if (result == null && ignoreCase) {
-                final Iterator iter = _columns.keysListIterator();
+                final Iterator iter = _columns.keySet().iterator();
                 while (iter.hasNext()) {
                     final String colName = (String) iter.next();
                     if (colName.equalsIgnoreCase(name)) {

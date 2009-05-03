@@ -9,7 +9,6 @@ package henplus.commands;
 import henplus.AbstractCommand;
 import henplus.HenPlus;
 import henplus.SQLSession;
-import henplus.util.ListMap;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;

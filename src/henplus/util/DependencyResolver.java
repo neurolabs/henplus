@@ -10,9 +10,11 @@ import henplus.sqlmodel.ColumnFkInfo;
 import henplus.sqlmodel.Table;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,8 +29,8 @@ import java.util.Set;
  */
 public final class DependencyResolver {
 
-    private final Iterator _tableIter;
-    private Set<List<Table>> _cyclicDependencies;
+    private final Iterator<Table> _tableIter;
+    private Set<Collection<Table>> _cyclicDependencies;
 
     /**
      * @param tableIter
@@ -51,7 +53,7 @@ public final class DependencyResolver {
      * 
      */
     public ResolverResult sortTables() {
-        final ListMap resolved = new ListMap();
+        final LinkedHashMap<String, Table> resolved = new LinkedHashMap<String, Table>();
         Map<String, Table> unresolved = null;
 
         // first run: separate tables with and without dependencies
@@ -106,11 +108,11 @@ public final class DependencyResolver {
         // unresolved = cleanUnresolved( resolved, unresolved );
 
         // add all unresolved/conflicting tables to the resulting list
-        final List result = resolved.valuesList();
+        final Collection<Table> result = resolved.values();
         if (unresolved != null) {
-            final Iterator iter = unresolved.values().iterator();
+            final Iterator<Table> iter = unresolved.values().iterator();
             while (iter.hasNext()) {
-                final Object table = iter.next();
+                final Table table = iter.next();
                 if (!result.contains(table)) {
                     result.add(table);
                 }
@@ -155,8 +157,8 @@ public final class DependencyResolver {
      * @param resolved
      * @param unresolved
      */
-    private void resolveDep(final Table t, List<Table> cyclePath, final Map resolved,
-            final Map unresolved) {
+    private void resolveDep(final Table t, List<Table> cyclePath, final Map<String, Table> resolved,
+            final Map<String, Table> unresolved) {
 
         // System.out.println( "[resolveDep] >>> Starting for t: " + t +
         // " and cyclePath: " + cyclePath );
@@ -256,10 +258,10 @@ public final class DependencyResolver {
     }
 
     public class ResolverResult {
-        private final List<Table> _tables;
-        private final Set<List<Table>> _cyclicDependencies;
+        private final Collection<Table> _tables;
+        private final Set<Collection<Table>> _cyclicDependencies;
 
-        public ResolverResult(final List<Table> tables, final Set<List<Table>> cyclicDependencies) {
+        public ResolverResult(final Collection<Table> tables, final Set<Collection<Table>> cyclicDependencies) {
             _tables = tables;
             _cyclicDependencies = cyclicDependencies;
         }
@@ -269,14 +271,14 @@ public final class DependencyResolver {
          *         <code>List</code>s of <code>CycleEntry</code> objects, where
          *         each list represents the path of a cyclic dependency.
          */
-        public Set<List<Table>> getCyclicDependencies() {
+        public Set<Collection<Table>> getCyclicDependencies() {
             return _cyclicDependencies;
         }
 
         /**
          * @return Returns the tables.
          */
-        public List <Table> getTables() {
+        public Collection<Table> getTables() {
             return _tables;
         }
     }

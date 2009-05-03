@@ -22,7 +22,7 @@ import org.apache.commons.cli.Options;
  */
 public abstract class AbstractCommand implements Command {
 
-    private Options options;
+    private Options _options;
 
     // no description by default.
     public String getShortDescription() {
@@ -69,15 +69,15 @@ public abstract class AbstractCommand implements Command {
     }
 
     protected Options getOptions() {
-        return options;
+        return _options;
     }
 
     public void setOptions(final Options options) {
-        this.options = options;
+        this._options = options;
     }
 
     public Option getOption(final String arg0) {
-        return options.getOption(arg0);
+        return _options.getOption(arg0);
     }
 
     /**

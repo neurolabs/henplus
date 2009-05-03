@@ -23,7 +23,7 @@ import henplus.SigIntHandler;
  * commands for convenience.
  */
 public final class ShellCommand extends AbstractCommand implements Interruptable {
-    private Thread myThread;
+    private Thread _myThread;
 
     /**
      * @return the command-strings this command can handle.
@@ -55,7 +55,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
     }
 
     public void interrupt() {
-        myThread.interrupt();
+        _myThread.interrupt();
     }
 
     /**
@@ -68,7 +68,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
         Process p = null;
         IOHandler ioHandler = null;
         int exitStatus = -1;
-        myThread = Thread.currentThread();
+        _myThread = Thread.currentThread();
         SigIntHandler.getInstance().pushInterruptable(this);
         try {
             try {

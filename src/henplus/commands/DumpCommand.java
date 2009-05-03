@@ -342,10 +342,10 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     final DependencyResolver dr = new DependencyResolver(meta
                             .getTables());
                     resolverResult = dr.sortTables();
-                    final List<Table> tabs = resolverResult.getTables();
-                    final Iterator it = tabs.iterator();
+                    final Collection<Table> tabs = resolverResult.getTables();
+                    final Iterator<Table> it = tabs.iterator();
                     while (it.hasNext()) {
-                        tableSequence.add(((Table) it.next()).getName());
+                        tableSequence.add(it.next().getName());
                     }
                 } else {
                     tableSequence = new ArrayList<String>(tableSet);

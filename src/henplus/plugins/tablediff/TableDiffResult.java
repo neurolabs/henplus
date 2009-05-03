@@ -5,8 +5,8 @@
 package henplus.plugins.tablediff;
 
 import henplus.sqlmodel.Column;
-import henplus.util.ListMap;
 
+import java.util.LinkedHashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -25,7 +25,7 @@ import java.util.TreeSet;
 public final class TableDiffResult {
     private SortedSet<Column> _removedColumns;
     private SortedSet<Column> _addedColumns;
-    private ListMap/*<Column, Column>*/ _modifiedColumns; // key: reference,
+    private LinkedHashMap<Column, Column> _modifiedColumns; // key: reference,
     // value: modified
 
     public TableDiffResult() {
@@ -46,13 +46,13 @@ public final class TableDiffResult {
         return _addedColumns.add(column);
     }
 
-    public ListMap getModifiedColumns() {
+    public LinkedHashMap<Column, Column> getModifiedColumns() {
         return _modifiedColumns;
     }
 
     public Object putModifiedColumns(final Column reference, final Column modified) {
         if (_modifiedColumns == null) {
-            _modifiedColumns = new ListMap();
+            _modifiedColumns = new LinkedHashMap<Column, Column>();
         }
         return _modifiedColumns.put(reference, modified);
     }

@@ -297,7 +297,7 @@ public class CommandDispatcher implements ReadlineCompleter {
         }
     }
 
-    private Iterator possibleValues;
+    private Iterator<String> _possibleValues;
     private String variablePrefix;
 
     // -- Readline completer ..
@@ -327,10 +327,10 @@ public class CommandDispatcher implements ReadlineCompleter {
             if (state == 0) {
                 variablePrefix = text.substring(0, pos);
                 final String varname = text.substring(pos);
-                possibleValues = _setCommand.completeUserVar(varname);
+                _possibleValues = _setCommand.completeUserVar(varname);
             }
-            if (possibleValues.hasNext()) {
-                return variablePrefix + (String) possibleValues.next();
+            if (_possibleValues.hasNext()) {
+                return variablePrefix + (String) _possibleValues.next();
             }
             return null;
         }
@@ -340,10 +340,10 @@ public class CommandDispatcher implements ReadlineCompleter {
         else if (completeCommandString.equals(text)) {
             text = text.toLowerCase();
             if (state == 0) {
-                possibleValues = getRegisteredCommandNames(text);
+                _possibleValues = getRegisteredCommandNames(text);
             }
-            while (possibleValues.hasNext()) {
-                final String nextKey = (String) possibleValues.next();
+            while (_possibleValues.hasNext()) {
+                final String nextKey = (String) _possibleValues.next();
                 if (nextKey.length() == 0) {
                     continue;
                 }
@@ -373,11 +373,11 @@ public class CommandDispatcher implements ReadlineCompleter {
                 if (cmd == null) {
                     return null;
                 }
-                possibleValues = cmd
+                _possibleValues = cmd
                 .complete(this, completeCommandString, text);
             }
-            if (possibleValues != null && possibleValues.hasNext()) {
-                return (String) possibleValues.next();
+            if (_possibleValues != null && _possibleValues.hasNext()) {
+                return (String) _possibleValues.next();
             }
             return null;
         }
