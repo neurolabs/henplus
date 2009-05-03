@@ -8,7 +8,6 @@ import henplus.sqlmodel.Column;
 import henplus.sqlmodel.Table;
 
 import java.util.Iterator;
-import java.util.ListIterator;
 
 /**
  * <p>
@@ -45,7 +44,7 @@ public final class TableDiffer {
             final Iterator<Column> refIter = referenceTable.getColumnIterator();
             if (refIter != null) {
                 while (refIter.hasNext()) {
-                    final Column col = (Column) refIter.next();
+                    final Column col = refIter.next();
                     // System.out.println(
                     // "[TableDiffer.diffTables] querying table for " +
                     // col.getName());

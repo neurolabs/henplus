@@ -42,11 +42,11 @@ public final class SessionManager {
     }
 
     public SQLSession getSessionByName(final String name) {
-        return (SQLSession) _sessions.get(name);
+        return _sessions.get(name);
     }
 
     public String getFirstSessionName() {
-        return (String) _sessions.firstKey();
+        return _sessions.firstKey();
     }
 
     public boolean closeCurrentSession() {

@@ -28,7 +28,7 @@ import java.util.TreeMap;
  * document me.
  */
 public final class DriverCommand extends AbstractCommand {
-    private static final boolean verbose = HenPlus.VERBOSE;
+    private static final boolean VERBOSE = HenPlus.VERBOSE;
     private static final String[][] KNOWN_DRIVERS = {
         { "Oracle", "oracle.jdbc.driver.OracleDriver",
         "jdbc:oracle:thin:@localhost:1521:ORCL" },
@@ -84,11 +84,11 @@ public final class DriverCommand extends AbstractCommand {
 
         public boolean load() {
             try {
-                if (verbose) {
+                if (VERBOSE) {
                     HenPlus.msg().print("loading .. '" + _className + "'");
                 }
-                final Class cls = Class.forName(_className);
-                if (verbose) {
+                final Class<?> cls = Class.forName(_className);
+                if (VERBOSE) {
                     HenPlus.msg().println(" done.");
                 }
                 try {
@@ -100,7 +100,7 @@ public final class DriverCommand extends AbstractCommand {
                 }
                 _loaded = true;
             } catch (final Throwable t) {
-                if (verbose) {
+                if (VERBOSE) {
                     HenPlus.msg().println(" failed: " + t.getMessage());
                 }
                 _loaded = false;

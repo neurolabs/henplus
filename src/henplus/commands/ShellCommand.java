@@ -28,7 +28,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
     /**
      * @return the command-strings this command can handle.
      */
-    public final String[] getCommandList() {
+    public String[] getCommandList() {
         return new String[] { "system", "!" };
     }
 
@@ -124,54 +124,54 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
      */
     private static class IOHandler {
         // private final Thread stdinThread;
-        private final Thread stdoutThread;
-        private final Thread stderrThread;
-        private final Process process;
-        private volatile boolean running;
+        private final Thread _stdoutThread;
+        private final Thread _stderrThread;
+        private final Process _process;
+        private volatile boolean _running;
 
         public IOHandler(final Process p) throws IOException {
-            this.process = p;
-            stdoutThread = new Thread(new CopyWorker(p.getInputStream(),
+            this._process = p;
+            _stdoutThread = new Thread(new CopyWorker(p.getInputStream(),
                     HenPlus.out()));
-            stdoutThread.setDaemon(true);
-            stderrThread = new Thread(new CopyWorker(p.getErrorStream(),
+            _stdoutThread.setDaemon(true);
+            _stderrThread = new Thread(new CopyWorker(p.getErrorStream(),
                     HenPlus.msg()));
-            stderrThread.setDaemon(true);
+            _stderrThread.setDaemon(true);
             /*
              * stdinThread = new Thread(new CopyWorker(System.in,
              * p.getOutputStream())); stdinThread.setDaemon(true);
              */
             p.getOutputStream().close();
-            running = true;
+            _running = true;
             start();
         }
 
         private void start() {
-            stdoutThread.start();
-            stderrThread.start();
+            _stdoutThread.start();
+            _stderrThread.start();
             // stdinThread.start();
         }
 
         public void stop() {
             synchronized (this) {
-                running = false;
+                _running = false;
             }
             // stdinThread.interrupt(); // this does not work for blocked IO!
             try {
-                stdoutThread.join();
+                _stdoutThread.join();
             } catch (final InterruptedException e) {
             }
             try {
-                stderrThread.join();
+                _stderrThread.join();
             } catch (final InterruptedException e) {
             }
             // try { stdinThread.join(); } catch(InterruptedException e) {}
             try {
-                process.getInputStream().close();
+                _process.getInputStream().close();
             } catch (final IOException e) {
             }
             try {
-                process.getErrorStream().close();
+                _process.getErrorStream().close();
             } catch (final IOException e) {
             }
         }
@@ -196,7 +196,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
                     /*
                      * some sort of 'select' would be good here.
                      */
-                    while ((running || source.available() > 0)
+                    while ((_running || source.available() > 0)
                             && (r = source.read(buf)) > 0) {
                         dest.write(buf, 0, r);
                     }

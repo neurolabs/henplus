@@ -102,7 +102,7 @@ public final class PluginCommand extends AbstractCommand {
     private Command loadPlugin(final String className) throws ClassNotFoundException,
     ClassCastException, InstantiationException, IllegalAccessException {
         Command plugin = null;
-        final Class pluginClass = Class.forName(className);
+        final Class<?> pluginClass = Class.forName(className);
         plugin = (Command) pluginClass.newInstance();
         _henplus.getDispatcher().register(plugin);
         return plugin;
@@ -131,7 +131,7 @@ public final class PluginCommand extends AbstractCommand {
                 final String clsName = (String) entry.getKey();
                 row[0] = new Column((c != null ? "* " : "  ") + clsName);
                 if (c != null) {
-                    final StringBuffer cmds = new StringBuffer();
+                    final StringBuilder cmds = new StringBuilder();
                     final String[] cmdList = c.getCommandList();
                     for (int i = 0; i < cmdList.length; ++i) {
                         cmds.append(cmdList[i]).append("\n");

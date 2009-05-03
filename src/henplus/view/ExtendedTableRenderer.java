@@ -8,7 +8,7 @@ import henplus.OutputDevice;
 
 /**
  * <p>
- * Title: ExtendedTableRenderer
+ * Title: ExtendedTableRenderer.
  * </p>
  * <p>
  * Description:<br>

@@ -208,7 +208,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 HenPlus.msg().println("'select' expected..");
                 return SYNTAX_ERROR;
             }
-            final StringBuffer statement = new StringBuffer("select");
+            final StringBuilder statement = new StringBuilder("select");
             while (st.hasMoreElements()) {
                 statement.append(" ").append(st.nextToken());
             }
@@ -283,7 +283,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             beginInterruptableSection();
             try {
                 final long startTime = System.currentTimeMillis();
-                final Set alreadyDumped = new HashSet(); // which tables got already
+                final Set<String> alreadyDumped = new HashSet<String>(); // which tables got already
                 // dumped?
 
                 out = openOutputStream(fileName, FILE_ENCODING);
@@ -392,7 +392,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     final Iterator iter = resolverResult.getCyclicDependencies()
                     .iterator();
                     final int count = 0;
-                    final StringBuffer sb = new StringBuffer();
+                    final StringBuilder sb = new StringBuilder();
                     while (iter.hasNext()) {
                         final Iterator iter2 = ((List) iter.next()).iterator();
                         sb.append("Cycle ").append(count).append(": ");
@@ -913,7 +913,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     raiseException(reader, "no table name known");
                 }
                 if (hot) {
-                    final StringBuffer prep = new StringBuffer("INSERT INTO ");
+                    final StringBuilder prep = new StringBuilder("INSERT INTO ");
                     prep.append(tableName);
                     prep.append(" (");
                     for (int i = 0; i < metaProperty.length; ++i) {
@@ -1198,7 +1198,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     private void quoteString(final PrintStream out, final String in) {
-        final StringBuffer buf = new StringBuffer();
+        final StringBuilder buf = new StringBuilder();
         buf.append("'");
         final int len = in.length();
         for (int i = 0; i < len; ++i) {
@@ -1230,7 +1230,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
     private String readToken(final LineNumberReader in) throws IOException {
         skipWhite(in);
-        final StringBuffer token = new StringBuffer();
+        final StringBuilder token = new StringBuilder();
         in.mark(1);
         int c;
         while ((c = in.read()) > 0) {
@@ -1272,7 +1272,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         }
 
         // ok, we found an opening quote.
-        final StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
         while ((c = in.read()) > 0) {
             if (c == '\\') {
                 c = in.read();
@@ -1293,7 +1293,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     /**
-     * convenience method to throw Exceptions containing the line number
+     * convenience method to throw Exceptions containing the line number.
      */
     private void raiseException(final LineNumberReader in, final String msg)
     throws IOException {
@@ -1354,7 +1354,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             } else if (argc > 1) {
                 st.nextElement(); // discard filename.
                 final String table = (String) st.nextElement();
-                final Collection columns = _tableCompleter.columnsFor(table);
+                final Collection<String> columns = _tableCompleter.columnsFor(table);
                 final NameCompleter compl = new NameCompleter(columns);
                 return compl.getAlternatives(lastWord);
             }
@@ -1662,7 +1662,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         }
 
         public ResultSet getResultSet() throws SQLException {
-            final StringBuffer selectStmt = new StringBuffer("SELECT ");
+            final StringBuilder selectStmt = new StringBuilder("SELECT ");
             for (int i = 0; i < _meta.length; ++i) {
                 final MetaProperty p = _meta[i];
                 if (i != 0) {
@@ -1691,7 +1691,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             try {
                 selectInfo.print("determining number of rows...");
                 stmt = _session.createStatement();
-                final StringBuffer countStmt = new StringBuffer(
+                final StringBuilder countStmt = new StringBuilder(
                 "SELECT count(*) from ");
                 countStmt.append(_table);
                 if (_whereClause != null) {
@@ -1780,17 +1780,17 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
          * find the type in the array. uses linear search, but this is only a
          * small list.
          */
-        private int findType(String typeName) {
-            if (typeName == null) {
+        private int findType(String typeNameArg) {
+            if (typeNameArg == null) {
                 throw new IllegalArgumentException("empty type ?");
             }
-            typeName = typeName.toUpperCase();
+            typeNameArg = typeNameArg.toUpperCase();
             for (int i = 0; i < TYPES.length; ++i) {
-                if (TYPES[i].equals(typeName)) {
+                if (TYPES[i].equals(typeNameArg)) {
                     return i;
                 }
             }
-            throw new IllegalArgumentException("invalid type " + typeName);
+            throw new IllegalArgumentException("invalid type " + typeNameArg);
         }
 
         public int getType() {

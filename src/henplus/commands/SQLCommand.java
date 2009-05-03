@@ -26,12 +26,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Map.Entry;
 
 /**
  * document me.
  */
 public final class SQLCommand extends AbstractCommand {
-    private static final boolean verbose = HenPlus.VERBOSE;
+    private static final boolean VERBOSE = HenPlus.VERBOSE;
     private static final String[] TABLE_COMPLETER_KEYWORD = { "FROM", "INTO",
         "UPDATE", "TABLE", "ALIAS", "VIEW", /* create index */"ON" };
 
@@ -49,7 +50,7 @@ public final class SQLCommand extends AbstractCommand {
         "" };
     }
 
-    private final ListUserObjectsCommand tableCompleter;
+    private final ListUserObjectsCommand _tableCompleter;
     private Statement _stmt;
     private String _columnDelimiter;
     private int _rowLimit;
@@ -61,13 +62,13 @@ public final class SQLCommand extends AbstractCommand {
     protected SQLCommand(final ListUserObjectsCommand tc) {
         _columnDelimiter = "|";
         _rowLimit = 2000;
-        tableCompleter = tc;
+        _tableCompleter = tc;
     }
 
     private LongRunningTimeDisplay _longRunningDisplay;
 
     public SQLCommand(final ListUserObjectsCommand tc, final PropertyRegistry registry) {
-        tableCompleter = tc;
+        _tableCompleter = tc;
         _columnDelimiter = "|";
         _rowLimit = 2000;
         _showHeader = true;
@@ -99,7 +100,7 @@ public final class SQLCommand extends AbstractCommand {
     /**
      * complicated SQL statements are only complete with semicolon. Simple
      * commands may have no semicolon (like 'commit' and 'rollback'). Yet others
-     * are not complete even if we ecounter a semicolon (like triggers and
+     * are not complete even if we encounter a semicolon (like triggers and
      * stored procedures). We support the SQL*PLUS syntax in that we consider
      * these kind of statements complete with a single slash ('/') at the
      * beginning of a line.
@@ -183,7 +184,7 @@ public final class SQLCommand extends AbstractCommand {
                 HenPlus.msg().println("done.");
                 _running = false;
             } catch (final Exception e) {
-                if (verbose) {
+                if (VERBOSE) {
                     e.printStackTrace();
                 }
             }
@@ -295,7 +296,7 @@ public final class SQLCommand extends AbstractCommand {
 
             // be smart and retrigger hashing of the tablenames.
             if ("drop".equals(cmd) || "create".equals(cmd)) {
-                tableCompleter.unhash(session);
+                _tableCompleter.unhash(session);
             }
 
             return SUCCESS;
@@ -313,7 +314,7 @@ public final class SQLCommand extends AbstractCommand {
                 // oracle appends a newline to the message for some reason.
                 HenPlus.msg().println("FAILURE: " + msg.trim());
             }
-            if (verbose) {
+            if (VERBOSE) {
                 e.printStackTrace();
             }
             return EXEC_FAILED;
@@ -360,7 +361,7 @@ public final class SQLCommand extends AbstractCommand {
              * ok, try to complete all columns from all tables since we don't
              * know yet what table the column will be from.
              */
-            return tableCompleter.completeAllColumns(lastWord);
+            return _tableCompleter.completeAllColumns(lastWord);
         }
 
         int endTabMatch = -1; // where the table declaration ends.
@@ -386,38 +387,38 @@ public final class SQLCommand extends AbstractCommand {
              * with these aliases, if necessary.
              */
             final String tables = partialCommand.substring(tableMatch, endTabMatch);
-            final HashMap tmp = new HashMap();
-            Iterator it = tableDeclParser(tables).entrySet().iterator();
+            final HashMap<String, Set<String>> tmp = new HashMap<String, Set<String>>();
+            Iterator<Map.Entry<String, String>> it = tableDeclParser(tables).entrySet().iterator();
             while (it.hasNext()) {
-                final Map.Entry entry = (Map.Entry) it.next();
-                final String alias = (String) entry.getKey();
-                String tabName = (String) entry.getValue();
-                tabName = tableCompleter.correctTableName(tabName);
+                final Map.Entry<String, String> entry = it.next();
+                final String alias = entry.getKey();
+                String tabName = entry.getValue();
+                tabName = _tableCompleter.correctTableName(tabName);
                 if (tabName == null) {
                     continue;
                 }
-                final Collection columns = tableCompleter.columnsFor(tabName);
-                final Iterator cit = columns.iterator();
+                final Collection<String> columns = _tableCompleter.columnsFor(tabName);
+                final Iterator<String> cit = columns.iterator();
                 while (cit.hasNext()) {
-                    final String col = (String) cit.next();
-                    Set aliases = (Set) tmp.get(col);
+                    final String col = cit.next();
+                    Set<String> aliases = tmp.get(col);
                     if (aliases == null) {
-                        aliases = new HashSet();
+                        aliases = new HashSet<String>();
                     }
                     aliases.add(alias);
                     tmp.put(col, aliases);
                 }
             }
             final NameCompleter completer = new NameCompleter();
-            it = tmp.entrySet().iterator();
-            while (it.hasNext()) {
-                final Map.Entry entry = (Map.Entry) it.next();
-                final String col = (String) entry.getKey();
-                final Set aliases = (Set) entry.getValue();
+            Iterator<Entry<String, Set<String>>> it2 = tmp.entrySet().iterator();
+            while (it2.hasNext()) {
+                final Map.Entry<String, Set<String>> entry = (Map.Entry) it.next();
+                final String col = entry.getKey();
+                final Set<String> aliases = entry.getValue();
                 if (aliases.size() == 1) {
                     completer.addName(col);
                 } else {
-                    final Iterator ait = aliases.iterator();
+                    final Iterator<String> ait = aliases.iterator();
                     while (ait.hasNext()) {
                         completer.addName(ait.next() + "." + col);
                     }
@@ -425,7 +426,7 @@ public final class SQLCommand extends AbstractCommand {
             }
             return completer.getAlternatives(lastWord);
         } else { // table completion.
-            return tableCompleter.completeTableName(HenPlus.getInstance()
+            return _tableCompleter.completeTableName(HenPlus.getInstance()
                     .getCurrentSession(), lastWord);
         }
     }

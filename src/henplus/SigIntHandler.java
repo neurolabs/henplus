@@ -33,7 +33,7 @@ public class SigIntHandler implements SignalHandler, InterruptHandler {
 
     private boolean _once;
     private static SigIntHandler instance = null;
-    private final Stack toInterruptStack;
+    private final Stack<Interruptable> _toInterruptStack;
 
     public static void install() {
         final Signal interruptSignal = new Signal("INT"); // Interrupt: Ctrl-C
@@ -51,21 +51,21 @@ public class SigIntHandler implements SignalHandler, InterruptHandler {
 
     public SigIntHandler() {
         _once = false;
-        toInterruptStack = new Stack();
+        _toInterruptStack = new Stack<Interruptable>();
     }
 
     public void pushInterruptable(final Interruptable t) {
-        toInterruptStack.push(t);
+        _toInterruptStack.push(t);
     }
 
     public void popInterruptable() {
         _once = false;
-        toInterruptStack.pop();
+        _toInterruptStack.pop();
     }
 
     public void reset() {
         _once = false;
-        toInterruptStack.clear();
+        _toInterruptStack.clear();
     }
 
     public void handle(final Signal sig) {
@@ -76,11 +76,11 @@ public class SigIntHandler implements SignalHandler, InterruptHandler {
         }
 
         _once = true;
-        if (!toInterruptStack.empty()) {
-            final ListIterator it = toInterruptStack.listIterator(toInterruptStack
+        if (!_toInterruptStack.empty()) {
+            final ListIterator<Interruptable> it = _toInterruptStack.listIterator(_toInterruptStack
                     .size());
             while (it.hasPrevious()) {
-                final Interruptable toInterrupt = (Interruptable) it.previous();
+                final Interruptable toInterrupt = it.previous();
                 toInterrupt.interrupt();
             }
         } else {

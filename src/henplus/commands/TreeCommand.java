@@ -47,15 +47,15 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
     /** reference in exported/imported key */
     private static final int EXP_FOREIGN_KEY_TABLE = 7;
 
-    static final boolean verbose = HenPlus.VERBOSE;
+    static final boolean VERBOSE = HenPlus.VERBOSE;
 
-    private final ListUserObjectsCommand tableCompleter;
+    private final ListUserObjectsCommand _tableCompleter;
     private volatile boolean _interrupted;
 
     /**
      * A node in a cyclic graph.
      */
-    private static abstract class Node implements Comparable {
+    private static abstract class Node implements Comparable<Node> {
         private final Set<Node> _children;
         private int _displayDepth;
 
@@ -94,15 +94,15 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
         }
 
         public void print(final OutputDevice out, final int indentCount) {
-            final StringBuffer indent = new StringBuffer();
+            final StringBuilder indent = new StringBuilder();
             for (int i = 0; i < indentCount; ++i) {
                 indent.append(" ");
             }
-            print(0, new TreeSet(), new StringBuffer(), indent.toString(), out);
+            print(0, new TreeSet(), new StringBuilder(), indent.toString(), out);
         }
 
         private void print(final int depth, final SortedSet alreadyPrinted,
-                final StringBuffer currentIndent, final String indentString,
+                final StringBuilder currentIndent, final String indentString,
                 final OutputDevice out) {
             final String name = getName();
             if (depth != 0) {
@@ -139,19 +139,19 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
         }
 
         public int printReverse(final OutputDevice out) {
-            final List result = new ArrayList();
-            printReverse(0, new TreeSet(), result, "", false);
-            Iterator it = result.iterator();
+            final List<String> result = new ArrayList<String>();
+            printReverse(0, new TreeSet<String>(), result, "", false);
+            Iterator<String> it = result.iterator();
             int maxLen = 0;
             while (it.hasNext()) {
-                final String line = (String) it.next();
+                final String line = it.next();
                 if (line.length() > maxLen) {
                     maxLen = line.length();
                 }
             }
             it = result.iterator();
             while (it.hasNext()) {
-                final String line = (String) it.next();
+                final String line = it.next();
                 final int len = line.length();
                 for (int i = len; i < maxLen; ++i) {
                     out.print(" ");
@@ -199,8 +199,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             return maxIndent;
         }
 
-        public int compareTo(final Object o) {
-            final Node other = (Node) o;
+        public int compareTo(final Node other) {
             return getName().compareTo(other.getName());
         }
 
@@ -227,7 +226,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
     }
 
     public TreeCommand(final ListUserObjectsCommand tc) {
-        tableCompleter = tc;
+        _tableCompleter = tc;
     }
 
     /**
@@ -254,7 +253,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             correctName = false;
         }
         if (correctName) {
-            final String alternative = tableCompleter.correctTableName(tabName);
+            final String alternative = _tableCompleter.correctTableName(tabName);
             if (alternative != null && !alternative.equals(tabName)) {
                 tabName = alternative;
             }
@@ -346,15 +345,15 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             rset = source.getReferenceMetaData(schema, tabName);
             // read this into a list to avoid recursive calls to MetaData
             // which some JDBC-drivers don't like..
-            final List refTables = new ArrayList();
+            final List<String> refTables = new ArrayList<String>();
             while (rset.next()) {
                 final String referencingTable = rset.getString(sourceColumn);
                 refTables.add(referencingTable);
             }
 
-            final Iterator it = refTables.iterator();
+            final Iterator<String> it = refTables.iterator();
             while (it.hasNext()) {
-                final String referencingTable = (String) it.next();
+                final String referencingTable = it.next();
                 if (_interrupted) {
                     return null;
                 }
@@ -384,7 +383,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
         if (lastWord.startsWith("\"")) {
             lastWord = lastWord.substring(1);
         }
-        return tableCompleter.completeTableName(HenPlus.getInstance()
+        return _tableCompleter.completeTableName(HenPlus.getInstance()
                 .getCurrentSession(), lastWord);
     }
 

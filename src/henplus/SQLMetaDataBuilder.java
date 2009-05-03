@@ -65,7 +65,7 @@ public final class SQLMetaDataBuilder {
 
     public SQLMetaData getMetaData(final SQLSession session) {
         ResultSet rset = null;
-        final List tableList = new ArrayList();
+        final List<String> tableList = new ArrayList<String>();
         try {
             final DatabaseMetaData meta = session.getConnection().getMetaData();
             rset = meta.getTables(null, null, null, LIST_TABLES);
@@ -106,7 +106,7 @@ public final class SQLMetaDataBuilder {
             final DatabaseMetaData meta = session.getConnection().getMetaData();
 
             while (tableNamesIter.hasNext() && !_interrupted) {
-                final String tableName = (String) tableNamesIter.next();
+                final String tableName = tableNamesIter.next();
                 rset = meta.getColumns(catalog, null, tableName, null);
                 final Table table = buildTable(catalog, meta, tableName, rset);
                 result.addTable(table);

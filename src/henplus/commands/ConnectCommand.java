@@ -183,7 +183,7 @@ public class ConnectCommand extends AbstractCommand {
         final String url = session.getURL();
 
         if (name == null || name.length() == 0) {
-            final StringBuffer result = new StringBuffer();
+            final StringBuilder result = new StringBuilder();
             userName = session.getUsername();
             StringTokenizer st = new StringTokenizer(url, ":");
             while (st.hasMoreElements()) {

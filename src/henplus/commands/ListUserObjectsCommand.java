@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
 
 /**
@@ -30,24 +29,24 @@ import java.util.SortedSet;
  */
 public class ListUserObjectsCommand extends AbstractCommand implements
 Interruptable {
-    final private static String[] LIST_TABLES_VIEWS = { "TABLE", "VIEW" };
-    final private static String[] LIST_TABLES = { "TABLE" };
-    final private static String[] LIST_VIEWS = { "VIEW" };
-    final private static int[] TABLE_DISP_COLS = { 2, 3, 4, 5 };
-    final private static int[] PROC_DISP_COLS = { 2, 3, 8 };
+    private static final String[] LIST_TABLES_VIEWS = { "TABLE", "VIEW" };
+    private static final String[] LIST_TABLES = { "TABLE" };
+    private static final String[] LIST_VIEWS = { "VIEW" };
+    private static final int[] TABLE_DISP_COLS = { 2, 3, 4, 5 };
+    private static final int[] PROC_DISP_COLS = { 2, 3, 8 };
 
     /**
      * all tables in one session.
      */
-    final private Map<SQLSession,NameCompleter> sessionTables;
-    final private Map<SQLSession,NameCompleter> sessionColumns;
-    final private HenPlus _henplus;
+    private final Map<SQLSession, NameCompleter> _sessionTables;
+    private final Map<SQLSession, NameCompleter> _sessionColumns;
+    private final HenPlus _henplus;
 
     private boolean _interrupted;
 
     public ListUserObjectsCommand(final HenPlus hp) {
-        sessionTables = new HashMap<SQLSession,NameCompleter>();
-        sessionColumns = new HashMap<SQLSession,NameCompleter>();
+        _sessionTables = new HashMap<SQLSession,NameCompleter>();
+        _sessionColumns = new HashMap<SQLSession,NameCompleter>();
         _henplus = hp;
         _interrupted = false;
     }
@@ -116,12 +115,12 @@ Interruptable {
     }
 
     private NameCompleter getTableCompleter(final SQLSession session) {
-        final NameCompleter compl = (NameCompleter) sessionTables.get(session);
+        final NameCompleter compl = _sessionTables.get(session);
         return compl == null ? rehash(session) : compl;
     }
 
     private NameCompleter getAllColumnsCompleter(final SQLSession session) {
-        NameCompleter compl = (NameCompleter) sessionColumns.get(session);
+        NameCompleter compl = _sessionColumns.get(session);
         if (compl != null) {
             return compl;
         }
@@ -138,24 +137,24 @@ Interruptable {
         compl = new NameCompleter();
         while (!_interrupted && table.hasNext()) {
             final String tabName = (String) table.next();
-            final Collection columns = columnsFor(tabName);
-            final Iterator cit = columns.iterator();
+            final Collection<String> columns = columnsFor(tabName);
+            final Iterator<String> cit = columns.iterator();
             while (cit.hasNext()) {
-                final String col = (String) cit.next();
+                final String col = cit.next();
                 compl.addName(col);
             }
         }
         if (_interrupted) {
             compl = null;
         } else {
-            sessionColumns.put(session, compl);
+            _sessionColumns.put(session, compl);
         }
         SigIntHandler.getInstance().popInterruptable();
         return compl;
     }
 
     public void unhash(final SQLSession session) {
-        sessionTables.remove(session);
+        _sessionTables.remove(session);
     }
 
     /**
@@ -181,17 +180,17 @@ Interruptable {
                 }
             }
         }
-        sessionTables.put(session, result);
-        sessionColumns.remove(session);
+        _sessionTables.put(session, result);
+        _sessionColumns.remove(session);
         return result;
     }
 
     /**
      * fixme: add this to the cached values determined by rehash.
      */
-    public Collection columnsFor(String tabName) {
+    public Collection<String> columnsFor(String tabName) {
         final SQLSession session = _henplus.getCurrentSession();
-        final Set result = new HashSet();
+        final Set<String> result = new HashSet<String>();
         final Connection conn = session.getConnection(); // use createStmt
         ResultSet rset = null;
 

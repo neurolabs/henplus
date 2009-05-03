@@ -81,7 +81,7 @@ public abstract class AbstractCommand implements Command {
     }
 
     /**
-     * Override this method if you want to register command-specific options
+     * Override this method if you want to register command-specific options.
      * 
      * @param r
      */

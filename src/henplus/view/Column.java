@@ -23,7 +23,7 @@ public class Column {
     private String _columnText[]; // multi-rows
     private int _width;
 
-    /** This holds a state for the renderer */
+    /** This holds a state for the renderer. */
     private int _pos;
 
     public Column(final long value) {

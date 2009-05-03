@@ -24,13 +24,13 @@ import java.util.Set;
  * @version $Revision: 1.1 $
  */
 public final class ConfigurationContainer {
-    /** configuration file name */
+    /** configuration file name. */
     private final File _configFile;
 
     /** file content digest on last read. */
     private byte[] _inputDigest;
 
-    /** properties read initially */
+    /** properties read initially. */
     private Properties _readProperties;
 
     public ConfigurationContainer(final File file) {
@@ -38,7 +38,7 @@ public final class ConfigurationContainer {
     }
 
     public interface ReadAction {
-        public void readConfiguration(InputStream in) throws Exception;
+        void readConfiguration(InputStream in) throws Exception;
     }
 
     /**
@@ -93,7 +93,7 @@ public final class ConfigurationContainer {
          * Write configuration. If any Exception is thrown, the original file is
          * not overwritten.
          */
-        public void writeConfiguration(OutputStream out) throws Exception;
+        void writeConfiguration(OutputStream out) throws Exception;
     }
 
     /**

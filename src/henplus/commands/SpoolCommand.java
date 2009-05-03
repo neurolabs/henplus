@@ -70,7 +70,7 @@ public final class SpoolCommand extends AbstractCommand {
      */
     private OutputDevice openStackedDevice(final Stack<OutputDevice> stack,
             final OutputDevice newOut) {
-        final OutputDevice origOut = (OutputDevice) stack.peek();
+        final OutputDevice origOut = stack.peek();
         final OutputDevice outDevice = new StackedDevice(origOut, newOut);
         stack.push(outDevice);
         return outDevice;
@@ -80,9 +80,9 @@ public final class SpoolCommand extends AbstractCommand {
      * close the top device on the stack and return the previous.
      */
     private OutputDevice closeStackedDevice(final Stack<OutputDevice> stack) {
-        final OutputDevice out = (OutputDevice) stack.pop();
+        final OutputDevice out = stack.pop();
         out.close();
-        return (OutputDevice) stack.peek();
+        return stack.peek();
     }
 
     private void openSpool(final String filename) throws IOException {

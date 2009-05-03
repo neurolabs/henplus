@@ -38,9 +38,11 @@ public class KeyBindCommand extends AbstractCommand {
 
     private final ConfigurationContainer _config;
 
-    private final Map/* <String:keyname,String:readlinename> */_keyNames;
+    /** Map from keyname to readline names */
+    private final Map<String,String[]> _keyNames;
     private final NameCompleter _functionKeyNameCompleter;
-    private final Map/* <String:key,String:cmd> */_bindings;
+    /** map from keyname to binding name */
+    private final Map<String,String> _bindings;
 
     /**
      * returns the command-strings this command can handle.
@@ -53,7 +55,7 @@ public class KeyBindCommand extends AbstractCommand {
     }
 
     public KeyBindCommand(final HenPlus henplus) {
-        _keyNames = new HashMap();
+        _keyNames = new HashMap<String, String[]>();
         // -- there are different mappings for some function keys and terminals
         _keyNames.put("F1", new String[] { "\"\\e[11~\"", "\"\\e[[a\"",
         "\"\\eOP\"" });
@@ -179,7 +181,7 @@ public class KeyBindCommand extends AbstractCommand {
         _bindings.put(keyName, cmd);
 
         /* quote "-characters */
-        final StringBuffer binding = new StringBuffer();
+        final StringBuilder binding = new StringBuilder();
         int pos = 0;
         int nowPos = 0;
         while ((nowPos = cmd.indexOf('"', pos)) >= 0) {

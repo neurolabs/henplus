@@ -58,7 +58,7 @@ public final class DependencyResolver {
 
         // first run: separate tables with and without dependencies
         while (_tableIter.hasNext()) {
-            final Table t = (Table) _tableIter.next();
+            final Table t = _tableIter.next();
             if (t == null) {
                 continue;
             }
@@ -86,7 +86,7 @@ public final class DependencyResolver {
                     resolved.put(t.getName(), t);
                 } else {
                     if (unresolved == null) {
-                        unresolved = new HashMap();
+                        unresolved = new HashMap<String, Table>();
                     }
                     // System.out.println( "[sortTables] put " + t +
                     // " to unresolved." );
@@ -170,16 +170,16 @@ public final class DependencyResolver {
 
         boolean nodep = false;
         boolean firstrun = true;
-        final Set fks = t.getForeignKeys();
-        final Iterator iter = fks.iterator();
+        final Set<ColumnFkInfo> fks = t.getForeignKeys();
+        final Iterator<ColumnFkInfo> iter = fks.iterator();
         while (iter.hasNext()) {
-            final ColumnFkInfo fk = (ColumnFkInfo) iter.next();
+            final ColumnFkInfo fk = iter.next();
 
             // System.out.println( "[resolveDep] FK -> " + fk.getPkTable() +
             // ": " + resolved.containsKey( fk.getPkTable() ) );
             if (!resolved.containsKey(fk.getPkTable())) {
 
-                final Table inner = (Table) unresolved.get(fk.getPkTable());
+                final Table inner = unresolved.get(fk.getPkTable());
 
                 // if there's yet a cycle with the two tables inner following t
                 // then proceed to the next FK and ignore this potential cycle
@@ -196,7 +196,7 @@ public final class DependencyResolver {
                     final List<Table> cycle = new ArrayList<Table>(cyclePath);
                     cycle.add(inner);
                     if (_cyclicDependencies == null) {
-                        _cyclicDependencies = new HashSet();
+                        _cyclicDependencies = new HashSet<Collection<Table>>();
                     }
                     // System.out.println("[resolveDep] +++ Putting cyclePath: "
                     // + cycle );
@@ -308,7 +308,7 @@ public final class DependencyResolver {
 
         @Override
         public String toString() {
-            final StringBuffer sb = new StringBuffer("CycleEntry [");
+            final StringBuilder sb = new StringBuilder("CycleEntry [");
             sb.append("table: ").append(_table.getName());
             sb.append(", fk: ").append(_fk.toString());
             sb.append("]");

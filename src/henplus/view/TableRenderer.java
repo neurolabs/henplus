@@ -42,7 +42,7 @@ public class TableRenderer {
          * we cache the rows in order to dynamically determine the output width
          * of each column.
          */
-        this._cacheRows = new ArrayList(MAX_CACHE_ELEMENTS);
+        this._cacheRows = new ArrayList<Column[]>(MAX_CACHE_ELEMENTS);
         this._alreadyFlushed = false;
         this._writtenRows = 0;
         this.colSeparator = " " + separator;
@@ -180,7 +180,7 @@ public class TableRenderer {
         // System.out.println("[formatString] len: " + len + ", text.length: " +
         // text.length());
         // text = "hi";
-        final StringBuffer fillstr = new StringBuffer();
+        final StringBuilder fillstr = new StringBuilder();
 
         if (len > 4000) {
             len = 4000;

@@ -78,7 +78,7 @@ public class HelpCommand extends AbstractCommand {
                     continue;
                 }
 
-                final StringBuffer cmdPrint = new StringBuffer(" ");
+                final StringBuilder cmdPrint = new StringBuilder(" ");
                 final String[] cmds = cmd.getCommandList();
                 final String firstSynopsis = cmd.getSynopsis(cmds[0]);
                 /*

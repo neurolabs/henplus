@@ -129,7 +129,7 @@ public final class ResultTablePrinter {
         String type = col.getType();
         final int colSize = col.getSize();
         if (colSize > 0) {
-            final StringBuffer sb = new StringBuffer(type);
+            final StringBuilder sb = new StringBuilder(type);
             sb.append("(").append(colSize).append(")");
             type = sb.toString();
         }
@@ -257,7 +257,7 @@ public final class ResultTablePrinter {
             } else { // the pk index is greater than 1
                 pkDesc = pkInfo.getPkName() != null ? pkInfo.getPkName()
                         : "*";
-                pkDesc = new StringBuffer(pkDesc).append("{").append(
+                pkDesc = new StringBuilder(pkDesc).append("{").append(
                         pkInfo.getColumnIndex()).append("}").toString();
             }
         }
@@ -270,7 +270,7 @@ public final class ResultTablePrinter {
 
         final ColumnFkInfo fkInfo = col.getFkInfo();
         if (fkInfo != null) {
-            final StringBuffer sb = new StringBuffer();
+            final StringBuilder sb = new StringBuilder();
             if (fkInfo.getFkName() != null) {
                 sb.append(fkInfo.getFkName()).append("\n -> ");
             } else {

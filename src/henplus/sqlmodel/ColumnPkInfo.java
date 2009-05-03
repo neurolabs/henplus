@@ -8,7 +8,7 @@ import henplus.util.ObjectUtil;
 
 /**
  * <p>
- * Title: ColumnPkInfo
+ * Title: ColumnPkInfo.
  * </p>
  * <p>
  * Description:<br>

@@ -8,7 +8,7 @@ import henplus.util.ObjectUtil;
 
 /**
  * <p>
- * Title: ColumnFkInfo
+ * Title: ColumnFkInfo.
  * </p>
  * <p>
  * Description:<br>
@@ -80,7 +80,7 @@ public final class ColumnFkInfo {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ColumnFkInfo [");
+        final StringBuilder sb = new StringBuilder("ColumnFkInfo [");
         sb.append("fkName: ").append(_fkName);
         sb.append(", pkTable: ").append(_pkTable);
         sb.append(", pkColumn: ").append(_pkColumn);

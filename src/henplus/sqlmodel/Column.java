@@ -6,12 +6,15 @@
  */
 package henplus.sqlmodel;
 
+import henplus.util.ObjectUtil;
+import henplus.util.StringUtil;
+
 /**
- * Represents the meta data for a telational table Column
+ * Represents the meta data for a telational table Column.
  * 
  * @author Martin Grotzke
  */
-public final class Column implements Comparable {
+public final class Column implements Comparable<Column> {
     private String _name;
     private int _position; // starting at 1
     private String _type;
@@ -107,9 +110,8 @@ public final class Column implements Comparable {
      * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(final Object o) {
+    public int compareTo(final Column other) {
         int result = 1;
-        final Column other = (Column) o;
         if (other.getPosition() < _position) {
             result = -1;
         } else if (other.getPosition() == _position) {
@@ -120,7 +122,7 @@ public final class Column implements Comparable {
 
     /**
      * 
-     * @param o
+     * @param o other object to compare with
      * @param colNameIgnoreCase
      *            specifies if column names shall be compared in a case
      *            insensitive way.
@@ -143,30 +145,23 @@ public final class Column implements Comparable {
                 return false;
             }
 
-            if (_name == null && other._name != null
-                    || _name != null && (colNameIgnoreCase
-                            && !_name.equalsIgnoreCase(other._name) || !colNameIgnoreCase
-                            && !_name.equals(other._name))) {
+            if (StringUtil.nullSafeEquals(_name, other._name, colNameIgnoreCase)) {
                 return false;
             }
 
-            if (_type == null && other._type != null
-                    || _type != null && !_type.equals(other._type)) {
+            if (StringUtil.nullSafeEquals(_type, other._type)) {
                 return false;
             }
 
-            if (_default == null && other._default != null
-                    || _default != null && !_default.equals(other._default)) {
+            if (StringUtil.nullSafeEquals(_default, other._default)) {
                 return false;
             }
 
-            if (_pkInfo == null && other._pkInfo != null
-                    || _pkInfo != null && !_pkInfo.equals(other._pkInfo)) {
+            if (ObjectUtil.nullSafeEquals(_pkInfo, other._pkInfo)) {
                 return false;
             }
 
-            if (_fkInfo == null && other._fkInfo != null
-                    || _fkInfo != null && !_fkInfo.equals(other._fkInfo)) {
+            if (ObjectUtil.nullSafeEquals(_fkInfo, other._fkInfo)) {
                 return false;
             }
 

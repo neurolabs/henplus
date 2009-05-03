@@ -34,21 +34,21 @@ public interface Command {
      * constant returned by the {@link #execute(SQLSession,String,String)}
      * method, if everything went fine.
      */
-    public static final int SUCCESS = 0;
+    static final int SUCCESS = 0;
 
     /**
      * constant returned by the {@link #execute(SQLSession,String,String)} if
      * the command could not be executed because of an syntax error. In that
      * case, the CommandDispatcher will display the synopsis of that command.
      */
-    public static final int SYNTAX_ERROR = 1;
+    static final int SYNTAX_ERROR = 1;
 
     /**
      * constant returned by the {@link #execute(SQLSession,String,String)} if
      * the command could not be executed because of some problem, that is not a
      * syntax error.
      */
-    public static final int EXEC_FAILED = 2;
+    static final int EXEC_FAILED = 2;
 
     /**
      * returns the prefices of all command-strings this command can handle. The
@@ -204,7 +204,7 @@ public interface Command {
      * 
      * @param options
      */
-    public void setOptions(Options options);
+    void setOptions(Options options);
 
     /**
      * This method is called before parsing the commandline. You can register
@@ -213,7 +213,7 @@ public interface Command {
      * 
      * @param r
      */
-    public void registerOptions(Options allOptions);
+    void registerOptions(Options allOptions);
 
     /**
      * After parsing the parameters, this method is called.
@@ -225,7 +225,7 @@ public interface Command {
      * @param line
      *            TODO
      */
-    public void handleCommandline(CommandLine line);
+    void handleCommandline(CommandLine line);
 }
 
 /*

@@ -6,7 +6,7 @@ package henplus.view;
 
 /**
  * <p>
- * Title: ExtendedColumn
+ * Title: ExtendedColumn.
  * </p>
  * <p>
  * Description:<br>

@@ -78,7 +78,7 @@ public final class SystemInfoCommand extends AbstractCommand {
         info.put("Java Home", System.getProperty("java.home"));
         info.put("Java Vendor", System.getProperty("java.vendor"));
 
-        final StringBuffer osInfo = new StringBuffer();
+        final StringBuilder osInfo = new StringBuilder();
         osInfo.append(System.getProperty("os.name"));
         osInfo.append(" ");
         osInfo.append(System.getProperty("os.version"));

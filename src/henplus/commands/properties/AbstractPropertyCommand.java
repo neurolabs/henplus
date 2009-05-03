@@ -49,7 +49,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
     protected abstract String getSetCommand();
 
     /**
-     * the PropertyRegistry associcaed with the current
+     * the PropertyRegistry associcaed with the current.
      */
     protected abstract PropertyRegistry getRegistry();
 
@@ -64,7 +64,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             if (argc == 1) {
                 final String name = st.nextToken();
                 PropertyHolder holder;
-                holder = (PropertyHolder) getRegistry().getPropertyMap()
+                holder = getRegistry().getPropertyMap()
                         .get(name);
                 if (holder == null) {
                     return EXEC_FAILED;
@@ -112,7 +112,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             else if (argc == 1) {
                 final String name = st.nextToken();
                 PropertyHolder holder;
-                holder = (PropertyHolder) getRegistry().getPropertyMap()
+                holder = getRegistry().getPropertyMap()
                         .get(name);
                 if (holder == null) {
                     return EXEC_FAILED;
@@ -198,7 +198,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             if (getSetCommand().equals(cmd)) {
                 final String name = st.nextToken();
                 PropertyHolder holder;
-                holder = (PropertyHolder) getRegistry().getPropertyMap()
+                holder = getRegistry().getPropertyMap()
                         .get(name);
                 if (holder == null) {
                     return null;

@@ -9,10 +9,9 @@ package henplus.sqlmodel;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.ListIterator;
 import java.util.Set;
 
-public final class Table implements Comparable {
+public final class Table implements Comparable<Table> {
 
     private String _name;
     private final LinkedHashMap<String, Column> _columns;
@@ -49,13 +48,13 @@ public final class Table implements Comparable {
     public Column getColumnByName(final String name, final boolean ignoreCase) {
         Column result = null;
         if (_columns != null) {
-            result = (Column) _columns.get(name);
+            result = _columns.get(name);
             if (result == null && ignoreCase) {
-                final Iterator iter = _columns.keySet().iterator();
+                final Iterator<String> iter = _columns.keySet().iterator();
                 while (iter.hasNext()) {
-                    final String colName = (String) iter.next();
+                    final String colName = iter.next();
                     if (colName.equalsIgnoreCase(name)) {
-                        result = (Column) _columns.get(colName);
+                        result = _columns.get(colName);
                         break;
                     }
                 }
@@ -139,13 +138,8 @@ public final class Table implements Comparable {
      * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(final Object other) {
-        int result = 0;
-        if (other instanceof Table) {
-            final Table o = (Table) other;
-            result = _name.compareTo(o.getName());
-        }
-        return result;
+    public int compareTo(final Table other) {
+        return _name.compareTo(other.getName());
     }
 
     /*

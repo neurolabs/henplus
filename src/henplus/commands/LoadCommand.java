@@ -81,7 +81,7 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
     File openFile(final String filename) {
         File f = new File(filename);
         if (!f.isAbsolute()) {
-            f = new File((File) _cwdStack.peek(), filename);
+            f = new File(_cwdStack.peek(), filename);
         }
         return f;
     }

@@ -14,16 +14,16 @@ public final class ColumnMetaData {
     public static final int ALIGN_CENTER = 2;
     public static final int ALIGN_RIGHT = 3;
 
-    /** alignment; one of left, center, right */
+    /** alignment; one of left, center, right. */
     private final int _alignment;
 
-    /** the header of this column */
+    /** the header of this column. */
     private final String _label;
 
-    /** minimum width of this column; ususally set by the header width */
+    /** minimum width of this column; ususally set by the header width. */
     private final int _initialWidth;
 
-    /** wrap columns automatically at this column; -1 = disabled */
+    /** wrap columns automatically at this column; -1 = disabled. */
     private int _autoWrapCol;
 
     private int _width;

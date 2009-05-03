@@ -94,7 +94,7 @@ public final class TableDiffCommand extends AbstractCommand {
 
                 diffTable(session, table1, table2, colNameIgnoreCase);
 
-                final StringBuffer msg = new StringBuffer();
+                final StringBuilder msg = new StringBuilder();
                 msg.append("Diffing ").append(" tables ").append(table1)
                 .append(" and ").append(table2).append(" took ")
                 .append(System.currentTimeMillis() - start).append(
@@ -193,7 +193,7 @@ public final class TableDiffCommand extends AbstractCommand {
 
             }
 
-            final StringBuffer msg = new StringBuffer();
+            final StringBuilder msg = new StringBuilder();
             msg.append("Diffing ").append(count).append(
                     count == 1 ? " table took " : " tables took ").append(
                             System.currentTimeMillis() - start).append(" ms.");
@@ -457,17 +457,17 @@ public final class TableDiffCommand extends AbstractCommand {
         return null;
     }
 
-    private Iterator getIntersection(final Iterator first, final Iterator second) {
+    private Iterator<String> getIntersection(final Iterator<String> first, final Iterator<String> second) {
         // first copy the first iterator into a list
-        final List contentFirst = new ArrayList();
+        final List<String> contentFirst = new ArrayList<String>();
         while (first.hasNext()) {
             contentFirst.add(first.next());
         }
         // now copy all items of the second iterator into a second list
         // which are contained in the first list
-        final List inter = new ArrayList();
+        final List<String> inter = new ArrayList<String>();
         while (second.hasNext()) {
-            final Object next = second.next();
+            final String next = second.next();
             if (contentFirst.contains(next)) {
                 inter.add(next);
             }
@@ -475,16 +475,16 @@ public final class TableDiffCommand extends AbstractCommand {
         return inter.iterator();
     }
 
-    private Iterator getSecondSessionCompleter(final String lastWord,
+    private Iterator<String> getSecondSessionCompleter(final String lastWord,
             final String firstSession) {
-        final Iterator it = HenPlus.getInstance().getSessionManager()
+        final Iterator<String> it = HenPlus.getInstance().getSessionManager()
         .completeSessionName(lastWord);
-        return new Iterator() {
+        return new Iterator<String>() {
             String session = null;
 
             public boolean hasNext() {
                 while (it.hasNext()) {
-                    session = (String) it.next();
+                    session = it.next();
                     if (session.equals(firstSession)) {
                         continue;
                     }
@@ -493,7 +493,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 return false;
             }
 
-            public Object next() {
+            public String next() {
                 return session;
             }
 

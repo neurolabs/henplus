@@ -32,4 +32,13 @@ public final class ObjectUtil {
             return that.hashCode();
         }
     }
+
+    public static boolean nullSafeEquals(Object one, Object two) {
+        if (one == null || two == null) {
+            return (one == null && two == null); 
+        } else {
+            return one.equals(two);
+        }        
+    }
+    
 }

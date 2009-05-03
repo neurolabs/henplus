@@ -60,8 +60,8 @@ public class SQLStatementSeparator {
 
     private static class ParseState {
         private byte _state;
-        private final StringBuffer _inputBuffer;
-        private final StringBuffer _commandBuffer;
+        private final StringBuilder _inputBuffer;
+        private final StringBuilder _commandBuffer;
         /*
          * instead of adding new states, we store the fact, that the last
          * 'potential_end_found' was a newline here.
@@ -71,8 +71,8 @@ public class SQLStatementSeparator {
         public ParseState() {
             _eolineSeen = true; // we start with a new line.
             _state = NEW_STATEMENT;
-            _inputBuffer = new StringBuffer();
-            _commandBuffer = new StringBuffer();
+            _inputBuffer = new StringBuilder();
+            _commandBuffer = new StringBuilder();
         }
 
         public byte getState() {
@@ -91,11 +91,11 @@ public class SQLStatementSeparator {
             _eolineSeen = n;
         }
 
-        public StringBuffer getInputBuffer() {
+        public StringBuilder getInputBuffer() {
             return _inputBuffer;
         }
 
-        public StringBuffer getCommandBuffer() {
+        public StringBuilder getCommandBuffer() {
             return _commandBuffer;
         }
     }
@@ -209,8 +209,8 @@ public class SQLStatementSeparator {
         byte state = _currentState.getState();
         boolean lastEoline = _currentState.hasNewlineSeen();
 
-        final StringBuffer input = _currentState.getInputBuffer();
-        final StringBuffer parsed = _currentState.getCommandBuffer();
+        final StringBuilder input = _currentState.getInputBuffer();
+        final StringBuilder parsed = _currentState.getCommandBuffer();
 
         if (state == NEW_STATEMENT) {
             parsed.setLength(0);

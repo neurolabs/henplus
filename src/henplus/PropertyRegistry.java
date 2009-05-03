@@ -52,7 +52,7 @@ public class PropertyRegistry {
      *             veto the new value.
      */
     public void setProperty(final String name, final String value) throws Exception {
-        final PropertyHolder holder = (PropertyHolder) _namedProperties.get(name);
+        final PropertyHolder holder = _namedProperties.get(name);
         if (holder == null) {
             throw new IllegalArgumentException("unknown property '" + name
                     + "'");

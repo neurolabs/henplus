@@ -33,8 +33,8 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
     /**
      * same with collection as Input.
      */
-    public EnumeratedPropertyHolder(final Collection values) {
-        this((String[]) values.toArray(new String[values.size()]));
+    public EnumeratedPropertyHolder(final Collection<String> values) {
+        this(values.toArray(new String[values.size()]));
     }
 
     /**
@@ -50,7 +50,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
 
         final Iterator possibleValues = _completer.getAlternatives(newValue);
         if (possibleValues == null || !possibleValues.hasNext()) {
-            final StringBuffer expected = new StringBuffer();
+            final StringBuilder expected = new StringBuilder();
             for (int i = 0; i < _values.length; ++i) {
                 if (i != 0) {
                     expected.append(", ");
@@ -63,7 +63,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
 
         final String value = (String) possibleValues.next();
         if (possibleValues.hasNext()) {
-            final StringBuffer matching = new StringBuffer(value);
+            final StringBuilder matching = new StringBuilder(value);
             do {
                 matching.append(", ");
                 matching.append((String) possibleValues.next());

@@ -35,7 +35,7 @@ public class TimeRenderer {
 
     /** render time as string */
     public static String renderTime(final long execTimeInMs, final long usec) {
-        final StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
         printTime(execTimeInMs, usec, new AbstractOutputDevice() {
             @Override
             public void print(final String s) {

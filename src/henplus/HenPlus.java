@@ -64,7 +64,7 @@ public final class HenPlus implements Interruptable {
 
     private final boolean _fromTerminal;
     private final SQLStatementSeparator _commandSeparator;
-    private final StringBuffer _historyLine;
+    private final StringBuilder _historyLine;
 
     private final boolean _quiet;
     private final ConfigurationContainer _historyConfig;
@@ -92,7 +92,7 @@ public final class HenPlus implements Interruptable {
         final boolean quiet = false;
 
         _commandSeparator = new SQLStatementSeparator();
-        _historyLine = new StringBuffer();
+        _historyLine = new StringBuilder();
         // read options .. like -q
 
         try {
@@ -327,7 +327,7 @@ public final class HenPlus implements Interruptable {
             return LINE_EMPTY;
         }
 
-        final StringBuffer lineBuf = new StringBuffer(line);
+        final StringBuilder lineBuf = new StringBuilder(line);
         lineBuf.append('\n');
         _commandSeparator.append(lineBuf.toString());
         result = LINE_INCOMPLETE;
@@ -517,7 +517,7 @@ public final class HenPlus implements Interruptable {
 
     public void setPrompt(final String p) {
         _prompt = p;
-        final StringBuffer tmp = new StringBuffer();
+        final StringBuilder tmp = new StringBuilder();
         final int emptyLength = p.length();
         for (int i = emptyLength; i > 0; --i) {
             tmp.append(' ');
@@ -548,7 +548,7 @@ public final class HenPlus implements Interruptable {
         int pos = 0;
         int endpos = 0;
         int startVar = 0;
-        final StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
         String varname;
         boolean hasBrace = false;
 

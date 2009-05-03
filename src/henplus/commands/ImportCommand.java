@@ -200,11 +200,11 @@ public class ImportCommand extends AbstractCommand {
             _target = target;
         }
 
-        private final boolean expressionMatches() {
+        private boolean expressionMatches() {
             return true; // no expression match yet.
         }
 
-        private final boolean rangeValid() {
+        private boolean rangeValid() {
             if (_startRow >= 0) {
                 if (_rows < _startRow) {
                     return false;
@@ -377,7 +377,7 @@ public class ImportCommand extends AbstractCommand {
         public SqlImportProcessor(final SQLSession session, final ImportConfiguration config)
         throws Exception {
             _rows = 0;
-            final StringBuffer cmd = new StringBuffer("insert into ");
+            final StringBuilder cmd = new StringBuilder("insert into ");
             cmd.append(config.getTable()).append(" (");
             boolean isFirst = true;
             for (int i = 0; i < config.getColumns().length; ++i) {
@@ -459,7 +459,7 @@ public class ImportCommand extends AbstractCommand {
     }
 
     private interface CompleterFactory {
-        public Iterator getCompleter(ConfigurationParser parser,
+        Iterator getCompleter(ConfigurationParser parser,
                 String partialValue);
     }
 
@@ -814,7 +814,7 @@ public class ImportCommand extends AbstractCommand {
     CompleterFactory {
         public Iterator getCompleter(final ConfigurationParser parser,
                 final String partialName) {
-            final Collection allEncodings = Charset.availableCharsets().keySet();
+            final Collection<String> allEncodings = Charset.availableCharsets().keySet();
             final NameCompleter completer = new NameCompleter(allEncodings);
             return completer.getAlternatives(partialName);
         }

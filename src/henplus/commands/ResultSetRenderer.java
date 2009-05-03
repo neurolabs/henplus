@@ -70,7 +70,7 @@ public class ResultSetRenderer implements Interruptable {
         if (c == null) {
             return null;
         }
-        final StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
         long restLimit = _clobLimit;
         try {
             final Reader in = c.getCharacterStream();

@@ -231,7 +231,7 @@ public class CommandDispatcher implements ReadlineCompleter {
         }
 
         // remove trailing ';' and whitespaces.
-        final StringBuffer cmdBuf = new StringBuffer(givenCommand.trim());
+        final StringBuilder cmdBuf = new StringBuilder(givenCommand.trim());
         int i = 0;
         for (i = cmdBuf.length() - 1; i > 0; --i) {
             final char c = cmdBuf.charAt(i);
@@ -298,7 +298,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     private Iterator<String> _possibleValues;
-    private String variablePrefix;
+    private String _variablePrefix;
 
     // -- Readline completer ..
     public String completer(String text, final int state) {
@@ -325,12 +325,12 @@ public class CommandDispatcher implements ReadlineCompleter {
 
         if (variableExpansion) {
             if (state == 0) {
-                variablePrefix = text.substring(0, pos);
+                _variablePrefix = text.substring(0, pos);
                 final String varname = text.substring(pos);
                 _possibleValues = _setCommand.completeUserVar(varname);
             }
             if (_possibleValues.hasNext()) {
-                return variablePrefix + (String) _possibleValues.next();
+                return _variablePrefix + _possibleValues.next();
             }
             return null;
         }
@@ -343,7 +343,7 @@ public class CommandDispatcher implements ReadlineCompleter {
                 _possibleValues = getRegisteredCommandNames(text);
             }
             while (_possibleValues.hasNext()) {
-                final String nextKey = (String) _possibleValues.next();
+                final String nextKey = _possibleValues.next();
                 if (nextKey.length() == 0) {
                     continue;
                 }
@@ -377,7 +377,7 @@ public class CommandDispatcher implements ReadlineCompleter {
                 .complete(this, completeCommandString, text);
             }
             if (_possibleValues != null && _possibleValues.hasNext()) {
-                return (String) _possibleValues.next();
+                return _possibleValues.next();
             }
             return null;
         }

@@ -12,7 +12,6 @@ import henplus.HenPlus;
 import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.SigIntHandler;
-import henplus.util.StringAppender;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
@@ -52,10 +51,10 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
 
     private volatile boolean _interrupted;
     private static final boolean VERBOSE = HenPlus.VERBOSE;
-    private final ListUserObjectsCommand tableCompleter;
+    private final ListUserObjectsCommand _tableCompleter;
 
     public DescribeCommand(final ListUserObjectsCommand tc) {
-        tableCompleter = tc;
+        _tableCompleter = tc;
     }
 
     /**
@@ -115,7 +114,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
 
                 // FIXME: provide correct name as well for schema!
                 if (correctName) {
-                    final String alternative = tableCompleter
+                    final String alternative = _tableCompleter
                     .correctTableName(tabName);
                     if (alternative != null && !alternative.equals(tabName)) {
                         tabName = alternative;
@@ -161,7 +160,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     if (_interrupted) {
                         return SUCCESS;
                     }
-                    final Map pks = new HashMap();
+                    final Map<String, String> pks = new HashMap<String, String>();
                     rset = meta.getPrimaryKeys(null, schema, tabName);
                     if (rset != null) {
                         while (!_interrupted && rset.next()) {
@@ -170,10 +169,9 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             final String pkname = rset.getString(6);
                             String desc = pkname != null ? pkname : "*";
                             if (pkseq > 1) {
-                                desc = StringAppender.getInstance()
+                                desc = new StringBuilder()
                                 .append(desc).append("{").append(pkseq)
                                 .append("}").toString();
-                                // desc += "{" + pkseq + "}";
                             }
                             pks.put(col, desc);
                         }
@@ -192,13 +190,13 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             final String col = rset.getString(4);
                             String fktable = rset.getString(7);
                             final String fkcolumn = rset.getString(8);
-                            fktable = StringAppender.getInstance().append(
+                            fktable = new StringBuilder().append(
                                     fktable).append("(").append(fkcolumn)
                                     .append(")").toString();
-                            String desc = (String) pks.get(col);
-                            desc = desc == null ? StringAppender
-                                    .start(" <- ").append(fktable).toString()
-                                    : StringAppender.start(desc).append(
+                            String desc = pks.get(col);
+                            desc = desc == null ? new StringBuilder()
+                                    .append(" <- ").append(fktable).toString()
+                                    : new StringBuilder().append(desc).append(
                                     "\n <- ").append(fktable)
                                     .toString();
                                     anyLeftArrow = true;
@@ -213,7 +211,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     if (_interrupted) {
                         return SUCCESS;
                     }
-                    final Map fks = new HashMap();
+                    final Map<String, String> fks = new HashMap<String, String>();
 
                     // some jdbc version 2 drivers (connector/j) have problems
                     // with foreign keys...
@@ -232,8 +230,8 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             table = table + "(" + pkcolumn + ")";
                             final String col = rset.getString(8);
                             final String fkname = rset.getString(12);
-                            String desc = fkname != null ? StringAppender
-                                    .start(fkname).append("\n -> ").toString()
+                            String desc = fkname != null ? new StringBuilder()
+                            .append(fkname).append("\n -> ").toString()
                                     : " -> ";
                                     desc += table;
                                     anyRightArrow = true;
@@ -293,7 +291,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             String type = rset.getString(6);
                             final int colSize = rset.getInt(7);
                             if (colSize > 0) {
-                                type = StringAppender.start(type).append("(")
+                                type = new StringBuilder().append(type).append("(")
                                 .append(colSize).append(")").toString();
                             }
 
@@ -305,9 +303,9 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             row[5] = new Column(
                                     (defaultVal != null ? defaultVal.trim()
                                             : null));
-                            final String pkdesc = (String) pks.get(colname);
+                            final String pkdesc = pks.get(colname);
                             row[6] = new Column(pkdesc != null ? pkdesc : "");
-                            final String fkdesc = (String) fks.get(colname);
+                            final String fkdesc = fks.get(colname);
                             row[7] = new Column(fkdesc != null ? fkdesc : "");
 
                             final String colDesc = showDescriptions ? rset
@@ -424,7 +422,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
         if (lastWord.startsWith("\"")) {
             lastWord = lastWord.substring(1);
         }
-        return tableCompleter.completeTableName(HenPlus.getInstance()
+        return _tableCompleter.completeTableName(HenPlus.getInstance()
                 .getCurrentSession(), lastWord);
     }
 

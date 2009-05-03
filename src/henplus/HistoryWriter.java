@@ -48,7 +48,7 @@ public class HistoryWriter {
 
     private static void readReadlineHistory(final Reader in) throws IOException {
         final Reader r = new BufferedReader(in);
-        final StringBuffer line = new StringBuffer();
+        final StringBuilder line = new StringBuilder();
         int c;
         do {
             while ((c = r.read()) >= 0 && c != '\n') {
@@ -69,7 +69,7 @@ public class HistoryWriter {
 
     private static String escape(final String s) {
         if (s.indexOf('\\') >= 0 || s.indexOf('\n') >= 0) {
-            final StringBuffer out = new StringBuffer();
+            final StringBuilder out = new StringBuilder();
             for (int i = 0; i < s.length(); ++i) {
                 final char c = s.charAt(i);
                 switch (c) {
