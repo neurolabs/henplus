@@ -17,14 +17,14 @@ import java.util.StringTokenizer;
  */
 public class Column {
 
-    private final static String NULL_TEXT = "[NULL]";
-    private final static int NULL_LENGTH = NULL_TEXT.length();
+    private static final String NULL_TEXT = "[NULL]";
+    private static final int NULL_LENGTH = NULL_TEXT.length();
 
-    private String columnText[]; // multi-rows
-    private int width;
+    private String _columnText[]; // multi-rows
+    private int _width;
 
     /** This holds a state for the renderer */
-    private int pos;
+    private int _pos;
 
     public Column(final long value) {
         this(String.valueOf(value));
@@ -32,29 +32,29 @@ public class Column {
 
     public Column(final String text) {
         if (text == null) {
-            width = NULL_LENGTH;
-            columnText = null;
+            _width = NULL_LENGTH;
+            _columnText = null;
         } else {
-            width = 0;
+            _width = 0;
             final StringTokenizer tok = new StringTokenizer(text, "\n\r");
-            columnText = new String[tok.countTokens()];
-            for (int i = 0; i < columnText.length; ++i) {
+            _columnText = new String[tok.countTokens()];
+            for (int i = 0; i < _columnText.length; ++i) {
                 final String line = (String) tok.nextElement();
                 final int lWidth = line.length();
-                columnText[i] = line;
-                if (lWidth > width) {
-                    width = lWidth;
+                _columnText[i] = line;
+                if (lWidth > _width) {
+                    _width = lWidth;
                 }
             }
         }
-        pos = 0;
+        _pos = 0;
     }
 
     /**
      * Split a line at the nearest whitespace.
      */
     private String[] splitLine(final String str, final int autoCol) {
-        final ArrayList/* <String> */tmpRows = new ArrayList/* <String> */(5);
+        final ArrayList<String> tmpRows = new ArrayList<String>(5);
         int lastPos = 0;
         int pos = lastPos + autoCol;
         final int strLen = str.length();
@@ -74,7 +74,7 @@ public class Column {
         if (lastPos < strLen - 1) {
             tmpRows.add(str.substring(lastPos));
         }
-        return (String[]) tmpRows.toArray(new String[tmpRows.size()]);
+        return tmpRows.toArray(new String[tmpRows.size()]);
     }
 
     /**
@@ -93,25 +93,25 @@ public class Column {
      * Set autowrapping at a given column.
      */
     void setAutoWrap(final int autoWrapCol) {
-        if (autoWrapCol < 0 || columnText == null) {
+        if (autoWrapCol < 0 || _columnText == null) {
             return;
         }
-        width = 0;
-        for (int i = 0; i < columnText.length; ++i) {
-            final int colWidth = columnText[i].length();
+        _width = 0;
+        for (int i = 0; i < _columnText.length; ++i) {
+            final int colWidth = _columnText[i].length();
             if (colWidth > autoWrapCol) {
-                final String[] multiRows = splitLine(columnText[i], autoWrapCol);
+                final String[] multiRows = splitLine(_columnText[i], autoWrapCol);
                 for (int j = 0; j < multiRows.length; ++j) {
                     final int l = multiRows[j].length();
-                    if (l > width) {
-                        width = l;
+                    if (l > _width) {
+                        _width = l;
                     }
                 }
-                columnText = replaceRow(columnText, i, multiRows);
+                _columnText = replaceRow(_columnText, i, multiRows);
                 i += multiRows.length; // next loop pos here.
             } else {
-                if (colWidth > width) {
-                    width = colWidth;
+                if (colWidth > _width) {
+                    _width = colWidth;
                 }
             }
         }
@@ -119,27 +119,27 @@ public class Column {
 
     // package private methods for the table renderer.
     int getWidth() {
-        return width;
+        return _width;
     }
 
     boolean hasNextLine() {
-        return columnText != null && pos < columnText.length;
+        return _columnText != null && _pos < _columnText.length;
     }
 
     boolean isNull() {
-        return columnText == null;
+        return _columnText == null;
     }
 
     String getNextLine() {
         String result = "";
-        if (columnText == null) {
-            if (pos == 0) {
+        if (_columnText == null) {
+            if (_pos == 0) {
                 result = NULL_TEXT;
             }
-        } else if (pos < columnText.length) {
-            result = columnText[pos];
+        } else if (_pos < _columnText.length) {
+            result = _columnText[_pos];
         }
-        ++pos;
+        ++_pos;
         return result;
     }
 }

@@ -25,7 +25,7 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 
 public final class TableDiffCommand extends AbstractCommand {
-    protected static final String _command = "tablediff";
+    protected static final String COMMAND = "tablediff";
     protected static final String COMMAND_DELIMITER = ";";
     protected static final String OPTION_SINGLE_DB = "-singledb";
 
@@ -41,7 +41,7 @@ public final class TableDiffCommand extends AbstractCommand {
      * @see henplus.Command#getCommandList()
      */
     public String[] getCommandList() {
-        return new String[] { _command };
+        return new String[] { COMMAND };
     }
 
     /*
@@ -153,14 +153,14 @@ public final class TableDiffCommand extends AbstractCommand {
             final SortedSet tablesOne = objectLister.getTableNamesForSession(first);
             final SortedSet tablesTwo = objectLister.getTableNamesForSession(second);
 
-            final Set alreadyDiffed = new HashSet(); // which tables got already
+            final Set<String> alreadyDiffed = new HashSet<String>(); // which tables got already
             // diffed?
 
             /*
              * which tables are found in the first session via wildcards but are
              * not contained in the second session?
              */
-            final ArrayList missedFromWildcards = new ArrayList();
+            final ArrayList<String> missedFromWildcards = new ArrayList<String>();
 
             while (st.hasMoreTokens()) {
 
@@ -559,9 +559,9 @@ public final class TableDiffCommand extends AbstractCommand {
     @Override
     public String getSynopsis(final String cmd) {
         return "\n"
-        + _command
+        + COMMAND
         + " <sessionname-1> <sessionname-2> (<tablename> | <prefix>* | *)+;\n"
-        + "or\n" + _command + " " + OPTION_SINGLE_DB
+        + "or\n" + COMMAND + " " + OPTION_SINGLE_DB
         + " <table1> <table2>;\n";
     }
 

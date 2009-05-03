@@ -26,7 +26,7 @@ import java.util.StringTokenizer;
  * the session specific and global properties.
  */
 public abstract class AbstractPropertyCommand extends AbstractCommand {
-    private final static ColumnMetaData[] PROP_META;
+    private static final ColumnMetaData[] PROP_META;
 
     static {
         PROP_META = new ColumnMetaData[3];

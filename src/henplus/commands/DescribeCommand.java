@@ -34,8 +34,8 @@ import java.util.StringTokenizer;
  * document me.
  */
 public class DescribeCommand extends AbstractCommand implements Interruptable {
-    private final static String[] LIST_TABLES = { "TABLE", "VIEW" };
-    private final static ColumnMetaData[] DESC_META;
+    private static final String[] LIST_TABLES = { "TABLE", "VIEW" };
+    private static final ColumnMetaData[] DESC_META;
     static {
         DESC_META = new ColumnMetaData[9];
         DESC_META[0] = new ColumnMetaData("#", ColumnMetaData.ALIGN_RIGHT);
@@ -50,8 +50,8 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                 60);
     }
 
-    private volatile boolean interrupted;
-    private final boolean verbose = HenPlus.verbose;
+    private volatile boolean _interrupted;
+    private static final boolean VERBOSE = HenPlus.VERBOSE;
     private final ListUserObjectsCommand tableCompleter;
 
     public DescribeCommand(final ListUserObjectsCommand tc) {
@@ -128,7 +128,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                 ResultSet rset = null;
                 final Set doubleCheck = new HashSet();
                 try {
-                    interrupted = false;
+                    _interrupted = false;
                     SigIntHandler.getInstance().pushInterruptable(this);
                     boolean anyLeftArrow = false;
                     boolean anyRightArrow = false;
@@ -137,7 +137,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     String description = null;
                     String tableType = null;
 
-                    if (interrupted) {
+                    if (_interrupted) {
                         return SUCCESS;
                     }
 
@@ -158,13 +158,13 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     /*
                      * get primary keys.
                      */
-                    if (interrupted) {
+                    if (_interrupted) {
                         return SUCCESS;
                     }
                     final Map pks = new HashMap();
                     rset = meta.getPrimaryKeys(null, schema, tabName);
                     if (rset != null) {
-                        while (!interrupted && rset.next()) {
+                        while (!_interrupted && rset.next()) {
                             final String col = rset.getString(4);
                             final int pkseq = rset.getInt(5);
                             final String pkname = rset.getString(6);
@@ -183,12 +183,12 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     /*
                      * get referenced primary keys.
                      */
-                    if (interrupted) {
+                    if (_interrupted) {
                         return SUCCESS;
                     }
                     rset = meta.getExportedKeys(null, schema, tabName);
                     if (rset != null) {
-                        while (!interrupted && rset.next()) {
+                        while (!_interrupted && rset.next()) {
                             final String col = rset.getString(4);
                             String fktable = rset.getString(7);
                             final String fkcolumn = rset.getString(8);
@@ -210,7 +210,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     /*
                      * get foreign keys.
                      */
-                    if (interrupted) {
+                    if (_interrupted) {
                         return SUCCESS;
                     }
                     final Map fks = new HashMap();
@@ -220,13 +220,13 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     try {
                         rset = meta.getImportedKeys(null, schema, tabName);
                     } catch (final NoSuchElementException e) {
-                        if (verbose) {
+                        if (VERBOSE) {
                             HenPlus.msg().println(
                                     "Database problem reading meta data: " + e);
                         }
                     }
                     if (rset != null) {
-                        while (!interrupted && rset.next()) {
+                        while (!_interrupted && rset.next()) {
                             String table = rset.getString(3);
                             final String pkcolumn = rset.getString(4);
                             table = table + "(" + pkcolumn + ")";
@@ -269,16 +269,16 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     /*
                      * build up actual describe table.
                      */
-                    if (interrupted) {
+                    if (_interrupted) {
                         return SUCCESS;
                     }
 
                     rset = meta.getColumns(catalog, schema, tabName, null);
-                    final List rows = new ArrayList();
+                    final List<Column[]> rows = new ArrayList<Column[]>();
                     int colNum = 0;
                     boolean anyDescription = false;
                     if (rset != null) {
-                        while (!interrupted && rset.next()) {
+                        while (!_interrupted && rset.next()) {
                             final Column[] row = new Column[9];
                             row[0] = new Column(++colNum);
                             final String thisTabName = rset.getString(3);
@@ -334,7 +334,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     }
                     table.closeTable();
 
-                    if (interrupted) {
+                    if (_interrupted) {
                         return SUCCESS;
                     }
 
@@ -349,7 +349,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     }
 
                 } catch (final Exception e) {
-                    if (verbose) {
+                    if (VERBOSE) {
                         e.printStackTrace();
                     }
                     final String ex = e.getMessage() != null ? e.getMessage()
@@ -384,7 +384,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
         boolean anyIndex = false;
         rset = meta.getIndexInfo(null, schema, tabName, false, true);
         if (rset != null) {
-            while (!interrupted && rset.next()) {
+            while (!_interrupted && rset.next()) {
                 boolean nonUnique;
                 String idxName = null;
                 nonUnique = rset.getBoolean(4);
@@ -437,7 +437,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
 
     // -- Interruptable interface
     public synchronized void interrupt() {
-        interrupted = true;
+        _interrupted = true;
     }
 
     /**

@@ -76,7 +76,7 @@ import java.util.zip.GZIPOutputStream;
  * @author Henner Zeller
  */
 public class DumpCommand extends AbstractCommand implements Interruptable {
-    private final static ColumnMetaData META_HEADERS[];
+    private static final ColumnMetaData META_HEADERS[];
     static {
         META_HEADERS = new ColumnMetaData[3];
         META_HEADERS[0] = new ColumnMetaData("Field");
@@ -85,22 +85,22 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 ColumnMetaData.ALIGN_RIGHT);
     }
 
-    private final String FILE_ENCODING = "UTF-8";
-    private final static int DUMP_VERSION = 1;
-    private final static String NULL_STR = "NULL";
-    private final static Map JDBCTYPE2TYPENAME = new HashMap();
+    private static final String FILE_ENCODING = "UTF-8";
+    private static final int DUMP_VERSION = 1;
+    private static final String NULL_STR = "NULL";
+    private static final Map<Integer, String> JDBCTYPE2TYPENAME = new HashMap<Integer, String>();
 
     // differentiated types by dump
-    private final static String TYPES[] = new String[9];
-    private final static int HP_STRING = 0;
-    private final static int HP_INTEGER = 1;
-    private final static int HP_NUMERIC = 2;
-    private final static int HP_DOUBLE = 3;
-    private final static int HP_DATE = 4;
-    private final static int HP_TIME = 5;
-    private final static int HP_TIMESTAMP = 6;
-    private final static int HP_BLOB = 7;
-    private final static int HP_CLOB = 8;
+    private static final String[] TYPES = new String[9];
+    private static final int HP_STRING = 0;
+    private static final int HP_INTEGER = 1;
+    private static final int HP_NUMERIC = 2;
+    private static final int HP_DOUBLE = 3;
+    private static final int HP_DATE = 4;
+    private static final int HP_TIME = 5;
+    private static final int HP_TIMESTAMP = 6;
+    private static final int HP_BLOB = 7;
+    private static final int HP_CLOB = 8;
 
     static {
         TYPES[HP_STRING] = "STRING";
@@ -329,9 +329,9 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
                 /* 2) resolve dependencies */
                 ResolverResult resolverResult = null;
-                List/* <String> */tableSequence;
+                List<String> tableSequence;
                 if (needsSort) {
-                    tableSequence = new ArrayList();
+                    tableSequence = new ArrayList<String>();
                     HenPlus
                     .msg()
                     .println(
@@ -349,7 +349,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         tableSequence.add(((Table) it.next()).getName());
                     }
                 } else {
-                    tableSequence = new ArrayList(tableSet);
+                    tableSequence = new ArrayList<String>(tableSet);
                 }
 
                 /* 3) dump out */
@@ -397,7 +397,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     while (iter.hasNext()) {
                         final Iterator iter2 = ((List) iter.next()).iterator();
                         sb.append("Cycle ").append(count).append(": ");
-                        ;
+
                         while (iter2.hasNext()) {
                             sb.append(((Table) iter2.next()).getName()).append(
                             " -> ");
@@ -1131,7 +1131,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     public MetaProperty[] parseMetaData(final LineNumberReader in) throws IOException {
-        final List metaList = new ArrayList();
+        final List<MetaProperty> metaList = new ArrayList<MetaProperty>();
         expect(in, '(');
         for (;;) {
             final String colName = readString(in);
@@ -1146,8 +1146,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             }
         }
         expect(in, '(');
-        final MetaProperty[] result = (MetaProperty[]) metaList
-        .toArray(new MetaProperty[metaList.size()]);
+        final MetaProperty[] result = metaList.toArray(new MetaProperty[metaList.size()]);
         for (int i = 0; i < result.length; ++i) {
             final String typeName = readString(in);
             result[i].setTypeName(typeName);
@@ -1631,7 +1630,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 return _meta;
             }
 
-            final List metaList = new ArrayList();
+            final List<MetaProperty> metaList = new ArrayList<MetaProperty>();
             final Connection conn = _session.getConnection();
             ResultSet rset = null;
             try {
@@ -1659,8 +1658,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     }
                 }
             }
-            _meta = (MetaProperty[]) metaList.toArray(new MetaProperty[metaList
-                                                                       .size()]);
+            _meta = metaList.toArray(new MetaProperty[metaList.size()]);
             return _meta;
         }
 
@@ -1725,20 +1723,19 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     private static class MetaProperty {
-        private int maxLen;
+        private int _maxLen;
         public final String fieldName;
         public int type;
         public String typeName;
 
         public MetaProperty(final String fieldName) {
             this.fieldName = fieldName;
-            maxLen = -1;
+            _maxLen = -1;
         }
 
         public MetaProperty(final String fieldName, final int jdbcType) {
             this.fieldName = fieldName;
-            this.typeName = (String) JDBCTYPE2TYPENAME
-            .get(new Integer(jdbcType));
+            this.typeName = JDBCTYPE2TYPENAME.get(new Integer(jdbcType));
             if (this.typeName == null) {
                 HenPlus.msg().println(
                         "cannot handle type '" + type + "' for field '"
@@ -1748,7 +1745,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             } else {
                 this.type = findType(typeName);
             }
-            maxLen = -1;
+            _maxLen = -1;
         }
 
         public String getFieldName() {
@@ -1771,13 +1768,13 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         }
 
         public void updateMaxLength(final int maxLen) {
-            if (maxLen > this.maxLen) {
-                this.maxLen = maxLen;
+            if (maxLen > this._maxLen) {
+                this._maxLen = maxLen;
             }
         }
 
         public int getMaxLength() {
-            return this.maxLen;
+            return this._maxLen;
         }
 
         /**

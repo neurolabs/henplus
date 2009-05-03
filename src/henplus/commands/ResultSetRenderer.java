@@ -6,45 +6,47 @@
  */
 package henplus.commands;
 
-import henplus.view.*;
-import henplus.OutputDevice;
 import henplus.HenPlus;
 import henplus.Interruptable;
+import henplus.OutputDevice;
+import henplus.view.Column;
+import henplus.view.ColumnMetaData;
+import henplus.view.TableRenderer;
 
-import java.sql.ResultSet;
+import java.io.Reader;
 import java.sql.Clob;
+import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.io.Reader;
 
 /**
  * document me.
  */
 public class ResultSetRenderer implements Interruptable {
-    private final ResultSet rset;
-    private final ResultSetMetaData meta;
-    private final TableRenderer table;
-    private final int columns;
-    private final int[] showColumns;
+    private final ResultSet _rset;
+    private final ResultSetMetaData _meta;
+    private final TableRenderer _table;
+    private final int _columns;
+    private final int[] _showColumns;
 
-    private boolean beyondLimit;
-    private long firstRowTime;
-    private final long clobLimit = 8192;
-    private final int rowLimit;
-    private volatile boolean running;
+    private boolean _beyondLimit;
+    private long _firstRowTime;
+    private final long _clobLimit = 8192;
+    private final int _rowLimit;
+    private volatile boolean _running;
 
     public ResultSetRenderer(final ResultSet rset, final String columnDelimiter,
             final boolean enableHeader, final boolean enableFooter, final int limit,
             final OutputDevice out, final int[] show) throws SQLException {
-        this.rset = rset;
-        beyondLimit = false;
-        firstRowTime = -1;
-        showColumns = show;
-        rowLimit = limit;
-        meta = rset.getMetaData();
-        columns = show != null ? show.length : meta.getColumnCount();
-        table = new TableRenderer(getDisplayMeta(meta), out, columnDelimiter,
+        this._rset = rset;
+        _beyondLimit = false;
+        _firstRowTime = -1;
+        _showColumns = show;
+        _rowLimit = limit;
+        _meta = rset.getMetaData();
+        _columns = show != null ? show.length : _meta.getColumnCount();
+        _table = new TableRenderer(getDisplayMeta(_meta), out, columnDelimiter,
                 enableHeader, enableFooter);
     }
 
@@ -57,11 +59,11 @@ public class ResultSetRenderer implements Interruptable {
 
     // Interruptable interface.
     public synchronized void interrupt() {
-        running = false;
+        _running = false;
     }
 
     public ColumnMetaData[] getDisplayMetaData() {
-        return table.getMetaData();
+        return _table.getMetaData();
     }
 
     private String readClob(final Clob c) throws SQLException {
@@ -69,7 +71,7 @@ public class ResultSetRenderer implements Interruptable {
             return null;
         }
         final StringBuffer result = new StringBuffer();
-        long restLimit = clobLimit;
+        long restLimit = _clobLimit;
         try {
             final Reader in = c.getCharacterStream();
             final char buf[] = new char[4096];
@@ -93,54 +95,54 @@ public class ResultSetRenderer implements Interruptable {
     public int execute() throws SQLException {
         int rows = 0;
 
-        running = true;
+        _running = true;
         try {
-            while (running && rset.next()) {
-                final Column[] currentRow = new Column[columns];
-                for (int i = 0; i < columns; ++i) {
-                    final int col = showColumns != null ? showColumns[i] : i + 1;
+            while (_running && _rset.next()) {
+                final Column[] currentRow = new Column[_columns];
+                for (int i = 0; i < _columns; ++i) {
+                    final int col = _showColumns != null ? _showColumns[i] : i + 1;
                     String colString;
-                    if (meta.getColumnType(col) == Types.CLOB) {
-                        colString = readClob(rset.getClob(col));
+                    if (_meta.getColumnType(col) == Types.CLOB) {
+                        colString = readClob(_rset.getClob(col));
                     } else {
-                        colString = rset.getString(col);
+                        colString = _rset.getString(col);
                     }
                     final Column thisCol = new Column(colString);
                     currentRow[i] = thisCol;
                 }
-                if (firstRowTime < 0) {
+                if (_firstRowTime < 0) {
                     // read first row completely.
-                    firstRowTime = System.currentTimeMillis();
+                    _firstRowTime = System.currentTimeMillis();
                 }
-                table.addRow(currentRow);
+                _table.addRow(currentRow);
                 ++rows;
-                if (rows >= rowLimit) {
-                    beyondLimit = true;
+                if (rows >= _rowLimit) {
+                    _beyondLimit = true;
                     break;
                 }
             }
 
-            table.closeTable();
-            if (!running) {
+            _table.closeTable();
+            if (!_running) {
                 try {
-                    rset.getStatement().cancel();
+                    _rset.getStatement().cancel();
                 } catch (final Exception e) {
                     HenPlus.msg().println(
                             "cancel statement failed: " + e.getMessage());
                 }
             }
         } finally {
-            rset.close();
+            _rset.close();
         }
         return rows;
     }
 
     public boolean limitReached() {
-        return beyondLimit;
+        return _beyondLimit;
     }
 
     public long getFirstRowTime() {
-        return firstRowTime;
+        return _firstRowTime;
     }
 
     /**
@@ -148,10 +150,10 @@ public class ResultSetRenderer implements Interruptable {
      */
     private ColumnMetaData[] getDisplayMeta(final ResultSetMetaData m)
     throws SQLException {
-        final ColumnMetaData result[] = new ColumnMetaData[columns];
+        final ColumnMetaData result[] = new ColumnMetaData[_columns];
 
         for (int i = 0; i < result.length; ++i) {
-            final int col = showColumns != null ? showColumns[i] : i + 1;
+            final int col = _showColumns != null ? _showColumns[i] : i + 1;
             int alignment = ColumnMetaData.ALIGN_LEFT;
             final String columnLabel = m.getColumnLabel(col);
             /*

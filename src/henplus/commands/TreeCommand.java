@@ -43,14 +43,14 @@ import henplus.OutputDevice;
  * creates a dependency graph.
  */
 public class TreeCommand extends AbstractCommand implements Interruptable {
-    private final static int IMP_PRIMARY_KEY_TABLE = 3;
+    private static final int IMP_PRIMARY_KEY_TABLE = 3;
     /** reference in exported/imported key */
-    private final static int EXP_FOREIGN_KEY_TABLE = 7;
+    private static final int EXP_FOREIGN_KEY_TABLE = 7;
 
-    static final boolean verbose = HenPlus.verbose;
+    static final boolean verbose = HenPlus.VERBOSE;
 
     private final ListUserObjectsCommand tableCompleter;
-    private volatile boolean interrupted;
+    private volatile boolean _interrupted;
 
     /**
      * A node in a cyclic graph.
@@ -89,7 +89,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
         public void markDepths() {
             _displayDepth = 0;
             for (int depth = 1; markDepth(depth, 0); ++depth) {
-                ;
+                // noop
             }
         }
 
@@ -266,7 +266,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             final DatabaseMetaData dbMeta = session.getConnection()
             .getMetaData();
 
-            interrupted = false;
+            _interrupted = false;
             SigIntHandler.getInstance().pushInterruptable(this);
 
             // build a tree of all tables I depend on..
@@ -276,7 +276,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                     return dbMeta.getImportedKeys(null, schema, table);
                 }
             }, IMP_PRIMARY_KEY_TABLE, new TreeMap(), schema, tabName);
-            if (interrupted) {
+            if (_interrupted) {
                 return SUCCESS;
             }
             myParents.markDepths();
@@ -288,7 +288,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                     return dbMeta.getExportedKeys(null, schema, table);
                 }
             }, EXP_FOREIGN_KEY_TABLE, new TreeMap(), schema, tabName);
-            if (interrupted) {
+            if (_interrupted) {
                 return SUCCESS;
             }
             myChilds.markDepths();
@@ -355,7 +355,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             final Iterator it = refTables.iterator();
             while (it.hasNext()) {
                 final String referencingTable = (String) it.next();
-                if (interrupted) {
+                if (_interrupted) {
                     return null;
                 }
                 n.add(buildTree(source, sourceColumn, knownNodes, schema,
@@ -397,7 +397,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
 
     /** interrupt interface */
     public void interrupt() {
-        interrupted = true;
+        _interrupted = true;
     }
 
     /**

@@ -33,8 +33,8 @@ import java.util.TreeMap;
  * A Command that handles Plugins.
  */
 public final class PluginCommand extends AbstractCommand {
-    private final static String PLUGINS_FILENAME = "plugins";
-    private final static ColumnMetaData[] DRV_META;
+    private static final String PLUGINS_FILENAME = "plugins";
+    private static final ColumnMetaData[] DRV_META;
     static {
         DRV_META = new ColumnMetaData[2];
         DRV_META[0] = new ColumnMetaData("plugin class");

@@ -14,7 +14,7 @@ import henplus.OutputDevice;
  * terminal.
  */
 public final class CancelWriter {
-    private final static String BACKSPACE = "\b";
+    private static final String BACKSPACE = "\b";
 
     private final OutputDevice _out;
     private final boolean _doWrite;

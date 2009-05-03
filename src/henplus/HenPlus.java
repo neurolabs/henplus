@@ -52,7 +52,7 @@ import org.gnu.readline.ReadlineLibrary;
 
 public final class HenPlus implements Interruptable {
     private static final String HISTORY_NAME = "history";
-    public static final boolean verbose = false; // debug.
+    public static final boolean VERBOSE = false; // debug.
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT = "Hen*Plus> ";
 
@@ -97,8 +97,8 @@ public final class HenPlus implements Interruptable {
 
         try {
             Readline.load(ReadlineLibrary.GnuReadline);
-        } catch (final UnsatisfiedLinkError ignore_me) {
-            System.err.println("no readline found (" + ignore_me.getMessage()
+        } catch (final UnsatisfiedLinkError ignoreMe) {
+            System.err.println("no readline found (" + ignoreMe.getMessage()
                     + "). Using simple stdin.");
         }
 
@@ -213,7 +213,7 @@ public final class HenPlus implements Interruptable {
         try {
             line = parser.parse(availableOptions, argv);
             for (final Iterator it = _dispatcher.getRegisteredCommands(); it
-            .hasNext();) {
+            .hasNext(); ) {
                 final Command element = (Command) it.next();
                 element.setOptions(availableOptions);
                 element.handleCommandline(line);
@@ -395,7 +395,7 @@ public final class HenPlus implements Interruptable {
                     break; // last session closed -> exit.
                 }
             } catch (final Exception e) {
-                if (verbose) {
+                if (VERBOSE) {
                     e.printStackTrace();
                 }
             }
@@ -652,7 +652,7 @@ public final class HenPlus implements Interruptable {
         return getInstance().getMessageDevice();
     }
 
-    public static final void main(final String argv[]) throws Exception {
+    public static void main(final String argv[]) throws Exception {
         instance = new HenPlus(argv);
         instance.initializeCommands(argv);
         instance.run();
@@ -715,7 +715,7 @@ public final class HenPlus implements Interruptable {
                         _configDir.toString() };
                 Runtime.getRuntime().exec(params);
             } catch (final Exception e) {
-                if (verbose) {
+                if (VERBOSE) {
                     e.printStackTrace();
                 }
             }

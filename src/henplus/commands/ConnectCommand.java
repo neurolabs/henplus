@@ -40,13 +40,13 @@ import java.util.TreeMap;
  */
 public class ConnectCommand extends AbstractCommand {
 
-    private static String CONNECTION_CONFIG = "connections";
+    private static final String CONNECTION_CONFIG = "connections";
+    private static final ColumnMetaData[] SESS_META;
+
     private final ConfigurationContainer _config;
     private final SessionManager _sessionManager;
     private final SortedMap _knownUrls;
     private final HenPlus _henplus;
-
-    private final static ColumnMetaData[] SESS_META;
 
     static {
         SESS_META = new ColumnMetaData[5];
@@ -61,7 +61,7 @@ public class ConnectCommand extends AbstractCommand {
     /**
      * the current session we are in.
      */
-    private String currentSessionName = null;
+    private String _currentSessionName = null;
 
     /**
      * returns the command-strings this command can handle.
@@ -150,10 +150,10 @@ public class ConnectCommand extends AbstractCommand {
     throws ClassNotFoundException, SQLException, IOException {
         SQLSession session;
         session = new SQLSession(url, username, password);
-        currentSessionName = createSessionName(session, null);
-        _sessionManager.addSession(currentSessionName, session);
+        _currentSessionName = createSessionName(session, null);
+        _sessionManager.addSession(_currentSessionName, session);
         _knownUrls.put(url, url);
-        _henplus.setPrompt(currentSessionName + "> ");
+        _henplus.setPrompt(_currentSessionName + "> ");
         _sessionManager.setCurrentSession(session);
     }
 
@@ -294,7 +294,7 @@ public class ConnectCommand extends AbstractCommand {
                     .getSessionNames()) {
                 @Override
                 protected boolean exclude(final String sessionName) {
-                    return sessionName.equals(currentSessionName);
+                    return sessionName.equals(_currentSessionName);
                 }
             };
         }
@@ -340,8 +340,8 @@ public class ConnectCommand extends AbstractCommand {
                 if (alias != null) {
                     _knownUrls.put(alias, url);
                 }
-                currentSessionName = createSessionName(session, alias);
-                _sessionManager.addSession(currentSessionName, session);
+                _currentSessionName = createSessionName(session, alias);
+                _sessionManager.addSession(_currentSessionName, session);
                 _sessionManager.setCurrentSession(session);
             } catch (final Exception e) {
                 HenPlus.msg().println(e.toString());
@@ -358,7 +358,7 @@ public class ConnectCommand extends AbstractCommand {
                 final Iterator i = _sessionManager.getSessionNames().iterator();
                 while (i.hasNext()) {
                     sessionName = (String) i.next();
-                    if (!sessionName.equals(currentSessionName)) {
+                    if (!sessionName.equals(_currentSessionName)) {
                         break;
                     }
                 }
@@ -370,7 +370,7 @@ public class ConnectCommand extends AbstractCommand {
                 HenPlus.msg().println("'" + sessionName + "': no such session");
                 return EXEC_FAILED;
             }
-            currentSessionName = sessionName;
+            _currentSessionName = sessionName;
         }
 
         else if ("rename-session".equals(cmd)) {
@@ -395,18 +395,18 @@ public class ConnectCommand extends AbstractCommand {
              * (session == null) { return EXEC_FAILED; }
              * _sessionManager.addSession(sessionName, session);
              */
-            final int renamed = _sessionManager.renameSession(currentSessionName,
+            final int renamed = _sessionManager.renameSession(_currentSessionName,
                     sessionName);
             if (renamed == EXEC_FAILED) {
                 return EXEC_FAILED;
             }
 
-            currentSessionName = sessionName;
+            _currentSessionName = sessionName;
             session = _sessionManager.getCurrentSession();
         }
 
         else if ("disconnect".equals(cmd)) {
-            currentSessionName = null;
+            _currentSessionName = null;
             if (argc != 0) {
                 return SYNTAX_ERROR;
             }
@@ -414,13 +414,13 @@ public class ConnectCommand extends AbstractCommand {
             HenPlus.msg().println("session closed.");
 
             if (_sessionManager.hasSessions()) {
-                currentSessionName = _sessionManager.getFirstSessionName();
-                session = _sessionManager.getSessionByName(currentSessionName);
+                _currentSessionName = _sessionManager.getFirstSessionName();
+                session = _sessionManager.getSessionByName(_currentSessionName);
             }
         }
 
-        if (currentSessionName != null) {
-            _henplus.setPrompt(currentSessionName + "> ");
+        if (_currentSessionName != null) {
+            _henplus.setPrompt(_currentSessionName + "> ");
         } else {
             _henplus.setDefaultPrompt();
         }
@@ -439,7 +439,7 @@ public class ConnectCommand extends AbstractCommand {
         while (it.hasNext()) {
             final String sessName = (String) it.next();
             final SQLSession session = _sessionManager.getSessionByName(sessName);
-            final String prepend = sessName.equals(currentSessionName) ? " * "
+            final String prepend = sessName.equals(_currentSessionName) ? " * "
                     : "   ";
             final Column[] row = new Column[5];
             row[0] = new Column(prepend + sessName);

@@ -28,7 +28,7 @@ import java.util.Set;
 public final class DependencyResolver {
 
     private final Iterator _tableIter;
-    private Set cyclicDependencies/* <List<Table>> */;
+    private Set<List<Table>> _cyclicDependencies;
 
     /**
      * @param tableIter
@@ -36,7 +36,7 @@ public final class DependencyResolver {
      */
     public DependencyResolver(final Iterator/* <Table> */tableIter) {
         _tableIter = tableIter;
-    };
+    }
 
     /**
      * @param tables
@@ -52,7 +52,7 @@ public final class DependencyResolver {
      */
     public ResolverResult sortTables() {
         final ListMap resolved = new ListMap();
-        Map unresolved = null;
+        Map<String, Table> unresolved = null;
 
         // first run: separate tables with and without dependencies
         while (_tableIter.hasNext()) {
@@ -117,7 +117,7 @@ public final class DependencyResolver {
             }
         }
 
-        return new ResolverResult(result, cyclicDependencies);
+        return new ResolverResult(result, _cyclicDependencies);
     }
 
     /**
@@ -155,7 +155,7 @@ public final class DependencyResolver {
      * @param resolved
      * @param unresolved
      */
-    private void resolveDep(final Table t, List/* <Table> */cyclePath, final Map resolved,
+    private void resolveDep(final Table t, List<Table> cyclePath, final Map resolved,
             final Map unresolved) {
 
         // System.out.println( "[resolveDep] >>> Starting for t: " + t +
@@ -191,21 +191,21 @@ public final class DependencyResolver {
 
                     // create a new list for the detected cycle to add to the
                     // cyclicDeps, the former one (cyclePath) is used further on
-                    final List cycle = new ArrayList(cyclePath);
+                    final List<Table> cycle = new ArrayList<Table>(cyclePath);
                     cycle.add(inner);
-                    if (cyclicDependencies == null) {
-                        cyclicDependencies = new HashSet();
+                    if (_cyclicDependencies == null) {
+                        _cyclicDependencies = new HashSet();
                     }
                     // System.out.println("[resolveDep] +++ Putting cyclePath: "
                     // + cycle );
-                    cyclicDependencies.add(cycle);
+                    _cyclicDependencies.add(cycle);
                     continue;
 
                 } else {
                     if (cyclePath == null) {
                         // System.out.println(
                         // "[resolveDep] Starting cyclePath with: " + t);
-                        cyclePath = new ArrayList();
+                        cyclePath = new ArrayList<Table>();
                     }
                     cyclePath.add(t);
                 }
@@ -213,11 +213,11 @@ public final class DependencyResolver {
                 resolveDep(inner, cyclePath, resolved, unresolved);
 
                 if (resolved.containsKey(fk.getPkTable())) {
-                    nodep = (firstrun || nodep) && true;
+                    nodep = (firstrun || nodep);
                     firstrun = false;
                 }
             } else {
-                nodep = (firstrun || nodep) && true;
+                nodep = (firstrun || nodep);
                 firstrun = false;
             }
         }
@@ -239,8 +239,8 @@ public final class DependencyResolver {
      */
     private boolean duplicateCycle(final Table t, final Table inner) {
         boolean result = false;
-        if (cyclicDependencies != null) {
-            final Iterator iter = cyclicDependencies.iterator();
+        if (_cyclicDependencies != null) {
+            final Iterator iter = _cyclicDependencies.iterator();
             while (iter.hasNext() && !result) {
                 final List path = (List) iter.next();
                 if (path.contains(t)) {
@@ -256,10 +256,10 @@ public final class DependencyResolver {
     }
 
     public class ResolverResult {
-        private final List/* <Table> */_tables;
-        private final Set/* <List<Table>> */_cyclicDependencies;
+        private final List<Table> _tables;
+        private final Set<List<Table>> _cyclicDependencies;
 
-        public ResolverResult(final List tables, final Set cyclicDependencies) {
+        public ResolverResult(final List<Table> tables, final Set<List<Table>> cyclicDependencies) {
             _tables = tables;
             _cyclicDependencies = cyclicDependencies;
         }

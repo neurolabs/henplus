@@ -7,9 +7,15 @@
 package henplus;
 
 /**
- * document me.
+ * Contains version information , generated at build time.
  */
 public class Version {
+
+    /** hide constructor. */
+    private Version() {
+        // noop
+    }
+    
     public static String getVersion() { return "@HENPLUS_VERSION@"; }
     public static String getCompileTime() { return "@COMPILE_TIME@"; }
     public static String getVersionTitle() { return "@HENPLUS_VERSION_TITLE@"; }

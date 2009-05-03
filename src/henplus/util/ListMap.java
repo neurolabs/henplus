@@ -18,9 +18,11 @@ import java.util.Set;
 /**
  * This provides the functionality of LinkedHashMap. However, that Collection
  * became available at 1.4. So provide this for backward compatibility.
+ * FIXME: we bumped to 1.5 compatibility, so we can actually use the Standard implementation.
  * 
  * @author Martin Grotzke
  */
+@Deprecated
 public final class ListMap implements Map, Serializable {
     private static final long serialVersionUID = 1;
 

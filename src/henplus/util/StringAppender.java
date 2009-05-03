@@ -12,42 +12,42 @@ package henplus.util;
  */
 public final class StringAppender {
 
-    private static StringBuffer _sb;
-    private static StringAppender _instance;
+    private static StringBuffer SB;
+    private static StringAppender instance;
 
     private StringAppender() {
-        _sb = new StringBuffer();
+        SB = new StringBuffer();
     }
 
     public static final StringAppender getInstance() {
-        if (_instance == null) {
-            _instance = new StringAppender();
+        if (instance == null) {
+            instance = new StringAppender();
         }
-        return _instance;
+        return instance;
     }
 
     public static StringAppender start(final String value) {
-        if (_instance == null) {
-            _instance = new StringAppender();
+        if (instance == null) {
+            instance = new StringAppender();
         }
-        _sb.append(value);
-        return _instance;
+        SB.append(value);
+        return instance;
     }
 
     public StringAppender append(final String value) {
-        _sb.append(value);
+        SB.append(value);
         return this;
     }
 
     public StringAppender append(final int value) {
-        _sb.append(value);
+        SB.append(value);
         return this;
     }
 
     @Override
     public String toString() {
-        final String result = _sb.toString();
-        _sb.delete(0, _sb.length());
+        final String result = SB.toString();
+        SB.delete(0, SB.length());
         return result;
     }
 

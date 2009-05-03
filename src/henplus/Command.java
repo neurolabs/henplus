@@ -34,21 +34,21 @@ public interface Command {
      * constant returned by the {@link #execute(SQLSession,String,String)}
      * method, if everything went fine.
      */
-    public final static int SUCCESS = 0;
+    public static final int SUCCESS = 0;
 
     /**
      * constant returned by the {@link #execute(SQLSession,String,String)} if
      * the command could not be executed because of an syntax error. In that
      * case, the CommandDispatcher will display the synopsis of that command.
      */
-    public final static int SYNTAX_ERROR = 1;
+    public static final int SYNTAX_ERROR = 1;
 
     /**
      * constant returned by the {@link #execute(SQLSession,String,String)} if
      * the command could not be executed because of some problem, that is not a
      * syntax error.
      */
-    public final static int EXEC_FAILED = 2;
+    public static final int EXEC_FAILED = 2;
 
     /**
      * returns the prefices of all command-strings this command can handle. The

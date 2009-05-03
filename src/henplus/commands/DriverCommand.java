@@ -28,8 +28,8 @@ import java.util.TreeMap;
  * document me.
  */
 public final class DriverCommand extends AbstractCommand {
-    private final static boolean verbose = HenPlus.verbose;
-    private final static String[][] KNOWN_DRIVERS = {
+    private static final boolean verbose = HenPlus.VERBOSE;
+    private static final String[][] KNOWN_DRIVERS = {
         { "Oracle", "oracle.jdbc.driver.OracleDriver",
         "jdbc:oracle:thin:@localhost:1521:ORCL" },
         { "DB2", "COM.ibm.db2.jdbc.net.DB2Driver",
@@ -43,8 +43,8 @@ public final class DriverCommand extends AbstractCommand {
         { "Adabas", "de.sag.jdbc.adabasd.ADriver",
         "jdbc:adabasd://localhost:7200/work" } };
 
-    private final static String DRIVERS_FILENAME = "drivers";
-    private final static ColumnMetaData[] DRV_META;
+    private static final String DRIVERS_FILENAME = "drivers";
+    private static final ColumnMetaData[] DRV_META;
     static {
         DRV_META = new ColumnMetaData[4];
         DRV_META[0] = new ColumnMetaData("for");
@@ -53,59 +53,59 @@ public final class DriverCommand extends AbstractCommand {
         DRV_META[3] = new ColumnMetaData("sample url");
     }
 
-    private final static class DriverDescription {
-        private final String className;
-        private final String sampleURL;
+    private static final class DriverDescription {
+        private final String _className;
+        private final String _sampleURL;
 
-        private String version; // known after loading.
-        private boolean loaded;
+        private String _version; // known after loading.
+        private boolean _loaded;
 
         public DriverDescription(final String cn, final String surl) {
-            className = cn;
-            sampleURL = surl;
+            _className = cn;
+            _sampleURL = surl;
             load();
         }
 
         public String getClassName() {
-            return className;
+            return _className;
         }
 
         public String getSampleURL() {
-            return sampleURL;
+            return _sampleURL;
         }
 
         public String getVersion() {
-            return version;
+            return _version;
         }
 
         public boolean isLoaded() {
-            return loaded;
+            return _loaded;
         }
 
         public boolean load() {
             try {
                 if (verbose) {
-                    HenPlus.msg().print("loading .. '" + className + "'");
+                    HenPlus.msg().print("loading .. '" + _className + "'");
                 }
-                final Class cls = Class.forName(className);
+                final Class cls = Class.forName(_className);
                 if (verbose) {
                     HenPlus.msg().println(" done.");
                 }
                 try {
                     final Driver driver = (Driver) cls.newInstance();
-                    version = driver.getMajorVersion() + "." + driver
+                    _version = driver.getMajorVersion() + "." + driver
                             .getMinorVersion();
                 } catch (final Throwable t) {
                     // ign.
                 }
-                loaded = true;
+                _loaded = true;
             } catch (final Throwable t) {
                 if (verbose) {
                     HenPlus.msg().println(" failed: " + t.getMessage());
                 }
-                loaded = false;
+                _loaded = false;
             }
-            return loaded;
+            return _loaded;
         }
     }
 

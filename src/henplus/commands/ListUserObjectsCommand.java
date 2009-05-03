@@ -40,15 +40,15 @@ Interruptable {
      */
     final private Map/* <SQLSession,SortedMap> */sessionTables;
     final private Map/* <SQLSession,SortedMap> */sessionColumns;
-    final private HenPlus henplus;
+    final private HenPlus _henplus;
 
-    private boolean interrupted;
+    private boolean _interrupted;
 
     public ListUserObjectsCommand(final HenPlus hp) {
         sessionTables = new HashMap();
         sessionColumns = new HashMap();
-        henplus = hp;
-        interrupted = false;
+        _henplus = hp;
+        _interrupted = false;
     }
 
     /**
@@ -127,7 +127,7 @@ Interruptable {
         /*
          * This may be a lengthy process..
          */
-        interrupted = false;
+        _interrupted = false;
         SigIntHandler.getInstance().pushInterruptable(this);
         final NameCompleter tables = getTableCompleter(session);
         if (tables == null) {
@@ -135,7 +135,7 @@ Interruptable {
         }
         final Iterator table = tables.getAllNamesIterator();
         compl = new NameCompleter();
-        while (!interrupted && table.hasNext()) {
+        while (!_interrupted && table.hasNext()) {
             final String tabName = (String) table.next();
             final Collection columns = columnsFor(tabName);
             final Iterator cit = columns.iterator();
@@ -144,7 +144,7 @@ Interruptable {
                 compl.addName(col);
             }
         }
-        if (interrupted) {
+        if (_interrupted) {
             compl = null;
         } else {
             sessionColumns.put(session, compl);
@@ -189,7 +189,7 @@ Interruptable {
      * fixme: add this to the cached values determined by rehash.
      */
     public Collection columnsFor(String tabName) {
-        final SQLSession session = henplus.getCurrentSession();
+        final SQLSession session = _henplus.getCurrentSession();
         final Set result = new HashSet();
         final Connection conn = session.getConnection(); // use createStmt
         ResultSet rset = null;
@@ -259,7 +259,7 @@ Interruptable {
     }
 
     public Iterator completeAllColumns(final String partialColumn) {
-        final SQLSession session = henplus.getCurrentSession();
+        final SQLSession session = _henplus.getCurrentSession();
         if (session == null) {
             return null;
         }
@@ -300,7 +300,7 @@ Interruptable {
     }
 
     public void interrupt() {
-        interrupted = true;
+        _interrupted = true;
     }
 }
 

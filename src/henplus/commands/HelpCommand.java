@@ -20,7 +20,7 @@ import henplus.view.util.SortedMatchIterator;
  * document me.
  */
 public class HelpCommand extends AbstractCommand {
-    final static int INDENT = 42;
+    static final int INDENT = 42;
 
     /**
      * returns the command-string this command can handle.

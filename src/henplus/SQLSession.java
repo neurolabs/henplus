@@ -78,7 +78,7 @@ public class SQLSession implements Interruptable {
                 HenPlus.msg().println("no transactions.");
             }
             _conn.setAutoCommit(false);
-        } catch (final SQLException ignore_me) {
+        } catch (final SQLException ignoreMe) {
         }
 
         printTransactionIsolation(meta, Connection.TRANSACTION_NONE,
@@ -367,7 +367,7 @@ public class SQLSession implements Interruptable {
 
         ReadOnlyProperty() {
             super(false);
-            _propertyValue = "off"; // 'off' sounds better in this context.
+            propertyValue = "off"; // 'off' sounds better in this context.
         }
 
         @Override
@@ -406,7 +406,7 @@ public class SQLSession implements Interruptable {
 
         AutoCommitProperty() {
             super(false);
-            _propertyValue = "off"; // 'off' sounds better in this context.
+            propertyValue = "off"; // 'off' sounds better in this context.
         }
 
         @Override
@@ -455,7 +455,7 @@ public class SQLSession implements Interruptable {
                     break;
                 }
             }
-            _propertyValue = _initialValue = initValue;
+            propertyValue = _initialValue = initValue;
         }
 
         @Override

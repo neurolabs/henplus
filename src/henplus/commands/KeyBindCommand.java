@@ -6,19 +6,21 @@
  */
 package henplus.commands;
 
-import henplus.io.ConfigurationContainer;
-import henplus.view.util.NameCompleter;
-import henplus.CommandDispatcher;
-import henplus.SQLSession;
-import henplus.HenPlus;
 import henplus.AbstractCommand;
+import henplus.CommandDispatcher;
+import henplus.HenPlus;
+import henplus.SQLSession;
+import henplus.io.ConfigurationContainer;
+import henplus.view.Column;
+import henplus.view.ColumnMetaData;
+import henplus.view.TableRenderer;
+import henplus.view.util.NameCompleter;
 
-import henplus.view.*;
-import java.util.StringTokenizer;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.HashMap;
 
 import org.gnu.readline.Readline;
 
@@ -26,8 +28,8 @@ import org.gnu.readline.Readline;
  * Command to bind function keys to commands.
  */
 public class KeyBindCommand extends AbstractCommand {
-    private final static String KEYBIND_FILENAME = "key-bindings";
-    private final static ColumnMetaData[] DRV_META;
+    private static final String KEYBIND_FILENAME = "key-bindings";
+    private static final ColumnMetaData[] DRV_META;
     static {
         DRV_META = new ColumnMetaData[2];
         DRV_META[0] = new ColumnMetaData("Key");

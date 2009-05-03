@@ -10,7 +10,6 @@ import henplus.event.ExecutionListener;
 import henplus.commands.SetCommand;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,35 +23,35 @@ import org.gnu.readline.ReadlineCompleter;
  * The Command Dispatcher for all commands.
  */
 public class CommandDispatcher implements ReadlineCompleter {
-    private final static boolean verbose = false; // debug
-    private final List/* <Command> */commands; // commands in seq. of addition.
-    private final SortedMap commandMap;
-    private final SetCommand setCommand;
-    private final List/* <ExecutionL<Listener> */executionListeners;
+    private static final boolean VERBOSE = false; // debug
+    private final List<Command> _commands; // commands in seq. of addition.
+    private final SortedMap<String, Command> _commandMap;
+    private final SetCommand _setCommand;
+    private final List<ExecutionListener> _executionListeners;
     private int _batchCount;
 
     public CommandDispatcher(final SetCommand sc) {
-        commandMap = new TreeMap();
-        commands = new ArrayList();
-        executionListeners = new ArrayList();
+        _commandMap = new TreeMap<String, Command>();
+        _commands = new ArrayList<Command>();
+        _executionListeners = new ArrayList<ExecutionListener>();
         _batchCount = 0;
-        setCommand = sc;
+        _setCommand = sc;
         // FIXME: remove cyclic dependency..
-        setCommand.registerLastCommandListener(this);
+        _setCommand.registerLastCommandListener(this);
     }
 
     /**
      * returns the commands in the sequence they have been added.
      */
     public Iterator getRegisteredCommands() {
-        return commands.iterator();
+        return _commands.iterator();
     }
 
     /**
      * returns a sorted list of command names.
      */
     public Iterator getRegisteredCommandNames() {
-        return commandMap.keySet().iterator();
+        return _commandMap.keySet().iterator();
     }
 
     /**
@@ -60,7 +59,7 @@ public class CommandDispatcher implements ReadlineCompleter {
      * matching the key.
      */
     public Iterator getRegisteredCommandNames(final String key) {
-        return commandMap.tailMap(key).keySet().iterator();
+        return _commandMap.tailMap(key).keySet().iterator();
     }
 
     /*
@@ -80,29 +79,29 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     public void register(final Command c) {
-        commands.add(c);
+        _commands.add(c);
         final String[] cmdStrings = c.getCommandList();
         for (int i = 0; i < cmdStrings.length; ++i) {
-            if (commandMap.containsKey(cmdStrings[i])) {
+            if (_commandMap.containsKey(cmdStrings[i])) {
                 throw new IllegalArgumentException(
                         "attempt to register command '" + cmdStrings[i]
                                                                      + "', that is already used");
             }
-            commandMap.put(cmdStrings[i], c);
+            _commandMap.put(cmdStrings[i], c);
         }
     }
 
     // methods to make aliases work.
     public boolean containsCommand(final String cmd) {
-        return commandMap.containsKey(cmd);
+        return _commandMap.containsKey(cmd);
     }
 
     public void registerAdditionalCommand(final String cmd, final Command c) {
-        commandMap.put(cmd, c);
+        _commandMap.put(cmd, c);
     }
 
     public void unregisterAdditionalCommand(final String cmd) {
-        commandMap.remove(cmd);
+        _commandMap.remove(cmd);
     }
 
     /**
@@ -112,8 +111,8 @@ public class CommandDispatcher implements ReadlineCompleter {
      * plugin-mechanism does this) .. we don't care.
      */
     public void unregister(final Command c) {
-        commands.remove(c);
-        final Iterator entries = commandMap.entrySet().iterator();
+        _commands.remove(c);
+        final Iterator entries = _commandMap.entrySet().iterator();
         while (entries.hasNext()) {
             final Map.Entry e = (Map.Entry) entries.next();
             if (e.getValue() == c) {
@@ -145,7 +144,7 @@ public class CommandDispatcher implements ReadlineCompleter {
         }
         // ok, fallback: grab the first whitespace delimited part.
         if (longestMatch == null) {
-            final Enumeration tok = new StringTokenizer(completeCmd, " ;\t\n\r\f");
+            final StringTokenizer tok = new StringTokenizer(completeCmd, " ;\t\n\r\f");
             if (tok.hasMoreElements()) {
                 return (String) tok.nextElement();
             }
@@ -161,21 +160,21 @@ public class CommandDispatcher implements ReadlineCompleter {
         if (completeCmd == null) {
             return null;
         }
-        Command c = (Command) commandMap.get(completeCmd);
+        Command c = _commandMap.get(completeCmd);
         if (c == null) {
-            c = (Command) commandMap.get(""); // "" matches everything.
+            c = _commandMap.get(""); // "" matches everything.
         }
         return c;
     }
 
     public void shutdown() {
-        final Iterator i = commands.iterator();
+        final Iterator i = _commands.iterator();
         while (i.hasNext()) {
             final Command c = (Command) i.next();
             try {
                 c.shutdown();
             } catch (final Exception e) {
-                if (verbose) {
+                if (VERBOSE) {
                     e.printStackTrace();
                 }
             }
@@ -190,8 +189,8 @@ public class CommandDispatcher implements ReadlineCompleter {
      *            an Execution Listener
      */
     public void addExecutionListener(final ExecutionListener listener) {
-        if (!executionListeners.contains(listener)) {
-            executionListeners.add(listener);
+        if (!_executionListeners.contains(listener)) {
+            _executionListeners.add(listener);
         }
     }
 
@@ -203,11 +202,11 @@ public class CommandDispatcher implements ReadlineCompleter {
      * @return true, if this has been successful.
      */
     public boolean removeExecutionListener(final ExecutionListener listener) {
-        return executionListeners.remove(listener);
+        return _executionListeners.remove(listener);
     }
 
     private void informBeforeListeners(final SQLSession session, final String cmd) {
-        final Iterator it = executionListeners.iterator();
+        final Iterator it = _executionListeners.iterator();
         while (it.hasNext()) {
             final ExecutionListener listener = (ExecutionListener) it.next();
             listener.beforeExecution(session, cmd);
@@ -215,7 +214,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     private void informAfterListeners(final SQLSession session, final String cmd, final int result) {
-        final Iterator it = executionListeners.iterator();
+        final Iterator it = _executionListeners.iterator();
         while (it.hasNext()) {
             final ExecutionListener listener = (ExecutionListener) it.next();
             listener.afterExecution(session, cmd, result);
@@ -289,7 +288,7 @@ public class CommandDispatcher implements ReadlineCompleter {
                     /* nope */
                 }
             } catch (final Throwable e) {
-                if (verbose) {
+                if (VERBOSE) {
                     e.printStackTrace();
                 }
                 HenPlus.msg().println(e.toString());
@@ -328,7 +327,7 @@ public class CommandDispatcher implements ReadlineCompleter {
             if (state == 0) {
                 variablePrefix = text.substring(0, pos);
                 final String varname = text.substring(pos);
-                possibleValues = setCommand.completeUserVar(varname);
+                possibleValues = _setCommand.completeUserVar(varname);
             }
             if (possibleValues.hasNext()) {
                 return variablePrefix + (String) possibleValues.next();
@@ -349,7 +348,7 @@ public class CommandDispatcher implements ReadlineCompleter {
                     continue;
                 }
                 if (text.length() < 1) {
-                    final Command c = (Command) commandMap.get(nextKey);
+                    final Command c = _commandMap.get(nextKey);
                     if (!c.participateInCommandCompletion()) {
                         continue;
                     }

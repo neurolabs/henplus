@@ -14,11 +14,11 @@ import java.io.IOException;
  * fixme. first simple implementation..
  */
 public class FileCompletionIterator implements Iterator {
-    private String dirList[];
-    private String matchName;
-    private String nextFileName;
-    private String completePrefix;
-    private int index;
+    private String _dirList[];
+    private String _matchName;
+    private String _nextFileName;
+    private String _completePrefix;
+    private int _index;
 
     public FileCompletionIterator(final String partialCommand, final String lastWord) {
         String startFile;
@@ -31,35 +31,35 @@ public class FileCompletionIterator implements Iterator {
         try {
             final int lastDirectory = startFile.lastIndexOf(File.separator);
             String dirName = ".";
-            completePrefix = "";
+            _completePrefix = "";
             if (lastDirectory > 0) {
                 dirName = startFile.substring(0, lastDirectory);
                 startFile = startFile.substring(lastDirectory + 1);
-                completePrefix = dirName + File.separator;
+                _completePrefix = dirName + File.separator;
             }
             final File f = new File(dirName).getCanonicalFile();
             final boolean isDir = f.isDirectory();
-            dirList = isDir ? f.list() : f.getParentFile().list();
-            matchName = startFile;
+            _dirList = isDir ? f.list() : f.getParentFile().list();
+            _matchName = startFile;
         } catch (final IOException e) {
-            dirList = null;
-            matchName = null;
+            _dirList = null;
+            _matchName = null;
         }
-        index = 0;
+        _index = 0;
     }
 
     // this iterator _requires_, that hasNext() is called before next().
 
     public boolean hasNext() {
-        if (dirList == null) {
+        if (_dirList == null) {
             return false;
         }
-        while (index < dirList.length) {
-            nextFileName = dirList[index++];
-            if (nextFileName.startsWith(matchName)) {
-                final File f = new File(completePrefix + nextFileName);
+        while (_index < _dirList.length) {
+            _nextFileName = _dirList[_index++];
+            if (_nextFileName.startsWith(_matchName)) {
+                final File f = new File(_completePrefix + _nextFileName);
                 if (f.isDirectory()) {
-                    nextFileName += File.separator;
+                    _nextFileName += File.separator;
                 }
                 return true;
             }
@@ -68,7 +68,7 @@ public class FileCompletionIterator implements Iterator {
     }
 
     public Object next() {
-        return completePrefix + nextFileName;
+        return _completePrefix + _nextFileName;
     }
 
     public void remove() {

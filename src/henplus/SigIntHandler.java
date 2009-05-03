@@ -20,7 +20,7 @@ import sun.misc.SignalHandler;
  * Signal handler, that reacts on CTRL-C.
  */
 public class SigIntHandler implements SignalHandler, InterruptHandler {
-    private static InterruptHandler DUMMY_HANDLER = new InterruptHandler() {
+    private static InterruptHandler dummyHandler = new InterruptHandler() {
         public void popInterruptable() {
         }
 
@@ -44,7 +44,7 @@ public class SigIntHandler implements SignalHandler, InterruptHandler {
 
     public static InterruptHandler getInstance() {
         if (instance == null) {
-            return DUMMY_HANDLER;
+            return dummyHandler;
         }
         return instance;
     }

@@ -33,7 +33,7 @@ import java.util.SortedSet;
  */
 public final class ResultTablePrinter {
 
-    private final static ColumnMetaData[] DESC_META;
+    private static final ColumnMetaData[] DESC_META;
     static {
         DESC_META = new ColumnMetaData[8];
         DESC_META[0] = new ColumnMetaData("status", ColumnMetaData.ALIGN_CENTER);
@@ -63,10 +63,10 @@ public final class ResultTablePrinter {
         /*
          * build up actual describe table.
          */
-        final List rows = new ArrayList();
+        final List<Column[]> rows = new ArrayList<Column[]>();
         if (result != null) {
             // first, print removed columns
-            final SortedSet removed = result.getRemovedColumns();
+            final SortedSet<henplus.sqlmodel.Column> removed = result.getRemovedColumns();
             if (removed != null) {
                 // ExtendedColumn header = new ExtendedColumn("Removed Columns",
                 // 8, ExtendedColumn.ALIGN_CENTER);

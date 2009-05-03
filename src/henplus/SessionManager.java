@@ -17,7 +17,7 @@ import java.util.TreeSet;
 
 public final class SessionManager {
 
-    private static SessionManager _instance;
+    private static SessionManager instance;
 
     private final SortedMap/* <String,SQLSession> */_sessions;
     private SQLSession _currentSession;
@@ -27,10 +27,10 @@ public final class SessionManager {
     }
 
     public static SessionManager getInstance() {
-        if (_instance == null) {
-            _instance = new SessionManager();
+        if (instance == null) {
+            instance = new SessionManager();
         }
-        return _instance;
+        return instance;
     }
 
     public void addSession(final String sessionName, final SQLSession session) {

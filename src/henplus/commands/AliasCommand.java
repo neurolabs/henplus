@@ -29,8 +29,8 @@ import java.util.TreeMap;
  * A Command that handles Aliases.
  */
 public final class AliasCommand extends AbstractCommand {
-    private final static String ALIAS_FILENAME = "aliases";
-    private final static ColumnMetaData[] DRV_META;
+    private static final String ALIAS_FILENAME = "aliases";
+    private static final ColumnMetaData[] DRV_META;
     static {
         DRV_META = new ColumnMetaData[2];
         DRV_META[0] = new ColumnMetaData("alias");

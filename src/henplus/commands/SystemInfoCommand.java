@@ -15,6 +15,7 @@ import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
 import henplus.view.util.Formatter;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public final class SystemInfoCommand extends AbstractCommand {
 
     // =================== rendering =============
 
-    private final static ColumnMetaData[] DESC_META;
+    private static final ColumnMetaData[] DESC_META;
     static {
         DESC_META = new ColumnMetaData[2];
         DESC_META[0] = new ColumnMetaData("System Property",
@@ -72,7 +73,7 @@ public final class SystemInfoCommand extends AbstractCommand {
      */
     public int execute(final SQLSession session, final String command, final String parameters) {
 
-        final Map info = new ListMap();
+        final Map<String, String> info = new HashMap<String, String>();
         info.put("Java Version", System.getProperty("java.version"));
         info.put("Java VM", System.getProperty("java.vm.info"));
         info.put("Java Home", System.getProperty("java.home"));
@@ -94,9 +95,9 @@ public final class SystemInfoCommand extends AbstractCommand {
         System.gc();
 
         final Runtime rt = Runtime.getRuntime();
-        final double totalMemory = rt.totalMemory() / ONE_KILOBYTE;
-        final double freeMemory = rt.freeMemory() / ONE_KILOBYTE;
-        final double maxMemory = rt.maxMemory() / ONE_KILOBYTE;
+        final double totalMemory = rt.totalMemory() / (double) ONE_KILOBYTE;
+        final double freeMemory = rt.freeMemory() / (double) ONE_KILOBYTE;
+        final double maxMemory = rt.maxMemory() / (double) ONE_KILOBYTE;
         final double memoryUsed = totalMemory - freeMemory;
         final double diffMemory = memoryUsed - _memoryUsedBefore;
         _memoryUsedBefore = memoryUsed;

@@ -13,7 +13,7 @@ import java.util.Calendar;
  * A Parser for a
  */
 public class ImportParser {
-    private final static int INIT_SIZE = 8192;
+    private static final int INIT_SIZE = 8192;
 
     private final TypeParser[] _parsers;
     private final char[] _colDelim;

@@ -255,7 +255,7 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private final static class CountRecipient implements RowCountingRecipient {
+    private static final class CountRecipient implements RowCountingRecipient {
         private long _rows;
 
         CountRecipient() {
@@ -281,7 +281,7 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private final static class PrintRecipient implements RowCountingRecipient {
+    private static final class PrintRecipient implements RowCountingRecipient {
         private final String[] _paddedNames;
         private long _rows;
         private boolean _colWritten;
@@ -369,7 +369,7 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private final static class SqlImportProcessor implements
+    private static final class SqlImportProcessor implements
     RowCountingRecipient {
         private long _rows;
         private final PreparedStatement _stmt;
@@ -463,8 +463,8 @@ public class ImportCommand extends AbstractCommand {
                 String partialValue);
     }
 
-    private final static class ConfigurationParser {
-        private final static Object[][] KEYWORDS = {
+    private static final class ConfigurationParser {
+        private static final Object[][] KEYWORDS = {
             /* (+) means: completable */
             { "from", new FilenameCompleterFactory() }, /* (+) filename */
             { "into", new TableCompleterFactory() }, /* (+) table */
@@ -664,7 +664,7 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private final static class ImportConfiguration {
+    private static final class ImportConfiguration {
         private String _filename;
         private String _schema;
         private String _table;
@@ -775,7 +775,7 @@ public class ImportCommand extends AbstractCommand {
 
     }
 
-    private final static class FilenameCompleterFactory implements
+    private static final class FilenameCompleterFactory implements
     CompleterFactory {
         public Iterator getCompleter(final ConfigurationParser parser,
                 final String lastCommand) {
@@ -783,7 +783,7 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private final static class TableCompleterFactory implements
+    private static final class TableCompleterFactory implements
     CompleterFactory {
         public Iterator getCompleter(final ConfigurationParser parser,
                 final String partialName) {
@@ -792,12 +792,12 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private final static class ColumnCompleterFactory implements
+    private static final class ColumnCompleterFactory implements
     CompleterFactory {
         public Iterator getCompleter(final ConfigurationParser parser,
                 final String lastCommand) {
             if ("".equals(lastCommand)) {
-                final List paren = new ArrayList();
+                final List<String> paren = new ArrayList<String>();
                 paren.add("(");
                 return paren.iterator();
             }
@@ -810,7 +810,7 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private final static class EncodingCompleterFactory implements
+    private static final class EncodingCompleterFactory implements
     CompleterFactory {
         public Iterator getCompleter(final ConfigurationParser parser,
                 final String partialName) {

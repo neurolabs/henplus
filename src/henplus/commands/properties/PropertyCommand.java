@@ -19,7 +19,7 @@ import java.util.Map;
  * Set global HenPlus properties.
  */
 public class PropertyCommand extends AbstractPropertyCommand {
-    private final static String SETTINGS_FILENAME = "properties";
+    private static final String SETTINGS_FILENAME = "properties";
     private final HenPlus _henplus;
     private final PropertyRegistry _registry;
     private final ConfigurationContainer _config;

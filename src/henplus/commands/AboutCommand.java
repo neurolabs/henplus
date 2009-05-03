@@ -15,9 +15,9 @@ import henplus.Version;
  * document me.
  */
 public class AboutCommand extends AbstractCommand {
-    final static String LICENSE = "GNU Public License <http://www.gnu.org/licenses/gpl2.txt>";
+    static final String LICENSE = "GNU Public License <http://www.gnu.org/licenses/gpl2.txt>";
 
-    final static String ABOUT = new StringBuilder()
+    static final String ABOUT = new StringBuilder()
     .append(
             "----------------------------------------------------------------------------\n")
             .append(" HenPlus II ")

@@ -13,12 +13,12 @@ import henplus.commands.TimeRenderer;
  * A utility class that can write the progress of an operation to the screen.
  */
 public class ProgressWriter {
-    private final static int DEFAULT_SCREEN_WIDTH = 65;
+    private static final int DEFAULT_SCREEN_WIDTH = 65;
 
     /** min time before presenting an eta */
-    private final static long MIN_ETA_RUNNING_TIME = 30 * 1000L;
+    private static final long MIN_ETA_RUNNING_TIME = 30 * 1000L;
     /** min time between two eta updates */
-    private final static long MIN_ETA_DIFF_TIME = 1 * 1000L;
+    private static final long MIN_ETA_DIFF_TIME = 1 * 1000L;
 
     private final long _expectedTargetValue;
     private final OutputDevice _out;

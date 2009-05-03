@@ -15,19 +15,19 @@ public final class ColumnMetaData {
     public static final int ALIGN_RIGHT = 3;
 
     /** alignment; one of left, center, right */
-    private final int alignment;
+    private final int _alignment;
 
     /** the header of this column */
-    private final String label;
+    private final String _label;
 
     /** minimum width of this column; ususally set by the header width */
-    private final int initialWidth;
+    private final int _initialWidth;
 
     /** wrap columns automatically at this column; -1 = disabled */
-    private int autoWrapCol;
+    private int _autoWrapCol;
 
-    private int width;
-    private boolean display;
+    private int _width;
+    private boolean _display;
 
     public ColumnMetaData(final String header, final int align) {
         this(header, align, -1);
@@ -37,12 +37,12 @@ public final class ColumnMetaData {
      * publically available constructor for the user.
      */
     public ColumnMetaData(final String header, final int align, final int autoWrap) {
-        label = header;
-        initialWidth = header.length();
-        width = initialWidth;
-        alignment = align;
-        display = true;
-        autoWrapCol = autoWrap;
+        _label = header;
+        _initialWidth = header.length();
+        _width = _initialWidth;
+        _alignment = align;
+        _display = true;
+        _autoWrapCol = autoWrap;
     }
 
     public ColumnMetaData(final String header) {
@@ -50,43 +50,43 @@ public final class ColumnMetaData {
     }
 
     public void resetWidth() {
-        width = initialWidth;
+        _width = _initialWidth;
     }
 
     /**
      * set, whether a specific column should be displayed.
      */
     public void setDisplay(final boolean val) {
-        display = val;
+        _display = val;
     }
 
     public boolean doDisplay() {
-        return display;
+        return _display;
     }
 
     public void setAutoWrap(final int col) {
-        autoWrapCol = col;
+        _autoWrapCol = col;
     }
 
     public int getAutoWrap() {
-        return autoWrapCol;
+        return _autoWrapCol;
     }
 
     int getWidth() {
-        return width;
+        return _width;
     }
 
     String getLabel() {
-        return label;
+        return _label;
     }
 
     public int getAlignment() {
-        return alignment;
+        return _alignment;
     }
 
     void updateWidth(final int w) {
-        if (w > width) {
-            width = w;
+        if (w > _width) {
+            _width = w;
         }
     }
 }

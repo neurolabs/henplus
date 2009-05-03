@@ -30,9 +30,9 @@ import java.util.TreeMap;
  * document me.
  */
 public final class SetCommand extends AbstractCommand {
-    private final static String SETTINGS_FILENAME = "settings";
-    private final static String SPECIAL_LAST_COMMAND = "_HENPLUS_LAST_COMMAND";
-    private final static ColumnMetaData[] SET_META;
+    private static final String SETTINGS_FILENAME = "settings";
+    private static final String SPECIAL_LAST_COMMAND = "_HENPLUS_LAST_COMMAND";
+    private static final ColumnMetaData[] SET_META;
 
     static {
         SET_META = new ColumnMetaData[2];

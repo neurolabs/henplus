@@ -18,22 +18,22 @@ import java.util.TreeMap;
  * tab-completion or to automatically correct names.
  */
 public class NameCompleter {
-    private final SortedSet nameSet;
-    private final SortedMap canonicalNames;
+    private final SortedSet<String> _nameSet;
+    private final SortedMap<String, String> _canonicalNames;
 
     public NameCompleter() {
-        nameSet = new TreeSet();
-        canonicalNames = new TreeMap();
+        _nameSet = new TreeSet<String>();
+        _canonicalNames = new TreeMap<String, String>();
     }
 
-    public NameCompleter(final Iterator names) {
+    public NameCompleter(final Iterator<String> names) {
         this();
         while (names.hasNext()) {
-            addName((String) names.next());
+            addName(names.next());
         }
     }
 
-    public NameCompleter(final Collection c) {
+    public NameCompleter(final Collection<String> c) {
         this(c.iterator());
     }
 
@@ -45,24 +45,23 @@ public class NameCompleter {
     }
 
     public void addName(final String name) {
-        nameSet.add(name);
-        canonicalNames.put(name.toLowerCase(), name);
+        _nameSet.add(name);
+        _canonicalNames.put(name.toLowerCase(), name);
     }
 
-    public Iterator getAllNamesIterator() {
-        return nameSet.iterator();
+    public Iterator<String> getAllNamesIterator() {
+        return _nameSet.iterator();
     }
 
-    public SortedSet getAllNames() {
-        return nameSet;
+    public SortedSet<String> getAllNames() {
+        return _nameSet;
     }
 
     public String findCaseInsensitive(String name) {
         if (name == null) {
             return null;
         }
-        name = name.toLowerCase();
-        return (String) canonicalNames.get(name);
+        return _canonicalNames.get(name.toLowerCase());
     }
 
     /**
@@ -71,20 +70,20 @@ public class NameCompleter {
      */
     public Iterator getAlternatives(String partialName) {
         // first test, if we find the name directly
-        Iterator testIt = nameSet.tailSet(partialName).iterator();
+        Iterator<String> testIt = _nameSet.tailSet(partialName).iterator();
         String testMatch = testIt.hasNext() ? (String) testIt.next() : null;
         if (testMatch == null || !testMatch.startsWith(partialName)) {
             final String canonical = partialName.toLowerCase();
-            testIt = canonicalNames.tailMap(canonical).keySet().iterator();
+            testIt = _canonicalNames.tailMap(canonical).keySet().iterator();
             testMatch = testIt.hasNext() ? (String) testIt.next() : null;
             if (testMatch == null || !testMatch.startsWith(canonical)) {
                 return null; // nope.
             }
-            final String foundName = (String) canonicalNames.get(testMatch);
+            final String foundName = _canonicalNames.get(testMatch);
             partialName = foundName.substring(0, partialName.length());
         }
 
-        return new SortedMatchIterator(partialName, nameSet);
+        return new SortedMatchIterator(partialName, _nameSet);
     }
 }
 

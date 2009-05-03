@@ -19,7 +19,7 @@ import java.util.Iterator;
  * always executed on change.
  */
 public abstract class PropertyHolder {
-    protected String _propertyValue;
+    protected String propertyValue;
 
     /**
      * construct a PropertyHolder with an empty value.
@@ -29,7 +29,7 @@ public abstract class PropertyHolder {
     }
 
     protected PropertyHolder(final String initialValue) {
-        _propertyValue = initialValue;
+        propertyValue = initialValue;
     }
 
     /**
@@ -44,14 +44,14 @@ public abstract class PropertyHolder {
      *            the new value to be set.
      */
     public void setValue(final String newValue) throws Exception {
-        _propertyValue = propertyChanged(newValue);
+        propertyValue = propertyChanged(newValue);
     }
 
     /**
      * The canonicalized value of the value of this Property.
      */
     public String getValue() {
-        return _propertyValue;
+        return propertyValue;
     }
 
     public abstract String getDefaultValue();

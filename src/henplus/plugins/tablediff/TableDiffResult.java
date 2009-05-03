@@ -23,9 +23,9 @@ import java.util.TreeSet;
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class TableDiffResult {
-    private SortedSet/* <Column> */_removedColumns;
-    private SortedSet/* <Column> */_addedColumns;
-    private ListMap/* <Column, Column> */_modifiedColumns; // key: reference,
+    private SortedSet<Column> _removedColumns;
+    private SortedSet<Column> _addedColumns;
+    private ListMap/*<Column, Column>*/ _modifiedColumns; // key: reference,
     // value: modified
 
     public TableDiffResult() {
@@ -57,7 +57,7 @@ public final class TableDiffResult {
         return _modifiedColumns.put(reference, modified);
     }
 
-    public SortedSet getRemovedColumns() {
+    public SortedSet<Column> getRemovedColumns() {
         return _removedColumns;
     }
 

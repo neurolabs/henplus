@@ -13,9 +13,9 @@ import henplus.AbstractOutputDevice;
  * document me.
  */
 public class TimeRenderer {
-    private final static long SECOND_MILLIS = 1000;
-    private final static long MINUTE_MILLIS = 60 * SECOND_MILLIS;
-    private final static long HOUR_MILLIS = 60 * MINUTE_MILLIS;
+    private static final long SECOND_MILLIS = 1000;
+    private static final long MINUTE_MILLIS = 60 * SECOND_MILLIS;
+    private static final long HOUR_MILLIS = 60 * MINUTE_MILLIS;
 
     public static void printFraction(final long execTime, final long number,
             final OutputDevice out) {

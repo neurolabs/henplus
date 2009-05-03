@@ -19,13 +19,13 @@ public class TableRenderer {
 
     private static final int MAX_CACHE_ELEMENTS = 500;
 
-    private final List cacheRows;
-    private boolean alreadyFlushed;
-    private int writtenRows;
-    private final int separatorWidth;
+    private final List _cacheRows;
+    private boolean _alreadyFlushed;
+    private int _writtenRows;
+    private final int _separatorWidth;
 
-    private final boolean enableHeader;
-    private final boolean enableFooter;
+    private final boolean _enableHeader;
+    private final boolean _enableFooter;
 
     protected final ColumnMetaData meta[];
     protected final OutputDevice out;
@@ -35,18 +35,18 @@ public class TableRenderer {
             final String separator, final boolean enableHeader, final boolean enableFooter) {
         this.meta = meta;
         this.out = out;
-        this.enableHeader = enableHeader;
-        this.enableFooter = enableFooter;
+        this._enableHeader = enableHeader;
+        this._enableFooter = enableFooter;
 
         /*
          * we cache the rows in order to dynamically determine the output width
          * of each column.
          */
-        this.cacheRows = new ArrayList(MAX_CACHE_ELEMENTS);
-        this.alreadyFlushed = false;
-        this.writtenRows = 0;
+        this._cacheRows = new ArrayList(MAX_CACHE_ELEMENTS);
+        this._alreadyFlushed = false;
+        this._writtenRows = 0;
         this.colSeparator = " " + separator;
-        this.separatorWidth = separator.length();
+        this._separatorWidth = separator.length();
     }
 
     public TableRenderer(final ColumnMetaData[] meta, final OutputDevice out) {
@@ -59,10 +59,10 @@ public class TableRenderer {
     }
 
     protected void addRowToCache(final Column[] row) {
-        cacheRows.add(row);
-        if (cacheRows.size() >= MAX_CACHE_ELEMENTS) {
+        _cacheRows.add(row);
+        if (_cacheRows.size() >= MAX_CACHE_ELEMENTS) {
             flush();
-            cacheRows.clear();
+            _cacheRows.clear();
         }
     }
 
@@ -87,7 +87,7 @@ public class TableRenderer {
 
     public void closeTable() {
         flush();
-        if (writtenRows > 0 && enableFooter) {
+        if (_writtenRows > 0 && _enableFooter) {
             printHorizontalLine();
         }
     }
@@ -96,13 +96,13 @@ public class TableRenderer {
      * flush the cached rows.
      */
     public void flush() {
-        if (!alreadyFlushed) {
-            if (enableHeader) {
+        if (!_alreadyFlushed) {
+            if (_enableHeader) {
                 printTableHeader();
             }
-            alreadyFlushed = true;
+            _alreadyFlushed = true;
         }
-        final Iterator rowIterator = cacheRows.iterator();
+        final Iterator rowIterator = _cacheRows.iterator();
         while (rowIterator.hasNext()) {
             final Column[] currentRow = (Column[]) rowIterator.next();
             boolean hasMoreLines;
@@ -111,7 +111,7 @@ public class TableRenderer {
                 hasMoreLines = printColumns(currentRow, hasMoreLines);
                 out.println();
             } while (hasMoreLines);
-            ++writtenRows;
+            ++_writtenRows;
         }
     }
 
@@ -149,7 +149,7 @@ public class TableRenderer {
             }
             String txt;
             txt = formatString("", '-',
-                    meta[i].getWidth() + separatorWidth + 1,
+                    meta[i].getWidth() + _separatorWidth + 1,
                     ColumnMetaData.ALIGN_LEFT);
             out.print(txt);
             out.print("+");

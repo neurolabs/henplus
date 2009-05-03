@@ -1,0 +1,11 @@
+In this file, for every release we collect notable changes. These are then used
+for e.g. release notes.
+
+next release:
+
+* bumped java compatibility from 1.3 to 1.5
+
+0.9.8:
+
+* bugfix to cli parsing code
+* lots of untracked changes

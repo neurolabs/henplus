@@ -21,16 +21,16 @@ import henplus.property.BooleanPropertyHolder;
  *       String stmt = statementSeparator.next();
  *       if (stmt.startsWith(&quot;echo&quot;)) {
  *           // is ok, this command works always without ';'
- * 	  statementSeparator.consumed();
- * 	  System.err.println(stmt.substring(&quot;echo &quot;.length());
+ *           statementSeparator.consumed();
+ *           System.err.println(stmt.substring(&quot;echo &quot;.length());
  *       }
  *       else {  // SQL-command. we require a semicolon at the end.
  *          if (!stmt.charAt(stmt.length()-1) == ';') {
- * 	    statementSeparator.cont(); // continue.
+ *              statementSeparator.cont(); // continue.
  *          }
  *          else {
  *             statementSeparator.consumed();
- * 	    SQLExecute(stmt);
+ *             SQLExecute(stmt);
  *          }
  *       }
  *  }
@@ -98,7 +98,7 @@ public class SQLStatementSeparator {
         public StringBuffer getCommandBuffer() {
             return _commandBuffer;
         }
-    };
+    }
 
     private boolean _removeComments;
     private ParseState _currentState;
@@ -359,7 +359,7 @@ public class SQLStatementSeparator {
                     } else if (current == 't') {
                         current = '\t';
                     } else if (current == '\\') {
-                        ;
+                        // noop
                     } else if (current != '\n' && current != '"') {
                         // if we do not recognize the escape sequence,
                         // pass it through.
@@ -379,7 +379,7 @@ public class SQLStatementSeparator {
                     } else if (current == 't') {
                         current = '\t';
                     } else if (current == '\\') {
-                        ;
+                        // noop
                     } else if (current != '\n') {
                         // if we do not recognize the escape sequence,
                         // pass it through.

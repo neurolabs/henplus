@@ -31,8 +31,8 @@ import java.util.StringTokenizer;
  * document me.
  */
 public final class SQLCommand extends AbstractCommand {
-    private static final boolean verbose = HenPlus.verbose;
-    private final static String[] TABLE_COMPLETER_KEYWORD = { "FROM", "INTO",
+    private static final boolean verbose = HenPlus.VERBOSE;
+    private static final String[] TABLE_COMPLETER_KEYWORD = { "FROM", "INTO",
         "UPDATE", "TABLE", "ALIAS", "VIEW", /* create index */"ON" };
 
     /**

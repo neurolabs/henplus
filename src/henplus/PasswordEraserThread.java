@@ -17,9 +17,9 @@ package henplus;
  * second. However, this is better than nothing, right ?
  */
 class PasswordEraserThread extends Thread {
-    private final String eraser;
-    private boolean running;
-    private boolean onHold;
+    private final String _eraser;
+    private boolean _running;
+    private boolean _onHold;
 
     /**
      *@param prompt
@@ -30,9 +30,9 @@ class PasswordEraserThread extends Thread {
          * we are erasing by writing the prompt followed by spaces from the
          * beginning of the line
          */
-        eraser = "\r" + prompt + "                \r" + prompt;
-        running = true;
-        onHold = true;
+        _eraser = "\r" + prompt + "                \r" + prompt;
+        _running = true;
+        _onHold = true;
     }
 
     /**
@@ -40,8 +40,8 @@ class PasswordEraserThread extends Thread {
      */
     @Override
     public void run() {
-        while (running) {
-            if (onHold) {
+        while (_running) {
+            if (_onHold) {
                 try {
                     synchronized (this) {
                         wait();
@@ -49,7 +49,7 @@ class PasswordEraserThread extends Thread {
                 } catch (final InterruptedException iex) {
                     // ignore.
                 }
-                if (onHold) {
+                if (_onHold) {
                     continue;
                 }
             }
@@ -59,25 +59,25 @@ class PasswordEraserThread extends Thread {
             } catch (final InterruptedException iex) {
                 // ignore
             }
-            if (running && !onHold) {
-                System.out.print(eraser);
+            if (_running && !_onHold) {
+                System.out.print(_eraser);
             }
             System.out.flush();
         }
     }
 
     public synchronized void holdOn() {
-        onHold = true;
+        _onHold = true;
         notify();
     }
 
     public synchronized void goOn() {
-        onHold = false;
+        _onHold = false;
         notify();
     }
 
     public synchronized void done() {
-        running = false;
+        _running = false;
         notify();
     }
 }

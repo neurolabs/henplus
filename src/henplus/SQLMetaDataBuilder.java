@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 
 public final class SQLMetaDataBuilder {
     final private static String[] LIST_TABLES = { "TABLE" };
-    private static final boolean _verbose = false;
+    private static final boolean VERBOSE = false;
 
     // column description
     public static final int TABLE_NAME = 3; // String
@@ -112,7 +112,7 @@ public final class SQLMetaDataBuilder {
                 result.addTable(table);
             }
         } catch (final Exception e) {
-            if (_verbose) {
+            if (VERBOSE) {
                 e.printStackTrace();
             }
             HenPlus.msg().println(
@@ -139,7 +139,7 @@ public final class SQLMetaDataBuilder {
             rset = meta.getColumns(catalog, null, tableName, null);
             table = buildTable(catalog, meta, tableName, rset);
         } catch (final Exception e) {
-            if (_verbose) {
+            if (VERBOSE) {
                 e.printStackTrace();
             }
             HenPlus.msg().println(
@@ -216,7 +216,7 @@ public final class SQLMetaDataBuilder {
         try {
             rset = meta.getImportedKeys(null, null, tabName);
         } catch (final NoSuchElementException e) {
-            if (_verbose) {
+            if (VERBOSE) {
                 HenPlus.msg().println(
                         "Database problem reading meta data: " + e);
             }

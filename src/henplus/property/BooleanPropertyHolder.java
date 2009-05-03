@@ -10,7 +10,7 @@ package henplus.property;
  * A boolean property.
  */
 public abstract class BooleanPropertyHolder extends EnumeratedPropertyHolder {
-    private final static String[] BOOL_VALUES = { "0", "off", "false", "1",
+    private static final String[] BOOL_VALUES = { "0", "off", "false", "1",
         "on", "true" };
 
     public BooleanPropertyHolder() {
@@ -19,7 +19,7 @@ public abstract class BooleanPropertyHolder extends EnumeratedPropertyHolder {
 
     public BooleanPropertyHolder(final boolean initialValue) {
         this();
-        _propertyValue = initialValue ? "true" : "false";
+        propertyValue = initialValue ? "true" : "false";
     }
 
     @Override

@@ -201,7 +201,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
                         dest.write(buf, 0, r);
                     }
                     dest.flush();
-                } catch (final IOException ignore_me) {
+                } catch (final IOException ignoreMe) {
                 }
             }
         }
