@@ -737,10 +737,10 @@ public class ImportCommand extends AbstractCommand {
                 paren.add("(");
                 return paren.iterator();
             }
-            if (lastCommand.endsWith(" ")) {
-                //...
-            }
-            String tab = parser.getConfig().getTable();
+            //if (lastCommand.endsWith(" ")) {
+            //    //...
+            //}
+            //String tab = parser.getConfig().getTable();
             // TODO: read columns from meta-data
             return null;
         }

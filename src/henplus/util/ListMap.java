@@ -114,6 +114,13 @@ public final class ListMap implements Map, Serializable {
         throw new java.lang.UnsupportedOperationException(
             "Method equals() not yet implemented.");
     }
+    
+    @Override
+    public int hashCode() {
+        /**@todo Implement this java.util.Map method*/
+        throw new java.lang.UnsupportedOperationException(
+            "Method hashcode() not yet implemented.");
+    }
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append( "ListMap [");

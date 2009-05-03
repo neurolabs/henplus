@@ -4,6 +4,8 @@
  */
 package henplus.sqlmodel;
 
+import henplus.util.ObjectUtil;
+
 /**
  * <p>Title: ColumnPkInfo</p>
  * <p>Description:<br>
@@ -39,6 +41,11 @@ public final class ColumnPkInfo {
             }
         }
         return result;
+    }
+    
+    @Override
+    public int hashCode() {
+        return ObjectUtil.nullSafeHashCode(_pkName);
     }
 
 }

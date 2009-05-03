@@ -312,6 +312,11 @@ public final class DependencyResolver {
             }
             return result;
         }
+        @Override
+        public int hashCode() {
+            return ObjectUtil.nullSafeHashCode(_table) 
+            ^ ObjectUtil.nullSafeHashCode(_fk);
+        }
     }
 
 }

@@ -79,7 +79,6 @@ public class ShellCommand
 		ioHandler = new IOHandler(p);
 	    }
 	    catch (IOException e) {
-		ioHandler.stop();
 		return EXEC_FAILED;
 	    }
 	    

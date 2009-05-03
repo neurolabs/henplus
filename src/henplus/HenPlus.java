@@ -51,7 +51,7 @@ import java.util.Map;
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
 
-public class HenPlus implements Interruptable {
+public final class HenPlus implements Interruptable {
     private static final String HISTORY_NAME = "history";
     public static final boolean verbose = false; // debug.
     private static final String HENPLUSDIR = ".henplus";

@@ -243,7 +243,7 @@ public class ListUserObjectsCommand
 	    
 	    foundSameLengthMatch |= sameLength;
 	    ++count;
-	    if (correctedName == null || sameLength) {
+	    if (sameLength) {
 		correctedName = alternative;
 	    }
 	}

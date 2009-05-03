@@ -6,6 +6,8 @@
  */
 package henplus.sqlmodel;
 
+import henplus.util.ObjectUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,6 +70,13 @@ public final class PrimaryKey {
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return 
+        ObjectUtil.nullSafeHashCode(_name)
+        ^ ObjectUtil.nullSafeHashCode(_columns);
     }
 
 }
