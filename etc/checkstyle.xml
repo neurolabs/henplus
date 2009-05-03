@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This configuration file was written by the eclipse-cs plugin configuration editor
+-->
+<!--
+    Checkstyle-Configuration: Tipp24
+    Description: none
+-->
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN" "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<module name="Checker">
+    <property name="severity" value="warning"/>
+    <module name="TreeWalker">
+        <property name="tabWidth" value="4"/>
+        <module name="FileContentsHolder"/>
+        <module name="BooleanExpressionComplexity">
+            <property name="max" value="5"/>
+        </module>
+        <module name="ConstantName"/>
+        <module name="AvoidStarImport"/>
+        <module name="DeclarationOrder"/>
+        <module name="DoubleCheckedLocking"/>
+        <module name="EmptyBlock">
+            <property name="tokens" value="LITERAL_DO, LITERAL_FINALLY, LITERAL_FOR, LITERAL_TRY, LITERAL_WHILE, STATIC_INIT"/>
+        </module>
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+            <property name="tokens" value="LITERAL_CATCH, LITERAL_ELSE, LITERAL_IF, INSTANCE_INIT"/>
+        </module>
+        <module name="EmptyForIteratorPad">
+            <property name="option" value="space"/>
+        </module>
+        <module name="EqualsHashCode"/>
+        <module name="EmptyStatement"/>
+        <module name="FallThrough"/>
+        <module name="FileLength"/>
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+            <property name="ignoreSetter" value="true"/>
+        </module>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value="sun, de.tipp24"/>
+        </module>
+        <module name="IllegalInstantiation">
+            <property name="classes" value="java.lang.Boolean"/>
+        </module>
+        <module name="InnerAssignment"/>
+        <module name="JavadocType"/>
+        <module name="JavadocMethod">
+            <property name="allowUndeclaredRTE" value="true"/>
+            <property name="allowMissingPropertyJavadoc" value="true"/>
+        </module>
+        <module name="JavadocVariable">
+            <property name="scope" value="public"/>
+        </module>
+        <module name="JUnitTestCase">
+            <property name="severity" value="ignore"/>
+        </module>
+        <module name="LeftCurly">
+            <property name="maxLineLength" value="120"/>
+        </module>
+        <module name="LineLength">
+            <property name="ignorePattern" value="^ *\* *[^ ]+$|^ *@.*"/>
+            <property name="max" value="120"/>
+        </module>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName">
+            <property name="applyToPrivate" value="false"/>
+        </module>
+        <module name="MemberName">
+            <property name="applyToPublic" value="false"/> 
+            <property name="applyToProtected" value="false"/> 
+            <property name="applyToPackage" value="false"/> 
+            <property name="format" value="^_[a-zA-Z0-9]*$"/>
+        </module>
+        <module name="MethodLength">
+            <property name="max" value="150"/>
+        </module>
+        <module name="MethodName"/>
+        <module name="MethodParamPad"/>
+        <module name="ModifierOrder"/>
+        <module name="NeedBraces"/>
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="BNOT, DEC, DOT, INC, UNARY_MINUS, UNARY_PLUS"/>
+        </module>
+        <module name="NoWhitespaceBefore">
+            <property name="allowLineBreaks" value="true"/>
+            <property name="tokens" value="DOT"/>
+        </module>
+        <module name="OperatorWrap">
+            <property name="option" value="eol"/>
+            <property name="tokens" value="ASSIGN, DIV_ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN, STAR_ASSIGN, MOD_ASSIGN, SR_ASSIGN, BSR_ASSIGN, SL_ASSIGN, BXOR_ASSIGN, BOR_ASSIGN, BAND_ASSIGN"/>
+        </module>
+        <module name="ParameterName"/>
+        <module name="ParenPad">
+            <property name="tokens" value="CTOR_CALL,METHOD_CALL,RPAREN,SUPER_CTOR_CALL"/>
+        </module>
+        <module name="RedundantImport"/>
+        <!--module name="RightCurly"/-->
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="StaticVariableName"/>
+        <module name="TabCharacter"/>
+        <module name="TypeName"/>
+        <module name="UnusedImports"/>
+        <module name="UpperEll"/>
+        <module name="VisibilityModifier">
+            <property name="publicMemberPattern" value="^.*$"/>
+        </module>
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA,SEMI"/>
+        </module>
+        <module name="WhitespaceAround">
+            <property name="tokens" value="ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,LCURLY,LE,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_RETURN,LITERAL_TRY,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,SL,SLIST,SL_ASSIGN,SR,SR_ASSIGN,STAR,STAR_ASSIGN,TYPE_EXTENSION_AND"/>
+        </module>
+        <module name="JavadocStyle">
+            <property name="checkEmptyJavadoc" value="true"/>
+        </module>
+        <module name="ParameterAssignment"/>
+        <module name="RedundantModifier"/>
+    </module>
+</module>

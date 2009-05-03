@@ -86,12 +86,12 @@ public final class SQLMetaDataBuilder {
     }
 
     public SQLMetaData getMetaData(final SQLSession session,
-            final Collection /* <String> */tableNames) {
+            final Collection<String> tableNames) {
         return getMetaData(session, tableNames.iterator());
     }
 
     public SQLMetaData getMetaData(final SQLSession session,
-            final Iterator /* <String> */tableNamesIter) {
+            final Iterator<String> tableNamesIter) {
         final SQLMetaData result = new SQLMetaData();
 
         ResultSet rset = null;

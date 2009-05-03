@@ -15,10 +15,10 @@ import henplus.property.PropertyHolder;
  * A Registry that binds names to Properties.
  */
 public class PropertyRegistry {
-    private final SortedMap/* <String,PropertyHolder> */_namedProperties;
+    private final SortedMap<String,PropertyHolder> _namedProperties;
 
     public PropertyRegistry() {
-        _namedProperties = new TreeMap();
+        _namedProperties = new TreeMap<String,PropertyHolder>();
     }
 
     /**
@@ -64,7 +64,7 @@ public class PropertyRegistry {
      * returns a Map view of property-Names to values. The returned Map must not
      * be modified.
      */
-    public SortedMap/* <String,PropertyHolder> */getPropertyMap() {
+    public SortedMap<String,PropertyHolder> getPropertyMap() {
         return _namedProperties;
     }
 }

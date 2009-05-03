@@ -32,13 +32,13 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
     /**
      * to determine recursively loaded files, we remember all open files.
      */
-    private final Set/* <File> */_openFiles;
+    private final Set<File> _openFiles;
 
     /**
      * current working directory stack - to always open files relative to the
      * currently open file.
      */
-    private final Stack/* <File> */_cwdStack;
+    private final Stack<File> _cwdStack;
 
     private volatile boolean _running;
 

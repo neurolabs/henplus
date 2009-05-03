@@ -19,11 +19,11 @@ public final class SessionManager {
 
     private static SessionManager instance;
 
-    private final SortedMap/* <String,SQLSession> */_sessions;
+    private final SortedMap<String,SQLSession> _sessions;
     private SQLSession _currentSession;
 
     private SessionManager() {
-        _sessions = new TreeMap();
+        _sessions = new TreeMap<String,SQLSession>();
     }
 
     public static SessionManager getInstance() {
@@ -38,7 +38,7 @@ public final class SessionManager {
     }
 
     public SQLSession removeSessionWithName(final String sessionName) {
-        return (SQLSession) _sessions.remove(sessionName);
+        return _sessions.remove(sessionName);
     }
 
     public SQLSession getSessionByName(final String name) {

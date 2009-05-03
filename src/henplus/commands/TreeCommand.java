@@ -56,7 +56,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
      * A node in a cyclic graph.
      */
     private static abstract class Node implements Comparable {
-        private final Set/* <Node> */_children;
+        private final Set<Node> _children;
         private int _displayDepth;
 
         protected Node() {

@@ -140,7 +140,7 @@ public class SQLSession implements Interruptable {
         return _url;
     }
 
-    public SQLMetaData getMetaData(final SortedSet/* <String> */tableNames) {
+    public SQLMetaData getMetaData(final SortedSet<String> tableNames) {
         if (_metaData == null) {
             _metaData = new SQLMetaDataBuilder().getMetaData(this, tableNames);
         }

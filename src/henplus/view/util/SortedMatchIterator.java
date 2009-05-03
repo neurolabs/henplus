@@ -19,7 +19,7 @@ import java.util.SortedMap;
  * </p>
  * This Iterator is commonly used for TAB-completion..
  */
-public class SortedMatchIterator implements Iterator {
+public class SortedMatchIterator implements Iterator<String> {
     private final Iterator _it;
     private final String _partialMatch;
 
@@ -39,7 +39,7 @@ public class SortedMatchIterator implements Iterator {
      * @param it
      *            the Iterator positioned at the first partial match.
      */
-    public SortedMatchIterator(final String partialMatch, final Iterator/* <String> */it) {
+    public SortedMatchIterator(final String partialMatch, final Iterator<String> it) {
         _partialMatch = partialMatch;
         _it = it;
     }
@@ -53,7 +53,7 @@ public class SortedMatchIterator implements Iterator {
      * @param set
      *            the SortedSet from which the matches should be iterated.
      */
-    public SortedMatchIterator(final String partialMatch, final SortedSet/* <String> */set) {
+    public SortedMatchIterator(final String partialMatch, final SortedSet<String> set) {
         this(partialMatch, set.tailSet(partialMatch).iterator());
     }
 
@@ -67,7 +67,7 @@ public class SortedMatchIterator implements Iterator {
      *            the SortedMap from its matching keys the matches should be
      *            iterated.
      */
-    public SortedMatchIterator(final String partialMatch, final SortedMap/* <String> */map) {
+    public SortedMatchIterator(final String partialMatch, final SortedMap<String, ?> map) {
         this(partialMatch, map.tailMap(partialMatch).keySet().iterator());
     }
 
@@ -113,7 +113,7 @@ public class SortedMatchIterator implements Iterator {
         return false;
     }
 
-    public Object next() {
+    public String next() {
         String result = _current;
         if (_prefix != null) {
             result = _prefix + result;

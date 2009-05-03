@@ -14,13 +14,13 @@ import java.util.TreeSet;
 public final class SQLMetaData {
     public static final int NOT_INITIALIZED = -1;
 
-    private final SortedSet/* <Table> */_tables;
+    private final SortedSet<Table> _tables;
 
     public SQLMetaData() {
         _tables = new TreeSet();
     }
 
-    public SortedSet/* <Table> */getTables() {
+    public SortedSet<Table> getTables() {
         return _tables;
     }
 

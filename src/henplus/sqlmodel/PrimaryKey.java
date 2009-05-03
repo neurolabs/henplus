@@ -16,11 +16,11 @@ public final class PrimaryKey {
     public static final int INVALID_INDEX = -1;
 
     private String _name;
-    private final Map /* <String, ColumnPkInfo> */_columns; // column name -> pk info
+    private final Map <String, ColumnPkInfo> _columns; // column name -> pk info
     // specific to column
 
     public PrimaryKey() {
-        _columns = new HashMap();
+        _columns = new HashMap<String, ColumnPkInfo>();
     }
 
     public void addColumn(final String columnName, final String columnPkName,

@@ -22,8 +22,8 @@ import java.io.IOException;
  * prepared ..
  */
 public final class SpoolCommand extends AbstractCommand {
-    private final Stack/* <OutputDevice> */_outStack;
-    private final Stack/* <OutputDevice> */_msgStack;
+    private final Stack<OutputDevice> _outStack;
+    private final Stack<OutputDevice> _msgStack;
 
     /**
      * returns the command-strings this command can handle.
@@ -33,8 +33,8 @@ public final class SpoolCommand extends AbstractCommand {
     }
 
     public SpoolCommand(final HenPlus hp) {
-        _outStack = new Stack/* <OutputDevice> */();
-        _msgStack = new Stack/* <OutputDevice> */();
+        _outStack = new Stack<OutputDevice> ();
+        _msgStack = new Stack<OutputDevice> ();
         _outStack.push(hp.getOutputDevice());
         _msgStack.push(hp.getMessageDevice());
     }
@@ -68,7 +68,7 @@ public final class SpoolCommand extends AbstractCommand {
      * combine the current output from the stack with the given output, use this
      * as current output and return it.
      */
-    private OutputDevice openStackedDevice(final Stack/* <OutputDevice> */stack,
+    private OutputDevice openStackedDevice(final Stack<OutputDevice> stack,
             final OutputDevice newOut) {
         final OutputDevice origOut = (OutputDevice) stack.peek();
         final OutputDevice outDevice = new StackedDevice(origOut, newOut);
@@ -79,7 +79,7 @@ public final class SpoolCommand extends AbstractCommand {
     /**
      * close the top device on the stack and return the previous.
      */
-    private OutputDevice closeStackedDevice(final Stack/* <OutputDevice> */stack) {
+    private OutputDevice closeStackedDevice(final Stack<OutputDevice> stack) {
         final OutputDevice out = (OutputDevice) stack.pop();
         out.close();
         return (OutputDevice) stack.peek();

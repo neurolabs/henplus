@@ -21,12 +21,10 @@ import henplus.util.DependencyResolver.ResolverResult;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
-import henplus.view.util.NameCompleter;
 import henplus.view.util.CancelWriter;
-
+import henplus.view.util.NameCompleter;
 import henplus.view.util.ProgressWriter;
 
-import java.math.BigDecimal;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,11 +35,12 @@ import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.ResultSetMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
@@ -52,10 +51,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
@@ -288,7 +287,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 // dumped?
 
                 out = openOutputStream(fileName, FILE_ENCODING);
-                final Set/* <String> */tableSet = new LinkedHashSet();
+                final Set<String> tableSet = new LinkedHashSet<String>();
 
                 /*
                  * right now, we do only a sort, if there is any '*' found in
@@ -306,7 +305,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     if ("*".equals(nextToken) || nextToken.indexOf('*') > -1) {
                         needsSort = true;
 
-                        Iterator iter = null;
+                        Iterator<String> iter = null;
 
                         if ("*".equals(nextToken)) {
                             iter = _tableCompleter
@@ -314,7 +313,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         } else if (nextToken.indexOf('*') > -1) {
                             final String tablePrefix = nextToken.substring(0,
                                     nextToken.length() - 1);
-                            final SortedSet tableNames = _tableCompleter
+                            final SortedSet<String> tableNames = _tableCompleter
                             .getTableNamesForSession(session);
                             final NameCompleter compl = new NameCompleter(tableNames);
                             iter = compl.getAlternatives(tablePrefix);
@@ -343,7 +342,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     final DependencyResolver dr = new DependencyResolver(meta
                             .getTables());
                     resolverResult = dr.sortTables();
-                    final List/* <Table> */tabs = resolverResult.getTables();
+                    final List<Table> tabs = resolverResult.getTables();
                     final Iterator it = tabs.iterator();
                     while (it.hasNext()) {
                         tableSequence.add(((Table) it.next()).getName());
@@ -546,7 +545,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
     private int dumpTable(final SQLSession session, final String tabName,
             final String whereClause, final PrintStream dumpOut, final String fileEncoding,
-            final Set/* <String> */alreadyDumped) throws Exception {
+            final Set<String> alreadyDumped) throws Exception {
         final int result = dumpTable(session, tabName, whereClause, dumpOut,
                 fileEncoding);
         alreadyDumped.add(tabName);

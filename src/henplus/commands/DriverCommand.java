@@ -109,7 +109,7 @@ public final class DriverCommand extends AbstractCommand {
         }
     }
 
-    private final SortedMap/* <String,DriverDescription> */_drivers;
+    private final SortedMap<String,DriverDescription> _drivers;
     private final ConfigurationContainer _config;
 
     /**

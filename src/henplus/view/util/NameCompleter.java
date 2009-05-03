@@ -68,7 +68,7 @@ public class NameCompleter {
      * returns an iterator with alternatives that match the partial name given
      * or 'null' if there is no alternative.
      */
-    public Iterator getAlternatives(String partialName) {
+    public Iterator<String> getAlternatives(String partialName) {
         // first test, if we find the name directly
         Iterator<String> testIt = _nameSet.tailSet(partialName).iterator();
         String testMatch = testIt.hasNext() ? (String) testIt.next() : null;

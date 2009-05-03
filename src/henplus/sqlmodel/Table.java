@@ -77,16 +77,16 @@ public final class Table implements Comparable {
      * @return A <code>Set</code> of <code>ColumnFkInfo</code> objects or
      *         <code>null</code>.
      */
-    public Set/* <ColumnFkInfo> */getForeignKeys() {
-        Set result = null;
+    public Set<ColumnFkInfo> getForeignKeys() {
+        Set<ColumnFkInfo> result = null;
 
         if (_columns != null) {
-            final Iterator iter = _columns.values().iterator();
+            final Iterator<Column> iter = _columns.values().iterator();
             while (iter.hasNext()) {
-                final Column c = (Column) iter.next();
+                final Column c = iter.next();
                 if (c.getFkInfo() != null) {
                     if (result == null) {
-                        result = new HashSet();
+                        result = new HashSet<ColumnFkInfo>();
                     }
                     result.add(c.getFkInfo());
                 }

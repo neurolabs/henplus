@@ -34,7 +34,7 @@ public final class DependencyResolver {
      * @param tableIter
      *            An <code>Iterator</code> over <code>Table</code>s.
      */
-    public DependencyResolver(final Iterator/* <Table> */tableIter) {
+    public DependencyResolver(final Iterator<Table> tableIter) {
         _tableIter = tableIter;
     }
 
@@ -42,7 +42,7 @@ public final class DependencyResolver {
      * @param tables
      *            A <code>Set</code> of <code>Table</code> objects.
      */
-    public DependencyResolver(final Set/* <Table> */tables) {
+    public DependencyResolver(final Set<Table> tables) {
         _tableIter = tables != null ? tables.iterator() : null;
     }
 
@@ -269,14 +269,14 @@ public final class DependencyResolver {
          *         <code>List</code>s of <code>CycleEntry</code> objects, where
          *         each list represents the path of a cyclic dependency.
          */
-        public Set/* <List<Table>> */getCyclicDependencies() {
+        public Set<List<Table>> getCyclicDependencies() {
             return _cyclicDependencies;
         }
 
         /**
          * @return Returns the tables.
          */
-        public List/* <Table> */getTables() {
+        public List <Table> getTables() {
             return _tables;
         }
     }

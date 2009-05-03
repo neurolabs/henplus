@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
 
 /**
@@ -38,15 +39,15 @@ Interruptable {
     /**
      * all tables in one session.
      */
-    final private Map/* <SQLSession,SortedMap> */sessionTables;
-    final private Map/* <SQLSession,SortedMap> */sessionColumns;
+    final private Map<SQLSession,NameCompleter> sessionTables;
+    final private Map<SQLSession,NameCompleter> sessionColumns;
     final private HenPlus _henplus;
 
     private boolean _interrupted;
 
     public ListUserObjectsCommand(final HenPlus hp) {
-        sessionTables = new HashMap();
-        sessionColumns = new HashMap();
+        sessionTables = new HashMap<SQLSession,NameCompleter>();
+        sessionColumns = new HashMap<SQLSession,NameCompleter>();
         _henplus = hp;
         _interrupted = false;
     }
@@ -267,11 +268,11 @@ Interruptable {
         return completer.getAlternatives(partialColumn);
     }
 
-    public Iterator getTableNamesIteratorForSession(final SQLSession session) {
+    public Iterator<String> getTableNamesIteratorForSession(final SQLSession session) {
         return getTableCompleter(session).getAllNamesIterator();
     }
 
-    public SortedSet getTableNamesForSession(final SQLSession session) {
+    public SortedSet<String> getTableNamesForSession(final SQLSession session) {
         return getTableCompleter(session).getAllNames();
     }
 
