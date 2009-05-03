@@ -12,10 +12,9 @@ package henplus.importparser;
  */
 public abstract class TypeParser {
     /**
-     * parse the value from the character buffer starting from the given
-     * offset and with the given length. Store the result in the 
-     * ValueRecipient.
+     * parse the value from the character buffer starting from the given offset
+     * and with the given length. Store the result in the ValueRecipient.
      */
     public abstract void parse(char[] buffer, int offset, int len,
-                               ValueRecipient recipient) throws Exception;
+            ValueRecipient recipient) throws Exception;
 }

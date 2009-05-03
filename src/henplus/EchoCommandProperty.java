@@ -11,43 +11,44 @@ import henplus.event.ExecutionListener;
 import henplus.property.BooleanPropertyHolder;
 
 /**
- * The Property echo-commands that simply registers itself at the
- * command dispatcher to echo the commands it is executing.
+ * The Property echo-commands that simply registers itself at the command
+ * dispatcher to echo the commands it is executing.
  */
-public final class EchoCommandProperty 
-    extends BooleanPropertyHolder 
-    implements ExecutionListener 
-{
-    private CommandDispatcher _dispatcher;
+public final class EchoCommandProperty extends BooleanPropertyHolder implements
+ExecutionListener {
+    private final CommandDispatcher _dispatcher;
 
-    public EchoCommandProperty(CommandDispatcher disp) {
+    public EchoCommandProperty(final CommandDispatcher disp) {
         super(false);
         _dispatcher = disp;
     }
-    
-    public String getDefaultValue() { 
-        return "off"; 
+
+    @Override
+    public String getDefaultValue() {
+        return "off";
     }
 
-    public void booleanPropertyChanged(boolean echoCommands) {
+    @Override
+    public void booleanPropertyChanged(final boolean echoCommands) {
         if (echoCommands) {
             _dispatcher.addExecutionListener(this);
-        }
-        else {
+        } else {
             _dispatcher.removeExecutionListener(this);
         }
     }
 
+    @Override
     public String getShortDescription() {
         return "echo commands prior to execution.";
     }
 
-    //-- Execution listener
+    // -- Execution listener
 
-    public void beforeExecution(SQLSession session, String command) {
+    public void beforeExecution(final SQLSession session, final String command) {
         HenPlus.msg().println(command.trim());
     }
-    public void afterExecution(SQLSession session, String command, int result){
+
+    public void afterExecution(final SQLSession session, final String command, final int result) {
         /* don't care */
     }
 }

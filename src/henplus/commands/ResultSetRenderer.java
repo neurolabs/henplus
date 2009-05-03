@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.22 2005-06-18 04:58:13 hzeller Exp $ 
+ * $Id: ResultSetRenderer.java,v 1.22 2005-06-18 04:58:13 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -29,63 +29,59 @@ public class ResultSetRenderer implements Interruptable {
     private final int[] showColumns;
 
     private boolean beyondLimit;
-    private long    firstRowTime;
-    private final long    clobLimit = 8192;
-    private final int     rowLimit;
+    private long firstRowTime;
+    private final long clobLimit = 8192;
+    private final int rowLimit;
     private volatile boolean running;
 
-    public ResultSetRenderer(ResultSet rset, 
-                             String columnDelimiter,
-                             boolean enableHeader, boolean enableFooter,
-                             int limit,
-                             OutputDevice out, int[] show) 
-	throws SQLException {
-	this.rset = rset;
-	beyondLimit = false;
-	firstRowTime = -1;
-	showColumns = show;
+    public ResultSetRenderer(final ResultSet rset, final String columnDelimiter,
+            final boolean enableHeader, final boolean enableFooter, final int limit,
+            final OutputDevice out, final int[] show) throws SQLException {
+        this.rset = rset;
+        beyondLimit = false;
+        firstRowTime = -1;
+        showColumns = show;
         rowLimit = limit;
-	meta = rset.getMetaData();
-	columns = (show != null) ? show.length : meta.getColumnCount();
-	table = new TableRenderer(getDisplayMeta(meta),  out, 
-                                  columnDelimiter, enableHeader, enableFooter);
+        meta = rset.getMetaData();
+        columns = show != null ? show.length : meta.getColumnCount();
+        table = new TableRenderer(getDisplayMeta(meta), out, columnDelimiter,
+                enableHeader, enableFooter);
     }
 
-    public ResultSetRenderer(ResultSet rset, String columnDelimiter,
-                             boolean enableHeader, boolean enableFooter, 
-                             int limit,
-                             OutputDevice out) 
-	throws SQLException {
-	this(rset, columnDelimiter, enableHeader, enableFooter, 
-             limit, out, null);
+    public ResultSetRenderer(final ResultSet rset, final String columnDelimiter,
+            final boolean enableHeader, final boolean enableFooter, final int limit,
+            final OutputDevice out) throws SQLException {
+        this(rset, columnDelimiter, enableHeader, enableFooter, limit, out,
+                null);
     }
-    
+
     // Interruptable interface.
     public synchronized void interrupt() {
-	running = false;
+        running = false;
     }
 
     public ColumnMetaData[] getDisplayMetaData() {
         return table.getMetaData();
     }
 
-    private String readClob(Clob c) throws SQLException {
-        if (c == null) return null;
-        StringBuffer result = new StringBuffer();
+    private String readClob(final Clob c) throws SQLException {
+        if (c == null) {
+            return null;
+        }
+        final StringBuffer result = new StringBuffer();
         long restLimit = clobLimit;
         try {
-            Reader in = c.getCharacterStream();
-            char buf[] = new char [ 4096 ];
+            final Reader in = c.getCharacterStream();
+            final char buf[] = new char[4096];
             int r;
 
-            while (restLimit > 0 
-                   && (r = in.read(buf, 0, (int)Math.min(buf.length,restLimit))) > 0) 
-                {
-                    result.append(buf, 0, r);
-                    restLimit -= r;
-                }
-        }
-        catch (Exception e) {
+            while (restLimit > 0
+                    && (r = in.read(buf, 0, (int) Math.min(buf.length,
+                            restLimit))) > 0) {
+                result.append(buf, 0, r);
+                restLimit -= r;
+            }
+        } catch (final Exception e) {
             HenPlus.msg().println(e.toString());
         }
         if (restLimit == 0) {
@@ -95,93 +91,89 @@ public class ResultSetRenderer implements Interruptable {
     }
 
     public int execute() throws SQLException {
-	int rows = 0;
+        int rows = 0;
 
-	running = true;
-	try {
-	    while (running && rset.next()) {
-		Column[] currentRow = new Column[ columns ];
-		for (int i = 0 ; i < columns ; ++i) {
-		    int col = (showColumns != null) ? showColumns[i] : i+1;
+        running = true;
+        try {
+            while (running && rset.next()) {
+                final Column[] currentRow = new Column[columns];
+                for (int i = 0; i < columns; ++i) {
+                    final int col = showColumns != null ? showColumns[i] : i + 1;
                     String colString;
-                    if (meta.getColumnType( col ) == Types.CLOB) {
-                        colString = readClob(rset.getClob( col ));
+                    if (meta.getColumnType(col) == Types.CLOB) {
+                        colString = readClob(rset.getClob(col));
+                    } else {
+                        colString = rset.getString(col);
                     }
-                    else {
-                        colString = rset.getString( col );
-                    }
-		    Column thisCol = new Column(colString);
-		    currentRow[i] = thisCol;
-		}
-		if (firstRowTime < 0) {
+                    final Column thisCol = new Column(colString);
+                    currentRow[i] = thisCol;
+                }
+                if (firstRowTime < 0) {
                     // read first row completely.
-		    firstRowTime = System.currentTimeMillis();
-		}
-		table.addRow(currentRow);
-		++rows;
-		if (rows >= rowLimit) {
-		    beyondLimit = true;
-		    break;
-		}
-	    }
-	    
-	    table.closeTable();
+                    firstRowTime = System.currentTimeMillis();
+                }
+                table.addRow(currentRow);
+                ++rows;
+                if (rows >= rowLimit) {
+                    beyondLimit = true;
+                    break;
+                }
+            }
+
+            table.closeTable();
             if (!running) {
                 try {
                     rset.getStatement().cancel();
-                }
-                catch (Exception e) {
-                    HenPlus.msg().println("cancel statement failed: " + e.getMessage());
+                } catch (final Exception e) {
+                    HenPlus.msg().println(
+                            "cancel statement failed: " + e.getMessage());
                 }
             }
-	}
-	finally {
-	    rset.close();
-	}
-	return rows;
+        } finally {
+            rset.close();
+        }
+        return rows;
     }
-    
+
     public boolean limitReached() {
-	return beyondLimit;
+        return beyondLimit;
     }
-    
+
     public long getFirstRowTime() {
-	return firstRowTime;
+        return firstRowTime;
     }
 
     /**
      * determine meta data necesary for display.
      */
-    private ColumnMetaData[] getDisplayMeta(ResultSetMetaData m) 
-	throws SQLException {
-	ColumnMetaData result[] = new ColumnMetaData [ columns ];
+    private ColumnMetaData[] getDisplayMeta(final ResultSetMetaData m)
+    throws SQLException {
+        final ColumnMetaData result[] = new ColumnMetaData[columns];
 
-	for (int i = 0; i < result.length; ++i) {
-	    int col = (showColumns != null) ? showColumns[i] : i+1;
-	    int alignment  = ColumnMetaData.ALIGN_LEFT;
-	    String columnLabel = m.getColumnLabel( col );
-	    /*
-	    int width = Math.max(m.getColumnDisplaySize(i),
-				 columnLabel.length());
-	    */
-	    switch (m.getColumnType( col )) {
-	    case Types.NUMERIC:  
-	    case Types.INTEGER: 
-	    case Types.REAL:
-	    case Types.SMALLINT:
-	    case Types.TINYINT:
-		alignment = ColumnMetaData.ALIGN_RIGHT;
-		break;
-	    }
-	    result[i] = new ColumnMetaData(columnLabel,alignment);
-	}
-	return result;
+        for (int i = 0; i < result.length; ++i) {
+            final int col = showColumns != null ? showColumns[i] : i + 1;
+            int alignment = ColumnMetaData.ALIGN_LEFT;
+            final String columnLabel = m.getColumnLabel(col);
+            /*
+             * int width = Math.max(m.getColumnDisplaySize(i),
+             * columnLabel.length());
+             */
+            switch (m.getColumnType(col)) {
+            case Types.NUMERIC:
+            case Types.INTEGER:
+            case Types.REAL:
+            case Types.SMALLINT:
+            case Types.TINYINT:
+                alignment = ColumnMetaData.ALIGN_RIGHT;
+                break;
+            }
+            result[i] = new ColumnMetaData(columnLabel, alignment);
+        }
+        return result;
     }
 }
 
 /*
- * Local variables:
- * c-basic-offset: 4
- * compile-command: "ant -emacs -find build.xml"
- * End:
+ * Local variables: c-basic-offset: 4 compile-command:
+ * "ant -emacs -find build.xml" End:
  */

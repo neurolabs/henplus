@@ -16,62 +16,65 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Helper class to write the configuration. Focus is to avoid half-written configuration
- * files if IO-Errors occur (full harddisk ..) and to merge properties.
- *
+ * Helper class to write the configuration. Focus is to avoid half-written
+ * configuration files if IO-Errors occur (full harddisk ..) and to merge
+ * properties.
+ * 
  * @author hzeller
  * @version $Revision: 1.1 $
  */
 public final class ConfigurationContainer {
     /** configuration file name */
     private final File _configFile;
-    
+
     /** file content digest on last read. */
     private byte[] _inputDigest;
 
     /** properties read initially */
     private Properties _readProperties;
 
-    public ConfigurationContainer(File file) {
+    public ConfigurationContainer(final File file) {
         _configFile = file.getAbsoluteFile();
     }
 
     public interface ReadAction {
         public void readConfiguration(InputStream in) throws Exception;
     }
-    
+
     /**
      * Execute the read action with the InputStream from the corresponding
      * configuration file.
      */
-    public void read(ReadAction action) {
+    public void read(final ReadAction action) {
         try {
-            InputStream input = getInput();
+            final InputStream input = getInput();
             try {
                 action.readConfiguration(input);
+            } finally {
+                if (input != null) {
+                    input.close();
+                }
             }
-            finally {
-                if (input != null) input.close();
-            }
-        }
-        catch (Exception e) {
+        } catch (final Exception e) {
         }
     }
-    
+
     /**
-     * get the input stream for this configuration container. If
-     * no configuration file exists, 'null' is returned. Remember content
-     * digest on close().
+     * get the input stream for this configuration container. If no
+     * configuration file exists, 'null' is returned. Remember content digest on
+     * close().
      */
     private InputStream getInput() {
         if (!_configFile.canRead()) {
             return null;
         }
         try {
-            InputStream in = new FileInputStream(_configFile);
+            final InputStream in = new FileInputStream(_configFile);
             final MessageDigest inputDigest = MessageDigest.getInstance("MD5");
             return new DigestInputStream(in, inputDigest) {
                 boolean isClosed = false;
+
+                @Override
                 public void close() throws IOException {
                     if (!isClosed) {
                         super.close();
@@ -80,47 +83,47 @@ public final class ConfigurationContainer {
                     isClosed = true;
                 }
             };
-        }
-        catch (Exception e) {
+        } catch (final Exception e) {
             return null; // no input.
         }
     }
 
     public interface WriteAction {
         /**
-         * Write configuration. If any Exception is thrown, the original file
-         * is not overwritten.
+         * Write configuration. If any Exception is thrown, the original file is
+         * not overwritten.
          */
         public void writeConfiguration(OutputStream out) throws Exception;
     }
 
     /**
      * Write configuration. The configuration is first written to a temporary
-     * file. Does not overwrite the original file if any Exception
-     * occurs in the course of this or the resulting file is no different.
+     * file. Does not overwrite the original file if any Exception occurs in the
+     * course of this or the resulting file is no different.
      */
-    public void write(WriteAction action) {
+    public void write(final WriteAction action) {
         File tmpFile = null;
         try {
-            tmpFile = File.createTempFile("config-", ".tmp", _configFile.getParentFile());
+            tmpFile = File.createTempFile("config-", ".tmp", _configFile
+                    .getParentFile());
             final MessageDigest outputDigest = MessageDigest.getInstance("MD5");
-            OutputStream out = new DigestOutputStream(new FileOutputStream(tmpFile), outputDigest);
+            final OutputStream out = new DigestOutputStream(new FileOutputStream(
+                    tmpFile), outputDigest);
             try {
                 action.writeConfiguration(out);
-            }
-            finally {
+            } finally {
                 out.close();
             }
-            if (_inputDigest == null || !_configFile.exists()
-                    || !MessageDigest.isEqual(_inputDigest, outputDigest.digest())) {
-                //System.err.println("non equal.. write file " + _configFile);
+            if (_inputDigest == null
+                    || !_configFile.exists()
+                    || !MessageDigest.isEqual(_inputDigest, outputDigest
+                            .digest())) {
+                // System.err.println("non equal.. write file " + _configFile);
                 tmpFile.renameTo(_configFile);
             }
-        }
-        catch (Exception e) {
+        } catch (final Exception e) {
             System.err.println("do not write config. Error occured: " + e);
-        }
-        finally {
+        } finally {
             if (tmpFile != null) {
                 tmpFile.delete();
             }
@@ -130,14 +133,13 @@ public final class ConfigurationContainer {
     public Map readProperties() {
         return readProperties(null);
     }
-    
+
     /**
-     * convenience-method to read properties. If you handle
-     * simple properties within your command, then use
-     * this method so that versioning and merging
+     * convenience-method to read properties. If you handle simple properties
+     * within your command, then use this method so that versioning and merging
      * is handled.
      */
-    public Map readProperties(Map prefill) {
+    public Map readProperties(final Map prefill) {
         _readProperties = new Properties();
         if (prefill != null) {
             _readProperties.putAll(prefill);
@@ -147,32 +149,34 @@ public final class ConfigurationContainer {
             try {
                 _readProperties.load(input);
                 input.close();
-            }
-            catch (Exception e) {
+            } catch (final Exception e) {
                 System.err.println(e); // can't help.
             }
         }
-        Map props = (Properties) _readProperties.clone();
+        final Map props = (Properties) _readProperties.clone();
         return props;
     }
 
     /**
-     * convenience-method to write properties. Properties
-     * must have been read before.
-     * @param allowMerge allow merging of properties that have
-     *                   been added by another instance of henplus.
+     * convenience-method to write properties. Properties must have been read
+     * before.
+     * 
+     * @param allowMerge
+     *            allow merging of properties that have been added by another
+     *            instance of henplus.
      */
-    public void storeProperties(Map props, boolean allowMerge, final String comment) {
+    public void storeProperties(final Map props, final boolean allowMerge,
+            final String comment) {
         if (_readProperties == null) {
             throw new IllegalStateException("properties not read before");
         }
-        
+
         /* merge if wanted */
         final Properties outputProperties = new Properties();
         if (allowMerge) {
             // all properties, that are not present compared to last read
             // should be removed after merge.
-            final Set locallyRemovedProperties = new HashSet(); 
+            final Set locallyRemovedProperties = new HashSet();
             locallyRemovedProperties.addAll(_readProperties.keySet());
             locallyRemovedProperties.removeAll(props.keySet());
 
@@ -181,32 +185,31 @@ public final class ConfigurationContainer {
                 try {
                     outputProperties.load(input);
                     input.close();
-                }
-                catch (Exception e) {
+                } catch (final Exception e) {
                     // can't help.
                 }
             }
-            
+
             final Iterator it = locallyRemovedProperties.iterator();
             while (it.hasNext()) {
-                String key = (String) it.next();
+                final String key = (String) it.next();
                 outputProperties.remove(key);
             }
         }
-       
+
         outputProperties.putAll(props);
-        
+
         if (outputProperties.equals(_readProperties)) {
-            //System.err.println("equal properties. Do nothing " + _configFile);
+            // System.err.println("equal properties. Do nothing " +
+            // _configFile);
             return;
         }
-        
+
         write(new WriteAction() {
-                public void writeConfiguration(OutputStream out) 
-                    throws Exception {
-                    outputProperties.store(out, comment);
-                    out.close();
-                }
-            });
+            public void writeConfiguration(final OutputStream out) throws Exception {
+                outputProperties.store(out, comment);
+                out.close();
+            }
+        });
     }
 }

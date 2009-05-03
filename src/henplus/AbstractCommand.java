@@ -14,72 +14,87 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 /**
- * Implementation of a Command with default settings. Override
- * what is necessary in your Command. It makes sense to derive plug-ins
- * from this AbstractCommand - this makes the plug-in more robust
- * with regard to newly added methods.
+ * Implementation of a Command with default settings. Override what is necessary
+ * in your Command. It makes sense to derive plug-ins from this AbstractCommand
+ * - this makes the plug-in more robust with regard to newly added methods.
+ * 
  * @author Henner Zeller
  */
 public abstract class AbstractCommand implements Command {
-    
+
     private Options options;
-    
+
     // no description by default.
-    public String getShortDescription() { return null; }
-    public String getLongDescription(String cmd) { return null; }
-    public String getSynopsis(String cmd) { return null; }
-    
+    public String getShortDescription() {
+        return null;
+    }
+
+    public String getLongDescription(final String cmd) {
+        return null;
+    }
+
+    public String getSynopsis(final String cmd) {
+        return null;
+    }
+
     // All commands are completed by default.
-    public boolean participateInCommandCompletion() { return true; }
+    public boolean participateInCommandCompletion() {
+        return true;
+    }
 
     // no completion support by the commmand
-    public Iterator complete(CommandDispatcher disp,
-			     String partialCommand, String lastWord) {
-	return null; 
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
+            final String lastWord) {
+        return null;
     }
-    
-    public void shutdown() { /* don't care */ }
+
+    public void shutdown() { /* don't care */
+    }
 
     // the simple commands are always complete on newline or semicolon
-    public boolean isComplete(String command) { return true; }
+    public boolean isComplete(final String command) {
+        return true;
+    }
 
-    public boolean requiresValidSession(String cmd) { return true; }
+    public boolean requiresValidSession(final String cmd) {
+        return true;
+    }
 
     /**
-     * convenience method: returns the number of elements in this
-     * string, separated by whitespace.
+     * convenience method: returns the number of elements in this string,
+     * separated by whitespace.
      */
-    protected int argumentCount(String command) {
-	return (new StringTokenizer(command)).countTokens();
+    protected int argumentCount(final String command) {
+        return new StringTokenizer(command).countTokens();
     }
-    
-    
+
     protected Options getOptions() {
         return options;
     }
-    public void setOptions(Options options) {
+
+    public void setOptions(final Options options) {
         this.options = options;
     }
-    public Option getOption(String arg0) {
+
+    public Option getOption(final String arg0) {
         return options.getOption(arg0);
     }
-    
+
     /**
      * Override this method if you want to register command-specific options
+     * 
      * @param r
      */
-    public void registerOptions(Options r){
-        
+    public void registerOptions(final Options r) {
+
     }
-    
-    public void handleCommandline(CommandLine line){
-        
+
+    public void handleCommandline(final CommandLine line) {
+
     }
 }
 
 /*
- * Local variables:
- * c-basic-offset: 4
- * compile-command: "ant -emacs -find build.xml"
- * End:
+ * Local variables: c-basic-offset: 4 compile-command:
+ * "ant -emacs -find build.xml" End:
  */

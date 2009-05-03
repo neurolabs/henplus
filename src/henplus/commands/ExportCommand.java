@@ -18,42 +18,41 @@ public class ExportCommand extends AbstractCommand {
      * returns the command-strings this command can handle.
      */
     public String[] getCommandList() {
-	return new String[] {
-	    "export"
-	};
+        return new String[] { "export" };
     }
-    
+
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String cmd, String param) {
-	int argc = argumentCount(param);
-	HenPlus.msg().println("sorry, not implemented yet.");
-	return (argc == 3) ? SUCCESS : SYNTAX_ERROR;
+    public int execute(final SQLSession session, final String cmd, final String param) {
+        final int argc = argumentCount(param);
+        HenPlus.msg().println("sorry, not implemented yet.");
+        return argc == 3 ? SUCCESS : SYNTAX_ERROR;
     }
 
     /**
      * return a descriptive string.
      */
-    public String  getShortDescription() {
-	return "export as XML, SQL or CSV";
+    @Override
+    public String getShortDescription() {
+        return "export as XML, SQL or CSV";
     }
 
-    public String getSynopsis(String cmd) {
-	return "export <csv|xml|sql> <table> <filename>";
+    @Override
+    public String getSynopsis(final String cmd) {
+        return "export <csv|xml|sql> <table> <filename>";
     }
 
-    public String getLongDescription(String cmd) {
-	String dsc;
-	dsc="\texports the given table.";
-	return dsc;
+    @Override
+    public String getLongDescription(final String cmd) {
+        String dsc;
+        dsc = "\texports the given table.";
+        return dsc;
     }
 
 }
 
 /*
- * Local variables:
- * c-basic-offset: 4
- * compile-command: "ant -emacs -find build.xml"
- * End:
+ * Local variables: c-basic-offset: 4 compile-command:
+ * "ant -emacs -find build.xml" End:
  */

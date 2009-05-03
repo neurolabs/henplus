@@ -18,36 +18,37 @@ public class ExitCommand extends AbstractCommand {
      * returns the command-strings this command can handle.
      */
     public String[] getCommandList() {
-	return new String[] {
-	    "exit", "quit"
-	};
+        return new String[] { "exit", "quit" };
     }
-    
-    public boolean requiresValidSession(String cmd) { return false; }
-    
+
+    @Override
+    public boolean requiresValidSession(final String cmd) {
+        return false;
+    }
+
     /**
      * execute the command given.
      */
-    public int execute(SQLSession session, String cmd, String param) {
-	HenPlus.getInstance().terminate();
-	return SUCCESS;
+    public int execute(final SQLSession session, final String cmd, final String param) {
+        HenPlus.getInstance().terminate();
+        return SUCCESS;
     }
 
     /**
      * return a descriptive string.
      */
-    public String  getShortDescription() {
-	return "exits HenPlus";
+    @Override
+    public String getShortDescription() {
+        return "exits HenPlus";
     }
 
-    public String getSynopsis(String cmd) {
-	return cmd;
+    @Override
+    public String getSynopsis(final String cmd) {
+        return cmd;
     }
 }
 
 /*
- * Local variables:
- * c-basic-offset: 4
- * compile-command: "ant -emacs -find build.xml"
- * End:
+ * Local variables: c-basic-offset: 4 compile-command:
+ * "ant -emacs -find build.xml" End:
  */

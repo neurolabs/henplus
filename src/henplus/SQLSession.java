@@ -29,115 +29,101 @@ import java.util.SortedSet;
  * a SQL session.
  */
 public class SQLSession implements Interruptable {
-    private long       _connectTime;
-    private long       _statementCount;
-    private String     _url;
-    private String     _username;
-    private String     _password;
-    private String     _databaseInfo;
+    private long _connectTime;
+    private long _statementCount;
+    private final String _url;
+    private String _username;
+    private String _password;
+    private final String _databaseInfo;
     private Connection _conn;
     private SQLMetaData _metaData;
-    
+
     private final PropertyRegistry _propertyRegistry;
-    private volatile boolean    _interrupted;
+    private volatile boolean _interrupted;
 
     /**
-     * creates a new SQL session. Open the database connection, initializes
-     * the readline library
+     * creates a new SQL session. Open the database connection, initializes the
+     * readline library
      */
-    public SQLSession(String url, String user, String password)
-	throws IllegalArgumentException, 
-	       ClassNotFoundException, 
-	       SQLException,
-	       IOException 
-    {
-	_statementCount = 0;
-	_conn = null;
-	_url = url;
-	_username = user;
-	_password = password;
-	_propertyRegistry = new PropertyRegistry();
+    public SQLSession(final String url, final String user, final String password)
+    throws IllegalArgumentException, ClassNotFoundException,
+    SQLException, IOException {
+        _statementCount = 0;
+        _conn = null;
+        _url = url;
+        _username = user;
+        _password = password;
+        _propertyRegistry = new PropertyRegistry();
 
-	Driver driver = null;
-	//HenPlus.msg().println("connect to '" + url + "'");
-	driver = DriverManager.getDriver(url);
+        Driver driver = null;
+        // HenPlus.msg().println("connect to '" + url + "'");
+        driver = DriverManager.getDriver(url);
 
-	HenPlus.msg().println ("HenPlus II connecting ");
-	HenPlus.msg().println(" url '" + url + '\'');
-	HenPlus.msg().println(" driver version " 
-			 + driver.getMajorVersion()
-			 + "."
-			 + driver.getMinorVersion());
-	connect();
-	
-	int currentIsolation = Connection.TRANSACTION_NONE;
-	DatabaseMetaData meta = _conn.getMetaData();
-	_databaseInfo = (meta.getDatabaseProductName()
-			 + " - " + meta.getDatabaseProductVersion());
-	HenPlus.msg().println(" " + _databaseInfo);
-	try {
-	    if (meta.supportsTransactions()) {
-		currentIsolation = _conn.getTransactionIsolation();
-	    }
-	    else {
-		HenPlus.msg().println("no transactions.");
-	    }
-	    _conn.setAutoCommit(false);
-	}
-	catch (SQLException ignore_me) {
-	}
+        HenPlus.msg().println("HenPlus II connecting ");
+        HenPlus.msg().println(" url '" + url + '\'');
+        HenPlus.msg().println(
+                " driver version " + driver.getMajorVersion() + "."
+                + driver.getMinorVersion());
+        connect();
 
-	printTransactionIsolation(meta,Connection.TRANSACTION_NONE, 
-				  "No Transaction", currentIsolation);
-	printTransactionIsolation(meta, 
-				  Connection.TRANSACTION_READ_UNCOMMITTED,
-				  "read uncommitted", currentIsolation);
-	printTransactionIsolation(meta, Connection.TRANSACTION_READ_COMMITTED,
-				  "read committed", currentIsolation);
-	printTransactionIsolation(meta, Connection.TRANSACTION_REPEATABLE_READ,
-				  "repeatable read", currentIsolation);
-	printTransactionIsolation(meta, Connection.TRANSACTION_SERIALIZABLE, 
-				  "serializable", currentIsolation);
+        int currentIsolation = Connection.TRANSACTION_NONE;
+        final DatabaseMetaData meta = _conn.getMetaData();
+        _databaseInfo = meta.getDatabaseProductName() + " - " + meta
+                .getDatabaseProductVersion();
+        HenPlus.msg().println(" " + _databaseInfo);
+        try {
+            if (meta.supportsTransactions()) {
+                currentIsolation = _conn.getTransactionIsolation();
+            } else {
+                HenPlus.msg().println("no transactions.");
+            }
+            _conn.setAutoCommit(false);
+        } catch (final SQLException ignore_me) {
+        }
 
-        Map availableIsolations = new HashMap();
-        addAvailableIsolation(availableIsolations,
-                              meta, Connection.TRANSACTION_NONE, "none");
-        addAvailableIsolation(availableIsolations,
-                              meta, Connection.TRANSACTION_READ_UNCOMMITTED,
-                              "read-uncommitted");
-        addAvailableIsolation(availableIsolations,
-                              meta, Connection.TRANSACTION_READ_COMMITTED,
-                              "read-committed");
-        addAvailableIsolation(availableIsolations,
-                              meta, Connection.TRANSACTION_REPEATABLE_READ,
-                              "repeatable-read");
-        addAvailableIsolation(availableIsolations,
-                              meta, Connection.TRANSACTION_SERIALIZABLE,
-                              "serializable");
+        printTransactionIsolation(meta, Connection.TRANSACTION_NONE,
+                "No Transaction", currentIsolation);
+        printTransactionIsolation(meta,
+                Connection.TRANSACTION_READ_UNCOMMITTED, "read uncommitted",
+                currentIsolation);
+        printTransactionIsolation(meta, Connection.TRANSACTION_READ_COMMITTED,
+                "read committed", currentIsolation);
+        printTransactionIsolation(meta, Connection.TRANSACTION_REPEATABLE_READ,
+                "repeatable read", currentIsolation);
+        printTransactionIsolation(meta, Connection.TRANSACTION_SERIALIZABLE,
+                "serializable", currentIsolation);
 
-        _propertyRegistry.registerProperty("auto-commit", 
-                                           new AutoCommitProperty());
-        _propertyRegistry.registerProperty("read-only", 
-                                           new ReadOnlyProperty());
-        _propertyRegistry
-            .registerProperty("isolation-level",
-                              new IsolationLevelProperty(availableIsolations,
-                                                         currentIsolation));
+        final Map availableIsolations = new HashMap();
+        addAvailableIsolation(availableIsolations, meta,
+                Connection.TRANSACTION_NONE, "none");
+        addAvailableIsolation(availableIsolations, meta,
+                Connection.TRANSACTION_READ_UNCOMMITTED, "read-uncommitted");
+        addAvailableIsolation(availableIsolations, meta,
+                Connection.TRANSACTION_READ_COMMITTED, "read-committed");
+        addAvailableIsolation(availableIsolations, meta,
+                Connection.TRANSACTION_REPEATABLE_READ, "repeatable-read");
+        addAvailableIsolation(availableIsolations, meta,
+                Connection.TRANSACTION_SERIALIZABLE, "serializable");
+
+        _propertyRegistry.registerProperty("auto-commit",
+                new AutoCommitProperty());
+        _propertyRegistry.registerProperty("read-only", new ReadOnlyProperty());
+        _propertyRegistry.registerProperty("isolation-level",
+                new IsolationLevelProperty(availableIsolations,
+                        currentIsolation));
     }
-    
-    private void printTransactionIsolation(DatabaseMetaData meta,
-			int iLevel, String descript, int current) 
-	throws SQLException {
-	if (meta.supportsTransactionIsolationLevel(iLevel)) {
-	    HenPlus.msg().println(" " + descript
-			       + ((current == iLevel) ? " *" : " "));
-	}
+
+    private void printTransactionIsolation(final DatabaseMetaData meta, final int iLevel,
+            final String descript, final int current) throws SQLException {
+        if (meta.supportsTransactionIsolationLevel(iLevel)) {
+            HenPlus.msg().println(
+                    " " + descript + (current == iLevel ? " *" : " "));
+        }
     }
-    
-    private void addAvailableIsolation(Map result, DatabaseMetaData meta,
-                                       int iLevel, String key) 
-	throws SQLException {
-	if (meta.supportsTransactionIsolationLevel(iLevel)) {
+
+    private void addAvailableIsolation(final Map result, final DatabaseMetaData meta,
+            final int iLevel, final String key) throws SQLException {
+        if (meta.supportsTransactionIsolationLevel(iLevel)) {
             result.put(key, new Integer(iLevel));
         }
     }
@@ -147,96 +133,102 @@ public class SQLSession implements Interruptable {
     }
 
     public String getDatabaseInfo() {
-	return _databaseInfo;
+        return _databaseInfo;
     }
 
     public String getURL() {
-	return _url;
+        return _url;
     }
-    
-    public SQLMetaData getMetaData(SortedSet/*<String>*/ tableNames) {
-        if ( _metaData == null ) {
+
+    public SQLMetaData getMetaData(final SortedSet/* <String> */tableNames) {
+        if (_metaData == null) {
             _metaData = new SQLMetaDataBuilder().getMetaData(this, tableNames);
         }
         return _metaData;
     }
-    
-    public Table getTable(String tableName) {
+
+    public Table getTable(final String tableName) {
         return new SQLMetaDataBuilder().getTable(this, tableName);
     }
-    
-    public boolean printMessages() { 
-        return !(HenPlus.getInstance().getDispatcher().isInBatch());
+
+    public boolean printMessages() {
+        return !HenPlus.getInstance().getDispatcher().isInBatch();
     }
 
-    public void print(String msg) {
-	if (printMessages()) HenPlus.msg().print(msg);
+    public void print(final String msg) {
+        if (printMessages()) {
+            HenPlus.msg().print(msg);
+        }
     }
 
-    public void println(String msg) {
-	if (printMessages()) HenPlus.msg().println(msg);
+    public void println(final String msg) {
+        if (printMessages()) {
+            HenPlus.msg().println(msg);
+        }
     }
 
     public void connect() throws SQLException, IOException {
-	/*
-	 * close old connection ..
-	 */
-	if (_conn != null) {
-	    try { _conn.close(); } catch (Throwable t) { /* ignore */ }
-            _conn = null;
-	}
-
-        Properties props = new Properties();
         /*
-         * FIXME
-         * make generic plugin for specific database drivers that handle
+         * close old connection ..
+         */
+        if (_conn != null) {
+            try {
+                _conn.close();
+            } catch (final Throwable t) { /* ignore */
+            }
+            _conn = null;
+        }
+
+        final Properties props = new Properties();
+        /*
+         * FIXME make generic plugin for specific database drivers that handle
          * the specific stuff. For now this is a quick hack.
          */
         if (_url.startsWith("jdbc:oracle:")) {
-            /* this is needed to make comment in oracle show up in 
-             * the remarks
+            /*
+             * this is needed to make comment in oracle show up in the remarks
              * http://forums.oracle.com/forums/thread.jsp?forum=99&thread=225790
              */
-            props.setProperty("remarksReporting","true");
+            props.setProperty("remarksReporting", "true");
         }
 
-	/* try to connect directly with the url. Several JDBC-Drivers
-         * allow to embed the username and password directly in the URL.
+        /*
+         * try to connect directly with the url. Several JDBC-Drivers allow to
+         * embed the username and password directly in the URL.
          */
-	if (_username == null || _password == null) {
-	    try {
-		_conn = DriverManager.getConnection(_url, props);
-	    }
-	    catch (SQLException e) {
+        if (_username == null || _password == null) {
+            try {
+                _conn = DriverManager.getConnection(_url, props);
+            } catch (final SQLException e) {
                 HenPlus.msg().println(e.getMessage());
                 // only query terminals.
                 if (HenPlus.msg().isTerminal()) {
                     promptUserPassword();
                 }
-	    }
-	}
-        
+            }
+        }
+
         if (_conn == null) {
             _conn = DriverManager.getConnection(_url, _username, _password);
         }
 
         if (_conn != null && _username == null) {
             try {
-                DatabaseMetaData meta = _conn.getMetaData();
+                final DatabaseMetaData meta = _conn.getMetaData();
                 if (meta != null) {
                     _username = meta.getUserName();
                 }
-            }
-            catch (Exception e) {
+            } catch (final Exception e) {
                 /* ok .. at least I tried */
             }
         }
-	_connectTime = System.currentTimeMillis();
+        _connectTime = System.currentTimeMillis();
     }
 
     private void promptUserPassword() throws IOException {
         HenPlus.msg().println("============ authorization required ===");
-        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+        final BufferedReader input = new BufferedReader(new InputStreamReader(
+                System.in));
         _interrupted = false;
         try {
             SigIntHandler.getInstance().pushInterruptable(this);
@@ -250,21 +242,20 @@ public class SQLSession implements Interruptable {
             if (_interrupted) {
                 throw new IOException("connect interrupted ..");
             }
-        }
-        finally {
+        } finally {
             SigIntHandler.getInstance().popInterruptable();
         }
     }
 
     /**
-     * This is after a hack found in 
+     * This is after a hack found in
      * http://java.sun.com/features/2002/09/pword_mask.html
      */
-    private String promptPassword(String prompt) throws IOException {
+    private String promptPassword(final String prompt) throws IOException {
         String password = "";
-        PasswordEraserThread maskingthread = new PasswordEraserThread(prompt);
+        final PasswordEraserThread maskingthread = new PasswordEraserThread(prompt);
         try {
-            byte lineBuffer[] = new byte[ 64 ];
+            final byte lineBuffer[] = new byte[64];
             maskingthread.start();
             for (;;) {
                 if (_interrupted) {
@@ -272,45 +263,41 @@ public class SQLSession implements Interruptable {
                 }
 
                 maskingthread.goOn();
-                int byteCount = System.in.read(lineBuffer);
+                final int byteCount = System.in.read(lineBuffer);
                 /*
-                 * hold on as soon as the system call returnes. Usually,
-                 * this is because we read the newline.
+                 * hold on as soon as the system call returnes. Usually, this is
+                 * because we read the newline.
                  */
                 maskingthread.holdOn();
-                
-                for (int i=0; i < byteCount; ++i) {
+
+                for (int i = 0; i < byteCount; ++i) {
                     char c = (char) lineBuffer[i];
                     if (c == '\r') {
                         c = (char) lineBuffer[++i];
                         if (c == '\n') {
                             return password;
-                        } 
-                        else {
+                        } else {
                             continue;
                         }
-                    } 
-                    else if (c == '\n') {
+                    } else if (c == '\n') {
                         return password;
-                    } 
-                    else {
+                    } else {
                         password += c;
                     }
                 }
             }
-        }
-        finally {
+        } finally {
             maskingthread.done();
         }
-        
+
         return password;
     }
-    
+
     // -- Interruptable interface
     public void interrupt() {
-	_interrupted = true;
+        _interrupted = true;
         HenPlus.msg().attributeBold();
-	HenPlus.msg().println(" interrupted; press [RETURN]");
+        HenPlus.msg().println(" interrupted; press [RETURN]");
         HenPlus.msg().attributeReset();
     }
 
@@ -322,52 +309,56 @@ public class SQLSession implements Interruptable {
     }
 
     public long getUptime() {
-	return System.currentTimeMillis() - _connectTime;
+        return System.currentTimeMillis() - _connectTime;
     }
+
     public long getStatementCount() {
-	return _statementCount;
+        return _statementCount;
     }
-    
+
     public void close() {
-	try {
-	    getConnection().close();
+        try {
+            getConnection().close();
             _conn = null;
-	}
-	catch (Exception e) {
-	    HenPlus.msg().println(e.toString()); // don't care
-	}
+        } catch (final Exception e) {
+            HenPlus.msg().println(e.toString()); // don't care
+        }
     }
 
     /**
      * returns the current connection of this session.
      */
-    public Connection getConnection() { return _conn; }
+    public Connection getConnection() {
+        return _conn;
+    }
 
     public Statement createStatement() {
-	Statement result = null;
-	int retries = 2;
-	try {
-	    if (_conn.isClosed()) { 
-		HenPlus.msg().println("connection is closed; reconnect.");
-		connect();
-		--retries;
-	    }
-	}
-	catch (Exception e) { /* ign */	}
+        Statement result = null;
+        int retries = 2;
+        try {
+            if (_conn.isClosed()) {
+                HenPlus.msg().println("connection is closed; reconnect.");
+                connect();
+                --retries;
+            }
+        } catch (final Exception e) { /* ign */
+        }
 
-	while (retries > 0) {
-	    try {
-		result = _conn.createStatement();
-		++_statementCount;
-		break;
-	    }
-	    catch (Throwable t) {
-		HenPlus.msg().println("connection failure. Try to reconnect.");
-		try { connect(); } catch (Exception e) { /* ign */ }
-	    }
-	    --retries;
-	}
-	return result;
+        while (retries > 0) {
+            try {
+                result = _conn.createStatement();
+                ++_statementCount;
+                break;
+            } catch (final Throwable t) {
+                HenPlus.msg().println("connection failure. Try to reconnect.");
+                try {
+                    connect();
+                } catch (final Exception e) { /* ign */
+                }
+            }
+            --retries;
+        }
+        return result;
     }
 
     /* ------- Session Properties ----------------------------------- */
@@ -379,28 +370,33 @@ public class SQLSession implements Interruptable {
             _propertyValue = "off"; // 'off' sounds better in this context.
         }
 
-        public void booleanPropertyChanged(boolean switchOn) throws Exception {
+        @Override
+        public void booleanPropertyChanged(final boolean switchOn) throws Exception {
             /*
              * readonly requires a closed transaction.
              */
             if (!switchOn) {
                 getConnection().rollback(); // save choice.
-            }
-            else {
-                /* if we switched off and the user has not closed the current
-                 * transaction, setting readonly will throw an exception 
-                 * and will notify the user about what to do.. */
+            } else {
+                /*
+                 * if we switched off and the user has not closed the current
+                 * transaction, setting readonly will throw an exception and
+                 * will notify the user about what to do..
+                 */
             }
             getConnection().setReadOnly(switchOn);
             if (getConnection().isReadOnly() != switchOn) {
-                throw new Exception("JDBC-Driver ignores request; transaction closed before ?");
-            }            
+                throw new Exception(
+                "JDBC-Driver ignores request; transaction closed before ?");
+            }
         }
-        
+
+        @Override
         public String getDefaultValue() {
             return "off";
         }
 
+        @Override
         public String getShortDescription() {
             return "Switches on read only mode for optimizations.";
         }
@@ -413,12 +409,12 @@ public class SQLSession implements Interruptable {
             _propertyValue = "off"; // 'off' sounds better in this context.
         }
 
-        public void booleanPropertyChanged(boolean switchOn) throws Exception {
+        @Override
+        public void booleanPropertyChanged(final boolean switchOn) throws Exception {
             /*
-             * due to a bug in Sybase, we have to close the
-             * transaction first before setting autcommit.
-             * This is probably a save choice to do, since the user asks
-             * for autocommit..
+             * due to a bug in Sybase, we have to close the transaction first
+             * before setting autcommit. This is probably a save choice to do,
+             * since the user asks for autocommit..
              */
             if (switchOn) {
                 getConnection().commit();
@@ -428,11 +424,13 @@ public class SQLSession implements Interruptable {
                 throw new Exception("JDBC-Driver ignores request");
             }
         }
-        
+
+        @Override
         public String getDefaultValue() {
             return "off";
         }
 
+        @Override
         public String getShortDescription() {
             return "Switches auto commit";
         }
@@ -442,16 +440,16 @@ public class SQLSession implements Interruptable {
         private final Map _availableValues;
         private final String _initialValue;
 
-        IsolationLevelProperty(Map availableValues, int currentValue) {
+        IsolationLevelProperty(final Map availableValues, final int currentValue) {
             super(availableValues.keySet());
             _availableValues = availableValues;
 
             // sequential search .. doesn't matter, not much do do
             String initValue = null;
-            Iterator it = availableValues.entrySet().iterator();
+            final Iterator it = availableValues.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry entry = (Map.Entry) it.next();
-                Integer isolationLevel = (Integer) entry.getValue();
+                final Map.Entry entry = (Map.Entry) it.next();
+                final Integer isolationLevel = (Integer) entry.getValue();
                 if (isolationLevel.intValue() == currentValue) {
                     initValue = (String) entry.getKey();
                     break;
@@ -460,23 +458,26 @@ public class SQLSession implements Interruptable {
             _propertyValue = _initialValue = initValue;
         }
 
+        @Override
         public String getDefaultValue() {
             return _initialValue;
         }
 
-        protected void enumeratedPropertyChanged(int index, String value)
-            throws Exception {
-            Integer isolationLevel = (Integer) _availableValues.get(value);
+        @Override
+        protected void enumeratedPropertyChanged(final int index, final String value)
+        throws Exception {
+            final Integer isolationLevel = (Integer) _availableValues.get(value);
             if (isolationLevel == null) {
                 throw new IllegalArgumentException("invalid value");
             }
-            int isolation = isolationLevel.intValue();
+            final int isolation = isolationLevel.intValue();
             getConnection().setTransactionIsolation(isolation);
             if (getConnection().getTransactionIsolation() != isolation) {
                 throw new Exception("JDBC-Driver ignores request");
             }
         }
 
+        @Override
         public String getShortDescription() {
             return "sets the transaction isolation level";
         }
@@ -484,9 +485,7 @@ public class SQLSession implements Interruptable {
 }
 
 /*
- * Local variables:
- * c-basic-offset: 4
- * compile-command: "ant -emacs -find build.xml"
- * End:
+ * Local variables: c-basic-offset: 4 compile-command:
+ * "ant -emacs -find build.xml" End:
  */
 

@@ -10,8 +10,8 @@ import henplus.SQLSession;
 import java.util.EventListener;
 
 /**
- * A Listener that is called by the CommandDispatcher
- * whenever a command is executed.
+ * A Listener that is called by the CommandDispatcher whenever a command is
+ * executed.
  */
 public interface ExecutionListener extends EventListener {
     /**

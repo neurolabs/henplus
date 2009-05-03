@@ -10,16 +10,34 @@ package henplus;
  * An OutputDevice that does nothing.
  */
 public abstract class AbstractOutputDevice implements OutputDevice {
-    public void flush() { }
-    public void write(byte[] buffer, int off, int len) { }
-    public void print(String s) { }
-    public void println(String s) { }
-    public void println() { }
+    public void flush() {
+    }
 
-    public void attributeBold() { }
-    public void attributeReset() { }
-    public void attributeGrey() { }
+    public void write(final byte[] buffer, final int off, final int len) {
+    }
 
-    public void close() { }
-    public boolean isTerminal() { return false; }
+    public void print(final String s) {
+    }
+
+    public void println(final String s) {
+    }
+
+    public void println() {
+    }
+
+    public void attributeBold() {
+    }
+
+    public void attributeReset() {
+    }
+
+    public void attributeGrey() {
+    }
+
+    public void close() {
+    }
+
+    public boolean isTerminal() {
+        return false;
+    }
 }

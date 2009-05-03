@@ -9,8 +9,7 @@ package henplus.commands;
 import henplus.Interruptable;
 
 /**
- * A thread to be used to cancel a statement running
- * in another thread.
+ * A thread to be used to cancel a statement running in another thread.
  */
 final class StatementCanceller implements Runnable, Interruptable {
     private final CancelTarget _target;
@@ -19,14 +18,14 @@ final class StatementCanceller implements Runnable, Interruptable {
     private volatile boolean _cancelStatement;
 
     /**
-     * The target to be cancelled. Must not throw an Execption
-     * and may to whatever it needs to do.
+     * The target to be cancelled. Must not throw an Execption and may to
+     * whatever it needs to do.
      */
     public interface CancelTarget {
         void cancelRunningStatement();
     }
 
-    public StatementCanceller(CancelTarget target) {
+    public StatementCanceller(final CancelTarget target) {
         _cancelStatement = false;
         _armed = false;
         _running = true;
@@ -36,8 +35,10 @@ final class StatementCanceller implements Runnable, Interruptable {
     /** inherited: interruptable interface */
     public void interrupt() {
         _cancelStatement = true;
-        /* watch out, we must not call notify, since we
-         * are in the midst of a signal handler */
+        /*
+         * watch out, we must not call notify, since we are in the midst of a
+         * signal handler
+         */
     }
 
     public synchronized void stopThread() {
@@ -63,22 +64,22 @@ final class StatementCanceller implements Runnable, Interruptable {
                 while (_running && !_armed) {
                     wait();
                 }
-                if (!_running) return;
+                if (!_running) {
+                    return;
+                }
                 while (_armed && !_cancelStatement) {
                     wait(300);
                 }
                 if (_cancelStatement) {
                     try {
                         _target.cancelRunningStatement();
-                    }
-                    catch (Exception e) {
+                    } catch (final Exception e) {
                         /* ignore */
                     }
                     _armed = false;
                 }
             }
-        }
-        catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             return;
         }
     }

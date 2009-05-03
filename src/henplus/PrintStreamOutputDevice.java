@@ -14,24 +14,44 @@ import java.io.PrintStream;
 public class PrintStreamOutputDevice implements OutputDevice {
     private final PrintStream _outStream;
 
-    public PrintStreamOutputDevice(PrintStream out) {
+    public PrintStreamOutputDevice(final PrintStream out) {
         _outStream = out;
     }
 
-    public void flush()            {  _outStream.flush();  }
-    public void write(byte[] buffer, int off, int len) {
+    public void flush() {
+        _outStream.flush();
+    }
+
+    public void write(final byte[] buffer, final int off, final int len) {
         _outStream.write(buffer, off, len);
     }
-    public void print(String s)    { _outStream.print(s);  }
-    public void println(String s)  { _outStream.println(s);  }
-    public void println()          { _outStream.println(); }
 
-    public void close() { _outStream.close(); }
+    public void print(final String s) {
+        _outStream.print(s);
+    }
 
-    public void attributeBold()  { /* no attributes */ }
-    public void attributeGrey()  { /* no attributes */ }
+    public void println(final String s) {
+        _outStream.println(s);
+    }
 
-    public void attributeReset() { /* no attributes */ }
+    public void println() {
+        _outStream.println();
+    }
 
-    public boolean isTerminal() { return false; }
+    public void close() {
+        _outStream.close();
+    }
+
+    public void attributeBold() { /* no attributes */
+    }
+
+    public void attributeGrey() { /* no attributes */
+    }
+
+    public void attributeReset() { /* no attributes */
+    }
+
+    public boolean isTerminal() {
+        return false;
+    }
 }

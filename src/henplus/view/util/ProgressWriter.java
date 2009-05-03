@@ -1,7 +1,7 @@
 /*
  * This is free software, licensed under the Gnu Public License (GPL)
  * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ProgressWriter.java,v 1.2 2005-03-25 15:39:44 hzeller Exp $ 
+ * $Id: ProgressWriter.java,v 1.2 2005-03-25 15:39:44 hzeller Exp $
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
@@ -10,8 +10,7 @@ import henplus.OutputDevice;
 import henplus.commands.TimeRenderer;
 
 /**
- * A utility class that can write the progress of an operation
- * to the screen.
+ * A utility class that can write the progress of an operation to the screen.
  */
 public class ProgressWriter {
     private final static int DEFAULT_SCREEN_WIDTH = 65;
@@ -31,26 +30,27 @@ public class ProgressWriter {
     private int _progressDots;
     private int _screenWidth;
 
-    public ProgressWriter(long expectedTargetValue, OutputDevice out) {
+    public ProgressWriter(final long expectedTargetValue, final OutputDevice out) {
         _expectedTargetValue = expectedTargetValue;
         _out = out;
         _progressDots = 0;
         _startTime = System.currentTimeMillis();
         _lastEtaUpdate = -1;
         _etaWriter = new CancelWriter(_out);
-        setScreenWidth( DEFAULT_SCREEN_WIDTH );
+        setScreenWidth(DEFAULT_SCREEN_WIDTH);
     }
 
-    public void setScreenWidth(int screenWidth) {
+    public void setScreenWidth(final int screenWidth) {
         _screenWidth = screenWidth;
     }
+
     public int getScreenWidth() {
         return _screenWidth;
     }
 
-    public void update(long value) {
-        if (_expectedTargetValue > 0  && value <= _expectedTargetValue) {
-            long newDots = (_screenWidth * value) / _expectedTargetValue;
+    public void update(final long value) {
+        if (_expectedTargetValue > 0 && value <= _expectedTargetValue) {
+            final long newDots = _screenWidth * value / _expectedTargetValue;
             if (newDots > _progressDots) {
                 _etaWriter.cancel(false);
                 while (_progressDots < newDots) {
@@ -67,17 +67,20 @@ public class ProgressWriter {
         _etaWriter.cancel();
     }
 
-    private void writeEta(long value) {
-        if (!_etaWriter.isPrinting())
+    private void writeEta(final long value) {
+        if (!_etaWriter.isPrinting()) {
             return;
+        }
         final long now = System.currentTimeMillis();
         final long runningTime = now - _startTime;
-        if (runningTime < MIN_ETA_RUNNING_TIME)
+        if (runningTime < MIN_ETA_RUNNING_TIME) {
             return;
+        }
         final long lastUpdateDiff = now - _lastEtaUpdate;
-        if (!_etaWriter.hasCancellableOutput() || lastUpdateDiff > MIN_ETA_DIFF_TIME) {
-            long etaTime = _expectedTargetValue * runningTime / value;
-            long rest = etaTime - runningTime;
+        if (!_etaWriter.hasCancellableOutput()
+                || lastUpdateDiff > MIN_ETA_DIFF_TIME) {
+            final long etaTime = _expectedTargetValue * runningTime / value;
+            final long rest = etaTime - runningTime;
             _etaWriter.print("ETA: " + TimeRenderer.renderTime(rest));
             _lastEtaUpdate = now;
         }
