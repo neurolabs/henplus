@@ -1,7 +1,13 @@
+
 <html>
+
 <head>
-<title>HenPlus documentation</title>
+
+<title>HenPlus documentation
+</title>
+
 <style type="text/css">
+
 <!--
 /* YUI reset */
 /*html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var,optgroup{font-style:inherit;font-weight:inherit;}del,ins{text-decoration:none;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:baseline;}sub{vertical-align:baseline;}legend{color:#000;}input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}input,button,textarea,select{*font-size:100%;}*/
@@ -21,46 +27,132 @@
     background-color: #ddf;
 }
 -->
+
 </style>
 
+
 </head>
+
 <body>
-<h1>HenPlus</h1>
-<h2>JDBC SQL-shell</h2>
+
+<h1>HenPlus
+</h1>
+
+<h2>JDBC SQL-shell
+</h2>
+
 
 <div id="navigation">
-<h3>Table of Contents</h3>
+
+<h3>Table of Contents
+</h3>
+
 <ul>
-<li><a href="#overview">Overview</a></li>
-<li><a href="#getting-started">Getting Started</a></li>
-<li><a href="#getting-connected">Getting Connected</a></li>
-<li><a href="#multiple-open-sessions">Multiple Open Sessions</a></li>
-<li><a href="#variables">Using Variables</a></li>
-<li><a href="#properties">Setting Properties</a></li>
-<li><a href="#commandline-completion">Commandline Editing</a></li>
-<li><a href="#per-project-config">Per Project Configuration</a></li>
-<li><a href="#plugins">Plugins</a></li>
-<li><a href="#aliases">Aliases</a></li>
-<li><a href="#keybindings">Function Key Bindings</a></li>
-<li><a href="#cmd-bookmark">Setting Command Bookmarks</a></li>
-<li><a href="#table-dumps">Table Dumps</a></li>
-<li><a href="#tree-view">Tree View</a></li>
+
+<li>
+<a href="#overview">Overview
+</a>
+</li>
+
+<li>
+<a href="#getting-started">Getting Started
+</a>
+</li>
+
+<li>
+<a href="#getting-connected">Getting Connected
+</a>
+</li>
+
+<li>
+<a href="#multiple-open-sessions">Multiple Open Sessions
+</a>
+</li>
+
+<li>
+<a href="#variables">Using Variables
+</a>
+</li>
+
+<li>
+<a href="#properties">Setting Properties
+</a>
+</li>
+
+<li>
+<a href="#commandline-completion">Commandline Editing
+</a>
+</li>
+
+<li>
+<a href="#per-project-config">Per Project Configuration
+</a>
+</li>
+
+<li>
+<a href="#plugins">Plugins
+</a>
+</li>
+
+<li>
+<a href="#aliases">Aliases
+</a>
+</li>
+
+<li>
+<a href="#keybindings">Function Key Bindings
+</a>
+</li>
+
+<li>
+<a href="#cmd-bookmark">Setting Command Bookmarks
+</a>
+</li>
+
+<li>
+<a href="#table-dumps">Table Dumps
+</a>
+</li>
+
+<li>
+<a href="#tree-view">Tree View
+</a>
+</li>
+
 </ul>
-<h3>Quick Links</h3>
+
+<h3>Quick Links
+</h3>
+
 <ul>
-<li><a href="#faq">FAQ</a></li>
-<li><a href="http://sourceforge.net/projects/henplus">Download</a></li>
+
+<li>
+<a href="#faq">FAQ
+</a>
+</li>
+
+<li>
+<a href="http://sourceforge.net/projects/henplus">Download
+</a>
+</li>
+
 </ul>
+
 </div>
 
-<h3>History</h3>
+
+<h3>History
+</h3>
+
 <p>
 Know this ? You need a small little tool for your everyday work and
 you wonder why nobody did this before -- and then you write it yourself.
 HenPlus is the result of such an effort. Its name reflects the original 
 intent: it started as a platform independent replacement for the 
 Oracle SQLPlus tool. 
+
 </p>
+
 <p>
 I wrote the first version of HenPlus in 1997 (before
 Oracle was available for Linux) since I had to develop an application that 
@@ -68,16 +160,24 @@ connected to an Oracle database, but I had no Solaris machine
 at home -- and the only SQLPlus I could use back then was running on some 
 Redmond operating system that lacked (and still lacks) the 
 environment to seriously develop software.
+
 </p>
+
 <p>
 Since then I've rewritten
 this tool, added command line completion and history -- but it still
 remained small and useful. It is freely distributable in source 
 and binary form because it is protected by the 
-<a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License</a>.
+
+<a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License
+</a>.
+
 </p>
 
-<h3><a name="overview"/>Overview</h3>
+
+<h3>
+<a name="overview"/>Overview
+</h3>
 HenPlus is a SQL shell written in Java that works for any database 
 that offers JDBC support. So
 basically any database. Why do we need this ? Any database comes with some
@@ -86,180 +186,370 @@ unusable).
 And if you work with several
 databases at once (if you are a developer, then you do this all the time),
 switching between these tools is tedious.
+
 <p>
-This is where <em>HenPlus</em> steps in. It supports:
+This is where 
+<em>HenPlus
+</em> steps in. It supports:
+
 </p>
+
 <ul>
- <li>Any JDBC aware database.</li>
- <li>Has context sensitive command line completion for commands 
-     and tables / columns / variables within SQL-commands. </li>
- <li>Multiple open connection-sessions can be handled in parallel. You can just
+ 
+<li>Any JDBC aware database.
+</li>
+ 
+<li>Has context sensitive command line completion for commands 
+     and tables / columns / variables within SQL-commands. 
+</li>
+ 
+<li>Multiple open connection-sessions can be handled in parallel. You can just
      switch between them. So you can be connected to different databases to
-     experiment with the same statement in all of them, for example.<br />
+     experiment with the same statement in all of them, for example.
+<br />
      All JDBC-Urls of opened sessions are stored for
-     later command line completion in the <code>connect</code> command.</li>
- <li>Command line history just like in the bash (with cursor-up/down, CTRL-R, 
+     later command line completion in the 
+<code>connect
+</code> command.
+</li>
+ 
+<li>Command line history just like in the bash (with cursor-up/down, CTRL-R, 
      ...)
-     </li>
- <li>A <code>describe</code> command for database tables, that work all
+     
+</li>
+ 
+<li>A 
+<code>describe
+</code> command for database tables, that work all
      JDBC-Drivers that unveil the appropriate MetaData (Oracle, PostgreSQL,
-     MySQL, DB2...)</li>
- <li>supports variables that are expanded like shell variables
+     MySQL, DB2...)
+</li>
+ 
+<li>supports variables that are expanded like shell variables
      with $VARIABLENAME or ${VARIABLENAME} (with completion of their names,
-     just like in bash)</li>
- <li>loading files</li>
- <li>supports several built-in commands (<code>start</code>, <code>@</code>,
-     <code>@@</code>, <code>spool</code>) and
+     just like in bash)
+</li>
+ 
+<li>loading files
+</li>
+ 
+<li>supports several built-in commands (
+<code>start
+</code>, 
+<code>@
+</code>,
+     
+<code>@@
+</code>, 
+<code>spool
+</code>) and
      syntax from the Oracle SQL-plus utility (like the single '/' on a line
      to close a statement). Most Oracle SQL-plus scripts will run directly, so
      its simple to switch to HenPlus. Except if you can't stand, that your
      life will become much simpler, then ;-) If you have problems
      running your old scripts, please let 
-     <a href="mailto:ole.langbehn@googlemail.com">me</a> know.</li>
- <li>allows a per-project storage of the commandline history, 
-     variables, plugins and connections.</li>
- <li>allows to add your own plugins that behave just like the built-in 
-     commands.</li>
- <li>Is provided as Free Software. You are free to modify, copy, share and sell this software under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License</a></li>
+     
+<a href="mailto:ole.langbehn@googlemail.com">me
+</a> know.
+</li>
+ 
+<li>allows a per-project storage of the commandline history, 
+     variables, plugins and connections.
+</li>
+ 
+<li>allows to add your own plugins that behave just like the built-in 
+     commands.
+</li>
+ 
+<li>Is provided as Free Software. You are free to modify, copy, share and sell this software under the 
+<a href="http://www.gnu.org/licenses/gpl.txt">GNU Public License
+</a>
+</li>
+
 </ul>
 
-<h3><a name="getting-started"/>Getting started</h3>
-<h4>Download</h4>
+
+<h3>
+<a name="getting-started"/>Getting started
+</h3>
+
+<h4>Download
+</h4>
 You can download source and binary packages of HenPlus at the 
-<a href="http://sourceforge.net/project/showfiles.php?group_id=47945">HenPlus SourceForge Download Page</a>.
+
+<a href="http://sourceforge.net/project/showfiles.php?group_id=47945">HenPlus SourceForge Download Page
+</a>.
+
 <p>
-As of March 2005, HenPlus is included in some distributions, for example <a href="http://www.debian.org/">Debian</a>
-testing and unstable, <a href="http://www.ubuntulinux.org/">Ubuntu</a> and <a href="http://www.gentoo.org/">Gentoo</a>.
+As of March 2005, HenPlus is included in some distributions, for example 
+<a href="http://www.debian.org/">Debian
+</a>
+testing and unstable, 
+<a href="http://www.ubuntulinux.org/">Ubuntu
+</a> and 
+<a href="http://www.gentoo.org/">Gentoo
+</a>.
 Use the respective package management tool to install HenPlus on these distributions.
-</p>
-<p>
-For an installation on <a href="http://fink.sourceforge.net/">fink</a> for Mac have a look at <a href="http://blog.wannawork.de/index.php/2005/09/18/henplus_on_mac_os_using_fink">Bodo Tasche's blog</a>.
-If you have a hard time to get the java-readline compiled on Mac OS X, then you might want to check out <a href="http://toonetown.blogspot.com/2006/07/java-readline-on-mac-os-x-update.html">Nathan Toone's blog</a> for an installation description.
+
 </p>
 
-<h4>Compilation</h4>
-If you have <a href="http://sourceforge.net/project/showfiles.php?group_id=47945">downloaded</a>
+<p>
+For an installation on 
+<a href="http://fink.sourceforge.net/">fink
+</a> for Mac have a look at 
+<a href="http://blog.wannawork.de/index.php/2005/09/18/henplus_on_mac_os_using_fink">Bodo Tasche's blog
+</a>.
+If you have a hard time to get the java-readline compiled on Mac OS X, then you might want to check out 
+<a href="http://toonetown.blogspot.com/2006/07/java-readline-on-mac-os-x-update.html">Nathan Toone's blog
+</a> for an installation description.
+
+</p>
+
+
+<h4>Compilation
+</h4>
+If you have 
+<a href="http://sourceforge.net/project/showfiles.php?group_id=47945">downloaded
+</a>
 HenPlus as a binary RPM or debian package, you can
-<a href="#running">skip</a> this part.
+
+<a href="#running">skip
+</a> this part.
+
 <p>
 Ok, you are still here, so you have to compile it first. First you need
 an additional library.
 HenPlus uses the features of the GNU-readline library and therefore
 needs the JNI java wrapper library &gt;=
-<a href="http://sourceforge.net/project/showfiles.php?group_id=48669">java-readline 0.7.3</a>.
-( <a href="http://toonetown.blogspot.com/2006/07/java-readline-on-mac-os-x-update.html">compilation on Mac OS X</a> )
+
+<a href="http://sourceforge.net/project/showfiles.php?group_id=48669">java-readline 0.7.3
+</a>.
+( 
+<a href="http://toonetown.blogspot.com/2006/07/java-readline-on-mac-os-x-update.html">compilation on Mac OS X
+</a> )
+
 </p>
+
 <p>
-To build HenPlus the <a href="http://jakarta.apache.org/ant">ant build
-tool</a> (Version >= 1.4) is required. To compile HenPlus, make sure that the 
-<code>libreadline-java.jar</code> is in the classpath (RedHat and Debian installs the 
-java-readline package in <code>/usr/share/java/libreadline-java.jar</code>).
+To build HenPlus the 
+<a href="http://jakarta.apache.org/ant">ant build
+tool
+</a> (Version >= 1.4) is required. To compile HenPlus, make sure that the 
+
+<code>libreadline-java.jar
+</code> is in the classpath (RedHat and Debian installs the 
+java-readline package in 
+<code>/usr/share/java/libreadline-java.jar
+</code>).
 Compilation needs to be done with JDK >= 1.3, but the resulting 
 jar file works with old JDK 1.2.2 (the Runtime.addShutdownHook() method is
 used in compilation).
+
 </p>
+
 <p>Now, just type
+
 <pre>
 $ ant jar
+
 </pre>
 If you are root, then you can install it with:
+
 <pre>
 # ant install
+
 </pre>
-which will install henplus in</p>
+which will install henplus in
+</p>
+
 <table bgcolor="#DDDDFF" border="1" cellpadding="5">
+
 <tr valign="top">
-   <td>/usr/share/henplus/henplus.jar</td><td>The jar-file containing
+   
+<td>/usr/share/henplus/henplus.jar
+</td>
+<td>The jar-file containing
                          the HenPlus classes. You can add additional
 			 jar files in this directory. All of them are
 			 added to the classpath in the henplus shellscript
 			 (use this for JDBC-drivers).
-			 </td></tr>
-<tr><td>/usr/bin/henplus</td><td>shellscript to start henplus</td></tr>
+			 
+</td>
+</tr>
+
+<tr>
+<td>/usr/bin/henplus
+</td>
+<td>shellscript to start henplus
+</td>
+</tr>
+
 </table>
 If you want another installation base (default: /usr), you 
-provide this with the parameter <code>'prefix'</code>:
+provide this with the parameter 
+<code>'prefix'
+</code>:
+
 <pre>
 $ ant -Dprefix=/usr/local install
+
 </pre>
+
 <p class="hint">(For package providers: the build.xml provides as well
-the <code>DESTDIR</code> parameter with a similar meaning as in usual
-Makefiles)</p>
-If you've created packages for other operating systems (like
-Solaris) or Windows, please <a href="mailto:ole.langbehn@googlemail.com">let me know</a>.
+the 
+<code>DESTDIR
+</code> parameter with a similar meaning as in usual
+Makefiles)
 </p>
+
+<p>
+If you've created packages for other operating systems (like
+Solaris) or Windows, please 
+<a href="mailto:ole.langbehn@googlemail.com">let me know
+</a>.
+
+</p>
+
 <p>
 I haven't compiled this on Windows, but it shouldn't be a big deal .. if you manage to compile
 the java-readline. This is an JNI shared library and thus platform dependant.
 If you did it, please post your experience, so that we
 can include it in this documentation.
 
-<h4><a name="running"/>Running</h4>
-You can start HenPlus with the <code>henplus</code> shell script
+
+<h4>
+<a name="running"/>Running
+</h4>
+You can start HenPlus with the 
+<code>henplus
+</code> shell script
 with or without an jdbc-url on the command line.
+
 <pre>
 $ henplus jdbc:mysql://localhost/foobar
+
 </pre>
 
+
 </p>
+
+<h5>Make sure, command line editing is enabled
+</h5>
+
 <p>
-<h5>Make sure, command line editing is enabled</h5>
 If the first line, henplus writes reads:
+
 <pre>
 no readline found (no JavaReadline in java.library.path). Using simple stdin.
+
 </pre>
 .. then, the JNI-part of the readline library could not be found, so command line
 editing is disabled because henplus then reads from stdin as fallback.
-This happens if the <code>LD_LIBRARY_PATH</code> does not point to the JNI library; edit the
-<code>/usr/bin/henplus</code> shellscript so that the <code>LD_LIBRARY_PATH</code> contains the
-directory where <code>libJavaReadline.so</code> resides.
+This happens if the 
+<code>LD_LIBRARY_PATH
+</code> does not point to the JNI library; edit the
 
-<h5>Getting started</h5>
-The important commands you need to know to get it running are <code>help</code> and
-<code>connect</code>. The help command gives an overview, what commands
+<code>/usr/bin/henplus
+</code> shellscript so that the 
+<code>LD_LIBRARY_PATH
+</code> contains the
+directory where 
+<code>libJavaReadline.so
+</code> resides.
+
+</p>
+
+<h5>Getting started
+</h5>
+The important commands you need to know to get it running are 
+<code>help
+</code> and
+
+<code>connect
+</code>. The help command gives an overview, what commands
 are supported:
-<hr>
+
+<hr />
+
 <pre class="output">
 Hen*Plus&gt; help
  help | ?                                 : provides help for commands
  about | version | license                : about HenPlus
  exit | quit                              : exits HenPlus
  echo | prompt                            : echo argument
- list-plugins | plug-in | plug-out        : <a href="#plugins">handle Plugins</a>
- list-drivers | register | unregister     : <a href="#getting-connected">handle JDBC drivers</a>
- list-aliases | alias | unalias           : <a href="#aliases">handle Aliases</a>
- list-key-bindings | bind-key-cmd-string  : <a href="#keybindings">handle function key bindings</a>
+ list-plugins | plug-in | plug-out        : 
+<a href="#plugins">handle Plugins
+</a>
+ list-drivers | register | unregister     : 
+<a href="#getting-connected">handle JDBC drivers
+</a>
+ list-aliases | alias | unalias           : 
+<a href="#aliases">handle Aliases
+</a>
+ list-key-bindings | bind-key-cmd-string  : 
+<a href="#keybindings">handle function key bindings
+</a>
  load | start | @ | @@                    : load file and execute commands
- connect | disconnect | rename-session | switch | sessions: <a href="#connect">manage sessions</a>
+ connect | disconnect | rename-session | switch | sessions: 
+<a href="#connect">manage sessions
+</a>
  status                                   : show status of this connection
  tables | views | rehash                  : list available user objects
  describe &lt;tablename&gt;                     : describe a database object
- tree-view &lt;tablename&gt;                    : <a href="#tree-view">tree representation of connected tables</a>
- dump-out | dump-in | verify-dump | dump-conditional: <a href="#table-dumps">handle table dumps</a>
+ tree-view &lt;tablename&gt;                    : 
+<a href="#tree-view">tree representation of connected tables
+</a>
+ dump-out | dump-in | verify-dump | dump-conditional: 
+<a href="#table-dumps">handle table dumps
+</a>
  system | !                               : execute system commands
- set-var | unset-var                      : <a href="#variable">set/unset variables</a>
- set-property | reset-property            : <a href="#properties">set global HenPlus properties</a>
- set-session-property | reset-session-property: <a href="#properties">set SQL-connection specific properties</a>
-<a name="config-dir"/><a href="#per-project-config">config read from [/home/hzeller/.henplus]</a>
+ set-var | unset-var                      : 
+<a href="#variable">set/unset variables
+</a>
+ set-property | reset-property            : 
+<a href="#properties">set global HenPlus properties
+</a>
+ set-session-property | reset-session-property: 
+<a href="#properties">set SQL-connection specific properties
+</a>
+
+<a name="config-dir"/>
+<a href="#per-project-config">config read from [/home/hzeller/.henplus]
+</a>
+
 </pre>
-<hr>
-</p>
+
+<hr />
+
 <p>
-You exit the HenPlus shell by typing the <code>exit</code> or <code>quit</code>
+You exit the HenPlus shell by typing the 
+<code>exit
+</code> or 
+<code>quit
+</code>
 command or by just typing EOF-Character (CTRL-D).
+
 </p>
+
 <p>
 For almost all commands, there is more detailed help available. You can
-just explore the commands by typing <code>help [commandname]</code> and
+just explore the commands by typing 
+<code>help [commandname]
+</code> and
 learn what the built-in commands are all about; all help entries have
 a synopsis and a more detailed description like in the following example:
 
+
 <pre class="output">
 Hen*Plus&gt; help system
-<b>SYNOPSIS</b>
+
+<b>SYNOPSIS
+</b>
         system &lt;system-shell-commandline&gt;
 
-<b>DESCRIPTION</b>
+
+<b>DESCRIPTION
+</b>
         Execute a system command in the shell. You can only invoke
         commands,  that do  not expect  anything  from  stdin: the
         interactive  input  from HenPlus  is disconnected from the
@@ -269,70 +559,127 @@ Hen*Plus&gt; help system
         exclamation mark: !&lt;command&gt;.
         Example:
         !ls
+
 </pre>
+
 </p>
+
 <p>But for now, we are interested how to get connected, so start with the 
-<code>connect</code> command
+
+<code>connect
+</code> command
+
 <pre>
 Hen*Plus&gt; help connect
+
 </pre>
 (more details on connection to the database in the 
-<a href="#getting-connected">Getting connected</a> section).
+
+<a href="#getting-connected">Getting connected
+</a> section).
+
 </p>
 
 
-<h3><a name="getting-connected"/>Getting connected</h3>
+
+<h3>
+<a name="getting-connected"/>Getting connected
+</h3>
 Getting connected to a database is simple: you need the JDBC driver
 from your database vendor, put it in the classpath, register the driver
--- that&apos;s it. HenPlus provides the commands <code>register</code>, 
-<code>unregister</code> and <code>list-drivers</code> to manage the drivers 
-(you know it already: the <code>help</code>command tells you more details).
+-- that&apos;s it. HenPlus provides the commands 
+<code>register
+</code>, 
 
-<h4>1. Put the JDBC-Driver in the CLASSPATH</h4>
+<code>unregister
+</code> and 
+<code>list-drivers
+</code> to manage the drivers 
+(you know it already: the 
+<code>help
+</code>command tells you more details).
+
+
+<h4>1. Put the JDBC-Driver in the CLASSPATH
+</h4>
+
 <a name="put-classpath"/>
+
 <p>
 The JDBC-Driver must be in the classpath to be used by HenPlus. Therefore, you
 can either add it to the Classpath manually:
+
 <pre class="output">
 $ CLASSPATH=$CLASSPATH:/path/to/my/driver.jar
 $ export CLASSPATH
 $ henplus
+
 </pre>
+
 </p>
+
 <p>
 The simplest way, however, is to put the jar file with the driver in the
-<code>/usr/share/henplus</code> directory:
+
+<code>/usr/share/henplus
+</code> directory:
+
 <pre class="output">
 # cp /path/to/my/driver.jar /usr/share/henplus
 $ henplus
+
 </pre>
+
 </p>
+
 <p>
 Since you need to be root to copy the jar-file to that directory, it is
-as well possible to add the driver to the <code>.henplus/lib</code> directory
+as well possible to add the driver to the 
+<code>.henplus/lib
+</code> directory
 in your home-directory
+
 <pre class="output">
 $ mkdir -p ~/.henplus/lib
 $ cp /path/to/my/driver.jar ~/.henplus/lib
+
 </pre>
-If you use different <code>.henplus</code> directories for the
-<a href="#per-project-config">per project configuration</a>, you need to put the
+If you use different 
+<code>.henplus
+</code> directories for the
+
+<a href="#per-project-config">per project configuration
+</a>, you need to put the
 driver in that directory.
+
 </p>
 
-<h4>2. Register the driver</h4>
+
+<h4>2. Register the driver
+</h4>
+
 <p>
 By registering the driver, you allow HenPlus to associate the JDBC-Urls
 with the appropriate JDBC-Drivers.
+
 </p>
 Some of the common drivers are already registered by default. To see, what drivers
 are registered and which of them are actually found in the CLASSPATH, use the
-<code>list-drivers</code> command.
+
+<code>list-drivers
+</code> command.
+
 <pre class="output">
 Hen*Plus&gt; list-drivers
 loaded drivers are marked with '*' (otherwise not found in CLASSPATH)
 ------------+---------------------------------+---------------------------------------+
-    <b>for</b>     |          <b>driver class</b>           |              <b>sample url</b>               |
+    
+<b>for
+</b>     |          
+<b>driver class
+</b>           |              
+<b>sample url
+</b>               |
 ------------+---------------------------------+---------------------------------------+
    Adabas   | de.sag.jdbc.adabasd.ADriver     | jdbc:adabasd://localhost:7200/work    |
    DB2      | COM.ibm.db2.jdbc.net.DB2Driver  | jdbc:db2://localhost:6789/foobar      |
@@ -341,28 +688,44 @@ loaded drivers are marked with '*' (otherwise not found in CLASSPATH)
  * Postgres | org.postgresql.Driver           | jdbc:postgresql://localhost/foobar    |
    SAP-DB   | com.sap.dbtech.jdbc.DriverSapDB | jdbc:sapdb://localhost/foobar         |
 ------------+---------------------------------+---------------------------------------+
+
 </pre>
+
 <p>
-With the <code>list-drivers</code>
+With the 
+<code>list-drivers
+</code>
 command you can see what driver classes are registered and loaded. If you
 cannot connect to some JDBC URL, check first, if the appropriate driver is
 actually loaded. If it is not loaded, then it is probably not found in the
-CLASSPATH (see <a href="#put-classpath">Put the JDBC-Driver in the CLASSPATH</a>).
+CLASSPATH (see 
+<a href="#put-classpath">Put the JDBC-Driver in the CLASSPATH
+</a>).
+
 </p>
+
 <p>
 Drivers once registered are remembered by HenPlus, so that they are loaded
 automatically on next startup. For registering and unregistering drivers,
 see the online help:
+
 <pre class="output">
 Hen*Plus&gt; help register
 Hen*Plus&gt; help unregister
+
 </pre>
+
 </p>
-<h4>3. Connect</h4>
+
+<h4>3. Connect
+</h4>
+
 <p>
+
 <a name="connect"/>
 When the driver is loaded, you can connect to the database using the
 JDBC-URL:
+
 <pre class="output">
 Hen*Plus&gt; connect jdbc:oracle:thin:@localhost:1521:ORCL
 HenPlus II connecting
@@ -376,23 +739,33 @@ JServer Release 8.1.7.0.1 - Production
  read committed *
  serializable
 henman@oracle:localhost&gt;
+
 </pre>
 This will then ask for the username and the password and you are
 connected.
 Since it is not possible to set the terminal to non-echo mode while
 typing the password, a thread constantly redraws the prompt (This 
 is after a hack
-<a href="http://java.sun.com/features/2002/09/pword_mask.html">found here</a>; 
+
+<a href="http://java.sun.com/features/2002/09/pword_mask.html">found here
+</a>; 
 thanks so Alec Noronha for the link.
 If the the redrawing causes trouble with your installation, please
-let <a href="mailto:H.Zeller@acm.org">me</a> know).
+let 
+<a href="mailto:H.Zeller@acm.org">me
+</a> know).
+
 </p>
+
 <p>
 Note, that many JDBC-Drivers allow for a URL-syntax, that already
 includes the name and the password; in that case, you can connect
 directly without typing the user/password; for example in Oracle:
+
 <pre class="output">
-Hen*Plus&gt; connect jdbc:oracle:thin:<b>foo/bar</b>@localhost:1521:BLUE
+Hen*Plus&gt; connect jdbc:oracle:thin:
+<b>foo/bar
+</b>@localhost:1521:BLUE
 HenPlus II connecting
  url 'jdbc:oracle:thin:foo/bar@localhost:1521:BLUE'
  driver version 1.0
@@ -402,63 +775,105 @@ JServer Release 9.2.0.1.0 - Production
  read committed *
  serializable
 FOO@oracle:localhost&gt;
+
 </pre>
+
 </p>
+
 <p>
 Typing JDBC-URLs is tedious ? That&apos;s right, so HenPlus remembers all the
 connection URLs you were connected to and provides it in the context
 sensitive commandline completion for the connect command. So next time you
 connect, you just type
+
 <pre class="output">
-Hen*Plus&gt; connect <b><font color="#3333FF">&lt;TAB&gt;</font></b>
+Hen*Plus&gt; connect 
+<b>
+<font color="#3333FF">&lt;TAB&gt;
+</font>
+</b>
 jdbc:oracle:thin:@localhost:1521:ORCL  jdbc:oracle:thin:@database.my.net:1521:BLUE
-Hen*Plus&gt; connect jdbc:oracle:thin:@<b><font color="#3333FF">d&lt;TAB&gt;</font></b>
+Hen*Plus&gt; connect jdbc:oracle:thin:@
+<b>
+<font color="#3333FF">d&lt;TAB&gt;
+</font>
+</b>
 Hen*Plus&gt; connect jdbc:oracle:thin:@database.my.net:1521:BLUE
+
 </pre>
 .. and connecting with long URLs is a piece of cake.
+
 </p>
+
 <p>
-<b>Define an easy to remember alias for a connection</b> On connect, you
+
+<b>Define an easy to remember alias for a connection
+</b> On connect, you
 can provide a short name for that session as second parameter after the
 JDBC-URL:
+
 <pre>
-  Hen*Plus&gt; connect jdbc:oracle:thin:@database.my.net:1521:BLUE <b>myora</b>
+  Hen*Plus&gt; connect jdbc:oracle:thin:@database.my.net:1521:BLUE 
+<b>myora
+</b>
    [.. connect to jdbc:oracle:thin:@database.my.net:1521:BLUE ..]
   myora&gt;
+
 </pre>
 This will do two things: first the session name will be renamed after
 this alias and this name can be used as a shortcut for later connections:
+
 <pre>
-  Hen*Plus&gt; connect <b>myora</b>
+  Hen*Plus&gt; connect 
+<b>myora
+</b>
    [.. connect to jdbc:oracle:thin:@database.my.net:1521:BLUE ..]
   myora&gt;
+
 </pre>
+
 </p>
 On connection, the prompt changes to a string that reflects the current 
 connection. By
 default, this prompt is automatically extracted from the JDBC-URL, but you
 can provide another name as second parameter in the connection command (see
 help for the 'connect' command). Or just rename the session:
+
 <pre class="output">
 henman@oracle:localhost&gt; rename-session hello
 hello&gt;
+
 </pre>
+
 <p>
-You can disconnect with the <code>disconnect</code> command or by
+You can disconnect with the 
+<code>disconnect
+</code> command or by
 simply pressing CTRL-D.
+
 </p>
 
-<h3>Special Characters in the Shell</h3>
-<h4>Command Separators</h4>
+
+<h3>Special Characters in the Shell
+</h3>
+
+<h4>Command Separators
+</h4>
 Usually there is one command per line. However, you can have multiple
 commands on one line if you separate them with a semicolon:
+
 <pre class="output">
 echo "*** The build-in help ***" ; help
+
 </pre>
+
 <p>
 The SQL commands however (you guess it: 'select', 'update', 'create' .. ) are
-not complete after the newline; you <em>always</em> have to close them
+not complete after the newline; you 
+<em>always
+</em> have to close them
 with a semicolon -- so it is possible to write statements on multiple lines:
+
 <pre class="output">
 oracle:localhost&gt; create table foobar (
                     id number(10) primary key,
@@ -466,8 +881,11 @@ oracle:localhost&gt; create table foobar (
                   );
 ok. (70 msec)
 oracle:localhost&gt;
+
 </pre>
+
 </p>
+
 <p>
 Some commands are not even complete, if there is a semicolon -- these are
 'create procedure' and 'create trigger'. These commands contain 
@@ -475,6 +893,7 @@ some more complex SQL-operations that are each separated by a semicolon.
 The whole
 command is then completed with a single slash at the beginning of a new line 
 (this syntax is the same that SQLPlus supports):
+
 
 <pre class="output">
 oracle:localhost&gt; create or replace trigger foobar_autoinc
@@ -486,184 +905,357 @@ oracle:localhost&gt; create or replace trigger foobar_autoinc
                   /
 ok. (320 msec)
 oracle:localhost&gt;
+
 </pre>
 (The current keywords that trigger requiering the '/' as command separator are
  "CREATE" followed by PROCEDURE, TRIGGER, FUNCTION or PACKAGE later. If this
  is not enough, please let me know).
+
 </p>
 
-<h4>SQL-Comments</h4>
+
+<h4>SQL-Comments
+</h4>
 That should be enough to start working with HenPlus. But especially if you are
-running scripts (with the <code>load</code>-command)
+running scripts (with the 
+<code>load
+</code>-command)
 there is one additional piece of information you might
 need to know: the types of comments that are ignored. AFAIK, the
 SQL standard defines only an ANSI-endline comment, that starts with two dashes;
 this is supported by HenPlus:
+
 <pre class="output">
   select * from foobar; -- this is a comment
+
 </pre>
+
 <p>
 However, other non-standard types of comments have come to use in
 several SQL-shells so HenPlus ignores these as well. One style are
 the C/C++/Java style comments, that comment out a range between 
-<code>/*&#160;some&#160;comment&#160;*/</code>.
+
+<code>/*&#160;some&#160;comment&#160;*/
+</code>.
+
 <pre class="output">
 /*
    This is a longer comment that goes
    across several lines
  */
  select * from foobar;
+
 </pre>
+
 </p>
+
 <p>
 Another style of comments, allowed for instance in the 
 MySQL-Shell is the UNIX-shell like '#' endline comment; however, this character
-is <b>only</b> allowed as first character of a line to be a comment -- otherwise
+is 
+<b>only
+</b> allowed as first character of a line to be a comment -- otherwise
 using the Hash-Symbol in normal SQL-Statements (e.g. column names), would not work.
+
 <pre class="output">
 # this is a comment.
  select * from foobar;
  create table foo (id# number); -- the hash here does not start a comment
+
 </pre>
 
-One beta tester <!-- Andi G. --> requested an additional type of 
+One beta tester 
+<!-- Andi G. --> requested an additional type of 
 comment: Two semicolons at 
-<em>the beginning</em> of a line to comment out the whole line. The problem
+
+<em>the beginning
+</em> of a line to comment out the whole line. The problem
 with semicolon is, that it is as well used as separator between commands and
 as such may of course occur twice in a row. Therefore, two 
-semicolons are <em>only</em> regarded as comment, if they are the
+semicolons are 
+<em>only
+</em> regarded as comment, if they are the
 first on a line:
+
 <pre class="output">
 ;; This line is commented out
    ;; this one as well, since there are only whitespaces on the left
 select * from foobar ;; echo "this echo is executed as usual"
+
 </pre>
+
 </p>
+
 <p>
 To make a long story short -- the supported types of comments are
-<ul>
-  <li>Ansi-Style <b><code>--</code></b> (two dashes) comment until end of line</li>
-  <li>UNIX-Shell Style <b><code>#</code></b> comment until end of line</li>
-  <li>Lisp-like <b><code>;;</code></b> comment until end of line</li>
-  <li>C/C++/Java like <b><code>/*&#160;range&#160;comment&#160;*/</code></b>
-</ul>
-<em>Not</em> supported is the C++/Java like endline comment that starts with
-two slashes <b><code>//</code></b>. The reason is, that many JDBC-URLs contain
-these two slashes, and we don't want to comment these out, right ? ;-)
+
 </p>
+
+<ul>
+  
+<li>Ansi-Style 
+<b>
+<code>--
+</code>
+</b> (two dashes) comment until end of line
+</li>
+  
+<li>UNIX-Shell Style 
+<b>
+<code>#
+</code>
+</b> comment until end of line
+</li>
+  
+<li>Lisp-like 
+<b>
+<code>;;
+</code>
+</b> comment until end of line
+</li>
+  
+<li>C/C++/Java like 
+<b>
+<code>/*&#160;range&#160;comment&#160;*/
+</code>
+</b>
+</li>
+
+</ul>
+
+<p>
+
+<em>Not
+</em> supported is the C++/Java like endline comment that starts with
+two slashes 
+<b>
+<code>//
+</code>
+</b>. The reason is, that many JDBC-URLs contain
+these two slashes, and we don't want to comment these out, right ? ;-)
+
+</p>
+
 <p>
 If you encounter some other reasonable style of comments you want that it is
-supported by HenPlus, please let <a href="mailto:H.Zeller@acm.org">me</a> know.
+supported by HenPlus, please let 
+<a href="mailto:H.Zeller@acm.org">me
+</a> know.
+
 </p>
+
 <p>
-<b>Switching off comment removal...</b><a name="remove-comment"/>
+
+<b>Switching off comment removal...
+</b>
+<a name="remove-comment"/>
 Usually, all comments are removed in HenPlus before sending commands to the
 database, because many JDBC-drivers or databases cannot handle comments
 sufficiently.
-However, sometimes it is necessary <em>not</em> to remove comments, since some
+However, sometimes it is necessary 
+<em>not
+</em> to remove comments, since some
 databases use comments to convey hinting in statements. In Oracle, for instance,
 you give hints to the query optimizer in the form
+
 <pre>
-    select <b>/*+ index(foo,foo_a_idx) */</b> a from foo where ...
+    select 
+<b>/*+ index(foo,foo_a_idx) */
+</b> a from foo where ...
+
 </pre>
 For this reason, it is possible to switch off automatic comment removal.
-This is the global HenPlus <a href="#properties">property</a> 
-<code>comments-remove</code>; it allows to switch off comment 
+This is the global HenPlus 
+<a href="#properties">property
+</a> 
+
+<code>comments-remove
+</code>; it allows to switch off comment 
 removal, so strings are sent to the database as-is. The command is 
+
 <pre>
     set-property comments-remove off
+
 </pre>
 
-<h3><a name="multiple-open-sessions"/>Multiple Open Sessions</h3>
-You can be connected to multiple databases at once; just issue the <code>connect</code>
+
+<h3>
+<a name="multiple-open-sessions"/>Multiple Open Sessions
+</h3>
+You can be connected to multiple databases at once; just issue the 
+<code>connect
+</code>
 command multiple times. You can list the sessions you are connected to
-the <code>sessions</code> command.
+the 
+<code>sessions
+</code> command.
 Of course, the shell provides only access to one
 session at a time so you can switch between the sessions with the 'switch' command.
+
 <pre class="output">
 Hen*Plus&gt; connect jdbc:oracle:thin:@localhost:1521:ORCL
-<i>[... enter user/password ...]</i>
+
+<i>[... enter user/password ...]
+</i>
 henman@oracle:localhost&gt; connect jdbc:mysql://localhost/test
 mysql:localhost&gt; sessions
 current session is marked with '*'
 ------------------------------+--------+---------------------------------------+
-           <b>session</b>            |  <b>user</b>  |                 <b>url</b>                   |
+           
+<b>session
+</b>            |  
+<b>user
+</b>  |                 
+<b>url
+</b>                   |
 ------------------------------+--------+---------------------------------------+
     henman@oracle:localhost   | henman | jdbc:oracle:thin:@localhost:1521:ORCL |
   * mysql:localhost           | [NULL] | jdbc:mysql://localhost/test           |
 ------------------------------+--------+---------------------------------------+
 mysql:localhost&gt; switch henman@oracle:localhost
 henman@oracle:localhost&gt;
+
 </pre>
 Of course, the switch command provides command line completion for the other
 sessions names. If you only have two sessions, then its even easier: just
-type <code>switch</code> without parameter (so in the example above, this would
+type 
+<code>switch
+</code> without parameter (so in the example above, this would
 have been sufficient).
 
-<h3><a name="variables"/>Using Variables</h3>
-<h4>Manual use of Variables</h4>
+
+<h3>
+<a name="variables"/>Using Variables
+</h3>
+
+<h4>Manual use of Variables
+</h4>
 You can use Variables, that can be used as text replacement everywhere. The
 replacement works similar to shellscripts, however setting must be done
-explicitly with the <code>set</code> command instead of a simple assignment:
+explicitly with the 
+<code>set
+</code> command instead of a simple assignment:
+
 <pre class="output">
 henman@oracle:localhost&gt; set-var tabname footab
 henman@oracle:localhost&gt; select count(*) from ${tabname};
+
 </pre>
 
-<p><b><!-- remove this note in later versions again -->
+
+<p>
+<b>
+<!-- remove this note in later versions again -->
 NOTE: The command for setting variables has changed since Version 0.9 of HenPlus.
 Previously, this command was 'set'; it changed to 'set-var', since several
 Databases understand 'set' as a build in-command that otherwise would be
 shadowed by HenPlus' set.
-</b></p>
+
+</b>
+</p>
+
 <p>
 Setting variables with values that span multiple lines have to be embraced by 
 single or double-quotes; in
 the next example we use a variable to define storage options once and reuse
 it for multiple tables in Oracle (note the quotes):
+
 <pre class="output">
-henman@oracle:localhost&gt; set-var STORAGE_OPTIONS  <b>"</b>pctused 40 pctfree 10
+henman@oracle:localhost&gt; set-var STORAGE_OPTIONS  
+<b>"
+</b>pctused 40 pctfree 10
          storage ( initial 512k NEXT 1024k PCTINCREASE 0
                    MINEXTENTS 1 MAXEXTENTS UNLIMITED )
-         TABLESPACE users<b>"</b>
+         TABLESPACE users
+<b>"
+</b>
 henman@oracle:localhost&gt; create table foo (id number(10), text varchar2(1024)) ${STORAGE_OPTIONS};
 henman@oracle:localhost&gt; create table bar (id number(10), description varchar2(1024)) ${STORAGE_OPTIONS};
+
 </pre>
+
 </p>
+
 <p>
 Variables can be expanded with or without curly braces: $FOO and ${FOO} is the same.
+
 </p>
+
 <p>
-If you don't want a variable to be expanded, double the dollar-sign: <code>$$FOO</code>;
-the Unix-shell way to embed it in single-quotes (like '$FOO') does <em>not</em> work.
+If you don't want a variable to be expanded, double the dollar-sign: 
+<code>$$FOO
+</code>;
+the Unix-shell way to embed it in single-quotes (like '$FOO') does 
+<em>not
+</em> work.
+
 </p>
+
 <p>
-Unlike the shell, variables that are <b>not</b> set, are <b>not</b> expanded to an empty
+Unlike the shell, variables that are 
+<b>not
+</b> set, are 
+<b>not
+</b> expanded to an empty
 string, but left as they are. So an unset variable $FOOBAR expands to .. $FOOBAR. This
 is, because some databases (especially Oracle in system views) use names with
 dollar characters; thus character sequences starting with '$' that cannot be recognized as
 HenPlus-variable have to be left as they are.
+
 </p>
-<h4>Special Variables</h4>
+
+<h4>Special Variables
+</h4>
+
 <p>
+
 <a name="special-variables"/>
 Special variables are variables that have a special meaning to 
 HenPlus. Currently there is only one special variable, that is set 
 automatically.
+
 <table border="1" cellpadding="5">
-<tr><th>Variable</th><th>Description</th></tr>
-<tr><td><code>_HENPLUS_LAST_COMMAND</code></td>
-    <td>This variable contains the last command executed by HenPlus</td></tr>
+
+<tr>
+<th>Variable
+</th>
+<th>Description
+</th>
+</tr>
+
+<tr>
+<td>
+<code>_HENPLUS_LAST_COMMAND
+</code>
+</td>
+    
+<td>This variable contains the last command executed by HenPlus
+</td>
+</tr>
+
 </table>
+
 </p>
-<h4>Showing and Unsetting Variables</h4>
+
+<h4>Showing and Unsetting Variables
+</h4>
+
 <p>
-All variable settings can be shown with the <code>set-var</code> command 
-without any parameters. Unsetting variables works with <code>unset-var</code>.
+All variable settings can be shown with the 
+<code>set-var
+</code> command 
+without any parameters. Unsetting variables works with 
+<code>unset-var
+</code>.
+
 <pre class="output">
 henman@oracle:localhost&gt; set-var
 -----------------------+------------------------------------------------------------------------------------+
-         <b>Name</b>          |                                       <b>Value</b>                                        |
+         
+<b>Name
+</b>          |                                       
+<b>Value
+</b>                                        |
 -----------------------+------------------------------------------------------------------------------------+
  STORAGE_OPTIONS       | pctused 40 pctfree 10                                                              |
                        |          storage ( initial 512k NEXT 1024k PCTINCREASE 0                           |
@@ -678,30 +1270,59 @@ henman@oracle:localhost&gt; set-var
 henman@oracle:localhost&gt; unset-var STORAGE_OPTIONS tabname
 henman@oracle:localhost&gt; set-var
 -----------------------+-----------------------------------+
-         <b>Name</b>          |               <b>Value</b>               |
+         
+<b>Name
+</b>          |               
+<b>Value
+</b>               |
 -----------------------+-----------------------------------+
  _HENPLUS_LAST_COMMAND | unset-var STORAGE_OPTIONS tabname |
 -----------------------+-----------------------------------+
+
 </pre>
-</p>
-<p>
-All non-special variables that are set at the end of the session are stored, so that they are available on next startup.
+
 </p>
 
-<h3><a name="properties"/>Setting Properties</h3>
-There are some global properties, that can be modified by the <code>set-property</code>
+<p>
+All non-special variables that are set at the end of the session are stored, so that they are available on next startup.
+
+</p>
+
+
+<h3>
+<a name="properties"/>Setting Properties
+</h3>
+There are some global properties, that can be modified by the 
+<code>set-property
+</code>
 command. Connection session specific properties are handled with the 
-<code>set-session-property</code> command. Corresponding <code>reset-*</code> commands reset
+
+<code>set-session-property
+</code> command. Corresponding 
+<code>reset-*
+</code> commands reset
 the property to its default.
+
 <p>The usage of these commands is simple. If you just type the set-* command, then the
 list of supported properties with short description is shown. With the property name given as
 single parameter, the detailed help for that property is given. With an additional parameter the
 property is actually set to that value:
 
+
 <pre class="output">
-sa@hsqldb> set-property                      <b><font color="#3333FF">-- no parameters: show list</font></b>
+sa@hsqldb> set-property                      
+<b>
+<font color="#3333FF">-- no parameters: show list
+</font>
+</b>
 -----------------------+-------+-------------------------------------------------------+
-         <b>Name</b>          | <b>Value</b> |                      <b>Description</b>                      |
+         
+<b>Name
+</b>          | 
+<b>Value
+</b> |                      
+<b>Description
+</b>                      |
 -----------------------+-------+-------------------------------------------------------+
  column-delimiter      | |     | modify column separator in query results              |
  comments-remove       | on    | switches the removal of SQL-comments                  |
@@ -710,171 +1331,338 @@ sa@hsqldb> set-property                      <b><font color="#3333FF">-- no para
  sql-result-showfooter | on    | switches if footer in selected tables should be shown |
  sql-result-showheader | on    | switches if header in selected tables should be shown |
 -----------------------+-------+-------------------------------------------------------+
-sa@hsqldb> set-property column-delimiter <b><font color="#3333FF">-- property name parameter: show detailed description</font></b>
-<b>DESCRIPTION</b>
+sa@hsqldb> set-property column-delimiter 
+<b>
+<font color="#3333FF">-- property name parameter: show detailed description
+</font>
+</b>
+
+<b>DESCRIPTION
+</b>
         Set another string that is used to separate columns in
         SQL result sets. Usually this is a pipe-symbol '|', but
         maybe you want to have an empty string ?
-sa@hsqldb> set-property column-delimiter "****"       <b><font color="#3333FF">-- property name and value: set property</font></b>
+sa@hsqldb> set-property column-delimiter "****"       
+<b>
+<font color="#3333FF">-- property name and value: set property
+</font>
+</b>
+
 </pre>
+
 </p>
+
 <p>
 Note, that the property names are TAB-completed and even the values,
 if they are restricted (like 'on', 'off').
+
 </p>
 
-<h4>1. Global Properties</h4>
+
+<h4>1. Global Properties
+</h4>
+
 <p>
-Global properties are stored in your <a href="#per-project-config">project preferences</a>, so
+Global properties are stored in your 
+<a href="#per-project-config">project preferences
+</a>, so
 that you don't have to retype them on next startup.
+
 <pre class="output">
 sa@hsqldb> select * from FOO ;
 ---+---+---+
- <b>X</b> | <b>Y</b> | <b>Z</b> |
+ 
+<b>X
+</b> | 
+<b>Y
+</b> | 
+<b>Z
+</b> |
 ---+---+---+
  1 | 2 | 3 |
 ---+---+---+
 1 row in result (first row: 4 msec; total: 7 msec)
-sa@hsqldb> set-property column-delimiter "****"       <b><font color="#3333FF">-- property name and value: set property</font></b>
+sa@hsqldb> set-property column-delimiter "****"       
+<b>
+<font color="#3333FF">-- property name and value: set property
+</font>
+</b>
 sa@hsqldb> select * from FOO ;
 ------+------+------+
- <b>X</b> **** <b>Y</b> **** <b>Z</b> ****
+ 
+<b>X
+</b> **** 
+<b>Y
+</b> **** 
+<b>Z
+</b> ****
 ------+------+------+
  1 **** 2 **** 3 ****
 ------+------+------+
 1 row in result (3 msec)
 sa@hsqldb> reset-property column-delimiter
+
 </pre>
+
 </p>
-<h4>2. Session Properties</h4>
+
+<h4>2. Session Properties
+</h4>
+
 <p>
 For supported properties of the SQL-connection session just type 
-<code>set-session-property</code>. At present, the properties <code>auto-commit</code>,
-<code>isolation-level</code> and <code>read-only</code> are supported. 
+
+<code>set-session-property
+</code>. At present, the properties 
+<code>auto-commit
+</code>,
+
+<code>isolation-level
+</code> and 
+<code>read-only
+</code> are supported. 
 Unlike the global properties, this set of properties is specific per session and is not stored.
+
 </p>
+
 <p>
 The values that are possible for the transaction isolation are provided by the
 JDBC-driver and are conveniently provided by the TAB-completion:
+
 <pre class="output">
 henman@oracle:localhost&gt; set-session-property
 -----------------+----------------+-----------------------------------------------+
-      <b>Name</b>       |     <b>Value</b>      |                  <b>Description</b>                  |
+      
+<b>Name
+</b>       |     
+<b>Value
+</b>      |                  
+<b>Description
+</b>                  |
 -----------------+----------------+-----------------------------------------------+
  auto-commit     | off            | Switches auto commit                          |
  isolation-level | read-committed | sets the transaction isolation level          |
  read-only       | off            | Switches on read only mode for optimizations. |
 -----------------+----------------+-----------------------------------------------+
-henman@oracle:localhost&gt; set-session-property i<b><font color="#3333FF">&lt;TAB&gt;</font></b>
-henman@oracle:localhost&gt; set-session-property isolation-level <b><font color="#3333FF">&lt;TAB&gt;&lt;TAB&gt;</font></b>
+henman@oracle:localhost&gt; set-session-property i
+<b>
+<font color="#3333FF">&lt;TAB&gt;
+</font>
+</b>
+henman@oracle:localhost&gt; set-session-property isolation-level 
+<b>
+<font color="#3333FF">&lt;TAB&gt;&lt;TAB&gt;
+</font>
+</b>
 read-committed  serializable
-henman@oracle:localhost&gt; set-session-property isolation-level s<b><font color="#3333FF">&lt;TAB&gt;</font></b>
+henman@oracle:localhost&gt; set-session-property isolation-level s
+<b>
+<font color="#3333FF">&lt;TAB&gt;
+</font>
+</b>
 henman@oracle:localhost&gt; set-session-property isolation-level serializable
 henman@oracle:localhost&gt; set-session-property
 -----------------+--------------+-----------------------------------------------+
-      <b>Name</b>       |    <b>Value</b>     |                  <b>Description</b>                  |
+      
+<b>Name
+</b>       |    
+<b>Value
+</b>     |                  
+<b>Description
+</b>                  |
 -----------------+--------------+-----------------------------------------------+
  auto-commit     | off          | Switches auto commit                          |
  isolation-level | serializable | sets the transaction isolation level          |
  read-only       | off          | Switches on read only mode for optimizations. |
 -----------------+--------------+-----------------------------------------------+
+
 </pre>
+
 </p>
-<h3><a name="commandline-completion"/>Commandline Editing/Completion</h3>
+
+<h3>
+<a name="commandline-completion"/>Commandline Editing/Completion
+</h3>
+
 <p>
 HenPlus provides the common amenities for command line editing and history 
 (cursor-up/down, CTRL-R) that are already known from bash
-(See the <a href="http://www.faqs.org/docs/bashman/bashref_81.html">Bash Command Line Editing</a>
+(See the 
+<a href="http://www.faqs.org/docs/bashman/bashref_81.html">Bash Command Line Editing
+</a>
  documentation for details).
+
 </p>
 In addition to that, HenPlus provides TAB-completion for virtually everything that can be
 completed according to the context: tables in
 select statements, column-names in where-clauses, variable-names in set-var/unset-var command,
-variable names after typing '<code>$</code>' or <code>'${'</code>, Function Key Names
-in the bind-key-cmd command, property names and its values ..<br/>
+variable names after typing '
+<code>$
+</code>' or 
+<code>'${'
+</code>, Function Key Names
+in the bind-key-cmd command, property names and its values ..
+<br/>
 Just try it ..
 
-<h3><a name="per-project-config"/>Per Project Configuration</h3>
-<em>HenPlus</em> stores almost any settings like the commandline
+
+<h3>
+<a name="per-project-config"/>Per Project Configuration
+</h3>
+
+<em>HenPlus
+</em> stores almost any settings like the commandline
 history, the connection-URLs, variable settings, parameters, aliases,
 key bindings etc. in files in a directory in the filesystem.
 This directory is by default located in your home directory and
-called <code>~/.henplus</code>.
+called 
+<code>~/.henplus
+</code>.
 Whenever you start henplus, this configuration directory is used by
 default.
+
 <p>
 If you have multiple projects you work on, the settings of all
-these projects would collected in the <code>~/.henplus</code> directory, thus
+these projects would collected in the 
+<code>~/.henplus
+</code> directory, thus
 your command history would fill up with commands not needed in that 
 project or you need switch settings all the time.
 So if you work in multiple projects with specific connect strings, 
 variables, properties etc. a per project separation of this information is
 desirable.
-<em>HenPlus</em> supports per project storage of this information.
+
+<em>HenPlus
+</em> supports per project storage of this information.
+
 </p>
+
 <p>
 To store only information you use in some project, just create an empty 
-<code>.henplus</code> directory in the directory you usually start the
-<em>HenPlus</em> utility -- then <em>HenPlus</em> will use this directory to
-store its configuration. More, if it does not find the <code>.henplus</code>
+
+<code>.henplus
+</code> directory in the directory you usually start the
+
+<em>HenPlus
+</em> utility -- then 
+<em>HenPlus
+</em> will use this directory to
+store its configuration. More, if it does not find the 
+<code>.henplus
+</code>
 directory within the current working dir, it goes up the directory tree
-until it finds the <code>.henplus</code> directory. If it still does
-not find the directory, it falls back to the <code>~/.henplus</code> in your
+until it finds the 
+<code>.henplus
+</code> directory. If it still does
+not find the directory, it falls back to the 
+<code>~/.henplus
+</code> in your
 home directory.
+
 </p>
+
 <p>
 As an example consider these directories:
+
 <pre>
   /home/hzeller/.henplus/
   /home/hzeller/projects/project-a/.henplus/
   /home/hzeller/projects/project-b/.henplus/
+
 </pre>
-Starting <em>HenPlus</em> in any directory below
-<code>/home/hzeller/projects/project-a/</code> will use 
-the <code>/home/hzeller/projects/project-a/.henplus/</code>
+Starting 
+<em>HenPlus
+</em> in any directory below
+
+<code>/home/hzeller/projects/project-a/
+</code> will use 
+the 
+<code>/home/hzeller/projects/project-a/.henplus/
+</code>
 configuration directory, same for any directory below 
-<code>/home/hzeller/projects/project-b/</code>
+
+<code>/home/hzeller/projects/project-b/
+</code>
 for instance 
+
 <pre class="output">
 $ cd /home/hzeller/projects/project-b/src/henplus/commands
 $ henplus
 using GNU readline (Brian Fox, Chet Ramey), Java wrapper by Bernhard Bablok
-henplus config at <b>/home/hzeller/projects/project-b/.henplus</b>
+henplus config at 
+<b>/home/hzeller/projects/project-b/.henplus
+</b>
  [...]
+
 </pre>
-</p>
-<p>
-Starting henplus anywhere else will use the configuration in the
-home directory in <code>/home/hzeller/</code>
-</p>
-<p>
-If you type 'help', then <em>HenPlus</em> tells you
-in the <a href="#config-dir">last line</a>, where it has loaded its initial 
-configuration from.
+
 </p>
 
-<h3><a name="plugins"/>Plugins</h3>
+<p>
+Starting henplus anywhere else will use the configuration in the
+home directory in 
+<code>/home/hzeller/
+</code>
+
+</p>
+
+<p>
+If you type 'help', then 
+<em>HenPlus
+</em> tells you
+in the 
+<a href="#config-dir">last line
+</a>, where it has loaded its initial 
+configuration from.
+
+</p>
+
+
+<h3>
+<a name="plugins"/>Plugins
+</h3>
 Need some command that creates some fancy statistics or report from your
 database tables ? Or need a command
 that you are missing from some other database tool ? Or want to pop up
-some Swing-window to do database record editing <!-- Armin H. --> ?
+some Swing-window to do database record editing 
+<!-- Armin H. --> ?
+
 <p>
 HenPlus does not limit you to the features already provided.
 It is very simple to write
 plug-ins, that can be added and removed at run time. See the help for
-<code>plug-in</code>, <code>plug-out</code> and <code>list-plugins</code> for details.
+
+<code>plug-in
+</code>, 
+<code>plug-out
+</code> and 
+<code>list-plugins
+</code> for details.
 Basically, you just need to write a class that implements 
-the <code>henplus.Command</code> interface. A plugin will register one (or a set of)
+the 
+<code>henplus.Command
+</code> interface. A plugin will register one (or a set of)
 new commands that behave just like internal commands. They are, for instance,
-available in the <code>help</code> command.
+available in the 
+<code>help
+</code> command.
+
 </p>
+
 <p>
+
 </p>
+
 <p>There is one cool plugin shipped since version 0.9.4, provided by
-<a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>. It resides in the
+
+<a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke
+</a>. It resides in the
 henplus.jar, so if you have installed henplus, it is already there, but you have
 to plug-in this command yourself; after plugging it in, HenPlus will 
-<a href="#per-project-config">remember</a> this for future starts.
+
+<a href="#per-project-config">remember
+</a> this for future starts.
+
 
 <pre class="output">
 Hen*Plus&gt; plug-in henplus.plugins.tablediff.TableDiffCommand
@@ -886,6 +1674,7 @@ loaded plugins are marked with '*'
 ----------------------------------------------+-----------+
  * henplus.plugins.tablediff.TableDiffCommand | tablediff |
 ----------------------------------------------+-----------+
+
 </pre>
 What does this command do ? By providing two session names and a list of tables, 
 you get the meta difference for corresponding tables in both sessions. So you
@@ -893,105 +1682,182 @@ get whether columns have been added/removed or datatypes that are different for 
 with the same name. This is particularly useful if you have multiple installations of
 database schemas and wonder if they match (e.g. for test/productive environments);
 a way to automatically create 'alter table'-scripts is planned.
-</p><p>
+
+</p>
+<p>
+
 
 <em>(TODO: This feature needs a way to load the classes from an URLClassloader,
- so its possible to dynamically reload the classes when they changed. Anyone?)</em>
+ so its possible to dynamically reload the classes when they changed. Anyone?)
+</em>
+
 </p>
 
-<h3><a name="aliases"/>Aliases</h3>
+
+<h3>
+<a name="aliases"/>Aliases
+</h3>
 For certain repeating tasks its tedious to write the same command over and over again.
 Therefore it is possible to store aliases.
+
 <pre class="output">
 henman@oracle:localhost&gt; alias ls tables
+
 </pre>
 This would alias the 'tables' command so that it can be called by simply typing
 'ls'.
+
 <p>
 Parameters given to aliases are appended to the original command, so that you can 
 define aliases for commands that need parameters:
+
 <pre class="output">
 henman@oracle:localhost&gt; alias size select count(*) from
 henman@oracle:localhost&gt; size footab
 execute alias: select count(*) from footab
 ----------+
- <b>count(*)</b> |
+ 
+<b>count(*)
+</b> |
 ----------+
         9 |
 ----------+
 1 row in result (first row: 3 msec; total: 3 msec)
+
 </pre>
 Note, that even TAB-completion (in this case: of the tablename) works: the alias
 command peeks into the original command that is executed when you type 'size'.
-</p>
-<p>
-All aliases can be shown with <code>list-aliases</code>; they are stored, so that they
-are available on next startup.
-</p>
-<p>
-<em>(TODO: cool would be aliases with parameters, 
-like <code>select * from ${0} where ${1}=${2}</code>)</em>
+
 </p>
 
-<h3><a name="keybindings"/>Keybindings</h3>
+<p>
+All aliases can be shown with 
+<code>list-aliases
+</code>; they are stored, so that they
+are available on next startup.
+
+</p>
+
+<p>
+
+<em>(TODO: cool would be aliases with parameters, 
+like 
+<code>select * from ${0} where ${1}=${2}
+</code>)
+</em>
+
+</p>
+
+
+<h3>
+<a name="keybindings"/>Keybindings
+</h3>
+
 <p>
 In HenPlus it is possible to bind function keys to commands to be executed
 (a bit depending on the terminal, but should work on usual Unix terminals).
 It is possible to bind an arbitrary string to a function key; the string
 is issued whenever the function key is pressed. This can be used as a 
 shortcut to excute commands; so instead of pressing help&lt;RETURN&gt; you
-could bind the same command to a function key:</p>
-<code>
-bind-key-cmd F1 "help\n"
-</code>
-</p>
-<p>The function keys F1..F12 and Shift-F1..Shift-F12 are available.
+could bind the same command to a function key:
 </p>
 
-<h3><a name="cmd-bookmarks"/>Setting Command Bookmarks</h3>
+<code>
+bind-key-cmd F1 "help\n"
+
+</code>
+
+</p>
+
+<p>The function keys F1..F12 and Shift-F1..Shift-F12 are available.
+
+</p>
+
+
+<h3>
+<a name="cmd-bookmarks"/>Setting Command Bookmarks
+</h3>
 Sometimes it would be nice set a 'bookmark' to a command just executed.
+
 <p>
 With the keybinding this is simple to do. Consider, you want to set a
 bookmark with Shift-F2 and execute it with F2. So what we want to do on 
 Shift-F2 is to bind the command we just executed to F2. With a little quoting
 and use of the special variable ${_HENPLUS_LAST_COMMAND} we can do the trick:
+
 </p>
+
 <code>
 bind-key-cmd Shift-F2 "bind-key-cmd F2 \"$${_HENPLUS_LAST_COMMAND};\\n\"\n"
+
 </code>
+
 <p>
 to bind the last command
 executed to F2 (Note the double $$ and the \\ to prevent certain elements
 bo be expanded prematurely).
-So executing Shift-F2 will now execute the command</p>
-<code>
-bind-key-cmd F2 "${_HENPLUS_LAST_COMMAND};\n"
-</code>
-<p>that binds F2 to the command that has been just executed.</p>
-<p>
-So pressing Shift-F2 sets a bookmark and F2 executes it.
+So executing Shift-F2 will now execute the command
 </p>
 
-<h3><a name="table-dumps"/>Database independent table dumps</h3>
-You can dump out tables in a database independent format. See the online help for
-<code>dump-out</code> and <code>dump-in</code>. You even can dump only selected
-values of a certain table; see <code>dump-conditional</code> for this.
+<code>
+bind-key-cmd F2 "${_HENPLUS_LAST_COMMAND};\n"
+
+</code>
+
+<p>that binds F2 to the command that has been just executed.
+</p>
+
 <p>
+So pressing Shift-F2 sets a bookmark and F2 executes it.
+
+</p>
+
+
+<h3>
+<a name="table-dumps"/>Database independent table dumps
+</h3>
+You can dump out tables in a database independent format. See the online help for
+
+<code>dump-out
+</code> and 
+<code>dump-in
+</code>. You even can dump only selected
+values of a certain table; see 
+<code>dump-conditional
+</code> for this.
+
+<p>
+
 <pre class="output">
 henman@oracle:localhost&gt; dump-out mytables.dump.gz student addresses;
+
 </pre>
-.. dumps out the tables <code>student</code> and <code>addresses</code> to the file
-<code>mytables.dump.gz</code>. Note, that the file is gzipped automatically
-on-the-fly if the file contains a <code>.gz</code>-suffix.
+.. dumps out the tables 
+<code>student
+</code> and 
+<code>addresses
+</code> to the file
+
+<code>mytables.dump.gz
+</code>. Note, that the file is gzipped automatically
+on-the-fly if the file contains a 
+<code>.gz
+</code>-suffix.
+
 </p>
+
 <p>
 The format that is written must be database independent, thus it is not possible to store
-them as simple <code>'INSERT INTO..'</code> statements, as the different databases have different
+them as simple 
+<code>'INSERT INTO..'
+</code> statements, as the different databases have different
 assumption how some data types should be parsed (esp. dates..) :-( Thus the dump format is a
 canonical text format that resembles the original insert-statement arguments; it is easily
 parseable for the human eye and external tools; it is sufficiently simply to create
 'INSERT INTO'-scripts with simple Shell scripts:
+
 <hr noshade='noshade' size="1" />
+
 <pre>
 (tabledump 'student'
    (file-encoding 'UTF-8')
@@ -1005,46 +1871,83 @@ parseable for the human eye and external tools; it is sufficiently simply to cre
          ('Kyle','M',3)
          ('Mac Donald\'s','M',4))
    (rows 4))
+
 </pre>
+
 <hr noshade='noshade' size="1" />
+
 </p>
+
 <p>
 Note, not all data types are supported yet: the CLOB and BLOB data type are handled too 
 differently even though JDBC should allow access database independently. This will be
 included in a future
+
 </p>
-<h4>XML ?</h4>
+
+<h4>XML ?
+</h4>
 One could argue, that XML would be an idea as export format, since it is hype and
 therefore should be used everywhere :-) ... But seriously, I decided against it because it 
 blows up the file size (and database exports tend not to be small) and is not 
 very human readable due to the 'noise'. 
 If you still think, that XML would be a good idea, then consider normal use-cases 
 of dumps like this (besides dump-in with HenPlus of course):
+
 <ul>
-  <li>Process them with line oriented tools (like <code>awk</code>, <code>sed</code> .. or your
-      favourite editor)</li>
-  <li>Construct insert/update scripts for databases manually.
+  
+<li>Process them with line oriented tools (like 
+<code>awk
+</code>, 
+<code>sed
+</code> .. or your
+      favourite editor)
+</li>
+  
+<li>Construct insert/update scripts for databases manually.
+</li>
+
 </ul>
+
 <p>
 Both use-cases are addressed with this format: each data record is on a single line and is almost
 compatible with the typical set-syntax of SQL. You can simply construct an insert-Statement
 with this format with only minimal editing required like:
+
 <pre>
- insert&#160;into&#160;student&#160;(name,&#160;sex,&#160;student_id)&#160;values&#160;<b>('Joseph','M',2)</b>;
+ insert&#160;into&#160;student&#160;(name,&#160;sex,&#160;student_id)&#160;values&#160;
+<b>('Joseph','M',2)
+</b>;
+
 </pre>
-</p><p>
+
+</p>
+<p>
 Ok, XML would be great for many other tools (as long as 
-<a href="http://www.w3.org/XML/1999/XML-in-10-points#text">humans don't have to deal with it</a>) 
-.. but I don't use them. So if you <em>want</em> XML export/import, you are free to do it: just go ahead and 
-write a <a href='#plugins'>plugin</a> that does this and let me know for integration.
+
+<a href="http://www.w3.org/XML/1999/XML-in-10-points#text">humans don't have to deal with it
+</a>) 
+.. but I don't use them. So if you 
+<em>want
+</em> XML export/import, you are free to do it: just go ahead and 
+write a 
+<a href='#plugins'>plugin
+</a> that does this and let me know for integration.
+
 </p>
 
-<h3><a name="tree-view"/>Tree View of connected tables</h3>
+
+<h3>
+<a name="tree-view"/>Tree View of connected tables
+</h3>
 Know this ? To just find out the datastructure of foreign-key connected
-tables in your database you have to <code>describe</code> manually through
+tables in your database you have to 
+<code>describe
+</code> manually through
 all tables. This is quite tedious. Thus, HenPlus provides a tree view of
 your tables. Cyclic references are resolved by printing the recursive
 entity in parenthesis.  See the example for some bugtracker database:
+
 <pre class="output">
 henman@oracle:localhost&gt; tree-view BT_TRACKERUSER
 
@@ -1055,26 +1958,64 @@ BT_TRACKERUSER
 |   `-- BT_BUGCOMMENTATTACHMENT
 `-- BT_USERPERMISSION
 265 msec
+
 </pre>
+
 <hr noshade='noshade' size="1" />
 
-<h3>Quotes</h3>
-<dl>
-  <dt><b>Kolja F.</b> after installing HenPlus for a colleague (German)</dt>
-  <dd><em>Henplus ist wirklich dermassen geil. Der Macker, der mit sqlplus arbeiten musste, hätte vor Freude fast geheult.</em><p></p></dd>
 
-  <dt><b>javakman</b> wrote this comment on the HenPlus freshmeat page</dt>
-  <dd><em>Probably the best JDBC tool available!<br/>
-       Good Job Henner!</em><p></p></dd>
+<h3>Quotes
+</h3>
+
+<dl>
+  
+<dt>
+<b>Kolja F.
+</b> after installing HenPlus for a colleague (German)
+</dt>
+  
+<dd>
+<em>Henplus ist wirklich dermassen geil. Der Macker, der mit sqlplus arbeiten musste, hätte vor Freude fast geheult.
+</em>
+<p>
+</p>
+</dd>
+
+  
+<dt>
+<b>javakman
+</b> wrote this comment on the HenPlus freshmeat page
+</dt>
+  
+<dd>
+<em>Probably the best JDBC tool available!
+<br/>
+       Good Job Henner!
+</em>
+<p>
+</p>
+</dd>
+
 </dl>
-<h3><a name="faq"/>FAQ</h3>
+
+<h3>
+<a name="faq"/>FAQ
+</h3>
 This will eventually be the FAQ. But for now, there is only one question..
 
+
 <p>
-<b>Q: </b><em>When I am connected to a postgreSQL database, sometimes the
-             connection seems to stop working. No select works.</em>
+
+<b>Q: 
+</b>
+<em>When I am connected to a postgreSQL database, sometimes the
+             connection seems to stop working. No select works.
+</em>
+
 <br />
-<b>A: </b>This is primarily not a problem with HenPlus, but in general with
+
+<b>A: 
+</b>This is primarily not a problem with HenPlus, but in general with
          Postgres when it encounters an error in some SQL-statement. Since
 	 everything in Postgres is done within a transaction, a
 	 transaction is regarded invalid after some error; any subsequent 
@@ -1083,25 +2024,52 @@ This will eventually be the FAQ. But for now, there is only one question..
 	 This might be annoying if you run SQL-scripts -- if there is only
 	 one error, all subsequent commands are ignored. One solution
 	 might be to switch on autocommit 
-	 (HenPlus command: <code>set-session-property auto-commit on</code>).
+	 (HenPlus command: 
+<code>set-session-property auto-commit on
+</code>).
+
 </p>
 
+
 <p>
-<b>Q:  </b><em>Is it possible to have henplus use the vi-editing mode rather than
-               the default emacs like editing mode ?</em>
+
+<b>Q:  
+</b>
+<em>Is it possible to have henplus use the vi-editing mode rather than
+               the default emacs like editing mode ?
+</em>
+
 <br/>
-<b>A:  </b>Create/edit the ~/.inputrc configuration file to influence the behaviour of
+
+<b>A:  
+</b>Create/edit the ~/.inputrc configuration file to influence the behaviour of
            readline. Add a line
-	   <pre class="output">
-           set editing-mode vi</pre>
+	   
+<pre class="output">
+           set editing-mode vi
+</pre>
            To this file. Then set the environment-variable INPUTRC to point to this
            file:
-           <pre class="output">
-           export INPUTRC=~/.inputrc</pre>
-           <font size="-1">(thanks to Scott Plante)</font>
+           
+<pre class="output">
+           export INPUTRC=~/.inputrc
+</pre>
+           
+<font size="-1">(thanks to Scott Plante)
+</font>
+
 </p>
+
 <hr noshade="noshade" size="1"/>
 Thanks Rebecca for proof reading.
-<div align="right"><font size="-2">$Id: HenPlus.html,v 1.31 2008-10-19 08:53:25 hzeller Exp $ &#169; Henner Zeller &lt;<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org</a>&gt;</font></div>
+
+<div align="right">
+<font size="-2">$Id: HenPlus.html,v 1.31 2008-10-19 08:53:25 hzeller Exp $ &#169; Henner Zeller &lt;
+<a href="mailto:H.Zeller@acm.org">H.Zeller@acm.org
+</a>&gt;
+</font>
+</div>
+
 </body>
+
 </html>
