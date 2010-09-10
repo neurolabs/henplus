@@ -41,7 +41,16 @@ public final class DriverCommand extends AbstractCommand {
         { "MySQL", "org.gjt.mm.mysql.Driver",
         "jdbc:mysql://localhost/foobar" },
         { "Adabas", "de.sag.jdbc.adabasd.ADriver",
-        "jdbc:adabasd://localhost:7200/work" } };
+        "jdbc:adabasd://localhost:7200/work" },
+        { "Sybase", "com.internetcds.jdbc.tds.Driver",
+        "jdbc:freetds:sybase://servername:port/database" },
+        { "MSSQL", "com.internetcds.jdbc.tds.Driver",
+        "jdbc:freetds:sqlserver://servername:port/database" },
+        { "HSQLDB", "org.hsqldb.jdbcDriver",
+        "jdbc:hsqldb:db_file_name_prefix" },
+        { "SQLite", "org.sqlite.JDBC",
+         "jdbc:sqlite://dirA/dirB/dbfile" }
+    };
 
     private static final String DRIVERS_FILENAME = "drivers";
     private static final ColumnMetaData[] DRV_META;
