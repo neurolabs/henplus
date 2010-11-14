@@ -498,12 +498,14 @@ public final class HenPlus implements Interruptable {
             if (_dispatcher != null) {
                 _dispatcher.shutdown();
             }
-            _historyConfig.write(new ConfigurationContainer.WriteAction() {
-                public void writeConfiguration(final OutputStream out)
-                throws Exception {
-                    HistoryWriter.writeReadlineHistory(out);
-                }
-            });
+            if (_historyConfig != null) {
+	            _historyConfig.write(new ConfigurationContainer.WriteAction() {
+	                public void writeConfiguration(final OutputStream out)
+	                throws Exception {
+	                    HistoryWriter.writeReadlineHistory(out);
+	                }
+	            });
+            }
             Readline.cleanup();
         } finally {
             _alreadyShutDown = true;
