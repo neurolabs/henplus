@@ -12,6 +12,7 @@ import henplus.HenPlus;
 import henplus.PropertyRegistry;
 import henplus.SQLSession;
 import henplus.SigIntHandler;
+import henplus.logging.Logger;
 import henplus.property.PropertyHolder;
 import henplus.property.BooleanPropertyHolder;
 import henplus.view.util.NameCompleter;
@@ -32,7 +33,6 @@ import java.util.Map.Entry;
  * document me.
  */
 public final class SQLCommand extends AbstractCommand {
-    private static final boolean VERBOSE = HenPlus.VERBOSE;
     private static final String[] TABLE_COMPLETER_KEYWORD = { "FROM", "INTO",
         "UPDATE", "TABLE", "ALIAS", "VIEW", /* create index */"ON" };
 
@@ -184,9 +184,7 @@ public final class SQLCommand extends AbstractCommand {
                 HenPlus.msg().println("done.");
                 _running = false;
             } catch (final Exception e) {
-                if (VERBOSE) {
-                    e.printStackTrace();
-                }
+            	Logger.debug("Exception while cancelling a statement: ", e);
             }
         }
     }
@@ -312,11 +310,10 @@ public final class SQLCommand extends AbstractCommand {
             final String msg = e.getMessage();
             if (msg != null) {
                 // oracle appends a newline to the message for some reason.
-                HenPlus.msg().println("FAILURE: " + msg.trim());
+                Logger.error("FAILURE: '%s'", e.getMessage());
+                Logger.debug("Exception: ", e);
             }
-            if (VERBOSE) {
-                e.printStackTrace();
-            }
+                
             return EXEC_FAILED;
         } finally {
             _statementCanceller.disarm();

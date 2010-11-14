@@ -8,6 +8,7 @@ package henplus;
 
 import java.util.Stack;
 
+import henplus.logging.Logger;
 import henplus.property.PropertyHolder;
 import henplus.property.BooleanPropertyHolder;
 
@@ -228,7 +229,7 @@ public class SQLStatementSeparator {
             state = POTENTIAL_END_FOUND;
         }
 
-        // System.err.println("Startstate: " + state + "; LEOL: " + lastEoline);
+        Logger.debug("Startstate: %s; LEOL: %s", state, lastEoline);
 
         while (state != POTENTIAL_END_FOUND && pos < input.length()) {
             boolean vetoAppend = false;
@@ -242,7 +243,6 @@ public class SQLStatementSeparator {
                 _currentState.setNewlineSeen(true);
             }
 
-            // System.out.print ("Pos: " + pos + "\t");
             do {
                 reIterate = false;
                 switch (state) {

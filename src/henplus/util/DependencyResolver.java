@@ -6,6 +6,7 @@
  */
 package henplus.util;
 
+import henplus.logging.Logger;
 import henplus.sqlmodel.ColumnFkInfo;
 import henplus.sqlmodel.Table;
 
@@ -65,9 +66,8 @@ public final class DependencyResolver {
             final Set fks = t.getForeignKeys();
 
             // no dependency / foreign key?
+            Logger.debug("[sortTables] put %s to resolved.", t);
             if (fks == null) {
-                // System.out.println( "[sortTables] put " + t + " to resolved."
-                // );
                 resolved.put(t.getName(), t);
             } else {
                 // dependency fulfilled?
@@ -81,15 +81,11 @@ public final class DependencyResolver {
                 }
 
                 if (nodep) {
-                    // System.out.println( "[sortTables] put " + t +
-                    // " to resolved." );
                     resolved.put(t.getName(), t);
                 } else {
                     if (unresolved == null) {
                         unresolved = new HashMap<String, Table>();
                     }
-                    // System.out.println( "[sortTables] put " + t +
-                    // " to unresolved." );
                     unresolved.put(t.getName(), t);
                 }
             }
@@ -160,8 +156,7 @@ public final class DependencyResolver {
     private void resolveDep(final Table t, List<Table> cyclePath, final Map<String, Table> resolved,
             final Map<String, Table> unresolved) {
 
-        // System.out.println( "[resolveDep] >>> Starting for t: " + t +
-        // " and cyclePath: " + cyclePath );
+        Logger.debug( "[resolveDep] >>> Starting for t: %s and cyclePath: %s", t, cyclePath );
 
         // if the current table is no more in the unresolved collection
         if (t == null || resolved.containsKey(t.getName())) {
@@ -175,8 +170,7 @@ public final class DependencyResolver {
         while (iter.hasNext()) {
             final ColumnFkInfo fk = iter.next();
 
-            // System.out.println( "[resolveDep] FK -> " + fk.getPkTable() +
-            // ": " + resolved.containsKey( fk.getPkTable() ) );
+            Logger.debug( "[resolveDep] FK -> %s: %s", fk.getPkTable(), resolved.containsKey( fk.getPkTable() ) );
             if (!resolved.containsKey(fk.getPkTable())) {
 
                 final Table inner = unresolved.get(fk.getPkTable());
@@ -198,15 +192,13 @@ public final class DependencyResolver {
                     if (_cyclicDependencies == null) {
                         _cyclicDependencies = new HashSet<Collection<Table>>();
                     }
-                    // System.out.println("[resolveDep] +++ Putting cyclePath: "
-                    // + cycle );
+                    Logger.debug( "[resolveDep] +++ Putting cyclePath: %s", cycle );
                     _cyclicDependencies.add(cycle);
                     continue;
 
                 } else {
                     if (cyclePath == null) {
-                        // System.out.println(
-                        // "[resolveDep] Starting cyclePath with: " + t);
+                    	Logger.debug( "[resolveDep] Starting cyclePath with: %s" , t);
                         cyclePath = new ArrayList<Table>();
                     }
                     cyclePath.add(t);
@@ -225,7 +217,7 @@ public final class DependencyResolver {
         }
 
         if (nodep && !resolved.containsKey(t.getName())) {
-            // System.out.println( "[resolveDep] put " + t + " to resolved." );
+        	Logger.debug( "[resolveDep] put %s to resolved.", t );
             resolved.put(t.getName(), t);
         }
 

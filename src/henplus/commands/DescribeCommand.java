@@ -12,6 +12,7 @@ import henplus.HenPlus;
 import henplus.Interruptable;
 import henplus.SQLSession;
 import henplus.SigIntHandler;
+import henplus.logging.Logger;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
@@ -50,7 +51,6 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
     }
 
     private volatile boolean _interrupted;
-    private static final boolean VERBOSE = HenPlus.VERBOSE;
     private final ListUserObjectsCommand _tableCompleter;
 
     public DescribeCommand(final ListUserObjectsCommand tc) {
@@ -218,10 +218,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     try {
                         rset = meta.getImportedKeys(null, schema, tabName);
                     } catch (final NoSuchElementException e) {
-                        if (VERBOSE) {
-                            HenPlus.msg().println(
-                                    "Database problem reading meta data: " + e);
-                        }
+                            Logger.debug( "Database problem reading meta data: ", e);
                     }
                     if (rset != null) {
                         while (!_interrupted && rset.next()) {
@@ -347,13 +344,9 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     }
 
                 } catch (final Exception e) {
-                    if (VERBOSE) {
-                        e.printStackTrace();
-                    }
                     final String ex = e.getMessage() != null ? e.getMessage()
                             .trim() : e.toString();
-                            HenPlus.msg().println(
-                                    "Database problem reading meta data: " + ex);
+                            Logger.error("Database problem reading meta data: ", ex);
                             return EXEC_FAILED;
                 } finally {
                     if (rset != null) {
@@ -460,12 +453,10 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
             + "\tThe 'describe' command just describes the table, the\n"
             + "\t'idescribe' command determines the index information as\n"
             + "\twell; some databases are really slow in this, so this is\n"
-            + "\tan extra command"
-            // TODO: add getOptions() to Command-Interface?
-            + "\n\n\tRecognized options are:\n"
-            + "\t -i show index information (same as idescribe)\n"
-            + "\t -v show column descriptions"
-            + "\n\n\tIf an option is positioned between two tablenames, its current state is toggled."
+            + "\tan extra command\n\n"
+            // include the command line options:
+            + super.getLongDescription(cmd)
+            + "\n\tIf an option is positioned between two tablenames, its current state is toggled."
             + "\n";
         return dsc;
     }

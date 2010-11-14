@@ -6,8 +6,9 @@
  */
 package henplus.importparser;
 
+import henplus.logging.Logger;
+
 import java.io.Reader;
-import java.util.Calendar;
 
 /**
  * A Parser for a
@@ -27,7 +28,7 @@ public class ImportParser {
         rowDelim.getChars(0, rowDelim.length(), _rowDelim, 0);
     }
 
-    // fixme: build in read-ahead in case colDelim and rowDelim have the
+    // FIXME: build in read-ahead in case colDelim and rowDelim have the
     // same prefix..build fast state machine
     // allows for multiple ways to delimit rows and columns
     public void parse(final Reader input, final ValueRecipient recipient) throws Exception {
@@ -49,7 +50,7 @@ public class ImportParser {
                 if (fieldStart > 0) { // remove unneded stuff in front
                     System.arraycopy(buffer, fieldStart, buffer, 0,
                             buffer.length - fieldStart);
-                    // System.out.println("**shift buffer from " + fieldStart);
+                    Logger.debug("**shift buffer from %s", fieldStart);
                     pos -= fieldStart;
                     fieldStart = 0;
                 } else { // fieldStart is already at 0, so increase size
@@ -57,7 +58,7 @@ public class ImportParser {
                     System.arraycopy(buffer, fieldStart, newBuffer, 0,
                             buffer.length - fieldStart);
                     buffer = newBuffer;
-                    // System.out.println("**larger buffer..");
+                    Logger.debug("**larger buffer..");
                 }
             }
             final int bytesRead = input.read(buffer, pos, buffer.length - pos);
@@ -126,33 +127,34 @@ public class ImportParser {
     }
 
     static int count = 0;
-
-    public static void main(final String argv[]) throws Exception {
-        final Reader r = new java.io.FileReader(argv[0]);
-        final int cols = Integer.parseInt(argv[1]);
-        final TypeParser[] parsers = new TypeParser[cols];
-        for (int i = 0; i < cols; ++i) {
-            parsers[i] = new StringParser(i + 1);
-        }
-        final ValueRecipient v = new ValueRecipient() {
-            public void setLong(final int fieldNumber, final long value) {
-            }
-
-            public void setString(final int fieldNumber, final String value) {
-                System.out.println("'" + value + "'");
-            }
-
-            public void setDate(final int fieldNumber, final Calendar cal) {
-            }
-
-            public boolean finishRow() {
-                System.out.println(">>row done..<<");
-                count++;
-                return false;
-            }
-        };
-        final ImportParser parser = new ImportParser(parsers, "\",\"", "\n\"");
-        parser.parse(r, v);
-        System.err.println("COUNT: " + count);
-    }
+    
+    // TODO: move to test
+//    public static void main(final String argv[]) throws Exception {
+//        final Reader r = new java.io.FileReader(argv[0]);
+//        final int cols = Integer.parseInt(argv[1]);
+//        final TypeParser[] parsers = new TypeParser[cols];
+//        for (int i = 0; i < cols; ++i) {
+//            parsers[i] = new StringParser(i + 1);
+//        }
+//        final ValueRecipient v = new ValueRecipient() {
+//            public void setLong(final int fieldNumber, final long value) {
+//            }
+//
+//            public void setString(final int fieldNumber, final String value) {
+//                System.out.println("'" + value + "'");
+//            }
+//
+//            public void setDate(final int fieldNumber, final Calendar cal) {
+//            }
+//
+//            public boolean finishRow() {
+//                System.out.println(">>row done..<<");
+//                count++;
+//                return false;
+//            }
+//        };
+//        final ImportParser parser = new ImportParser(parsers, "\",\"", "\n\"");
+//        parser.parse(r, v);
+//        System.err.println("COUNT: " + count);
+//    }
 }

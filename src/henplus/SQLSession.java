@@ -152,7 +152,7 @@ public class SQLSession implements Interruptable {
     }
 
     public boolean printMessages() {
-        return !HenPlus.getInstance().getDispatcher().isInBatch();
+        return !HenPlus.getInstance().getDispatcher().isInBatch() && !HenPlus.getInstance().isQuiet();
     }
 
     public void print(final String msg) {

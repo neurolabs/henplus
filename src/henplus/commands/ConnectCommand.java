@@ -20,20 +20,21 @@ import henplus.view.util.SortedMatchIterator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 
 /**
  * document me.
@@ -158,19 +159,24 @@ public class ConnectCommand extends AbstractCommand {
     }
 
     @Override
-    public void registerOptions(final Options r) {
-        final Option option = new Option("J", "url", true, "JDBC URL to connect to");
+    public Collection<Option> getHandledCommandLineOptions() {
+    	final Collection<Option> result = new LinkedList<Option>();
+
+    	final Option option = new Option("J", "url", true, "JDBC URL to connect to");
         option.setArgName("jdbc:...");
-        r.addOption(option);
+        result.add(option);
+        
         final Option option2 = new Option("U", "username", true,
         "Username to connect with");
         option2.setArgName("username");
-        r.addOption(option2);
+        result.add(option2);
+
         final Option option3 = new Option("P", "password", true,
         "Password to connect with");
         option3.setArgName("password");
-
-        r.addOption(option3);
+        result.add(option3);
+        
+        return result;
     }
 
     /**

@@ -4,8 +4,9 @@
  */
 package henplus.plugins.tablediff;
 
-import henplus.HenPlus;
 import henplus.Command;
+import henplus.HenPlus;
+import henplus.logging.Logger;
 import henplus.sqlmodel.ColumnFkInfo;
 import henplus.sqlmodel.ColumnPkInfo;
 import henplus.view.Column;
@@ -181,7 +182,7 @@ public final class ResultTablePrinter {
                 markAsChanged(modView[4]);
             }
 
-            // System.out.println("default: " + org.getDefault());
+            Logger.debug("default: %s", org.getDefault());
             final String orgDefaultVal = org.getDefault() != null ? org
                     .getDefault().trim() : null;
                     // oracle appends newline to default values for some reason.

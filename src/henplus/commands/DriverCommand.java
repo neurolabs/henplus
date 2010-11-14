@@ -11,6 +11,7 @@ import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.SQLSession;
 import henplus.io.ConfigurationContainer;
+import henplus.logging.Logger;
 import henplus.view.Column;
 import henplus.view.ColumnMetaData;
 import henplus.view.TableRenderer;
@@ -28,7 +29,6 @@ import java.util.TreeMap;
  * document me.
  */
 public final class DriverCommand extends AbstractCommand {
-    private static final boolean VERBOSE = HenPlus.VERBOSE;
     private static final String[][] KNOWN_DRIVERS = {
         { "Oracle", "oracle.jdbc.driver.OracleDriver",
         "jdbc:oracle:thin:@localhost:1521:ORCL" },
@@ -93,13 +93,9 @@ public final class DriverCommand extends AbstractCommand {
 
         public boolean load() {
             try {
-                if (VERBOSE) {
-                    HenPlus.msg().print("loading .. '" + _className + "'");
-                }
+                Logger.debug("loading .. '%s'", _className);
                 final Class<?> cls = Class.forName(_className);
-                if (VERBOSE) {
-                    HenPlus.msg().println(" done.");
-                }
+                Logger.debug(" done.");
                 try {
                     final Driver driver = (Driver) cls.newInstance();
                     _version = driver.getMajorVersion() + "." + driver
@@ -109,9 +105,7 @@ public final class DriverCommand extends AbstractCommand {
                 }
                 _loaded = true;
             } catch (final Throwable t) {
-                if (VERBOSE) {
-                    HenPlus.msg().println(" failed: " + t.getMessage());
-                }
+                Logger.debug(" failed: ", t);
                 _loaded = false;
             }
             return _loaded;

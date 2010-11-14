@@ -30,29 +30,31 @@ import henplus.commands.TreeCommand;
 import henplus.commands.properties.PropertyCommand;
 import henplus.commands.properties.SessionPropertyCommand;
 import henplus.io.ConfigurationContainer;
+import henplus.logging.Logger;
+import henplus.util.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
-import java.util.Iterator;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.Map;
-
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
 
 public final class HenPlus implements Interruptable {
     private static final String HISTORY_NAME = "history";
-    public static final boolean VERBOSE = false; // debug.
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT = "Hen*Plus> ";
 
@@ -62,12 +64,12 @@ public final class HenPlus implements Interruptable {
 
     private static HenPlus instance = null; // singleton.
 
-    private final boolean _fromTerminal;
+    private boolean _fromTerminal;
     private final SQLStatementSeparator _commandSeparator;
     private final StringBuilder _historyLine;
 
-    private final boolean _quiet;
-    private final ConfigurationContainer _historyConfig;
+    private boolean _quiet;
+    private ConfigurationContainer _historyConfig;
 
     private SetCommand _settingStore;
     private SessionManager _sessionManager;
@@ -85,28 +87,35 @@ public final class HenPlus implements Interruptable {
     private OutputDevice _msg;
 
     private volatile boolean _interrupted;
+	private boolean _verbose;
 
-    private HenPlus(final String argv[]) throws IOException {
+    /**
+     * Only initialize fields so that the instance is up fast.
+     */
+    private HenPlus() throws IOException {
         _terminated = false;
         _alreadyShutDown = false;
-        final boolean quiet = false;
 
         _commandSeparator = new SQLStatementSeparator();
         _historyLine = new StringBuilder();
         // read options .. like -q
 
-        try {
+    }
+
+	/**
+	 * @param argv
+	 * @throws UnsupportedEncodingException
+	 */
+	private void init(final String[] argv) throws UnsupportedEncodingException {
+		String noReadlineMsg = null;
+		try {
             Readline.load(ReadlineLibrary.GnuReadline);
         } catch (final UnsatisfiedLinkError ignoreMe) {
-            System.err.println("no readline found (" + ignoreMe.getMessage()
-                    + "). Using simple stdin.");
+        	noReadlineMsg = String.format("no readline found (%s). Using simple stdin.", ignoreMe.getMessage());
         }
 
         _fromTerminal = Readline.hasTerminal();
-        if (!_fromTerminal && !quiet) {
-            System.err.println("reading from stdin");
-        }
-        _quiet = quiet || !_fromTerminal; // not from terminal: always quiet.
+        _quiet |= !_fromTerminal; // not from terminal: always quiet.
 
         if (_fromTerminal) {
             setOutput(new TerminalOutputDevice(System.out),
@@ -116,10 +125,15 @@ public final class HenPlus implements Interruptable {
                     new PrintStreamOutputDevice(System.err));
         }
 
-        if (!_quiet) {
-            System.err
-            .println("using GNU readline (Brian Fox, Chet Ramey), Java wrapper by Bernhard Bablok");
+		initializeCommands(argv);
+        readCommandLineOptions(argv);
+
+        if (StringUtil.isEmpty(noReadlineMsg)) {
+        	Logger.info("using GNU readline (Brian Fox, Chet Ramey), Java wrapper by Bernhard Bablok");
+        } else {
+        	Logger.info(noReadlineMsg);        	
         }
+        
         _historyConfig = createConfigurationContainer(HISTORY_NAME);
         Readline.initReadline("HenPlus");
         _historyConfig.read(new ConfigurationContainer.ReadAction() {
@@ -130,9 +144,9 @@ public final class HenPlus implements Interruptable {
 
         Readline.setWordBreakCharacters(" ,/()<>=\t\n"); // TODO..
         setDefaultPrompt();
-    }
+	}
 
-    public void initializeCommands(final String argv[]) {
+	public void initializeCommands(final String argv[]) {
         _henplusProperties = new PropertyRegistry();
         _henplusProperties.registerProperty("comments-remove",
                 _commandSeparator.getRemoveCommentsProperty());
@@ -151,7 +165,7 @@ public final class HenPlus implements Interruptable {
         /*
          * this one prints as well the initial copyright header.
          */
-        _dispatcher.register(new AboutCommand(_quiet));
+        _dispatcher.register(new AboutCommand());
 
         _dispatcher.register(new ExitCommand());
         _dispatcher.register(new EchoCommand());
@@ -196,58 +210,15 @@ public final class HenPlus implements Interruptable {
         aliasCommand.load();
         propertyCommand.load();
 
-        final Options availableOptions = new Options();
-        availableOptions.addOption(new Option("h", "help", false,
-        "print this message"));
-        for (final Iterator it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
-            final Command element = (Command) it.next();
-            try {
-                element.registerOptions(availableOptions);
-            } catch (final Throwable e) {
-                System.err.println("while registering " + element);
-                e.printStackTrace();
-            }
-        }
-        final CommandLineParser parser = new PosixParser();
-        CommandLine line = null;
-        try {
-            line = parser.parse(availableOptions, argv);
-            for (final Iterator it = _dispatcher.getRegisteredCommands(); it
-            .hasNext(); ) {
-                final Command element = (Command) it.next();
-                element.setOptions(availableOptions);
-                element.handleCommandline(line);
-            }
-        } catch (final Exception e) {
-            System.err.println(e.getMessage());
-            line = null;
-        }
-
-        if (line == null || line.hasOption("h")) {
-            final HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("henplus", availableOptions);
-            System.exit(0);
-        }
-
         Readline.setCompleter(_dispatcher);
 
         /* FIXME: do this platform independently */
-        // in case someone presses Ctrl-C
-        try {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
                     shutdown();
                 }
             });
-        } catch (final NoSuchMethodError e) {
-            // compiled with jdk >= 1.3, executed with <= 1.2.x
-            System.err.println("== This JDK is OLD. ==");
-            System.err.println(" - No final save on CTRL-C supported.");
-            System.err
-            .println(" - and if your shell is broken after use of henplus: same reason.");
-            System.err.println("Bottomline: update your JDK (>= 1.3)!");
-        }
         /*
          * if your compiler/system/whatever does not support the sun.misc.
          * classes, then just disable this call and the SigIntHandler class.
@@ -268,6 +239,83 @@ public final class HenPlus implements Interruptable {
          * end testing
          */
     }
+
+	/**
+	 * @param argv
+	 */
+	private void readCommandLineOptions(final String[] argv) {
+		final Options availableOptions = getMainOptions();
+        registerCommandOptions(availableOptions);
+        final CommandLineParser parser = new PosixParser();
+        CommandLine line = null;
+        try {
+            line = parser.parse(availableOptions, argv);
+    		if (line.hasOption('h')) {
+    			usageAndExit(availableOptions, 0);
+    		}
+    		if (line.hasOption('s')) {
+    			_quiet = true;
+    		}
+    		if (line.hasOption('v')) {
+    			_verbose = true;
+    		}
+            handleCommandOptions(line);
+        } catch (final Exception e) {
+        	Logger.error("Error handling command line arguments", e);
+            usageAndExit(availableOptions, 1);
+        }
+	}
+
+	/**
+	 * @param availableOptions
+	 */
+	private void usageAndExit(final Options availableOptions, final int returnCode) {
+		final HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp("henplus", availableOptions);
+		System.exit(returnCode);
+	}
+
+	/**
+	 * @param line
+	 */
+	private void handleCommandOptions(CommandLine line) {
+		for (final Iterator it = _dispatcher.getRegisteredCommands(); it
+		.hasNext(); ) {
+		    final Command element = (Command) it.next();
+		    element.handleCommandline(line);
+		}
+	}
+
+	/**
+	 * @param availableOptions
+	 */
+	private void registerCommandOptions(final Options availableOptions) {
+		for (final Iterator it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
+            final Command element = (Command) it.next();
+            try {
+                for(Option option : element.getHandledCommandLineOptions()) {
+                	availableOptions.addOption(option);
+                }
+            } catch (final Throwable e) {
+                Logger.error("while registering %s", e, element);
+                e.printStackTrace();
+            }
+        }
+	}
+
+	/**
+	 * @return
+	 */
+	private Options getMainOptions() {
+		final Options availableOptions = new Options();
+        availableOptions.addOption(new Option("h", "help", false,
+        "print this message"));
+        availableOptions.addOption(new Option("s", "silent", false,
+        "suppress all output except query results"));
+        availableOptions.addOption(new Option("v", "verbose", false,
+        "print debug output"));
+		return availableOptions;
+	}
 
     /**
      * push the current state of the command execution buffer, e.g. to parse a
@@ -333,7 +381,6 @@ public final class HenPlus implements Interruptable {
         result = LINE_INCOMPLETE;
         while (_commandSeparator.hasNext()) {
             String completeCommand = _commandSeparator.next();
-            // System.err.println(">'" + completeCommand + "'<");
             completeCommand = varsubst(completeCommand, _settingStore
                     .getVariableMap());
             final Command c = _dispatcher.getCommandFrom(completeCommand);
@@ -353,7 +400,6 @@ public final class HenPlus implements Interruptable {
                 _commandSeparator.cont();
                 result = LINE_INCOMPLETE;
             } else {
-                // System.err.println("SUBST: " + completeCommand);
                 _dispatcher.execute(_sessionManager.getCurrentSession(),
                         completeCommand);
                 _commandSeparator.consumed();
@@ -395,7 +441,7 @@ public final class HenPlus implements Interruptable {
                     break; // last session closed -> exit.
                 }
             } catch (final Exception e) {
-                if (VERBOSE) {
+                if (_verbose) {
                     e.printStackTrace();
                 }
             }
@@ -404,11 +450,6 @@ public final class HenPlus implements Interruptable {
 
             // anyone pressed CTRL-C
             if (_interrupted) {
-                if ((cmdLine == null || cmdLine.trim().length() == 0)
-                        && _historyLine.length() == 0) {
-                    _terminated = true; // terminate if we press CTRL on empty
-                    // line.
-                }
                 _historyLine.setLength(0);
                 _commandSeparator.discard();
                 displayPrompt = _prompt;
@@ -448,9 +489,7 @@ public final class HenPlus implements Interruptable {
         if (_alreadyShutDown) {
             return;
         }
-        if (!_quiet) {
-            System.err.println("storing settings..");
-        }
+        Logger.info("storing settings..");
         /*
          * allow hard resetting.
          */
@@ -593,8 +632,7 @@ public final class HenPlus implements Interruptable {
             }
             if (endpos > in.length()) {
                 if (variables.containsKey(varname)) {
-                    System.err.println("warning: missing '}' for variable '"
-                            + varname + "'.");
+                    Logger.info("warning: missing '}' for variable '%s'.",varname);
                 }
                 result.append(in.substring(startVar));
                 break;
@@ -603,8 +641,7 @@ public final class HenPlus implements Interruptable {
             if (variables.containsKey(varname)) {
                 result.append(variables.get(varname));
             } else {
-                System.err.println("warning: variable '" + varname
-                        + "' not set.");
+                Logger.info("warning: variable '%s' not set.", varname);
                 result.append(in.substring(startVar, endpos));
             }
 
@@ -620,7 +657,7 @@ public final class HenPlus implements Interruptable {
     public void interrupt() {
         // watchout: Readline.getLineBuffer() will cause a segmentation fault!
         getMessageDevice().attributeBold();
-        getMessageDevice().print(" ..discard current line; press [RETURN]");
+        getMessageDevice().print("\n...discarded current command line; press [RETURN] to continue or [CTRL-D] to exit henplus");
         getMessageDevice().attributeReset();
 
         _interrupted = true;
@@ -653,8 +690,8 @@ public final class HenPlus implements Interruptable {
     }
 
     public static void main(final String argv[]) throws Exception {
-        instance = new HenPlus(argv);
-        instance.initializeCommands(argv);
+        instance = new HenPlus();
+        instance.init(argv);
         instance.run();
         instance.shutdown();
         /*
@@ -701,9 +738,7 @@ public final class HenPlus implements Interruptable {
             final String homeDir = System.getProperty("user.home", ".");
             _configDir = new File(homeDir + File.separator + HENPLUSDIR);
             if (!_configDir.exists()) {
-                if (!_quiet) {
-                    System.err.println("creating henplus config dir");
-                }
+                Logger.debug("creating henplus config dir.");
                 _configDir.mkdir();
             }
             try {
@@ -715,7 +750,7 @@ public final class HenPlus implements Interruptable {
                         _configDir.toString() };
                 Runtime.getRuntime().exec(params);
             } catch (final Exception e) {
-                if (VERBOSE) {
+                if (_verbose) {
                     e.printStackTrace();
                 }
             }
@@ -726,10 +761,16 @@ public final class HenPlus implements Interruptable {
         } catch (final IOException ign) { /* ign */
         }
 
-        if (!_quiet) {
-            System.err.println("henplus config at " + _configDir);
-        }
+        Logger.info("henplus config at " + _configDir, false);
         return _configDir;
+    }
+    
+    public boolean isQuiet() {
+    	return _quiet;
+    }
+    
+    public boolean isVerbose() {
+    	return _verbose;
     }
 }
 

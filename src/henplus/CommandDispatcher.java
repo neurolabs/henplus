@@ -7,6 +7,7 @@
 package henplus;
 
 import henplus.event.ExecutionListener;
+import henplus.logging.Logger;
 import henplus.commands.SetCommand;
 
 import java.util.ArrayList;
@@ -244,15 +245,13 @@ public class CommandDispatcher implements ReadlineCompleter {
         }
         cmdBuf.setLength(i + 1);
         final String cmd = cmdBuf.toString();
-        // System.err.println("## '" + cmd + "'");
         final String cmdStr = getCommandNameFrom(cmd);
         final Command c = getCommandFromCooked(cmdStr);
-        // System.err.println("name: "+ cmdStr + "; c=" + c);
         if (c != null) {
             try {
                 final String params = cmd.substring(cmdStr.length());
                 if (session == null && c.requiresValidSession(cmdStr)) {
-                    HenPlus.msg().println("not connected.");
+                    Logger.error("not connected.");
                     return;
                 }
 
@@ -265,9 +264,9 @@ public class CommandDispatcher implements ReadlineCompleter {
                 case Command.SYNTAX_ERROR: {
                     final String synopsis = c.getSynopsis(cmdStr);
                     if (synopsis != null) {
-                        HenPlus.msg().println("usage: " + synopsis);
+                        Logger.error("usage: " + synopsis);
                     } else {
-                        HenPlus.msg().println("syntax error.");
+                        Logger.error("syntax error.");
                     }
                 }
                 break;
@@ -279,8 +278,8 @@ public class CommandDispatcher implements ReadlineCompleter {
                      * command.
                      */
                     if (isInBatch()) {
-                        HenPlus.msg().println("-- failed command: ");
-                        HenPlus.msg().println(givenCommand);
+                        Logger.error("-- failed command: ");
+                        Logger.error(givenCommand);
                     }
                 }
                 break;
@@ -288,10 +287,7 @@ public class CommandDispatcher implements ReadlineCompleter {
                     /* nope */
                 }
             } catch (final Throwable e) {
-                if (VERBOSE) {
-                    e.printStackTrace();
-                }
-                HenPlus.msg().println(e.toString());
+                Logger.error("Error in command execution: ", e);
                 informAfterListeners(session, givenCommand, Command.EXEC_FAILED);
             }
         }

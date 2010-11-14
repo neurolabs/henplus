@@ -41,4 +41,8 @@ public final class StringUtil {
             return StringUtil.nullSafeEquals(one, two);
         }
     }
+
+	public static boolean isEmpty(String string) {
+		return string == null || string.equals("");
+	}
 }

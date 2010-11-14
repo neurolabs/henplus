@@ -6,10 +6,11 @@
  */
 package henplus;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
 
 /**
  * Interface to be implemented for user level commands.
@@ -23,7 +24,10 @@ import org.apache.commons.cli.Options;
  * <p>
  * If you are writing Plugins, consider extending the {@link AbstractCommand} as
  * it provides a default implementation and you are immune to NoSuchMethodErrors
- * if this interface changes but not yet your plugin...
+ * if this interface changes but not yet your plugin... 
+ * </p>
+ * <p>
+ * This interface is defined as an abstract class so we can define static methods.
  * </p>
  * 
  * @version $Revision: 1.11 $
@@ -200,20 +204,11 @@ public interface Command {
     String getLongDescription(String cmd);
 
     /**
-     * Options are set, after the commandline has been parsed.
-     * 
-     * @param options
-     */
-    void setOptions(Options options);
-
-    /**
      * This method is called before parsing the commandline. You can register
-     * your command-specific options here and get it back in setOptions() after
-     * the commandline is parsed.
-     * 
-     * @param r
+     * your command-specific options here and handle them in 
+     * {@link #handleCommandline(CommandLine)}.
      */
-    void registerOptions(Options allOptions);
+    Collection<Option> getHandledCommandLineOptions();
 
     /**
      * After parsing the parameters, this method is called.

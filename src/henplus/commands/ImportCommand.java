@@ -6,36 +6,34 @@
  */
 package henplus.commands;
 
-import henplus.importparser.TypeParser;
+import henplus.AbstractCommand;
+import henplus.CommandDispatcher;
+import henplus.HenPlus;
+import henplus.Interruptable;
+import henplus.SQLSession;
+import henplus.SigIntHandler;
+import henplus.importparser.IgnoreTypeParser;
 import henplus.importparser.ImportParser;
 import henplus.importparser.QuotedStringParser;
+import henplus.importparser.TypeParser;
 import henplus.importparser.ValueRecipient;
-import henplus.importparser.IgnoreTypeParser;
-import henplus.Interruptable;
-
-import henplus.SQLSession;
-import henplus.CommandDispatcher;
-import henplus.SigIntHandler;
-import henplus.HenPlus;
-import henplus.AbstractCommand;
+import henplus.logging.Logger;
 import henplus.view.util.NameCompleter;
-import java.nio.charset.Charset;
 
 import java.io.File;
-import java.io.InputStream;
-import java.util.zip.GZIPInputStream;
-import java.io.Reader;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import java.util.StringTokenizer;
-import java.util.Collection;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Calendar;
-
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.zip.GZIPInputStream;
 
 /*
  Todo:
@@ -402,7 +400,7 @@ public class ImportCommand extends AbstractCommand {
             }
             cmd.append(")");
             final String stmtString = cmd.toString();
-            System.out.println("INSERTING WITH " + stmtString);
+            Logger.info("INSERTING WITH " + stmtString);
             _stmt = session.getConnection().prepareStatement(stmtString);
         }
 
@@ -522,14 +520,14 @@ public class ImportCommand extends AbstractCommand {
          * parse the configuration an return the completer of the last property.
          */
         private Iterator complete(final String partial) {
-            // System.err.println("tok: '" + cmd + "'");
+            Logger.debug("tok: '%s'", partial);
             resetError();
             final CommandTokenizer cmdTok = new CommandTokenizer(partial,
                     COMMAND_QUOTES);
             while (cmdTok.hasNext()) {
                 final String commandName = cmdTok.nextToken();
                 if (!cmdTok.isCurrentTokenFinished()) {
-                    // System.err.println("not finished: '" + cmd + "'");
+                    Logger.debug("not finished: '%s'", commandName);
                     return getCommandCompleter(commandName);
                 }
                 String commandValue = "";
@@ -757,7 +755,6 @@ public class ImportCommand extends AbstractCommand {
             for (int i = 0; tok.hasMoreElements(); ++i) {
                 final String token = tok.nextToken();
                 result[i] = "-".equals(token) ? null : token;
-                // System.err.println(result[i]);
             }
             setColumns(result);
             if (!commaDelimColumns.endsWith(")")) {

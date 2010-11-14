@@ -6,6 +6,8 @@
  */
 package henplus;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
@@ -30,6 +32,14 @@ public abstract class AbstractCommand implements Command {
     }
 
     public String getLongDescription(final String cmd) {
+        Collection<Option> handledCommandLineOptions = getHandledCommandLineOptions();
+        if (handledCommandLineOptions != null && handledCommandLineOptions.size() > 0) {
+            StringBuilder sb = new StringBuilder("\tRecognized options are:\n");
+            for (Option option : handledCommandLineOptions) {
+            	sb.append(String.format("\t -%s %s\n", option.getOpt(), option.getDescription()));
+			}
+            return sb.toString();
+        }
         return null;
     }
 
@@ -68,25 +78,13 @@ public abstract class AbstractCommand implements Command {
         return new StringTokenizer(command).countTokens();
     }
 
-    protected Options getOptions() {
-        return _options;
-    }
-
-    public void setOptions(final Options options) {
-        this._options = options;
-    }
-
-    public Option getOption(final String arg0) {
-        return _options.getOption(arg0);
-    }
-
     /**
      * Override this method if you want to register command-specific options.
      * 
      * @param r
      */
-    public void registerOptions(final Options r) {
-
+    public Collection<Option> getHandledCommandLineOptions() {
+    	return Collections.emptyList();
     }
 
     public void handleCommandline(final CommandLine line) {

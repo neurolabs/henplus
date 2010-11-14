@@ -15,6 +15,7 @@ import henplus.SQLMetaDataBuilder;
 import henplus.SQLSession;
 import henplus.SigIntHandler;
 import henplus.Version;
+import henplus.logging.Logger;
 import henplus.sqlmodel.Table;
 import henplus.util.DependencyResolver;
 import henplus.util.DependencyResolver.ResolverResult;
@@ -195,7 +196,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
         if ("dump-select".equals(cmd)) {
             if (session == null) {
-                HenPlus.msg().println("not connected.");
+                Logger.error("not connected.");
                 return EXEC_FAILED;
             }
             if (argc < 4) {
@@ -205,7 +206,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             final String tabName = st.nextToken();
             final String select = st.nextToken();
             if (!select.toUpperCase().equals("SELECT")) {
-                HenPlus.msg().println("'select' expected..");
+                Logger.error("'select' expected.");
                 return SYNTAX_ERROR;
             }
             final StringBuilder statement = new StringBuilder("select");
@@ -220,8 +221,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         out, FILE_ENCODING);
                 return result;
             } catch (final Exception e) {
-                HenPlus.msg().println("failed: " + e.getMessage());
-                e.printStackTrace();
+                Logger.error("failed: ", e);
                 return EXEC_FAILED;
             } finally {
                 if (out != null) {
@@ -233,7 +233,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
         else if ("dump-conditional".equals(cmd)) {
             if (session == null) {
-                HenPlus.msg().println("not connected.");
+                Logger.error("not connected.");
                 return EXEC_FAILED;
             }
             if (argc < 2) {
@@ -258,7 +258,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         FILE_ENCODING);
                 return result;
             } catch (final Exception e) {
-                HenPlus.msg().println("failed: " + e.getMessage());
+                Logger.error("failed: ", e);
                 e.printStackTrace();
                 return EXEC_FAILED;
             } finally {
@@ -271,7 +271,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
         else if ("dump-out".equals(cmd)) {
             if (session == null) {
-                HenPlus.msg().println("not connected.");
+                Logger.error("not connected.");
                 return EXEC_FAILED;
             }
             if (argc < 2) {
@@ -331,9 +331,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 List<String> tableSequence;
                 if (needsSort) {
                     tableSequence = new ArrayList<String>();
-                    HenPlus
-                    .msg()
-                    .println(
+                    Logger.info(
                             "Retrieving and sorting tables. This may take a while, please be patient.");
 
                     // get sorted tables
@@ -353,8 +351,8 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
                 /* 3) dump out */
                 if (tableSequence.size() > 1) {
-                    HenPlus.msg().println(
-                            tableSequence.size() + " tables to dump.");
+                    Logger.info(
+                             "%s tables to dump.", tableSequence.size());
                 }
                 final Iterator it = tableSequence.iterator();
                 while (_running && it.hasNext()) {
@@ -371,6 +369,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 if (tableSequence.size() > 1) {
                     final long duration = System.currentTimeMillis()
                     - startTime;
+                    // TODO: move to Logger, timerenderer returns strings.
                     HenPlus.msg()
                     .print(
                             "Dumping " + tableSequence.size()

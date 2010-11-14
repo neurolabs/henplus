@@ -1,5 +1,7 @@
 package henplus.io;
 
+import henplus.logging.Logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,8 +13,8 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -118,11 +120,11 @@ public final class ConfigurationContainer {
                     || !_configFile.exists()
                     || !MessageDigest.isEqual(_inputDigest, outputDigest
                             .digest())) {
-                // System.err.println("non equal.. write file " + _configFile);
+                Logger.debug("non equal.. write file '%s'", _configFile);
                 tmpFile.renameTo(_configFile);
             }
         } catch (final Exception e) {
-            System.err.println("do not write config. Error occured: " + e);
+            Logger.error("Could not write config. Error occured: ", e);
         } finally {
             if (tmpFile != null) {
                 tmpFile.delete();
@@ -150,7 +152,7 @@ public final class ConfigurationContainer {
                 _readProperties.load(input);
                 input.close();
             } catch (final Exception e) {
-                System.err.println(e); // can't help.
+                Logger.error("Could not load properties: ", e);
             }
         }
         final Map props = (Properties) _readProperties.clone();
@@ -200,8 +202,6 @@ public final class ConfigurationContainer {
         outputProperties.putAll(props);
 
         if (outputProperties.equals(_readProperties)) {
-            // System.err.println("equal properties. Do nothing " +
-            // _configFile);
             return;
         }
 

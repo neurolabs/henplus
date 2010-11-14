@@ -7,10 +7,11 @@
 package henplus.view;
 
 import henplus.OutputDevice;
+import henplus.logging.Logger;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * document me.
@@ -177,9 +178,7 @@ public class TableRenderer {
 
     protected String formatString(String text, final char fillchar, int len,
             final int alignment) {
-        // System.out.println("[formatString] len: " + len + ", text.length: " +
-        // text.length());
-        // text = "hi";
+        Logger.debug("[formatString] len: %s, text.length: %s",len,text.length());
         final StringBuilder fillstr = new StringBuilder();
 
         if (len > 4000) {

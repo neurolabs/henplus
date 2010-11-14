@@ -12,6 +12,7 @@ import henplus.HenPlus;
 import henplus.SQLSession;
 import henplus.SessionManager;
 import henplus.commands.ListUserObjectsCommand;
+import henplus.logging.Logger;
 import henplus.sqlmodel.Column;
 import henplus.sqlmodel.Table;
 import henplus.view.util.NameCompleter;
@@ -65,8 +66,7 @@ public final class TableDiffCommand extends AbstractCommand {
         final boolean colNameIgnoreCase = true;
         final StringTokenizer st = new StringTokenizer(parameters);
 
-        // HenPlus.msg().println( "[execute] command: " + command +
-        // ", parameters: " + parameters );
+        Logger.debug( "[execute] command: '%s', parameters: '%s'", command, parameters );
 
         int result = SUCCESS;
 
@@ -74,8 +74,7 @@ public final class TableDiffCommand extends AbstractCommand {
 
             // required: session
             if (session == null) {
-                HenPlus.msg().println(
-                "You need a valid session for this command.");
+                Logger.error("You need a valid session for this command.");
                 return EXEC_FAILED;
             }
 
@@ -100,7 +99,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 .append(System.currentTimeMillis() - start).append(
                 " ms.");
 
-                HenPlus.msg().println(msg.toString());
+                Logger.info(msg.toString());
 
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -122,7 +121,7 @@ public final class TableDiffCommand extends AbstractCommand {
         .getSessionManager();
 
         if (sessionManager.getSessionCount() < 2) {
-            System.err.println("You need two valid sessions for this command.");
+            Logger.error("You need two valid sessions for this command.");
             return SYNTAX_ERROR;
         }
 
@@ -130,17 +129,15 @@ public final class TableDiffCommand extends AbstractCommand {
         final SQLSession second = sessionManager.getSessionByName(st.nextToken());
 
         if (first == null || second == null) {
-            HenPlus.msg().println(
+        	Logger.error(
             "You need two valid sessions for this command.");
             return EXEC_FAILED;
         } else if (first == second) {
-            HenPlus
-            .msg()
-            .println(
+        	Logger.error(
                     "You should specify two different sessions for this command.");
             return EXEC_FAILED;
         } else if (!st.hasMoreTokens()) {
-            HenPlus.msg().println("You should specify at least one table.");
+        	Logger.error("You should specify at least one table.");
             return EXEC_FAILED;
         }
 
@@ -213,7 +210,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 msg.delete(msg.length() - 2, msg.length());
             }
 
-            HenPlus.msg().println(msg.toString());
+            Logger.info(msg.toString());
 
         } catch (final Exception e) {
             e.printStackTrace();
@@ -246,9 +243,9 @@ public final class TableDiffCommand extends AbstractCommand {
         final TableDiffResult diffResult = TableDiffer.diffTables(ref, diff,
                 colNameIgnoreCase);
         if (diffResult == null) {
-            HenPlus.msg().println("No diff for table " + tableName);
+            Logger.info("No diff for table " + tableName);
         } else {
-            HenPlus.msg().println("Diff result for table " + tableName + ":");
+            Logger.info("Diff result for table " + tableName + ":");
             ResultTablePrinter.printResult(diffResult);
         }
     }
@@ -260,11 +257,11 @@ public final class TableDiffCommand extends AbstractCommand {
         final TableDiffResult diffResult = TableDiffer.diffTables(ref, diff,
                 colNameIgnoreCase);
         if (diffResult == null) {
-            HenPlus.msg().println(
+            Logger.info(
                     "No diff for tables " + tableName1 + " and " + tableName2
                     + ".");
         } else {
-            HenPlus.msg().println(
+            Logger.info(
                     "Diff result for tables " + tableName1 + " and "
                     + tableName2 + ":");
             ResultTablePrinter.printResult(diffResult);
@@ -324,8 +321,6 @@ public final class TableDiffCommand extends AbstractCommand {
         st.nextToken(); // skip cmd.
         int argIndex = st.countTokens();
 
-        // System.out.println("[complete] partialCommand: '"+partialCommand+
-        // "', lastWord: '" + lastWord+"'");
         /*
          * the following input is given: "command token1 [TAB_PRESSED]" in this
          * case the partialCommand is "command token1", the last word has a
@@ -510,7 +505,6 @@ public final class TableDiffCommand extends AbstractCommand {
      */
     @Override
     public boolean isComplete(final String command) {
-        // HenPlus.msg().println( "[isComplete] command: " + command );
         if (command.trim().endsWith(COMMAND_DELIMITER)) {
             return true;
             /*

@@ -4,6 +4,7 @@
  */
 package henplus.plugins.tablediff;
 
+import henplus.logging.Logger;
 import henplus.sqlmodel.Column;
 import henplus.sqlmodel.Table;
 
@@ -45,18 +46,15 @@ public final class TableDiffer {
             if (refIter != null) {
                 while (refIter.hasNext()) {
                     final Column col = refIter.next();
-                    // System.out.println(
-                    // "[TableDiffer.diffTables] querying table for " +
-                    // col.getName());
+                    Logger.debug("[TableDiffer.diffTables] querying table for '%s'", col.getName());
                     final Column diff = diffTable.getColumnByName(col.getName(),
                             colNameIgnoreCase);
-                    // System.out.println("[TableDiffer.diffTables] got: " +
-                    // diff);
+                    Logger.debug("[TableDiffer.diffTables] got: '%s'",  diff);
                     if (diff == null) {
-                        // System.out.println("missing col: " + col.getName());
+                        Logger.debug("missing col: '%s'", col.getName());
                         result.addRemovedColumn(col);
                     } else if (!col.equals(diff, colNameIgnoreCase)) {
-                        // System.out.println("modified col: " + col.getName());
+                        Logger.debug("modified col: '%s'", col.getName());
                         result.putModifiedColumns(col, diff);
                     }
                 }
@@ -69,7 +67,7 @@ public final class TableDiffer {
                     final Column ref = referenceTable.getColumnByName(col.getName(),
                             colNameIgnoreCase);
                     if (ref == null) {
-                        // System.out.println("added col: " + col.getName());
+                        Logger.debug("added col: '%s'", col.getName());
                         result.addAddedColumn(col);
                     }
                 }

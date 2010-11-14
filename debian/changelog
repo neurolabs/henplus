@@ -1,55 +1,60 @@
-henplus (0.9.7-1) unstable; urgency=low
-  * many small improvements last two years .. time for a release :-)
-	
- -- Henner Zeller <H.Zeller@acm.org>  Sun, 19 Mar 2006 22:30:08 +0100
-	
+henplus (0.9.7.ds1-2) unstable; urgency=low
+
+  * debian/packages, 020-library_version.patch, 
+    060-sun.misc.Signal-build.xml.patch:
+    - Compiles with commons-cli 1.1.  Closes: #458674.
+
+ -- Piotr Roszatycki <dexter@debian.org>  Tue, 29 Jul 2008 15:19:10 +0200
+
+henplus (0.9.7.ds1-1) unstable; urgency=low
+
+  * New upstream release. Repackaged as ds1 without binary JARs.
+  * Include sun.misc.Signal, SignalHandler and NativeSignalHandler classes
+    for compatibility with non-Sun Java runtimes. It allows to handle Ctrl-C
+    keystroke with Sun JRE.
+  * debian/packages:
+    - The java-gcj-compat-dev (GCJ + ECJ) is the default JDK.
+      Closes: #299313.
+    - Support compiling by j2sdk1.4, sun-java5-jdk, sun-java6-jdk,
+      free-java-sdk, kaffe-pthreads, java-gcj-compat-dev and virtual
+      java-compiler.
+    - Fixed typos. Closes: #357279, #363926.
+  * henplus script:
+    - Detect if sun.misc.Signal class is available and include
+      sun-misc-signal.jar to the CLASSPATH if missing.
+    - Autodetect JDBC system classes after ~/.henplus/lib.
+
+ -- Piotr Roszatycki <dexter@debian.org>  Tue, 15 May 2007 15:33:46 +0200
+
+henplus (0.9.5-cvs20051003+2) unstable; urgency=low
+
+  * Fixed typo in debian/packages. Back to main archive.
+
+ -- Piotr Roszatycki <dexter@debian.org>  Mon,  3 Oct 2005 19:33:59 +0200
+
+henplus (0.9.5-cvs20051003+1) unstable; urgency=low
+
+  * New CVS snapshot.
+  * Build with sablevm. Fixes FTBFS on amd64. Closes: #306972.
+  * Build-Depends-Indep: ant. Closes: #331136.
+  * Depends: kaffe | java-virtual-machine, kaffe | java1-runtime |
+    java2-runtime. Closes: #331137.
+  * Add HSQLDB and SQLite to drivers list.
+  * New manpage.
+  * Fix typo in package's description. Closes: #299985.
+
+ -- Piotr Roszatycki <dexter@debian.org>  Mon,  3 Oct 2005 10:48:19 +0200
+
+henplus (0.9.5-2) unstable; urgency=low
+
+  * Build with kaffe. sablevm generates java.lang.NullPointerException.
+    Closes: #299080.
+
+ -- Piotr Roszatycki <dexter@debian.org>  Fri, 11 Mar 2005 20:59:55 +0100
+
 henplus (0.9.5-1) unstable; urgency=low
-  
-  * fixed bug: startup with given JDBC-connection throws exception
 
- -- Henner Zeller <H.Zeller@acm.org>  Mon, 02 Feb 2004 12:22:04 +0100
+  * Initial Debian version. Closes: #269389.
 
-henplus (0.9.4-1) unstable; urgency=low
-  
-  * implement spool command
-  * add tablediff plugin by Martin Grotzke
-  * add echo-commands property
-  * add sql-result-showheader, sql-result-showfooter properties
-  * small fixes
-
- -- Henner Zeller <H.Zeller@acm.org>  Sun, 01 Feb 2004 18:28:04 +0100
-  
-henplus (0.9.3-1) unstable; urgency=low
-  
-  * fix a bug that rendered set-var unusable.
-  * add global and session specific property support
-  * column-delimiter, comments-remove, sql-result-limit as global properties
-  * auto-commit and isolation-level as session properties
-  
- -- Henner Zeller <H.Zeller@acm.org>  Thu, 01 May 2003 22:54:38 +0200
-  
-henplus (0.9.2-2) unstable; urgency=low
-
-  * select CLOBs
-
- -- Henner Zeller <H.Zeller@acm.org>  Tue, 18 Mar 2003 11:49:12 +0100
-
-henplus (0.9.1-1) unstable; urgency=low
-  
-  * do a workaround for a bug in hsqldb (exiting does not work properly)
-  * rename the commands 'set' and 'unset' to 'set-var' and 'unset-var'
-    because these are probably common commands provided by databases
-  * rename session only, if a session with the given name does not already
-    exist
-  * add password-erase-while-typing hack.
-  * make removing of comments switchable. Oracle for instance conveys
-    hints in comments.
-  
- -- Henner Zeller <H.Zeller@acm.org>  Sun, 26 Jan 2003 12:12:12 +0100
-
-henplus (0.9-1) unstable; urgency=low
-
-  * Initial Release as debian package.
-
- -- Henner Zeller <H.Zeller@acm.org>  Sat, 25 Jan 2003 18:11:14 +0100
+ -- Piotr Roszatycki <dexter@debian.org>  Tue, 30 Nov 2004 12:19:33 +0100
 

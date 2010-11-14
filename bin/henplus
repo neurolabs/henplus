@@ -30,7 +30,13 @@ fi
 # location of the readline lib.
 # Modify this, if you installation stores this at a different
 # position.
-LD_LIBRARY_PATH=$THISDIR/../lib:/usr/lib/jni:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH_EXT=$THISDIR/../lib:/usr/lib/jni
+
+if [ ! -n "$LD_LIBRARY_PATH" ]; then
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH_EXT:$LD_LIBRARY_PATH
+else
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH_EXT
+fi
 CLASSPATH=$CLASSPATH:$THISDIR/../share/java/libreadline-java.jar
 
 # you may just throw your own jar files in this dir.

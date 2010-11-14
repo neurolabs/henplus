@@ -84,8 +84,9 @@ public class SigIntHandler implements SignalHandler, InterruptHandler {
                 toInterrupt.interrupt();
             }
         } else {
-            System.err.println("[Ctrl-C ; interrupted]");
-            System.exit(1);
+            HenPlus.out().println("[Ctrl-C ; interrupted] - ignoring since there's nothing to interrupt");
+            
+            //System.exit(1);
         }
     }
 }

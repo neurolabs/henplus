@@ -124,12 +124,13 @@ public class CommandTokenizer implements Iterator {
         throw new UnsupportedOperationException("no!");
     }
 
-    public static void main(final String argv[]) {
-        final CommandTokenizer cmdTok = new CommandTokenizer(argv[0], argv[1]);
-        while (cmdTok.hasNext()) {
-            final String tok = cmdTok.nextToken();
-            System.out.println("token: '" + tok + "'; complete="
-                    + cmdTok.isCurrentTokenFinished());
-        }
-    }
+    // TODO: move to test
+//    public static void main(final String argv[]) {
+//        final CommandTokenizer cmdTok = new CommandTokenizer(argv[0], argv[1]);
+//        while (cmdTok.hasNext()) {
+//            final String tok = cmdTok.nextToken();
+//            System.out.println("token: '" + tok + "'; complete="
+//                    + cmdTok.isCurrentTokenFinished());
+//        }
+//    }
 }

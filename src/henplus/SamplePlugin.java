@@ -6,6 +6,8 @@
  */
 package henplus;
 
+import henplus.logging.Logger;
+
 /**
  * This is a Sample plugin. Its simple: just implement the Command interface and
  * a public default constructor. Thats it.
@@ -23,7 +25,7 @@ public class SamplePlugin extends AbstractCommand {
     }
 
     public int execute(final SQLSession session, final String cmd, final String param) {
-        System.err.println("This plugin does nothing.");
+        Logger.info("This plugin does nothing.");
         return SUCCESS;
     }
 

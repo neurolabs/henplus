@@ -6,6 +6,7 @@
  */
 package henplus;
 
+import henplus.logging.Logger;
 import henplus.view.util.NameCompleter;
 
 import java.util.Iterator;
@@ -81,7 +82,7 @@ public final class SessionManager {
         int result = Command.EXEC_FAILED;
 
         if (sessionNameExists(newSessionName)) {
-            System.err.println("A session with that name already exists");
+            Logger.error("A session with that name already exists");
         } else {
             final SQLSession session = removeSessionWithName(oldSessionName);
             if (session != null) {
@@ -132,9 +133,7 @@ public final class SessionManager {
         Iterator result = null;
         if (_sessions != null) {
             final NameCompleter completer = new NameCompleter(getSessionNames());
-            // System.out.println(
-            // "[SessionManager.completeSessionName] created completer for sessionnames "
-            // +getSessionNames().toString());
+            Logger.debug("[SessionManager.completeSessionName] created completer for sessionnames '%s'", getSessionNames().toString());
             result = completer.getAlternatives(partialSession);
         }
         return result;

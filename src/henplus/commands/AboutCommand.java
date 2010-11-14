@@ -10,6 +10,7 @@ import henplus.AbstractCommand;
 import henplus.HenPlus;
 import henplus.SQLSession;
 import henplus.Version;
+import henplus.logging.Logger;
 
 /**
  * document me.
@@ -43,10 +44,8 @@ public class AboutCommand extends AbstractCommand {
         return new String[] { "about", "version", "license" };
     }
 
-    public AboutCommand(final boolean quiet) {
-        if (!quiet) {
-            System.err.print(ABOUT);
-        }
+    public AboutCommand() {
+        Logger.info(ABOUT);
     }
 
     /**

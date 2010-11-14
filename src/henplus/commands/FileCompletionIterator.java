@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * fixme. first simple implementation..
+ * FIXME: first simple implementation..
  */
 public class FileCompletionIterator implements Iterator {
     private String _dirList[];
@@ -25,8 +25,6 @@ public class FileCompletionIterator implements Iterator {
         final int lastPos = partialCommand.lastIndexOf(' ');
         startFile = lastPos >= 0 ? partialCommand.substring(lastPos + 1)
                 : "";
-        // startFile = prefix + startFile;
-        // System.err.println("f: " + startFile);
 
         try {
             final int lastDirectory = startFile.lastIndexOf(File.separator);

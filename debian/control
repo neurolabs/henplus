@@ -1,15 +1,18 @@
 Source: henplus
-Section: devel
+Maintainer: Piotr Roszatycki <dexter@debian.org>
+Section: utils
 Priority: optional
-Maintainer: Henner Zeller <H.Zeller@acm.org>
-Build-Depends: debhelper (>> 3.0.0), ant (>=1.4), libreadline-java (>=0.7.3)
-Standards-Version: 3.5.8
+Standards-Version: 3.8.0
+Build-Depends: java-gcj-compat-dev, ant, libreadline-java (>= 0.8.0), libcommons-cli-java (>= 1.0), yada (>= 0.54)
+Homepage: http://henplus.sourceforge.net/
+Vcs-Browser: http://svn.debian.org/wsvn/cvsdebuild/trunk/debian/dists/henplus/
+Vcs-Svn: svn://svn.debian.org/cvsdebuild/trunk/debian/dists/henplus
 
 Package: henplus
 Architecture: all
-Depends: libreadline-java (>=0.7.3), java1-runtime 
+Depends: kaffe | java-virtual-machine, kaffe | java1-runtime | java2-runtime, libreadline-java (>= 0.8.0), libcommons-cli-java (>= 1.0)
 Description: JDBC SQL commandline frontend with TAB-completion
- HenPlus is a SQL shell written in Java that works for any database that 
+ HenPlus is an SQL shell written in Java that works for any database that
  has JDBC support. It provides commandline history, commandline completion,
  and can handle multiple connects to different databases at once.
- Database-independant table dumps, aliases, and variables are also supported.
+ Database-independent table dumps, aliases, and variables are also supported.
