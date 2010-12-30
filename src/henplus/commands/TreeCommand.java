@@ -416,8 +416,3 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
         return dsc;
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

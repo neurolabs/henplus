@@ -298,8 +298,3 @@ public class ListUserObjectsCommand extends AbstractCommand implements Interrupt
         _interrupted = true;
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

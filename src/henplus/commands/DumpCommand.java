@@ -1706,8 +1706,3 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     // reading CLOBs
     // private static class Base64Reader extends Reader { }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

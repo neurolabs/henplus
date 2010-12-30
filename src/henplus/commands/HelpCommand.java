@@ -169,8 +169,3 @@ public class HelpCommand extends AbstractCommand {
         return dsc;
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

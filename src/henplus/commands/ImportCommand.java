@@ -820,8 +820,3 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

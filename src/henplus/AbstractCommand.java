@@ -94,8 +94,3 @@ public abstract class AbstractCommand implements Command {
 
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

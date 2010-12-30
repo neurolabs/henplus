@@ -20,10 +20,3 @@ public class Version {
     public static String getCompileTime() { return "@COMPILE_TIME@"; }
     public static String getVersionTitle() { return "@HENPLUS_VERSION_TITLE@"; }
 }
-
-/*
- * Local variables:
- * c-basic-offset: 4
- * compile-command: "ant -emacs -find build.xml"
- * End:
- */

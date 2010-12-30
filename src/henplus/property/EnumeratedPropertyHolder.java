@@ -98,8 +98,3 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
         return _completer.getAlternatives(partialValue);
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

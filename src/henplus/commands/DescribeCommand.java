@@ -435,9 +435,3 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
     }
 
 }
-
-/*
- * Emacs: Local variables: c-basic-offset: 4 tab-width: 8 indent-tabs-mode: nil
- * compile-command: "ant -emacs -find build.xml" End: vi:set tabstop=8
- * shiftwidth=4 nowrap:
- */

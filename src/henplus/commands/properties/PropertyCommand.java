@@ -75,8 +75,3 @@ public class PropertyCommand extends AbstractPropertyCommand {
         _config.storeProperties(writeMap, true, "user properties");
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

@@ -33,7 +33,3 @@ public abstract class BooleanPropertyHolder extends EnumeratedPropertyHolder {
      */
     public abstract void booleanPropertyChanged(boolean newValue) throws Exception;
 }
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

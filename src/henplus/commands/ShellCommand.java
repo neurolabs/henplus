@@ -205,8 +205,3 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
         }
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */

@@ -195,8 +195,3 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
                 + "\talways reads subfiles relative to the contained file.\n";
     }
 }
-
-/*
- * Local variables: c-basic-offset: 4 compile-command:
- * "ant -emacs -find build.xml" End:
- */
