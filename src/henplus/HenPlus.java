@@ -277,7 +277,7 @@ public final class HenPlus implements Interruptable {
      * @param line
      */
     private void handleCommandOptions(final CommandLine line) {
-        for (final Iterator it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
+        for (final Iterator<Command> it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
             final Command element = (Command) it.next();
             element.handleCommandline(line);
         }
@@ -287,7 +287,7 @@ public final class HenPlus implements Interruptable {
      * @param availableOptions
      */
     private void registerCommandOptions(final Options availableOptions) {
-        for (final Iterator it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
+        for (final Iterator<Command> it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
             final Command element = (Command) it.next();
             try {
                 for (final Option option : element.getHandledCommandLineOptions()) {
@@ -567,7 +567,7 @@ public final class HenPlus implements Interruptable {
      * @param variables
      *            the Map containing the mapping from variable name to value.
      */
-    public String varsubst(final String in, final Map variables) {
+    public String varsubst(final String in, final Map<String,String> variables) {
         int pos = 0;
         int endpos = 0;
         int startVar = 0;

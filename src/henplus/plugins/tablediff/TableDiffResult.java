@@ -36,13 +36,13 @@ public final class TableDiffResult {
         return _addedColumns != null || _removedColumns != null || _modifiedColumns != null;
     }
 
-    public SortedSet getAddedColumns() {
+    public SortedSet<Column> getAddedColumns() {
         return _addedColumns;
     }
 
     public boolean addAddedColumn(final Column column) {
         if (_addedColumns == null) {
-            _addedColumns = new TreeSet();
+            _addedColumns = new TreeSet<Column>();
         }
         return _addedColumns.add(column);
     }
@@ -64,7 +64,7 @@ public final class TableDiffResult {
 
     public boolean addRemovedColumn(final Column column) {
         if (_removedColumns == null) {
-            _removedColumns = new TreeSet();
+            _removedColumns = new TreeSet<Column>();
         }
         return _removedColumns.add(column);
     }

@@ -19,6 +19,7 @@ import java.sql.Driver;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -41,14 +42,12 @@ public final class DriverCommand extends AbstractCommand {
             { "SQLite", "org.sqlite.JDBC", "jdbc:sqlite://dirA/dirB/dbfile" } };
 
     private static final String DRIVERS_FILENAME = "drivers";
-    private static final ColumnMetaData[] DRV_META;
-    static {
-        DRV_META = new ColumnMetaData[4];
-        DRV_META[0] = new ColumnMetaData("for");
-        DRV_META[1] = new ColumnMetaData("driver class");
-        DRV_META[2] = new ColumnMetaData("Version");
-        DRV_META[3] = new ColumnMetaData("sample url");
-    }
+    private static final ColumnMetaData[] DRV_META = { 
+    	new ColumnMetaData("for"),
+    	new ColumnMetaData("driver class"),
+    	new ColumnMetaData("Version"),
+    	new ColumnMetaData("sample url"), 
+    }; 
 
     private static final class DriverDescription {
 
@@ -112,18 +111,18 @@ public final class DriverCommand extends AbstractCommand {
     }
 
     public DriverCommand(final HenPlus henplus) {
-        _drivers = new TreeMap();
+        _drivers = new TreeMap<String, DriverDescription>();
         _config = henplus.createConfigurationContainer(DRIVERS_FILENAME);
-        final Map props = _config.readProperties();
-        final Iterator propNames = props.keySet().iterator();
-        while (propNames.hasNext()) {
-            final String name = (String) propNames.next();
+        final Map<String,String> props = _config.readProperties();
+        for (Entry<String,String> entry : props.entrySet()) {
+        	final String name = entry.getKey();
+        	final String value = entry.getValue();
             if (name.startsWith("driver.") && name.endsWith(".class")) {
                 final String databaseName = name.substring("driver.".length(), name.length() - ".class".length());
                 final String exampleName = "driver." + databaseName + ".example";
                 DriverDescription desc;
 
-                desc = new DriverDescription((String) props.get(name), (String) props.get(exampleName));
+                desc = new DriverDescription(value, props.get(exampleName));
                 _drivers.put(databaseName, desc);
             }
         }
@@ -156,9 +155,7 @@ public final class DriverCommand extends AbstractCommand {
                 DRV_META[2].resetWidth();
                 DRV_META[3].resetWidth();
                 final TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
-                final Iterator vars = _drivers.entrySet().iterator();
-                while (vars.hasNext()) {
-                    final Map.Entry entry = (Map.Entry) vars.next();
+                for (Entry<String,DriverDescription> entry : _drivers.entrySet()) {
                     final Column[] row = new Column[4];
                     final DriverDescription desc = (DriverDescription) entry.getValue();
                     final String dbName = (String) entry.getKey();
@@ -207,7 +204,7 @@ public final class DriverCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         final int argc = st.countTokens();
@@ -224,12 +221,10 @@ public final class DriverCommand extends AbstractCommand {
 
     @Override
     public void shutdown() {
-        final Map result = new HashMap();
-        final Iterator drvs = _drivers.entrySet().iterator();
-        while (drvs.hasNext()) {
-            final Map.Entry entry = (Map.Entry) drvs.next();
-            final String shortName = (String) entry.getKey();
-            final DriverDescription desc = (DriverDescription) entry.getValue();
+        final Map<String,String> result = new HashMap<String,String>();
+        for (Map.Entry<String,DriverDescription> entry : _drivers.entrySet()) {
+            final String shortName = entry.getKey();
+            final DriverDescription desc = entry.getValue();
             result.put("driver." + shortName + ".class", desc.getClassName());
             result.put("driver." + shortName + ".example", desc.getSampleURL());
         }

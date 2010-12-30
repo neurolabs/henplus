@@ -89,7 +89,7 @@ public interface Command {
      * @param lastWord
      *            the last word returned by readline.
      */
-    Iterator complete(CommandDispatcher disp, String partialCommand, String lastWord);
+    Iterator<String> complete(CommandDispatcher disp, String partialCommand, String lastWord);
 
     /**
      * returns, whether the command is complete.

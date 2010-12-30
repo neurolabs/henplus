@@ -39,14 +39,14 @@ public class HelpCommand extends AbstractCommand {
      * Returns a list of strings that are possible at this stage.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         // if we already have one arguemnt and try to expand the next: no.
         final int argc = argumentCount(partialCommand);
         if (argc > 2 || argc == 2 && lastWord.length() == 0) {
             return null;
         }
 
-        final Iterator it = disp.getRegisteredCommandNames(lastWord);
+        final Iterator<String> it = disp.getRegisteredCommandNames(lastWord);
         return new SortedMatchIterator(lastWord, it) {
 
             @Override
@@ -71,7 +71,7 @@ public class HelpCommand extends AbstractCommand {
          * nothing given: provide generic help.
          */
         if (param == null) {
-            final Iterator it = HenPlus.getInstance().getDispatcher().getRegisteredCommands();
+            final Iterator<Command> it = HenPlus.getInstance().getDispatcher().getRegisteredCommands();
             while (it.hasNext()) {
                 final Command cmd = (Command) it.next();
                 final String description = cmd.getShortDescription();

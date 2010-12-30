@@ -12,7 +12,7 @@ import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -126,7 +126,7 @@ public final class ConfigurationContainer {
         }
     }
 
-    public Map readProperties() {
+    public Map<String,String> readProperties() {
         return readProperties(null);
     }
 
@@ -134,7 +134,7 @@ public final class ConfigurationContainer {
      * convenience-method to read properties. If you handle simple properties within your command, then use this method so that
      * versioning and merging is handled.
      */
-    public Map readProperties(final Map prefill) {
+    public Map<String,String> readProperties(final Map<String,String> prefill) {
         _readProperties = new Properties();
         if (prefill != null) {
             _readProperties.putAll(prefill);
@@ -148,7 +148,8 @@ public final class ConfigurationContainer {
                 Logger.error("Could not load properties: ", e);
             }
         }
-        final Map props = (Properties) _readProperties.clone();
+        @SuppressWarnings("unchecked")
+		final Map<String,String> props = (Hashtable<String,String>)/*(Hashtable<?,?>)(Properties)*/ _readProperties.clone();
         return props;
     }
 
@@ -158,7 +159,8 @@ public final class ConfigurationContainer {
      * @param allowMerge
      *            allow merging of properties that have been added by another instance of henplus.
      */
-    public void storeProperties(final Map props, final boolean allowMerge, final String comment) {
+    @SuppressWarnings("unchecked")
+	public void storeProperties(final Map<String,String> props, final boolean allowMerge, final String comment) {
         if (_readProperties == null) {
             throw new IllegalStateException("properties not read before");
         }
@@ -168,8 +170,8 @@ public final class ConfigurationContainer {
         if (allowMerge) {
             // all properties, that are not present compared to last read
             // should be removed after merge.
-            final Set locallyRemovedProperties = new HashSet();
-            locallyRemovedProperties.addAll(_readProperties.keySet());
+            final Set<String> locallyRemovedProperties = new HashSet<String>();
+            locallyRemovedProperties.addAll((Set<String>)(Set<?>)_readProperties.keySet());
             locallyRemovedProperties.removeAll(props.keySet());
 
             final InputStream input = getInput();
@@ -182,9 +184,7 @@ public final class ConfigurationContainer {
                 }
             }
 
-            final Iterator it = locallyRemovedProperties.iterator();
-            while (it.hasNext()) {
-                final String key = (String) it.next();
+            for (String key : locallyRemovedProperties) {
                 outputProperties.remove(key);
             }
         }

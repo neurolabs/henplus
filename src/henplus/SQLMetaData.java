@@ -19,7 +19,7 @@ public final class SQLMetaData {
     private final SortedSet<Table> _tables;
 
     public SQLMetaData() {
-        _tables = new TreeSet();
+        _tables = new TreeSet<Table>();
     }
 
     public SortedSet<Table> getTables() {

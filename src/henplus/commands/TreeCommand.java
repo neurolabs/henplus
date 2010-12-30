@@ -51,7 +51,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
         private int _displayDepth;
 
         protected Node() {
-            _children = new TreeSet();
+            _children = new TreeSet<Node>();
             _displayDepth = -1;
         }
 
@@ -69,9 +69,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                 return false;
             }
             boolean anyChange = false;
-            final Iterator it = _children.iterator();
-            while (it.hasNext()) {
-                final Node n = (Node) it.next();
+            for (Node n : _children) {
                 anyChange |= n.markDepth(target, current + 1);
             }
             return anyChange;
@@ -89,10 +87,10 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             for (int i = 0; i < indentCount; ++i) {
                 indent.append(" ");
             }
-            print(0, new TreeSet(), new StringBuilder(), indent.toString(), out);
+            print(0, new TreeSet<String>(), new StringBuilder(), indent.toString(), out);
         }
 
-        private void print(final int depth, final SortedSet alreadyPrinted, final StringBuilder currentIndent,
+        private void print(final int depth, final SortedSet<String> alreadyPrinted, final StringBuilder currentIndent,
                 final String indentString, final OutputDevice out) {
             final String name = getName();
             if (depth != 0) {
@@ -114,9 +112,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             if (remaining > 0) {
                 final int previousLength = currentIndent.length();
                 currentIndent.append(indentString);
-                final Iterator it = _children.iterator();
-                while (it.hasNext()) {
-                    final Node n = (Node) it.next();
+                for (Node n : _children) {
                     out.print(String.valueOf(currentIndent));
                     out.print(remaining == 1 ? "`" : "|");
                     n.print(depth + 1, alreadyPrinted, currentIndent, remaining == 1 ? "    " : "|   ", out);
@@ -149,7 +145,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             return maxLen;
         }
 
-        private int printReverse(final int depth, final SortedSet alreadyPrinted, final List output, final String indentString,
+        private int printReverse(final int depth, final SortedSet<String> alreadyPrinted, final List<String> output, final String indentString,
                 final boolean isLast) {
             final String name = getName();
             final boolean cyclic = depth != _displayDepth || alreadyPrinted.contains(name);
@@ -161,10 +157,10 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                 alreadyPrinted.add(name);
                 int remaining = _children.size();
                 if (remaining > 0) {
-                    final Iterator it = _children.iterator();
+                    final Iterator<Node> it = _children.iterator();
                     boolean isFirst = true;
                     while (it.hasNext()) {
-                        final Node n = (Node) it.next();
+                        final Node n = it.next();
                         int nIndent;
                         nIndent = n.printReverse(depth + 1, alreadyPrinted, output, depth == 0 ? "" : indentString + "    |",
                                 isFirst);
@@ -263,7 +259,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                 public ResultSet getReferenceMetaData(final String schema, final String table) throws SQLException {
                     return dbMeta.getImportedKeys(null, schema, table);
                 }
-            }, IMP_PRIMARY_KEY_TABLE, new TreeMap(), schema, tabName);
+            }, IMP_PRIMARY_KEY_TABLE, new TreeMap<String, Node>(), schema, tabName);
             if (_interrupted) {
                 return SUCCESS;
             }
@@ -276,7 +272,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                 public ResultSet getReferenceMetaData(final String schema, final String table) throws SQLException {
                     return dbMeta.getExportedKeys(null, schema, table);
                 }
-            }, EXP_FOREIGN_KEY_TABLE, new TreeMap(), schema, tabName);
+            }, EXP_FOREIGN_KEY_TABLE, new TreeMap<String, Node>(), schema, tabName);
             if (_interrupted) {
                 return SUCCESS;
             }
@@ -318,10 +314,10 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
      * ReferenceMetaDataSource 'lambda' that either wraps getImportedKeys() or getExportedKeys(). The 'sourceColumn' defines the
      * column in which the appropriate table name is.
      */
-    private Node buildTree(final ReferenceMetaDataSource source, final int sourceColumn, final Map knownNodes, final String schema,
+    private Node buildTree(final ReferenceMetaDataSource source, final int sourceColumn, final Map<String, Node> knownNodes, final String schema,
             final String tabName) throws SQLException {
         if (knownNodes.containsKey(tabName)) {
-            return (Node) knownNodes.get(tabName);
+            return knownNodes.get(tabName);
         }
 
         final Node n = new StringNode(tabName);
@@ -360,7 +356,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
      * complete the table name.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         st.nextElement(); // skip cmd.
         // we accept only one argument.

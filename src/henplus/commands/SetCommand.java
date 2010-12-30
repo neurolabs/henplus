@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
@@ -39,8 +40,8 @@ public final class SetCommand extends AbstractCommand {
         SET_META[1] = new ColumnMetaData("Value");
     }
 
-    private final Set _specialVariables;
-    private final SortedMap _variables;
+    private final Set<String> _specialVariables;
+    private final SortedMap<String,String> _variables;
     private final HenPlus _henplus;
     private final ConfigurationContainer _config;
 
@@ -54,8 +55,8 @@ public final class SetCommand extends AbstractCommand {
 
     public SetCommand(final HenPlus henplus) {
         _henplus = henplus;
-        _variables = new TreeMap();
-        _specialVariables = new HashSet();
+        _variables = new TreeMap<String,String>();
+        _specialVariables = new HashSet<String>();
         _config = _henplus.createConfigurationContainer(SETTINGS_FILENAME);
         _variables.putAll(_config.readProperties());
     }
@@ -80,7 +81,7 @@ public final class SetCommand extends AbstractCommand {
         return false;
     }
 
-    public Map getVariableMap() {
+    public Map<String,String> getVariableMap() {
         return _variables;
     }
 
@@ -100,9 +101,7 @@ public final class SetCommand extends AbstractCommand {
                 SET_META[0].resetWidth();
                 SET_META[1].resetWidth();
                 final TableRenderer table = new TableRenderer(SET_META, HenPlus.out());
-                final Iterator vars = _variables.entrySet().iterator();
-                while (vars.hasNext()) {
-                    final Map.Entry entry = (Map.Entry) vars.next();
+                for (Entry<String,String> entry : _variables.entrySet()) {
                     final Column[] row = new Column[4];
                     row[0] = new Column((String) entry.getKey());
                     row[1] = new Column((String) entry.getValue());
@@ -192,11 +191,11 @@ public final class SetCommand extends AbstractCommand {
      * complete variable names.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         final int argc = st.countTokens();
-        final HashSet alreadyGiven = new HashSet();
+        final HashSet<String> alreadyGiven = new HashSet<String>();
         if ("set-var".equals(cmd)) {
             if (argc > ("".equals(lastWord) ? 0 : 1)) {
                 return null;
@@ -207,7 +206,7 @@ public final class SetCommand extends AbstractCommand {
              * commandline and exclude from completion..
              */
             while (st.hasMoreElements()) {
-                alreadyGiven.add(st.nextElement());
+                alreadyGiven.add(st.nextToken());
             }
         }
         return new SortedMatchIterator(lastWord, _variables) {
@@ -221,11 +220,9 @@ public final class SetCommand extends AbstractCommand {
 
     @Override
     public void shutdown() {
-        final Map writeMap = new HashMap();
+        final Map<String,String> writeMap = new HashMap<String,String>();
         writeMap.putAll(_variables);
-        final Iterator toRemove = _specialVariables.iterator();
-        while (toRemove.hasNext()) {
-            final String varname = (String) toRemove.next();
+        for (String varname : _specialVariables) {
             writeMap.remove(varname);
         }
 

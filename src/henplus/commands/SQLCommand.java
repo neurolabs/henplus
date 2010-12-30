@@ -315,7 +315,7 @@ public final class SQLCommand extends AbstractCommand {
     // table name. that is: if some keyword has been found before, switch to
     // table-completer-mode :-)
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final String canonCmd = partialCommand.toUpperCase();
         /*
          * look for keywords that expect table names
@@ -361,9 +361,7 @@ public final class SQLCommand extends AbstractCommand {
              */
             final String tables = partialCommand.substring(tableMatch, endTabMatch);
             final HashMap<String, Set<String>> tmp = new HashMap<String, Set<String>>();
-            final Iterator<Map.Entry<String, String>> it = tableDeclParser(tables).entrySet().iterator();
-            while (it.hasNext()) {
-                final Map.Entry<String, String> entry = it.next();
+            for (Entry<String,String> entry : tableDeclParser(tables).entrySet()) {
                 final String alias = entry.getKey();
                 String tabName = entry.getValue();
                 tabName = _tableCompleter.correctTableName(tabName);
@@ -383,18 +381,15 @@ public final class SQLCommand extends AbstractCommand {
                 }
             }
             final NameCompleter completer = new NameCompleter();
-            final Iterator<Entry<String, Set<String>>> it2 = tmp.entrySet().iterator();
-            while (it2.hasNext()) {
-                final Map.Entry<String, Set<String>> entry = (Map.Entry) it.next();
+            for (Entry<String, Set<String>> entry : tmp.entrySet()) {
                 final String col = entry.getKey();
                 final Set<String> aliases = entry.getValue();
                 if (aliases.size() == 1) {
                     completer.addName(col);
                 } else {
-                    final Iterator<String> ait = aliases.iterator();
-                    while (ait.hasNext()) {
-                        completer.addName(ait.next() + "." + col);
-                    }
+                	for (String name : aliases) {
+                		completer.addName(name);
+                	}
                 }
             }
             return completer.getAlternatives(lastWord);
@@ -406,9 +401,9 @@ public final class SQLCommand extends AbstractCommand {
     /**
      * parses 'tablename ((AS)? alias)? [,...]' and returns a map, that maps the names (or aliases) to the tablenames.
      */
-    private Map tableDeclParser(final String tableDecl) {
+    private Map<String,String> tableDeclParser(final String tableDecl) {
         final StringTokenizer tokenizer = new StringTokenizer(tableDecl, " \t\n\r\f,", true);
-        final Map result = new HashMap();
+        final Map<String,String> result = new HashMap<String,String>();
         String tok;
         String table = null;
         String alias = null;

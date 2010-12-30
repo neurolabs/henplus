@@ -11,7 +11,7 @@ import java.util.Iterator;
 /**
  * FIXME: first simple implementation..
  */
-public class FileCompletionIterator implements Iterator {
+public class FileCompletionIterator implements Iterator<String> {
 
     private String[] _dirList;
     private String _matchName;
@@ -65,7 +65,7 @@ public class FileCompletionIterator implements Iterator {
     }
 
     @Override
-    public Object next() {
+    public String next() {
         return _completePrefix + _nextFileName;
     }
 

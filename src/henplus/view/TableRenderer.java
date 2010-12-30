@@ -7,7 +7,6 @@ package henplus.view;
 import henplus.OutputDevice;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -17,7 +16,7 @@ public class TableRenderer {
 
     private static final int MAX_CACHE_ELEMENTS = 500;
 
-    private final List _cacheRows;
+    private final List<Column[]> _cacheRows;
     private boolean _alreadyFlushed;
     private int _writtenRows;
     private final int _separatorWidth;
@@ -100,9 +99,7 @@ public class TableRenderer {
             }
             _alreadyFlushed = true;
         }
-        final Iterator rowIterator = _cacheRows.iterator();
-        while (rowIterator.hasNext()) {
-            final Column[] currentRow = (Column[]) rowIterator.next();
+        for (Column[] currentRow : _cacheRows) {
             boolean hasMoreLines;
             do {
                 hasMoreLines = false;

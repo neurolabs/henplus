@@ -67,7 +67,7 @@ public class ImportCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, String partialCommand, final String lastWord) {
         final ConfigurationParser parser = new ConfigurationParser(_tableCompleter);
         if ("".equals(lastWord)) {
             partialCommand += " ";
@@ -467,7 +467,7 @@ public class ImportCommand extends AbstractCommand {
 
     private interface CompleterFactory {
 
-        Iterator getCompleter(ConfigurationParser parser, String partialValue);
+        Iterator<String> getCompleter(ConfigurationParser parser, String partialValue);
     }
 
     private static final class ConfigurationParser {
@@ -529,7 +529,7 @@ public class ImportCommand extends AbstractCommand {
         /**
          * parse the configuration an return the completer of the last property.
          */
-        private Iterator complete(final String partial) {
+        private Iterator<String> complete(final String partial) {
             Logger.debug("tok: '%s'", partial);
             resetError();
             final CommandTokenizer cmdTok = new CommandTokenizer(partial, COMMAND_QUOTES);
@@ -632,7 +632,7 @@ public class ImportCommand extends AbstractCommand {
             return quotedString;
         }
 
-        private Iterator getCommandCompleter(final String partial) {
+        private Iterator<String> getCommandCompleter(final String partial) {
             final NameCompleter completer = new NameCompleter();
             // first: check for must have parameters; then rest.
             if (_config.getFilename() == null) {
@@ -779,7 +779,7 @@ public class ImportCommand extends AbstractCommand {
     private static final class FilenameCompleterFactory implements CompleterFactory {
 
         @Override
-        public Iterator getCompleter(final ConfigurationParser parser, final String lastCommand) {
+        public Iterator<String> getCompleter(final ConfigurationParser parser, final String lastCommand) {
             return new FileCompletionIterator(" " + lastCommand, "");
         }
     }
@@ -787,7 +787,7 @@ public class ImportCommand extends AbstractCommand {
     private static final class TableCompleterFactory implements CompleterFactory {
 
         @Override
-        public Iterator getCompleter(final ConfigurationParser parser, final String partialName) {
+        public Iterator<String> getCompleter(final ConfigurationParser parser, final String partialName) {
             return parser.getTableCompleter().completeTableName(HenPlus.getInstance().getCurrentSession(), partialName);
         }
     }
@@ -795,7 +795,7 @@ public class ImportCommand extends AbstractCommand {
     private static final class ColumnCompleterFactory implements CompleterFactory {
 
         @Override
-        public Iterator getCompleter(final ConfigurationParser parser, final String lastCommand) {
+        public Iterator<String> getCompleter(final ConfigurationParser parser, final String lastCommand) {
             if ("".equals(lastCommand)) {
                 final List<String> paren = new ArrayList<String>();
                 paren.add("(");
@@ -813,7 +813,7 @@ public class ImportCommand extends AbstractCommand {
     private static final class EncodingCompleterFactory implements CompleterFactory {
 
         @Override
-        public Iterator getCompleter(final ConfigurationParser parser, final String partialName) {
+        public Iterator<String> getCompleter(final ConfigurationParser parser, final String partialName) {
             final Collection<String> allEncodings = Charset.availableCharsets().keySet();
             final NameCompleter completer = new NameCompleter(allEncodings);
             return completer.getAlternatives(partialName);

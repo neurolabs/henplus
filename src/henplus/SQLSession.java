@@ -18,8 +18,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.SortedSet;
 
@@ -81,7 +81,7 @@ public class SQLSession implements Interruptable {
         printTransactionIsolation(meta, Connection.TRANSACTION_REPEATABLE_READ, "repeatable read", currentIsolation);
         printTransactionIsolation(meta, Connection.TRANSACTION_SERIALIZABLE, "serializable", currentIsolation);
 
-        final Map availableIsolations = new HashMap();
+        final Map<String,Integer> availableIsolations = new HashMap<String,Integer>();
         addAvailableIsolation(availableIsolations, meta, Connection.TRANSACTION_NONE, "none");
         addAvailableIsolation(availableIsolations, meta, Connection.TRANSACTION_READ_UNCOMMITTED, "read-uncommitted");
         addAvailableIsolation(availableIsolations, meta, Connection.TRANSACTION_READ_COMMITTED, "read-committed");
@@ -100,7 +100,7 @@ public class SQLSession implements Interruptable {
         }
     }
 
-    private void addAvailableIsolation(final Map result, final DatabaseMetaData meta, final int iLevel, final String key)
+    private void addAvailableIsolation(final Map<String,Integer> result, final DatabaseMetaData meta, final int iLevel, final String key)
             throws SQLException {
         if (meta.supportsTransactionIsolationLevel(iLevel)) {
             result.put(key, new Integer(iLevel));
@@ -415,18 +415,16 @@ public class SQLSession implements Interruptable {
 
     private class IsolationLevelProperty extends EnumeratedPropertyHolder {
 
-        private final Map _availableValues;
+        private final Map<String, Integer> _availableValues;
         private final String _initialValue;
 
-        IsolationLevelProperty(final Map availableValues, final int currentValue) {
+        IsolationLevelProperty(final Map<String, Integer> availableValues, final int currentValue) {
             super(availableValues.keySet());
             _availableValues = availableValues;
 
             // sequential search .. doesn't matter, not much do do
             String initValue = null;
-            final Iterator it = availableValues.entrySet().iterator();
-            while (it.hasNext()) {
-                final Map.Entry entry = (Map.Entry) it.next();
+            for (Entry<String,Integer> entry : availableValues.entrySet()) {
                 final Integer isolationLevel = (Integer) entry.getValue();
                 if (isolationLevel.intValue() == currentValue) {
                     initValue = (String) entry.getKey();
@@ -443,7 +441,7 @@ public class SQLSession implements Interruptable {
 
         @Override
         protected void enumeratedPropertyChanged(final int index, final String value) throws Exception {
-            final Integer isolationLevel = (Integer) _availableValues.get(value);
+            final Integer isolationLevel = _availableValues.get(value);
             if (isolationLevel == null) {
                 throw new IllegalArgumentException("invalid value");
             }

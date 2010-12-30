@@ -43,7 +43,7 @@ public final class PrimaryKey {
         return _columns.get(column);
     }
 
-    public Map getColumns() {
+    public Map<String,ColumnPkInfo> getColumns() {
         return _columns;
     }
 

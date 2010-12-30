@@ -103,11 +103,11 @@ public class SQLStatementSeparator {
 
     private boolean _removeComments;
     private ParseState _currentState;
-    private final Stack _stateStack;
+    private final Stack<ParseState> _stateStack;
 
     public SQLStatementSeparator() {
         _currentState = new ParseState();
-        _stateStack = new Stack();
+        _stateStack = new Stack<ParseState>();
         _removeComments = true;
     }
 
@@ -121,7 +121,7 @@ public class SQLStatementSeparator {
     }
 
     public void pop() {
-        _currentState = (ParseState) _stateStack.pop();
+        _currentState = _stateStack.pop();
     }
 
     /**

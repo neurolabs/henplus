@@ -12,7 +12,7 @@ import henplus.logging.Logger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -44,21 +44,21 @@ public class CommandDispatcher implements ReadlineCompleter {
     /**
      * returns the commands in the sequence they have been added.
      */
-    public Iterator getRegisteredCommands() {
+    public Iterator<Command> getRegisteredCommands() {
         return _commands.iterator();
     }
 
     /**
      * returns a sorted list of command names.
      */
-    public Iterator getRegisteredCommandNames() {
+    public Iterator<String> getRegisteredCommandNames() {
         return _commandMap.keySet().iterator();
     }
 
     /**
      * returns a sorted list of command names, starting with the first entry matching the key.
      */
-    public Iterator getRegisteredCommandNames(final String key) {
+    public Iterator<String> getRegisteredCommandNames(final String key) {
         return _commandMap.tailMap(key).keySet().iterator();
     }
 
@@ -109,9 +109,9 @@ public class CommandDispatcher implements ReadlineCompleter {
      */
     public void unregister(final Command c) {
         _commands.remove(c);
-        final Iterator entries = _commandMap.entrySet().iterator();
+        final Iterator<Entry<String,Command>> entries = _commandMap.entrySet().iterator();
         while (entries.hasNext()) {
-            final Map.Entry e = (Map.Entry) entries.next();
+            final Entry<String,Command> e = entries.next();
             if (e.getValue() == c) {
                 entries.remove();
             }
@@ -128,7 +128,7 @@ public class CommandDispatcher implements ReadlineCompleter {
         }
         final String cmd = completeCmd.toLowerCase();
         final String startChar = cmd.substring(0, 1);
-        final Iterator it = getRegisteredCommandNames(startChar);
+        final Iterator<String> it = getRegisteredCommandNames(startChar);
         String longestMatch = null;
         while (it.hasNext()) {
             final String testMatch = (String) it.next();
@@ -164,9 +164,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     public void shutdown() {
-        final Iterator i = _commands.iterator();
-        while (i.hasNext()) {
-            final Command c = (Command) i.next();
+        for (Command c : _commands) {
             try {
                 c.shutdown();
             } catch (final Exception e) {
@@ -201,17 +199,13 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     private void informBeforeListeners(final SQLSession session, final String cmd) {
-        final Iterator it = _executionListeners.iterator();
-        while (it.hasNext()) {
-            final ExecutionListener listener = (ExecutionListener) it.next();
+        for (ExecutionListener listener : _executionListeners) {
             listener.beforeExecution(session, cmd);
         }
     }
 
     private void informAfterListeners(final SQLSession session, final String cmd, final int result) {
-        final Iterator it = _executionListeners.iterator();
-        while (it.hasNext()) {
-            final ExecutionListener listener = (ExecutionListener) it.next();
+        for (ExecutionListener listener : _executionListeners) {
             listener.afterExecution(session, cmd, result);
         }
     }

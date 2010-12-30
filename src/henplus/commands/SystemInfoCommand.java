@@ -16,8 +16,8 @@ import henplus.view.TableRenderer;
 import henplus.view.util.Formatter;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Prints out some system information.<br>
@@ -151,17 +151,16 @@ public final class SystemInfoCommand extends AbstractCommand {
 
     // ================== rendering ================
 
-    private void renderInfo(final Map info) {
+    private void renderInfo(final Map<String, String> info) {
 
         final TableRenderer table = new TableRenderer(DESC_META, HenPlus.out());
 
-        final Iterator iter = info.keySet().iterator();
-        while (iter.hasNext()) {
-            final Object key = iter.next();
-            final Object value = info.get(key);
+        for (Entry<String,String> entry : info.entrySet()) {
+            final String key = entry.getKey();
+            final String value = entry.getValue();
 
             final Column[] row = new Column[2];
-            row[0] = new Column(key.toString());
+            row[0] = new Column(key);
             // don't call toString() on the value as it might be null
             row[1] = new Column((String) value);
 

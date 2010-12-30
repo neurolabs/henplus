@@ -130,10 +130,10 @@ public class ListUserObjectsCommand extends AbstractCommand implements Interrupt
         if (tables == null) {
             return null;
         }
-        final Iterator table = tables.getAllNamesIterator();
+        final Iterator<String> table = tables.getAllNamesIterator();
         compl = new NameCompleter();
         while (!_interrupted && table.hasNext()) {
-            final String tabName = (String) table.next();
+            final String tabName = table.next();
             final Collection<String> columns = columnsFor(tabName);
             final Iterator<String> cit = columns.iterator();
             while (cit.hasNext()) {
@@ -221,7 +221,7 @@ public class ListUserObjectsCommand extends AbstractCommand implements Interrupt
      * the same length of the requested tablename, return this.
      */
     public String correctTableName(final String tabName) {
-        final Iterator it = completeTableName(HenPlus.getInstance().getCurrentSession(), tabName);
+        final Iterator<String> it = completeTableName(HenPlus.getInstance().getCurrentSession(), tabName);
         if (it == null) {
             return null;
         }
@@ -244,7 +244,7 @@ public class ListUserObjectsCommand extends AbstractCommand implements Interrupt
     /**
      * used from diverse commands that need table name completion.
      */
-    public Iterator completeTableName(final SQLSession session, final String partialTable) {
+    public Iterator<String> completeTableName(final SQLSession session, final String partialTable) {
         if (session == null) {
             return null;
         }
@@ -252,7 +252,7 @@ public class ListUserObjectsCommand extends AbstractCommand implements Interrupt
         return completer.getAlternatives(partialTable);
     }
 
-    public Iterator completeAllColumns(final String partialColumn) {
+    public Iterator<String> completeAllColumns(final String partialColumn) {
         final SQLSession session = _henplus.getCurrentSession();
         if (session == null) {
             return null;

@@ -18,7 +18,7 @@ import java.util.SortedSet;
  */
 public class SortedMatchIterator implements Iterator<String> {
 
-    private final Iterator _it;
+    private final Iterator<String> _it;
     private final String _partialMatch;
 
     private String _prefix;
@@ -91,7 +91,7 @@ public class SortedMatchIterator implements Iterator<String> {
     @Override
     public boolean hasNext() {
         while (_it.hasNext()) {
-            _current = (String) _it.next();
+            _current = _it.next();
             if (_current.length() == 0) {
                 continue;
             }

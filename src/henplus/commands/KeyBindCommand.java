@@ -18,6 +18,7 @@ import henplus.view.util.NameCompleter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
@@ -85,7 +86,7 @@ public class KeyBindCommand extends AbstractCommand {
         _keyNames.put("Shift-F12", new String[] { "\"\\e[24;2~\"" });
         _functionKeyNameCompleter = new NameCompleter(_keyNames.keySet());
         _config = henplus.createConfigurationContainer(KEYBIND_FILENAME);
-        _bindings = new TreeMap();
+        _bindings = new TreeMap<String, String>();
         bindKey("F1", "help\n"); // a common default binding.
         load();
     }
@@ -129,7 +130,7 @@ public class KeyBindCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         if (argumentCount(partialCommand) > ("".equals(lastWord) ? 1 : 2)) {
             return null;
         }
@@ -152,9 +153,7 @@ public class KeyBindCommand extends AbstractCommand {
      * For tests: bind the key to its name representation.
      */
     private void testBindAll() {
-        final Iterator it = _keyNames.keySet().iterator();
-        while (it.hasNext()) {
-            final String keyName = (String) it.next();
+        for (String keyName : _keyNames.keySet()) {
             bindKey(keyName, keyName);
         }
     }
@@ -198,10 +197,8 @@ public class KeyBindCommand extends AbstractCommand {
      * initial load of key bindings
      */
     private void load() {
-        final Map bindings = _config.readProperties(_bindings);
-        final Iterator it = bindings.entrySet().iterator();
-        while (it.hasNext()) {
-            final Map.Entry entry = (Map.Entry) it.next();
+        final Map<String,String> bindings = _config.readProperties(_bindings);
+        for (Entry<String,String> entry : bindings.entrySet()) {
             bindKey((String) entry.getKey(), (String) entry.getValue());
         }
     }
@@ -210,9 +207,7 @@ public class KeyBindCommand extends AbstractCommand {
         DRV_META[0].resetWidth();
         DRV_META[1].resetWidth();
         final TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
-        final Iterator it = _bindings.entrySet().iterator();
-        while (it.hasNext()) {
-            final Map.Entry entry = (Map.Entry) it.next();
+        for (Entry<String,String> entry : _bindings.entrySet()) {
             final Column[] row = new Column[2];
             row[0] = new Column((String) entry.getKey());
             row[1] = new Column((String) entry.getValue());

@@ -53,7 +53,7 @@ public abstract class AbstractCommand implements Command {
 
     // no completion support by the commmand
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         return null;
     }
 

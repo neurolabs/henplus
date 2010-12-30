@@ -11,7 +11,7 @@ import henplus.logging.Logger;
 import henplus.view.util.NameCompleter;
 
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -58,10 +58,9 @@ public final class SessionManager {
 
     private boolean removeSession(final SQLSession session) {
         boolean result = false;
-        Map.Entry entry = null;
-        final Iterator it = _sessions.entrySet().iterator();
+        final Iterator<Entry<String,SQLSession>> it = _sessions.entrySet().iterator();
         while (it.hasNext()) {
-            entry = (Map.Entry) it.next();
+            Entry<String,SQLSession> entry = it.next();
             if (entry.getValue() == session) {
                 it.remove();
                 result = true;
@@ -72,10 +71,8 @@ public final class SessionManager {
     }
 
     public void closeAll() {
-        final Iterator sessIter = _sessions.values().iterator();
-        while (sessIter.hasNext()) {
-            final SQLSession session = (SQLSession) sessIter.next();
-            session.close();
+        for (SQLSession session : _sessions.values()) {
+        	session.close();
         }
     }
 
@@ -96,12 +93,8 @@ public final class SessionManager {
         return result;
     }
 
-    public SortedSet getSessionNames() {
-        final SortedSet result = new TreeSet();
-        final Iterator iter = _sessions.keySet().iterator();
-        while (iter.hasNext()) {
-            result.add(iter.next());
-        }
+    public SortedSet<String> getSessionNames() {
+        final SortedSet<String> result = new TreeSet<String>(_sessions.keySet());
         return result;
     }
 
@@ -130,8 +123,8 @@ public final class SessionManager {
     /**
      * Used from several commands that need session name completion.
      */
-    public Iterator completeSessionName(final String partialSession) {
-        Iterator result = null;
+    public Iterator<String> completeSessionName(final String partialSession) {
+        Iterator<String> result = null;
         if (_sessions != null) {
             final NameCompleter completer = new NameCompleter(getSessionNames());
             Logger.debug("[SessionManager.completeSessionName] created completer for sessionnames '%s'", getSessionNames()

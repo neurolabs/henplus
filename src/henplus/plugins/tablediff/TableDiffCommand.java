@@ -145,8 +145,8 @@ public final class TableDiffCommand extends AbstractCommand {
             int count = 0;
 
             final ListUserObjectsCommand objectLister = HenPlus.getInstance().getObjectLister();
-            final SortedSet tablesOne = objectLister.getTableNamesForSession(first);
-            final SortedSet tablesTwo = objectLister.getTableNamesForSession(second);
+            final SortedSet<String> tablesOne = objectLister.getTableNamesForSession(first);
+            final SortedSet<String> tablesTwo = objectLister.getTableNamesForSession(second);
 
             final Set<String> alreadyDiffed = new HashSet<String>(); // which tables got already
             // diffed?
@@ -162,7 +162,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 final String nextToken = st.nextToken();
 
                 if ("*".equals(nextToken) || nextToken.indexOf('*') > -1) {
-                    Iterator iter = null;
+                    Iterator<String> iter = null;
 
                     if ("*".equals(nextToken)) {
                         iter = objectLister.getTableNamesIteratorForSession(first);
@@ -173,7 +173,7 @@ public final class TableDiffCommand extends AbstractCommand {
                     }
 
                     while (iter.hasNext()) {
-                        final Object objTableName = iter.next();
+                        final String objTableName = iter.next();
                         count = diffConditionally(objTableName, colNameIgnoreCase, first, second, tablesTwo, alreadyDiffed,
                                 missedFromWildcards, count);
                     }
@@ -195,9 +195,8 @@ public final class TableDiffCommand extends AbstractCommand {
             if (missedFromWildcards.size() > 0) {
                 msg.append("\nTables which matched a given wildcard in your first\n"
                         + "session but were not found in your second session:\n");
-                final Iterator iter = missedFromWildcards.iterator();
-                while (iter.hasNext()) {
-                    msg.append(iter.next()).append(", ");
+                for (String missed : missedFromWildcards) {
+                    msg.append(missed).append(", ");
                 }
                 // remove the last two chars
                 msg.delete(msg.length() - 2, msg.length());
@@ -212,17 +211,16 @@ public final class TableDiffCommand extends AbstractCommand {
         return SUCCESS;
     }
 
-    private int diffConditionally(final Object objTableName, final boolean colNameIgnoreCase, final SQLSession first,
-            final SQLSession second, final SortedSet tablesTwo, final Set alreadyDiffed, final List missedFromWildcards, int count) {
-        if (tablesTwo.contains(objTableName)) {
-            if (!alreadyDiffed.contains(objTableName)) {
-                final String tableName = (String) objTableName;
+    private int diffConditionally(final String tableName, final boolean colNameIgnoreCase, final SQLSession first,
+            final SQLSession second, final SortedSet<String> tablesTwo, final Set<String> alreadyDiffed, final List<String> missedFromWildcards, int count) {
+        if (tablesTwo.contains(tableName)) {
+            if (!alreadyDiffed.contains(tableName)) {
                 diffTable(first, second, tableName, colNameIgnoreCase);
-                alreadyDiffed.add(objTableName);
+                alreadyDiffed.add(tableName);
                 count++;
             }
         } else {
-            missedFromWildcards.add(objTableName);
+            missedFromWildcards.add(tableName);
         }
         return count;
     }
@@ -298,7 +296,7 @@ public final class TableDiffCommand extends AbstractCommand {
      * java.lang.String, java.lang.String)
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
 
         final StringTokenizer st = new StringTokenizer(partialCommand);
         st.nextToken(); // skip cmd.
@@ -320,7 +318,7 @@ public final class TableDiffCommand extends AbstractCommand {
 
         // check completion for --singledb
         if (argIndex == 0 && lastWord.startsWith("-")) {
-            return new Iterator() {
+            return new Iterator<String>() {
 
                 private boolean _next = true;
 
@@ -330,7 +328,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 }
 
                 @Override
-                public Object next() {
+                public String next() {
                     _next = false;
                     return OPTION_SINGLE_DB;
                 }
@@ -344,13 +342,13 @@ public final class TableDiffCommand extends AbstractCommand {
             final SessionManager sessionManager = HenPlus.getInstance().getSessionManager();
             final SQLSession session = sessionManager.getCurrentSession();
 
-            final HashSet alreadyGiven = new HashSet();
+            final HashSet<String> alreadyGiven = new HashSet<String>();
             while (st.hasMoreElements()) {
                 alreadyGiven.add(st.nextToken());
             }
             final ListUserObjectsCommand objectList = HenPlus.getInstance().getObjectLister();
-            final Iterator iter = objectList.completeTableName(session, lastWord);
-            return new Iterator() {
+            final Iterator<String> iter = objectList.completeTableName(session, lastWord);
+            return new Iterator<String>() {
 
                 String table = null;
 
@@ -367,7 +365,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 }
 
                 @Override
-                public Object next() {
+                public String next() {
                     return table;
                 }
 
@@ -390,22 +388,22 @@ public final class TableDiffCommand extends AbstractCommand {
             final SQLSession first = sessionManager.getSessionByName(st.nextToken());
             final SQLSession second = sessionManager.getSessionByName(st.nextToken());
 
-            final HashSet alreadyGiven = new HashSet();
+            final HashSet<String> alreadyGiven = new HashSet<String>();
             while (st.hasMoreElements()) {
                 alreadyGiven.add(st.nextToken());
             }
             final ListUserObjectsCommand objectList = HenPlus.getInstance().getObjectLister();
-            final Iterator firstIter = objectList.completeTableName(first, lastWord);
-            final Iterator secondIter = objectList.completeTableName(second, lastWord);
-            final Iterator iter = getIntersection(firstIter, secondIter);
-            return new Iterator() {
+            final Iterator<String> firstIter = objectList.completeTableName(first, lastWord);
+            final Iterator<String> secondIter = objectList.completeTableName(second, lastWord);
+            final Iterator<String> intersectionIter = getIntersection(firstIter, secondIter);
+            return new Iterator<String>() {
 
                 String table = null;
 
                 @Override
                 public boolean hasNext() {
-                    while (iter.hasNext()) {
-                        table = (String) iter.next();
+                    while (intersectionIter.hasNext()) {
+                        table = (String) intersectionIter.next();
                         if (alreadyGiven.contains(table) && !lastWord.equals(table)) {
                             continue;
                         }
@@ -415,7 +413,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 }
 
                 @Override
-                public Object next() {
+                public String next() {
                     return table;
                 }
 

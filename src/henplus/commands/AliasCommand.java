@@ -37,13 +37,13 @@ public final class AliasCommand extends AbstractCommand {
     }
 
     private final ConfigurationContainer _config;
-    private final SortedMap/* <ClassName-String,Command-Class> */_aliases;
+    private final SortedMap<String,String>/* <ClassName-String,Command-Class> */_aliases;
     private final CommandDispatcher _dispatcher;
 
     /**
      * to determine, if we got a recursion: one alias calls another alias which in turn calls the first one ..
      */
-    private final Set _currentExecutedAliases;
+    private final Set<String> _currentExecutedAliases;
 
     /**
      * returns the command-strings this command can handle.
@@ -55,8 +55,8 @@ public final class AliasCommand extends AbstractCommand {
 
     public AliasCommand(final HenPlus henplus) {
         _dispatcher = henplus.getDispatcher();
-        _aliases = new TreeMap();
-        _currentExecutedAliases = new HashSet();
+        _aliases = new TreeMap<String,String>();
+        _currentExecutedAliases = new HashSet<String>();
         _config = henplus.createConfigurationContainer(ALIAS_FILENAME);
     }
 
@@ -64,10 +64,8 @@ public final class AliasCommand extends AbstractCommand {
      * initial load of aliases.
      */
     public void load() {
-        final Map props = _config.readProperties();
-        final Iterator it = props.entrySet().iterator();
-        while (it.hasNext()) {
-            final Map.Entry entry = (Map.Entry) it.next();
+        final Map<String,String> props = _config.readProperties();
+        for (Map.Entry<String,String> entry : props.entrySet()) {
             putAlias((String) entry.getKey(), (String) entry.getValue());
         }
     }
@@ -162,9 +160,7 @@ public final class AliasCommand extends AbstractCommand {
         DRV_META[0].resetWidth();
         DRV_META[1].resetWidth();
         final TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
-        final Iterator it = _aliases.entrySet().iterator();
-        while (it.hasNext()) {
-            final Map.Entry entry = (Map.Entry) it.next();
+        for(Map.Entry<String,String> entry : _aliases.entrySet()) {
             final Column[] row = new Column[2];
             row[0] = new Column((String) entry.getKey());
             row[1] = new Column((String) entry.getValue());
@@ -183,7 +179,7 @@ public final class AliasCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         final int argc = st.countTokens();
@@ -197,7 +193,7 @@ public final class AliasCommand extends AbstractCommand {
          * some completion within the alias/unalias commands.
          */
         if ("alias".equals(cmd) || "unalias".equals(cmd)) {
-            final HashSet alreadyGiven = new HashSet();
+            final HashSet<String> alreadyGiven = new HashSet<String>();
 
             if ("alias".equals(cmd)) {
                 // do not complete beyond first word.
@@ -210,7 +206,7 @@ public final class AliasCommand extends AbstractCommand {
                  * commandline and exclude from completion.. cool, isn't it ?
                  */
                 while (st.hasMoreElements()) {
-                    alreadyGiven.add(st.nextElement());
+                    alreadyGiven.add(st.nextToken());
                 }
             }
 

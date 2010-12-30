@@ -49,7 +49,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
      * filename completion by default.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         return new FileCompletionIterator(partialCommand, lastWord);
     }
 

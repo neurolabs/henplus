@@ -86,9 +86,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
                 PROP_META[0].resetWidth();
                 PROP_META[1].resetWidth();
                 final TableRenderer table = new TableRenderer(PROP_META, HenPlus.out());
-                final Iterator propIt = getRegistry().getPropertyMap().entrySet().iterator();
-                while (propIt.hasNext()) {
-                    final Map.Entry entry = (Map.Entry) propIt.next();
+                for (Map.Entry<String, PropertyHolder> entry : getRegistry().getPropertyMap().entrySet()) {
                     final Column[] row = new Column[3];
                     final PropertyHolder holder = (PropertyHolder) entry.getValue();
                     row[0] = new Column((String) entry.getKey());
@@ -173,7 +171,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
      * complete property names.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = st.nextToken();
         final int argc = st.countTokens();

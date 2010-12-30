@@ -74,7 +74,7 @@ public final class ResultTablePrinter {
                 appendLines(STAT_REMOVED, rows, removed);
             }
             // then, print added columns
-            final SortedSet added = result.getAddedColumns();
+            final SortedSet<henplus.sqlmodel.Column> added = result.getAddedColumns();
             if (added != null) {
                 appendLines(STAT_ADDED, rows, added);
             }
@@ -90,18 +90,15 @@ public final class ResultTablePrinter {
          * show the first column or not.
          */
         final ExtendedTableRenderer table = new ExtendedTableRenderer(DESC_META, HenPlus.out());
-        final Iterator it = rows.iterator();
-        while (it.hasNext()) {
-            table.addRow((Column[]) it.next());
+        for (Column[] row : rows) {
+            table.addRow(row);
         }
         table.closeTable();
         return Command.SUCCESS;
     }
 
-    private static void appendLines(final String symbol, final List rows, final SortedSet rowSet) {
-        final Iterator iter = rowSet.iterator();
-        while (iter.hasNext()) {
-            final henplus.sqlmodel.Column col = (henplus.sqlmodel.Column) iter.next();
+    private static void appendLines(final String symbol, final List<Column[]> rows, final SortedSet<henplus.sqlmodel.Column> rowSet) {
+        for (henplus.sqlmodel.Column col : rowSet) {
 
             final Column[] row = new Column[8];
             row[0] = new Column(symbol);
@@ -134,7 +131,7 @@ public final class ResultTablePrinter {
         return type;
     }
 
-    private static void appendModified(final List rows,
+    private static void appendModified(final List<Column[]> rows,
             final LinkedHashMap<henplus.sqlmodel.Column, henplus.sqlmodel.Column> modified) {
         final Iterator<henplus.sqlmodel.Column> iter = modified.keySet().iterator();
         while (iter.hasNext()) {

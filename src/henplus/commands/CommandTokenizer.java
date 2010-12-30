@@ -10,7 +10,11 @@ import java.util.Iterator;
 /**
  * Utility class to split Commands into tokens.
  */
-public class CommandTokenizer implements Iterator {
+// TODO: The implementation of Iterator is incorrect. hasNext() actually advances, and next() always
+// returns the last token read. As long as the while(it.hasNext()) {...next()} pattern is used,
+// this will work. However, if you are bored right now and are reading this, feel free
+// to fix it
+public class CommandTokenizer implements Iterator<String> {
 
     private final char[] _toTokenize;
     private final char[] _separatorBegins;
@@ -103,7 +107,7 @@ public class CommandTokenizer implements Iterator {
     }
 
     @Override
-    public Object next() {
+    public String next() {
         return _nextToken;
     }
 

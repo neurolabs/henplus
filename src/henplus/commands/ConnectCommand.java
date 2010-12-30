@@ -45,7 +45,7 @@ public class ConnectCommand extends AbstractCommand {
 
     private final ConfigurationContainer _config;
     private final SessionManager _sessionManager;
-    private final SortedMap _knownUrls;
+    private final SortedMap<String,String> _knownUrls;
     private final HenPlus _henplus;
 
     static {
@@ -74,7 +74,7 @@ public class ConnectCommand extends AbstractCommand {
     public ConnectCommand(final HenPlus henplus, final SessionManager sessionManager) {
         _henplus = henplus;
         _sessionManager = sessionManager;
-        _knownUrls = new TreeMap();
+        _knownUrls = new TreeMap<String,String>();
         _config = henplus.createConfigurationContainer(CONNECTION_CONFIG);
         _config.read(new ConfigurationContainer.ReadAction() {
 
@@ -247,9 +247,7 @@ public class ConnectCommand extends AbstractCommand {
             @Override
             public void writeConfiguration(final OutputStream out) throws Exception {
                 final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
-                final Iterator urlIter = _knownUrls.entrySet().iterator();
-                while (urlIter.hasNext()) {
-                    final Map.Entry entry = (Map.Entry) urlIter.next();
+                for (Map.Entry<String,String> entry : _knownUrls.entrySet()) {
                     final String alias = (String) entry.getKey();
                     final String url = (String) entry.getValue();
                     if (alias.equals(url)) {
@@ -280,7 +278,7 @@ public class ConnectCommand extends AbstractCommand {
      * complete session names. But not the session we are currently in, since we don't want to switch to our own session, right ?
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         if (partialCommand.startsWith("connect")) {
             if (argumentCount(partialCommand) > ("".equals(lastWord) ? 1 : 2)) {
                 return null;
@@ -352,9 +350,9 @@ public class ConnectCommand extends AbstractCommand {
                 return SYNTAX_ERROR;
             }
             if (argc == 0 && _sessionManager.getSessionCount() == 2) {
-                final Iterator i = _sessionManager.getSessionNames().iterator();
-                while (i.hasNext()) {
-                    sessionName = (String) i.next();
+                final Iterator<String> it = _sessionManager.getSessionNames().iterator();
+                while (it.hasNext()) {
+                    sessionName = (String) it.next();
                     if (!sessionName.equals(_currentSessionName)) {
                         break;
                     }
@@ -427,9 +425,7 @@ public class ConnectCommand extends AbstractCommand {
             SESS_META[i].resetWidth();
         }
         final TableRenderer table = new TableRenderer(SESS_META, HenPlus.out());
-        final Iterator it = _sessionManager.getSessionNames().iterator();
-        while (it.hasNext()) {
-            final String sessName = (String) it.next();
+        for (String sessName : _sessionManager.getSessionNames()) {
             final SQLSession session = _sessionManager.getSessionByName(sessName);
             final String prepend = sessName.equals(_currentSessionName) ? " * " : "   ";
             final Column[] row = new Column[5];

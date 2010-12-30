@@ -70,7 +70,7 @@ public abstract class PropertyHolder {
      *            a partial given value
      * @return an Iterator of values that all start with the given String or <code>null</code> if no such completion exists.
      */
-    public Iterator completeValue(final String partialValue) {
+    public Iterator<String> completeValue(final String partialValue) {
         return null;
     }
 

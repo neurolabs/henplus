@@ -123,7 +123,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                 }
 
                 ResultSet rset = null;
-                final Set doubleCheck = new HashSet();
+                final Set<String> doubleCheck = new HashSet<String>();
                 try {
                     _interrupted = false;
                     SigIntHandler.getInstance().pushInterruptable(this);
@@ -308,9 +308,9 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     DESC_META[1].setDisplay(!allSameTableName);
                     DESC_META[8].setDisplay(anyDescription);
                     final TableRenderer table = new TableRenderer(DESC_META, HenPlus.out());
-                    final Iterator it = rows.iterator();
+                    final Iterator<Column[]> it = rows.iterator();
                     while (it.hasNext()) {
-                        table.addRow((Column[]) it.next());
+                        table.addRow(it.next());
                     }
                     table.closeTable();
 
@@ -390,7 +390,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
      * complete the table name.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         st.nextElement(); // consume first element.
         if (lastWord.startsWith("\"")) {

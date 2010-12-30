@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -40,7 +40,7 @@ public final class PluginCommand extends AbstractCommand {
         DRV_META[1] = new ColumnMetaData("commands");
     }
 
-    private final SortedMap/* <ClassName-String,Command-Class> */_plugins;
+    private final SortedMap<String,Command>/* <ClassName-String,Command-Class> */_plugins;
     private final HenPlus _henplus;
     private final ConfigurationContainer _config;
 
@@ -54,7 +54,7 @@ public final class PluginCommand extends AbstractCommand {
 
     public PluginCommand(final HenPlus henplus) {
         _henplus = henplus;
-        _plugins = new TreeMap();
+        _plugins = new TreeMap<String, Command>();
         _config = henplus.createConfigurationContainer(PLUGINS_FILENAME);
     }
 
@@ -122,9 +122,7 @@ public final class PluginCommand extends AbstractCommand {
             DRV_META[0].resetWidth();
             DRV_META[1].resetWidth();
             final TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
-            final Iterator it = _plugins.entrySet().iterator();
-            while (it.hasNext()) {
-                final Map.Entry entry = (Map.Entry) it.next();
+            for (Entry<String,Command> entry : _plugins.entrySet()) {
                 final Column[] row = new Column[2];
                 final Command c = (Command) entry.getValue();
                 final String clsName = (String) entry.getKey();
@@ -180,7 +178,7 @@ public final class PluginCommand extends AbstractCommand {
                 HenPlus.msg().println("unknown plugin '" + pluginClass + "'");
                 return EXEC_FAILED;
             } else {
-                final Command c = (Command) _plugins.remove(pluginClass);
+                final Command c = _plugins.remove(pluginClass);
                 _henplus.getDispatcher().unregister(c);
             }
         }
@@ -188,7 +186,7 @@ public final class PluginCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         final int argc = st.countTokens();
@@ -210,9 +208,8 @@ public final class PluginCommand extends AbstractCommand {
             @Override
             public void writeConfiguration(final OutputStream outStream) throws Exception {
                 final PrintWriter out = new PrintWriter(new OutputStreamWriter(outStream, "UTF-8"));
-                final Iterator it = _plugins.keySet().iterator();
-                while (it.hasNext()) {
-                    out.println((String) it.next());
+                for (String s : _plugins.keySet()) {
+                    out.println(s);
                 }
                 out.close();
             }

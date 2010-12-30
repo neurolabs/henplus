@@ -45,7 +45,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
         }
         newValue = newValue.trim();
 
-        final Iterator possibleValues = _completer.getAlternatives(newValue);
+        final Iterator<String> possibleValues = _completer.getAlternatives(newValue);
         if (possibleValues == null || !possibleValues.hasNext()) {
             final StringBuilder expected = new StringBuilder();
             for (int i = 0; i < _values.length; ++i) {
@@ -94,7 +94,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
     protected abstract void enumeratedPropertyChanged(int index, String value) throws Exception;
 
     @Override
-    public Iterator completeValue(final String partialValue) {
+    public Iterator<String> completeValue(final String partialValue) {
         return _completer.getAlternatives(partialValue);
     }
 }

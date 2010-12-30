@@ -10,8 +10,8 @@ import henplus.io.ConfigurationContainer;
 import henplus.property.PropertyHolder;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Set global HenPlus properties.
@@ -50,11 +50,9 @@ public class PropertyCommand extends AbstractPropertyCommand {
     }
 
     public void load() {
-        final Map props = _config.readProperties();
-
-        final Iterator it = props.entrySet().iterator();
-        while (it.hasNext()) {
-            final Map.Entry entry = (Map.Entry) it.next();
+        final Map<String,String> props = _config.readProperties();
+        
+        for (Entry<String,String> entry : props.entrySet()) {
             try {
                 _registry.setProperty((String) entry.getKey(), (String) entry.getValue());
             } catch (final Exception e) {
@@ -65,10 +63,8 @@ public class PropertyCommand extends AbstractPropertyCommand {
 
     @Override
     public void shutdown() {
-        final Map writeMap = new HashMap();
-        final Iterator propIt = _registry.getPropertyMap().entrySet().iterator();
-        while (propIt.hasNext()) {
-            final Map.Entry entry = (Map.Entry) propIt.next();
+        final Map<String,String> writeMap = new HashMap<String,String>();
+        for (Map.Entry<String, PropertyHolder> entry : _registry.getPropertyMap().entrySet()) {
             final PropertyHolder holder = (PropertyHolder) entry.getValue();
             writeMap.put(entry.getKey(), holder.getValue());
         }

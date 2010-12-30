@@ -334,9 +334,9 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 if (tableSequence.size() > 1) {
                     Logger.info("%s tables to dump.", tableSequence.size());
                 }
-                final Iterator it = tableSequence.iterator();
+                final Iterator<String> it = tableSequence.iterator();
                 while (_running && it.hasNext()) {
-                    final String table = (String) it.next();
+                    final String table = it.next();
                     if (!alreadyDumped.contains(table)) {
                         final int result = dumpTable(session, table, null, out, FILE_ENCODING, alreadyDumped);
                         if (result != SUCCESS) {
@@ -359,15 +359,14 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     HenPlus.msg().println(
                             "-----------\n" + "NOTE: There have been cyclic dependencies between several tables detected.\n"
                                     + "These may cause trouble when dumping in the currently dumped data.");
-                    final Iterator iter = resolverResult.getCyclicDependencies().iterator();
+                    // TODO: soll count nicht vielleicht hochgezählt werden
                     final int count = 0;
                     final StringBuilder sb = new StringBuilder();
-                    while (iter.hasNext()) {
-                        final Iterator iter2 = ((List) iter.next()).iterator();
+                    for (Collection<Table> tables : resolverResult.getCyclicDependencies()) {
                         sb.append("Cycle ").append(count).append(": ");
 
-                        while (iter2.hasNext()) {
-                            sb.append(((Table) iter2.next()).getName()).append(" -> ");
+                        for (Table table : tables) {
+                            sb.append(table.getName()).append(" -> ");
                         }
                         sb.delete(sb.length() - 4, sb.length()).append('\n');
                     }
@@ -1232,7 +1231,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
      * complete the table name.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         int argc = st.countTokens();
@@ -1264,17 +1263,18 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 if (lastWord.startsWith("\"")) {
                     lastWord = lastWord.substring(1);
                 }
-                final HashSet alreadyGiven = new HashSet();
+                final HashSet<String> alreadyGiven = new HashSet<String>();
                 /*
                  * do not complete the tables we already gave on the
                  * commandline.
                  */
                 while (st.hasMoreElements()) {
-                    alreadyGiven.add(st.nextElement());
+                    alreadyGiven.add(st.nextToken());
                 }
 
-                final Iterator it = _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
-                return new Iterator() {
+                final Iterator<String> it = _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
+
+                return new Iterator<String>() {
 
                     String table = null;
 
@@ -1291,7 +1291,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     }
 
                     @Override
-                    public Object next() {
+                    public String next() {
                         return table;
                     }
 
@@ -1522,7 +1522,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                  * if the same column is in more than one schema defined, then
                  * oracle seems to write them out twice..
                  */
-                final Set doubleCheck = new HashSet();
+                final Set<String> doubleCheck = new HashSet<String>();
                 final DatabaseMetaData meta = conn.getMetaData();
                 rset = meta.getColumns(conn.getCatalog(), _schema, _table, null);
                 while (rset.next()) {

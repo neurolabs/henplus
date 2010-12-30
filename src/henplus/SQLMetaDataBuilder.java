@@ -159,7 +159,7 @@ public final class SQLMetaDataBuilder {
         if (rset != null) {
             table = new Table(tableName);
             final PrimaryKey pk = getPrimaryKey(meta, tableName);
-            final Map fks = getForeignKeys(meta, tableName);
+            final Map<String, ColumnFkInfo> fks = getForeignKeys(meta, tableName);
             // what about the following duplicate?
             // rset = meta.getColumns(catalog, null, tableName, null);
             while (!_interrupted && rset.next()) {
@@ -199,8 +199,8 @@ public final class SQLMetaDataBuilder {
         return result;
     }
 
-    private Map getForeignKeys(final DatabaseMetaData meta, final String tabName) throws SQLException {
-        final Map fks = new HashMap();
+    private Map<String,ColumnFkInfo> getForeignKeys(final DatabaseMetaData meta, final String tabName) throws SQLException {
+        final Map<String,ColumnFkInfo> fks = new HashMap<String,ColumnFkInfo>();
 
         ResultSet rset = null;
         // some jdbc version 2 drivers (connector/j) have problems with foreign

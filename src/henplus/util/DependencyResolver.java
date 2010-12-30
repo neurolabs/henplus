@@ -31,7 +31,7 @@ import java.util.Set;
 public final class DependencyResolver {
 
     private final Iterator<Table> _tableIter;
-    private Set<Collection<Table>> _cyclicDependencies;
+    private Set<List<Table>> _cyclicDependencies;
 
     /**
      * @param tableIter
@@ -63,7 +63,7 @@ public final class DependencyResolver {
             if (t == null) {
                 continue;
             }
-            final Set fks = t.getForeignKeys();
+            final Set<ColumnFkInfo> fks = t.getForeignKeys();
 
             // no dependency / foreign key?
             Logger.debug("[sortTables] put %s to resolved.", t);
@@ -72,7 +72,7 @@ public final class DependencyResolver {
             } else {
                 // dependency fulfilled?
                 boolean nodep = true;
-                final Iterator iter2 = fks.iterator();
+                final Iterator<ColumnFkInfo> iter2 = fks.iterator();
                 while (iter2.hasNext() && nodep) {
                     final ColumnFkInfo fk = (ColumnFkInfo) iter2.next();
                     if (!resolved.containsKey(fk.getPkTable())) {
@@ -93,9 +93,7 @@ public final class DependencyResolver {
 
         // second run: we check remaining deps
         if (unresolved != null) {
-            final Iterator iter = unresolved.values().iterator();
-            while (iter.hasNext()) {
-                final Table t = (Table) iter.next();
+            for (Table t : unresolved.values()) {
                 resolveDep(t, null, resolved, unresolved);
             }
         }
@@ -106,9 +104,7 @@ public final class DependencyResolver {
         // add all unresolved/conflicting tables to the resulting list
         final Collection<Table> result = resolved.values();
         if (unresolved != null) {
-            final Iterator<Table> iter = unresolved.values().iterator();
-            while (iter.hasNext()) {
-                final Table table = iter.next();
+            for (Table table : unresolved.values()) {
                 if (!result.contains(table)) {
                     result.add(table);
                 }
@@ -189,7 +185,7 @@ public final class DependencyResolver {
                     final List<Table> cycle = new ArrayList<Table>(cyclePath);
                     cycle.add(inner);
                     if (_cyclicDependencies == null) {
-                        _cyclicDependencies = new HashSet<Collection<Table>>();
+                        _cyclicDependencies = new HashSet<List<Table>>();
                     }
                     Logger.debug("[resolveDep] +++ Putting cyclePath: %s", cycle);
                     _cyclicDependencies.add(cycle);
@@ -232,9 +228,9 @@ public final class DependencyResolver {
     private boolean duplicateCycle(final Table t, final Table inner) {
         boolean result = false;
         if (_cyclicDependencies != null) {
-            final Iterator iter = _cyclicDependencies.iterator();
+            final Iterator<List<Table>> iter = _cyclicDependencies.iterator();
             while (iter.hasNext() && !result) {
-                final List path = (List) iter.next();
+                final List<Table> path = iter.next();
                 if (path.contains(t)) {
                     final int tIdx = path.indexOf(t);
                     if (path.size() > tIdx + 1 && inner.equals(path.get(tIdx + 1))) {
@@ -249,9 +245,9 @@ public final class DependencyResolver {
     public class ResolverResult {
 
         private final Collection<Table> _tables;
-        private final Set<Collection<Table>> _cyclicDependencies;
+        private final Set<? extends Collection<Table>> _cyclicDependencies;
 
-        public ResolverResult(final Collection<Table> tables, final Set<Collection<Table>> cyclicDependencies) {
+        public ResolverResult(final Collection<Table> tables, final Set<? extends Collection<Table>> cyclicDependencies) {
             _tables = tables;
             _cyclicDependencies = cyclicDependencies;
         }
@@ -260,7 +256,7 @@ public final class DependencyResolver {
          * @return Returns the cyclicDependencies: a <code>Set</code> holding <code>List</code>s of <code>CycleEntry</code> objects,
          *         where each list represents the path of a cyclic dependency.
          */
-        public Set<Collection<Table>> getCyclicDependencies() {
+        public Set<? extends Collection<Table>> getCyclicDependencies() {
             return _cyclicDependencies;
         }
 

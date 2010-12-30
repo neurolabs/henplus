@@ -49,8 +49,8 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
     }
 
     public LoadCommand() {
-        _openFiles = new HashSet();
-        _cwdStack = new Stack();
+        _openFiles = new HashSet<File>();
+        _cwdStack = new Stack<File>();
         try {
             final File cwd = new File(".");
             _cwdStack.push(cwd.getCanonicalFile());
@@ -63,7 +63,7 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
      * filename completion by default.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
+    public Iterator<String> complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         return new FileCompletionIterator(partialCommand, lastWord);
     }
 
