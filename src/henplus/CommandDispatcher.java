@@ -7,6 +7,7 @@ package henplus;
 
 import henplus.commands.SetCommand;
 import henplus.event.ExecutionListener;
+import henplus.jline.ReadlineCompleter;
 import henplus.logging.Logger;
 
 import java.util.ArrayList;
@@ -16,8 +17,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-
-import org.gnu.readline.ReadlineCompleter;
 
 /**
  * The Command Dispatcher for all commands.

@@ -13,8 +13,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 
-import org.gnu.readline.Readline;
-
 /**
  * A utility class that writes the history. This especially handles multiline elements. This should be some Reader/Writer, that
  * handles reading/writing of escaped lines. For now, it is just a collection of static methods. Quick hack to make storing of
@@ -24,9 +22,9 @@ public class HistoryWriter {
 
     public static void writeReadlineHistory(final OutputStream out) throws IOException {
         final PrintWriter w = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
-        final int len = Readline.getHistorySize();
+        final int len = HenPlus.getConsoleReader().getHistory().size();
         for (int i = 0; i < len; ++i) {
-            String line = Readline.getHistoryLine(i);
+            String line = (String) HenPlus.getConsoleReader().getHistory().getHistoryList().get(i);
             if (line == null) {
                 continue;
             }
@@ -56,7 +54,7 @@ public class HistoryWriter {
                 }
             }
             if (line.length() > 0) {
-                Readline.addToHistory(line.toString());
+                HenPlus.getConsoleReader().getHistory().addToHistory(line.toString());
                 line.setLength(0);
             }
         } while (c >= 0);

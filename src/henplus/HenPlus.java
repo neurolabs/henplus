@@ -28,6 +28,7 @@ import henplus.commands.TreeCommand;
 import henplus.commands.properties.PropertyCommand;
 import henplus.commands.properties.SessionPropertyCommand;
 import henplus.io.ConfigurationContainer;
+import henplus.jline.ReadlineCompleterAdapter;
 import henplus.logging.Logger;
 import henplus.util.StringUtil;
 
@@ -42,24 +43,36 @@ import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 
+import jline.ConsoleReader;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.gnu.readline.Readline;
-import org.gnu.readline.ReadlineLibrary;
 
 public final class HenPlus implements Interruptable {
+
+    public static final byte LINE_EXECUTED = 1;
+    public static final byte LINE_EMPTY = 2;
+    public static final byte LINE_INCOMPLETE = 3;
 
     private static final String HISTORY_NAME = "history";
     private static final String HENPLUSDIR = ".henplus";
     private static final String PROMPT = "Hen*Plus> ";
 
-    public static final byte LINE_EXECUTED = 1;
-    public static final byte LINE_EMPTY = 2;
-    public static final byte LINE_INCOMPLETE = 3;
+    private static final ConsoleReader CONSOLE_READER;
+
+    static {
+        try {
+            CONSOLE_READER = new ConsoleReader();
+            // avoid automatically adding to the history
+            CONSOLE_READER.setUseHistory(false);
+        } catch (final IOException e) {
+            throw new RuntimeException("Counld not initialize console reader", e);
+        }
+    }
 
     private static HenPlus instance = null; // singleton.
 
@@ -101,19 +114,19 @@ public final class HenPlus implements Interruptable {
 
     }
 
+    public static ConsoleReader getConsoleReader() {
+        return CONSOLE_READER;
+    }
+
     /**
      * @param argv
      * @throws UnsupportedEncodingException
      */
     private void init(final String[] argv) throws UnsupportedEncodingException {
-        String noReadlineMsg = null;
-        try {
-            Readline.load(ReadlineLibrary.GnuReadline);
-        } catch (final UnsatisfiedLinkError ignoreMe) {
-            noReadlineMsg = String.format("no readline found (%s). Using simple stdin.", ignoreMe.getMessage());
-        }
+        final String noReadlineMsg = null;
 
-        _fromTerminal = Readline.hasTerminal();
+        // TODO: jline terminal detection
+        _fromTerminal = true;
         _quiet |= !_fromTerminal; // not from terminal: always quiet.
 
         if (_fromTerminal) {
@@ -132,7 +145,7 @@ public final class HenPlus implements Interruptable {
         }
 
         _historyConfig = createConfigurationContainer(HISTORY_NAME);
-        Readline.initReadline("HenPlus");
+        // Readline.initReadline("HenPlus");
         _historyConfig.read(new ConfigurationContainer.ReadAction() {
 
             @Override
@@ -141,7 +154,7 @@ public final class HenPlus implements Interruptable {
             }
         });
 
-        Readline.setWordBreakCharacters(" ,/()<>=\t\n"); // TODO..
+        // Readline.setWordBreakCharacters(" ,/()<>=\t\n"); // TODO..
         setDefaultPrompt();
     }
 
@@ -207,7 +220,7 @@ public final class HenPlus implements Interruptable {
         aliasCommand.load();
         propertyCommand.load();
 
-        Readline.setCompleter(_dispatcher);
+        CONSOLE_READER.addCompletor(new ReadlineCompleterAdapter(" ,/()<>=\t\n", _dispatcher));
 
         /* FIXME: do this platform independently */
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -339,7 +352,7 @@ public final class HenPlus implements Interruptable {
     private void storeLineInHistory() {
         final String line = _historyLine.toString();
         if (!"".equals(line) && !line.equals(_previousHistoryLine)) {
-            Readline.addToHistory(line);
+            CONSOLE_READER.getHistory().addToHistory(line);
             _previousHistoryLine = line;
         }
         _historyLine.setLength(0);
@@ -397,7 +410,8 @@ public final class HenPlus implements Interruptable {
     }
 
     public String getPartialLine() {
-        return _historyLine.toString() + Readline.getLineBuffer();
+        return _historyLine.toString() + CONSOLE_READER.getCursorBuffer().getBuffer().toString();
+
     }
 
     public void run() {
@@ -415,7 +429,7 @@ public final class HenPlus implements Interruptable {
             SigIntHandler.getInstance().pushInterruptable(this);
 
             try {
-                cmdLine = _fromTerminal ? Readline.readline(displayPrompt, false) : readlineFromFile();
+                cmdLine = _fromTerminal ? CONSOLE_READER.readLine(displayPrompt) : readlineFromFile();
             } catch (final EOFException e) {
                 // EOF on CTRL-D
                 if (_sessionManager.getCurrentSession() != null) {
@@ -492,7 +506,7 @@ public final class HenPlus implements Interruptable {
                     }
                 });
             }
-            Readline.cleanup();
+            // Readline.cleanup();
         } finally {
             _alreadyShutDown = true;
         }
