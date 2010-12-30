@@ -1,20 +1,19 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: FileCompletionIterator.java,v 1.5 2004-05-31 10:48:22 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * FileCompletionIterator.java,v 1.5 2004-05-31 10:48:22 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import java.util.Iterator;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * FIXME: first simple implementation..
  */
 public class FileCompletionIterator implements Iterator {
-    private String _dirList[];
+
+    private String[] _dirList;
     private String _matchName;
     private String _nextFileName;
     private String _completePrefix;
@@ -23,8 +22,7 @@ public class FileCompletionIterator implements Iterator {
     public FileCompletionIterator(final String partialCommand, final String lastWord) {
         String startFile;
         final int lastPos = partialCommand.lastIndexOf(' ');
-        startFile = lastPos >= 0 ? partialCommand.substring(lastPos + 1)
-                : "";
+        startFile = lastPos >= 0 ? partialCommand.substring(lastPos + 1) : "";
 
         try {
             final int lastDirectory = startFile.lastIndexOf(File.separator);
@@ -48,6 +46,7 @@ public class FileCompletionIterator implements Iterator {
 
     // this iterator _requires_, that hasNext() is called before next().
 
+    @Override
     public boolean hasNext() {
         if (_dirList == null) {
             return false;
@@ -65,10 +64,12 @@ public class FileCompletionIterator implements Iterator {
         return false;
     }
 
+    @Override
     public Object next() {
         return _completePrefix + _nextFileName;
     }
 
+    @Override
     public void remove() {
     }
 }

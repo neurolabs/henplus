@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AliasCommand.java,v 1.17 2005-11-27 16:20:27 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * AliasCommand.java,v 1.17 2005-11-27 16:20:27 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
@@ -29,6 +27,7 @@ import java.util.TreeMap;
  * A Command that handles Aliases.
  */
 public final class AliasCommand extends AbstractCommand {
+
     private static final String ALIAS_FILENAME = "aliases";
     private static final ColumnMetaData[] DRV_META;
     static {
@@ -42,14 +41,14 @@ public final class AliasCommand extends AbstractCommand {
     private final CommandDispatcher _dispatcher;
 
     /**
-     * to determine, if we got a recursion: one alias calls another alias which
-     * in turn calls the first one ..
+     * to determine, if we got a recursion: one alias calls another alias which in turn calls the first one ..
      */
     private final Set _currentExecutedAliases;
 
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "list-aliases", "alias", "unalias" };
     }
@@ -91,6 +90,7 @@ public final class AliasCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession currentSession, final String cmd, String param) {
         final StringTokenizer st = new StringTokenizer(param);
         final int argc = st.countTokens();
@@ -101,9 +101,7 @@ public final class AliasCommand extends AbstractCommand {
             }
             showAliases();
             return SUCCESS;
-        }
-
-        else if ("alias".equals(cmd)) {
+        } else if ("alias".equals(cmd)) {
             if (argc < 2) {
                 return SYNTAX_ERROR;
             }
@@ -114,8 +112,7 @@ public final class AliasCommand extends AbstractCommand {
             }
             // unless we override an alias, moan, if this command already
             // exists.
-            if (!_aliases.containsKey(alias)
-                    && _dispatcher.containsCommand(alias)) {
+            if (!_aliases.containsKey(alias) && _dispatcher.containsCommand(alias)) {
                 HenPlus.msg().println("cannot alias built-in command!");
                 return EXEC_FAILED;
             }
@@ -128,9 +125,7 @@ public final class AliasCommand extends AbstractCommand {
             }
             final String value = stripQuotes(param); // rest of values.
             putAlias(alias, value);
-        }
-
-        else if ("unalias".equals(cmd)) {
+        } else if ("unalias".equals(cmd)) {
             if (argc >= 1) {
                 while (st.hasMoreElements()) {
                     final String alias = (String) st.nextElement();
@@ -143,9 +138,7 @@ public final class AliasCommand extends AbstractCommand {
                 return SUCCESS;
             }
             return SYNTAX_ERROR;
-        }
-
-        else {
+        } else {
             final String toExecute = (String) _aliases.get(cmd);
             // HenPlus.msg().println("key: '" + cmd + "' - exec: " + toExecute);
             if (toExecute == null) {
@@ -153,9 +146,7 @@ public final class AliasCommand extends AbstractCommand {
             }
             // not session-proof:
             if (_currentExecutedAliases.contains(cmd)) {
-                HenPlus.msg().println(
-                        "Recursive call to aliases [" + cmd
-                        + "]. Stopping this senseless venture.");
+                HenPlus.msg().println("Recursive call to aliases [" + cmd + "]. Stopping this senseless venture.");
                 _currentExecutedAliases.clear();
                 return EXEC_FAILED;
             }
@@ -192,8 +183,7 @@ public final class AliasCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         final int argc = st.countTokens();
@@ -226,6 +216,7 @@ public final class AliasCommand extends AbstractCommand {
 
             // ok, now return the list.
             return new SortedMatchIterator(lastWord, _aliases) {
+
                 @Override
                 protected boolean exclude(final String current) {
                     return alreadyGiven.contains(current);
@@ -243,16 +234,13 @@ public final class AliasCommand extends AbstractCommand {
             if (c != null) {
                 int i = 0;
                 final String param = partialCommand;
-                while (param.length() < i
-                        && Character.isWhitespace(param.charAt(i))) {
+                while (param.length() < i && Character.isWhitespace(param.charAt(i))) {
                     ++i;
                 }
-                while (param.length() < i
-                        && !Character.isWhitespace(param.charAt(i))) {
+                while (param.length() < i && !Character.isWhitespace(param.charAt(i))) {
                     ++i;
                 }
-                return c.complete(disp, toExecute + param.substring(i),
-                        lastWord);
+                return c.complete(disp, toExecute + param.substring(i), lastWord);
             }
         }
 
@@ -292,24 +280,18 @@ public final class AliasCommand extends AbstractCommand {
     public String getLongDescription(final String cmd) {
         String dsc = null;
         if ("list-aliases".equals(cmd)) {
-            dsc = "\tList all aliases, that have been stored with the\n"
-                + "\t'alias' command";
+            dsc = "\tList all aliases, that have been stored with the\n" + "\t'alias' command";
         } else if ("alias".equals(cmd)) {
             dsc = "\tAdd an alias for a command. This means, that you can\n"
-                + "\tgive a short name for a command you often use.  This\n"
-                + "\tmight be as simple as\n"
-                + "\t   alias ls tables\n"
-                + "\tto execute the tables command with a short 'ls'.\n"
-                + "\n\tFor longer commands it is even more helpful:\n"
-                + "\t   alias size select count(*) from\n"
-                + "\tThis command  needs a table  name as a  parameter to\n"
-                + "\texpand  to  a  complete command.  So 'size students'\n"
-                + "\texpands to 'select count(*) from students' and yields\n"
-                + "\tthe expected result.\n"
-                + "\n\tTo make life easier, HenPlus tries to determine the\n"
-                + "\tcommand  to be executed so that the  tab-completion\n"
-                + "\tworks even here; in this latter case it  would help\n"
-                + "\tcomplete table names.";
+                    + "\tgive a short name for a command you often use.  This\n" + "\tmight be as simple as\n"
+                    + "\t   alias ls tables\n" + "\tto execute the tables command with a short 'ls'.\n"
+                    + "\n\tFor longer commands it is even more helpful:\n" + "\t   alias size select count(*) from\n"
+                    + "\tThis command  needs a table  name as a  parameter to\n"
+                    + "\texpand  to  a  complete command.  So 'size students'\n"
+                    + "\texpands to 'select count(*) from students' and yields\n" + "\tthe expected result.\n"
+                    + "\n\tTo make life easier, HenPlus tries to determine the\n"
+                    + "\tcommand  to be executed so that the  tab-completion\n"
+                    + "\tworks even here; in this latter case it  would help\n" + "\tcomplete table names.";
         } else if ("unalias".equals(cmd)) {
             dsc = "\tremove an alias name";
         } else {
@@ -318,8 +300,7 @@ public final class AliasCommand extends AbstractCommand {
                 dsc = "\t[ this command cyclicly references itself ]";
             } else {
                 _currentExecutedAliases.add(cmd);
-                dsc = "\tThis is an alias for the command\n" + "\t   "
-                + _aliases.get(cmd);
+                dsc = "\tThis is an alias for the command\n" + "\t   " + _aliases.get(cmd);
 
                 String actualCmdStr = (String) _aliases.get(cmd);
                 if (actualCmdStr != null) {
@@ -327,8 +308,7 @@ public final class AliasCommand extends AbstractCommand {
                     actualCmdStr = st.nextToken();
                     final Command c = _dispatcher.getCommandFrom(actualCmdStr);
                     String longDesc = null;
-                    if (c != null
-                            && (longDesc = c.getLongDescription(actualCmdStr)) != null) {
+                    if (c != null && (longDesc = c.getLongDescription(actualCmdStr)) != null) {
                         dsc += "\n\n\t..the following description could be determined for this";
                         dsc += "\n\t------- [" + actualCmdStr + "] ---\n";
                         dsc += longDesc;

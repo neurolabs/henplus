@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -67,9 +66,9 @@ public class ConnectCommand extends AbstractCommand {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
-        return new String[] { "connect", "disconnect", "rename-session",
-                "switch", "sessions" };
+        return new String[] { "connect", "disconnect", "rename-session", "switch", "sessions" };
     }
 
     public ConnectCommand(final HenPlus henplus, final SessionManager sessionManager) {
@@ -78,13 +77,13 @@ public class ConnectCommand extends AbstractCommand {
         _knownUrls = new TreeMap();
         _config = henplus.createConfigurationContainer(CONNECTION_CONFIG);
         _config.read(new ConfigurationContainer.ReadAction() {
-            public void readConfiguration(final InputStream inStream)
-            throws Exception {
+
+            @Override
+            public void readConfiguration(final InputStream inStream) throws Exception {
                 if (inStream == null) {
                     return;
                 }
-                final BufferedReader in = new BufferedReader(new InputStreamReader(
-                        inStream, "UTF-8"));
+                final BufferedReader in = new BufferedReader(new InputStreamReader(inStream, "UTF-8"));
                 String urlLine;
                 while ((urlLine = in.readLine()) != null) {
                     final StringTokenizer tok = new StringTokenizer(urlLine);
@@ -147,8 +146,8 @@ public class ConnectCommand extends AbstractCommand {
      * @throws SQLException
      * @throws IOException
      */
-    private void connect(final String url, final String username, final String password)
-    throws ClassNotFoundException, SQLException, IOException {
+    private void connect(final String url, final String username, final String password) throws ClassNotFoundException,
+            SQLException, IOException {
         SQLSession session;
         session = new SQLSession(url, username, password);
         _currentSessionName = createSessionName(session, null);
@@ -160,22 +159,20 @@ public class ConnectCommand extends AbstractCommand {
 
     @Override
     public Collection<Option> getHandledCommandLineOptions() {
-    	final Collection<Option> result = new LinkedList<Option>();
+        final Collection<Option> result = new LinkedList<Option>();
 
-    	final Option option = new Option("J", "url", true, "JDBC URL to connect to");
+        final Option option = new Option("J", "url", true, "JDBC URL to connect to");
         option.setArgName("jdbc:...");
         result.add(option);
-        
-        final Option option2 = new Option("U", "username", true,
-        "Username to connect with");
+
+        final Option option2 = new Option("U", "username", true, "Username to connect with");
         option2.setArgName("username");
         result.add(option2);
 
-        final Option option3 = new Option("P", "password", true,
-        "Password to connect with");
+        final Option option3 = new Option("P", "password", true, "Password to connect with");
         option3.setArgName("password");
         result.add(option3);
-        
+
         return result;
     }
 
@@ -246,9 +243,10 @@ public class ConnectCommand extends AbstractCommand {
         _sessionManager.closeAll();
 
         _config.write(new ConfigurationContainer.WriteAction() {
+
+            @Override
             public void writeConfiguration(final OutputStream out) throws Exception {
-                final PrintWriter writer = new PrintWriter(new OutputStreamWriter(
-                        out, "UTF-8"));
+                final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
                 final Iterator urlIter = _knownUrls.entrySet().iterator();
                 while (urlIter.hasNext()) {
                     final Map.Entry entry = (Map.Entry) urlIter.next();
@@ -279,25 +277,21 @@ public class ConnectCommand extends AbstractCommand {
     }
 
     /**
-     * complete session names. But not the session we are currently in, since we
-     * don't want to switch to our own session, right ?
+     * complete session names. But not the session we are currently in, since we don't want to switch to our own session, right ?
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         if (partialCommand.startsWith("connect")) {
             if (argumentCount(partialCommand) > ("".equals(lastWord) ? 1 : 2)) {
                 return null;
             }
             return new SortedMatchIterator(lastWord, _knownUrls);
-        }
-
-        else if (partialCommand.startsWith("switch")) {
+        } else if (partialCommand.startsWith("switch")) {
             if (argumentCount(partialCommand) > ("".equals(lastWord) ? 1 : 2)) {
                 return null;
             }
-            return new SortedMatchIterator(lastWord, _sessionManager
-                    .getSessionNames()) {
+            return new SortedMatchIterator(lastWord, _sessionManager.getSessionNames()) {
+
                 @Override
                 protected boolean exclude(final String sessionName) {
                     return sessionName.equals(_currentSessionName);
@@ -310,6 +304,7 @@ public class ConnectCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession currentSession, final String cmd, final String param) {
         SQLSession session = null;
 
@@ -319,9 +314,7 @@ public class ConnectCommand extends AbstractCommand {
         if ("sessions".equals(cmd)) {
             showSessions();
             return SUCCESS;
-        }
-
-        else if ("connect".equals(cmd)) {
+        } else if ("connect".equals(cmd)) {
             if (argc < 1 || argc > 2) {
                 return SYNTAX_ERROR;
             }
@@ -353,9 +346,7 @@ public class ConnectCommand extends AbstractCommand {
                 HenPlus.msg().println(e.toString());
                 return EXEC_FAILED;
             }
-        }
-
-        else if ("switch".equals(cmd)) {
+        } else if ("switch".equals(cmd)) {
             String sessionName = null;
             if (argc != 1 && _sessionManager.getSessionCount() != 2) {
                 return SYNTAX_ERROR;
@@ -377,9 +368,7 @@ public class ConnectCommand extends AbstractCommand {
                 return EXEC_FAILED;
             }
             _currentSessionName = sessionName;
-        }
-
-        else if ("rename-session".equals(cmd)) {
+        } else if ("rename-session".equals(cmd)) {
             String sessionName = null;
             if (argc != 1) {
                 return SYNTAX_ERROR;
@@ -401,17 +390,14 @@ public class ConnectCommand extends AbstractCommand {
              * (session == null) { return EXEC_FAILED; }
              * _sessionManager.addSession(sessionName, session);
              */
-            final int renamed = _sessionManager.renameSession(_currentSessionName,
-                    sessionName);
+            final int renamed = _sessionManager.renameSession(_currentSessionName, sessionName);
             if (renamed == EXEC_FAILED) {
                 return EXEC_FAILED;
             }
 
             _currentSessionName = sessionName;
             session = _sessionManager.getCurrentSession();
-        }
-
-        else if ("disconnect".equals(cmd)) {
+        } else if ("disconnect".equals(cmd)) {
             _currentSessionName = null;
             if (argc != 0) {
                 return SYNTAX_ERROR;
@@ -445,8 +431,7 @@ public class ConnectCommand extends AbstractCommand {
         while (it.hasNext()) {
             final String sessName = (String) it.next();
             final SQLSession session = _sessionManager.getSessionByName(sessName);
-            final String prepend = sessName.equals(_currentSessionName) ? " * "
-                    : "   ";
+            final String prepend = sessName.equals(_currentSessionName) ? " * " : "   ";
             final Column[] row = new Column[5];
             row[0] = new Column(prepend + sessName);
             row[1] = new Column(session.getUsername());
@@ -483,19 +468,15 @@ public class ConnectCommand extends AbstractCommand {
         String dsc = null;
         if ("connect".equals(cmd)) {
             dsc = "\tconnects to the url with the optional session name.\n"
-                + "\tIf no session name is given, a session name is chosen.\n"
-                + "\tIf a session name is given, this is stored as an alias\n"
-                + "\tfor the URL as well, so later you might connect with\n"
-                + "\tthat alias conveniently instead:\n"
-                + "\t\tconnect jdbc:oracle:thin:foo/bar@localhost:BLUE myAlias\n"
-                + "\tallows to later connect simply with\n"
-                + "\t\tconnect myAlias\n"
-                + "\tOf course, all URLs and aliases are stored in your \n"
-                + "\t~/.henplus configuration. All connects and aliases \n"
-                + "\tare provided in the TAB-completion of this command.";
+                    + "\tIf no session name is given, a session name is chosen.\n"
+                    + "\tIf a session name is given, this is stored as an alias\n"
+                    + "\tfor the URL as well, so later you might connect with\n" + "\tthat alias conveniently instead:\n"
+                    + "\t\tconnect jdbc:oracle:thin:foo/bar@localhost:BLUE myAlias\n" + "\tallows to later connect simply with\n"
+                    + "\t\tconnect myAlias\n" + "\tOf course, all URLs and aliases are stored in your \n"
+                    + "\t~/.henplus configuration. All connects and aliases \n"
+                    + "\tare provided in the TAB-completion of this command.";
         } else if ("disconnect".equals(cmd)) {
-            dsc = "\tdisconnect current session. You can leave a session as\n"
-                + "\twell if you just type CTRL-D";
+            dsc = "\tdisconnect current session. You can leave a session as\n" + "\twell if you just type CTRL-D";
         } else if ("switch".equals(cmd)) {
             dsc = "\tswitch to session with the given session name.";
         } else if ("sessions".equals(cmd)) {

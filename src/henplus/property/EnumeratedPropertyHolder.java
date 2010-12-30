@@ -1,26 +1,24 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: EnumeratedPropertyHolder.java,v 1.6 2004-03-07 14:22:02 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * EnumeratedPropertyHolder.java,v 1.6 2004-03-07 14:22:02 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
 
-import java.util.Iterator;
-import java.util.Collection;
-
 import henplus.view.util.NameCompleter;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * A PropertyHolder, that can change its values to a fixed set of values.
  */
 public abstract class EnumeratedPropertyHolder extends PropertyHolder {
-    private final String _values[];
+
+    private final String[] _values;
     private final NameCompleter _completer;
 
     /**
-     * create a new EnumeratedPropertyHolder that gets an array of Strings with
-     * possible values of this property.
+     * create a new EnumeratedPropertyHolder that gets an array of Strings with possible values of this property.
      * 
      * @param enumeratedValues
      *            the Values this property can take.
@@ -38,8 +36,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
     }
 
     /**
-     * do not override this method but the
-     * {@link #enumeratedPropertyChanged(int, String)} method instead.
+     * do not override this method but the {@link #enumeratedPropertyChanged(int, String)} method instead.
      */
     @Override
     protected final String propertyChanged(String newValue) throws Exception {
@@ -57,8 +54,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
                 }
                 expected.append(_values[i]);
             }
-            throw new Exception("'" + newValue + "' does not match any of ["
-                    + expected.toString() + "]");
+            throw new Exception("'" + newValue + "' does not match any of [" + expected.toString() + "]");
         }
 
         final String value = (String) possibleValues.next();
@@ -69,8 +65,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
                 matching.append((String) possibleValues.next());
             } while (possibleValues.hasNext());
 
-            throw new Exception("'" + newValue + "' ambiguous. Matches ["
-                    + matching.toString() + "]");
+            throw new Exception("'" + newValue + "' ambiguous. Matches [" + matching.toString() + "]");
         }
 
         int index = -1;
@@ -96,8 +91,7 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
      * @throws Exception
      *             to veto that change.
      */
-    protected abstract void enumeratedPropertyChanged(int index, String value)
-    throws Exception;
+    protected abstract void enumeratedPropertyChanged(int index, String value) throws Exception;
 
     @Override
     public Iterator completeValue(final String partialValue) {

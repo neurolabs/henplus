@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  */
 package henplus.view;
 

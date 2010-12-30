@@ -1,7 +1,8 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * 
  * @version $Id: DependencyResolver.java,v 1.3 2005-06-18 04:58:13 hzeller Exp $
+ * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.util;
@@ -21,8 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Resolves dependencies between a given set of tables in respect to their
- * foreign keys.<br>
+ * Resolves dependencies between a given set of tables in respect to their foreign keys.<br>
  * Created on: Sep 20, 2004<br>
  * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
@@ -131,8 +131,7 @@ public final class DependencyResolver {
     /**
      * @param resolved
      * @param unresolved
-     * @return A Map which contains all yet unresolved Tables mapped to their
-     *         names.
+     * @return A Map which contains all yet unresolved Tables mapped to their names.
      */
     /*
      * Martin: needed ? private Map cleanUnresolved( Map resolved, Map
@@ -156,7 +155,7 @@ public final class DependencyResolver {
     private void resolveDep(final Table t, List<Table> cyclePath, final Map<String, Table> resolved,
             final Map<String, Table> unresolved) {
 
-        Logger.debug( "[resolveDep] >>> Starting for t: %s and cyclePath: %s", t, cyclePath );
+        Logger.debug("[resolveDep] >>> Starting for t: %s and cyclePath: %s", t, cyclePath);
 
         // if the current table is no more in the unresolved collection
         if (t == null || resolved.containsKey(t.getName())) {
@@ -170,7 +169,7 @@ public final class DependencyResolver {
         while (iter.hasNext()) {
             final ColumnFkInfo fk = iter.next();
 
-            Logger.debug( "[resolveDep] FK -> %s: %s", fk.getPkTable(), resolved.containsKey( fk.getPkTable() ) );
+            Logger.debug("[resolveDep] FK -> %s: %s", fk.getPkTable(), resolved.containsKey(fk.getPkTable()));
             if (!resolved.containsKey(fk.getPkTable())) {
 
                 final Table inner = unresolved.get(fk.getPkTable());
@@ -192,13 +191,13 @@ public final class DependencyResolver {
                     if (_cyclicDependencies == null) {
                         _cyclicDependencies = new HashSet<Collection<Table>>();
                     }
-                    Logger.debug( "[resolveDep] +++ Putting cyclePath: %s", cycle );
+                    Logger.debug("[resolveDep] +++ Putting cyclePath: %s", cycle);
                     _cyclicDependencies.add(cycle);
                     continue;
 
                 } else {
                     if (cyclePath == null) {
-                    	Logger.debug( "[resolveDep] Starting cyclePath with: %s" , t);
+                        Logger.debug("[resolveDep] Starting cyclePath with: %s", t);
                         cyclePath = new ArrayList<Table>();
                     }
                     cyclePath.add(t);
@@ -217,15 +216,14 @@ public final class DependencyResolver {
         }
 
         if (nodep && !resolved.containsKey(t.getName())) {
-        	Logger.debug( "[resolveDep] put %s to resolved.", t );
+            Logger.debug("[resolveDep] put %s to resolved.", t);
             resolved.put(t.getName(), t);
         }
 
     }
 
     /**
-     * Tests if there's yet a cycle (stored in cyclicDependencies) with the
-     * given tables t and inner, whith inner following t.
+     * Tests if there's yet a cycle (stored in cyclicDependencies) with the given tables t and inner, whith inner following t.
      * 
      * @param t
      * @param inner
@@ -239,8 +237,7 @@ public final class DependencyResolver {
                 final List path = (List) iter.next();
                 if (path.contains(t)) {
                     final int tIdx = path.indexOf(t);
-                    if (path.size() > tIdx + 1
-                            && inner.equals(path.get(tIdx + 1))) {
+                    if (path.size() > tIdx + 1 && inner.equals(path.get(tIdx + 1))) {
                         result = true;
                     }
                 }
@@ -250,6 +247,7 @@ public final class DependencyResolver {
     }
 
     public class ResolverResult {
+
         private final Collection<Table> _tables;
         private final Set<Collection<Table>> _cyclicDependencies;
 
@@ -259,9 +257,8 @@ public final class DependencyResolver {
         }
 
         /**
-         * @return Returns the cyclicDependencies: a <code>Set</code> holding
-         *         <code>List</code>s of <code>CycleEntry</code> objects, where
-         *         each list represents the path of a cyclic dependency.
+         * @return Returns the cyclicDependencies: a <code>Set</code> holding <code>List</code>s of <code>CycleEntry</code> objects,
+         *         where each list represents the path of a cyclic dependency.
          */
         public Set<Collection<Table>> getCyclicDependencies() {
             return _cyclicDependencies;
@@ -276,6 +273,7 @@ public final class DependencyResolver {
     }
 
     public class CycleEntry {
+
         private final Table _table;
         private final ColumnFkInfo _fk;
 
@@ -314,8 +312,7 @@ public final class DependencyResolver {
                 result = true;
             } else if (other instanceof CycleEntry) {
                 final CycleEntry ce = (CycleEntry) other;
-                if (_table == null && ce.getTable() == null && _fk == null
-                        && ce.getFk() == null) {
+                if (_table == null && ce.getTable() == null && _fk == null && ce.getFk() == null) {
                     result = true;
                 } else if (_table.equals(ce.getTable()) && _fk.equals(ce.getFk())) {
                     result = true;
@@ -326,8 +323,7 @@ public final class DependencyResolver {
 
         @Override
         public int hashCode() {
-            return ObjectUtil.nullSafeHashCode(_table)
-            ^ ObjectUtil.nullSafeHashCode(_fk);
+            return ObjectUtil.nullSafeHashCode(_table) ^ ObjectUtil.nullSafeHashCode(_fk);
         }
     }
 

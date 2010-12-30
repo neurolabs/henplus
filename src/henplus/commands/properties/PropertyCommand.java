@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PropertyCommand.java,v 1.4 2005-11-27 16:20:28 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * PropertyCommand.java,v 1.4 2005-11-27 16:20:28 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands.properties;
 
@@ -19,6 +17,7 @@ import java.util.Map;
  * Set global HenPlus properties.
  */
 public class PropertyCommand extends AbstractPropertyCommand {
+
     private static final String SETTINGS_FILENAME = "properties";
     private final HenPlus _henplus;
     private final PropertyRegistry _registry;
@@ -57,8 +56,7 @@ public class PropertyCommand extends AbstractPropertyCommand {
         while (it.hasNext()) {
             final Map.Entry entry = (Map.Entry) it.next();
             try {
-                _registry.setProperty((String) entry.getKey(), (String) entry
-                        .getValue());
+                _registry.setProperty((String) entry.getKey(), (String) entry.getValue());
             } catch (final Exception e) {
                 // don't care. silently ignore errornous entries.
             }

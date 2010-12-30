@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  */
 package henplus.sqlmodel;
 
@@ -41,8 +40,7 @@ public final class ColumnPkInfo {
         boolean result = false;
         if (other != null && other instanceof ColumnPkInfo) {
             final ColumnPkInfo o = (ColumnPkInfo) other;
-            if (_pkName != null && _pkName.equals(o.getPkName())
-                    || _pkName == null && o.getPkName() == null) {
+            if (_pkName != null && _pkName.equals(o.getPkName()) || _pkName == null && o.getPkName() == null) {
                 result = true;
             }
         }

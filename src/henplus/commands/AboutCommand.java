@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AboutCommand.java,v 1.13 2008-10-19 08:53:25 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * AboutCommand.java,v 1.13 2008-10-19 08:53:25 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
@@ -16,30 +14,22 @@ import henplus.logging.Logger;
  * document me.
  */
 public class AboutCommand extends AbstractCommand {
+
     static final String LICENSE = "GNU Public License <http://www.gnu.org/licenses/gpl2.txt>";
 
     static final String ABOUT = new StringBuilder()
-    .append(
-            "----------------------------------------------------------------------------\n")
-            .append(" HenPlus II ")
-            .append(Version.getVersion())
-            .append(" \"")
-            .append(Version.getVersionTitle())
-            .append("\"\n")
-            .append(
-            " Copyright(C) 1997..2009 Henner Zeller <H.Zeller@acm.org>\n")
-            .append(
-            " HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n")
-            .append(
-            " This is free software, and you are welcome to redistribute it under the\n")
+            .append("----------------------------------------------------------------------------\n").append(" HenPlus II ")
+            .append(Version.getVersion()).append(" \"").append(Version.getVersionTitle()).append("\"\n")
+            .append(" Copyright(C) 1997..2009 Henner Zeller <H.Zeller@acm.org>\n")
+            .append(" HenPlus is provided AS IS and comes with ABSOLUTELY NO WARRANTY\n")
+            .append(" This is free software, and you are welcome to redistribute it under the\n")
             .append(" conditions of the " + LICENSE + "\n")
-            .append(
-            "----------------------------------------------------------------------------\n")
-            .toString();
+            .append("----------------------------------------------------------------------------\n").toString();
 
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "about", "version", "license" };
     }
@@ -51,13 +41,12 @@ public class AboutCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         if ("about".equals(cmd)) {
             HenPlus.msg().print(ABOUT);
         } else if ("version".equals(cmd)) {
-            HenPlus.msg().println(
-                    Version.getVersion() + " / compiled "
-                    + Version.getCompileTime());
+            HenPlus.msg().println(Version.getVersion() + " / compiled " + Version.getCompileTime());
         } else if ("license".equals(cmd)) {
             HenPlus.msg().println(LICENSE);
         }

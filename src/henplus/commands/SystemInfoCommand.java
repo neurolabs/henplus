@@ -1,7 +1,8 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * 
  * @version $Id: SystemInfoCommand.java,v 1.6 2005-12-14 10:53:03 hzeller Exp $
+ * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.commands;
@@ -34,8 +35,7 @@ public final class SystemInfoCommand extends AbstractCommand {
     private static final ColumnMetaData[] DESC_META;
     static {
         DESC_META = new ColumnMetaData[2];
-        DESC_META[0] = new ColumnMetaData("System Property",
-                ColumnMetaData.ALIGN_LEFT);
+        DESC_META[0] = new ColumnMetaData("System Property", ColumnMetaData.ALIGN_LEFT);
         DESC_META[1] = new ColumnMetaData("Value", ColumnMetaData.ALIGN_RIGHT);
     }
 
@@ -50,6 +50,7 @@ public final class SystemInfoCommand extends AbstractCommand {
      * 
      * @see henplus.Command#getCommandList()
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { CMD };
     }
@@ -70,6 +71,7 @@ public final class SystemInfoCommand extends AbstractCommand {
      * @see henplus.Command#execute(henplus.SQLSession, java.lang.String,
      * java.lang.String)
      */
+    @Override
     public int execute(final SQLSession session, final String command, final String parameters) {
 
         final Map<String, String> info = new HashMap<String, String>();
@@ -102,12 +104,10 @@ public final class SystemInfoCommand extends AbstractCommand {
         _memoryUsedBefore = memoryUsed;
 
         info.put("Max memory [KB]", Formatter.formatNumber(maxMemory, 2));
-        info.put("Allocated memory [KB]", Formatter
-                .formatNumber(totalMemory, 2));
+        info.put("Allocated memory [KB]", Formatter.formatNumber(totalMemory, 2));
         info.put("Free memory [KB]", Formatter.formatNumber(freeMemory, 2));
         info.put("Used memory [KB]", Formatter.formatNumber(memoryUsed, 2));
-        info.put("Diff. of used memory (now-before) [KB]", Formatter
-                .formatNumber(diffMemory, 2));
+        info.put("Diff. of used memory (now-before) [KB]", Formatter.formatNumber(diffMemory, 2));
 
         renderInfo(info);
 

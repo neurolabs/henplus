@@ -1,16 +1,14 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SQLStatementSeparator.java,v 1.21 2006-11-29 17:57:53 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * SQLStatementSeparator.java,v 1.21 2006-11-29 17:57:53 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
-import java.util.Stack;
-
 import henplus.logging.Logger;
-import henplus.property.PropertyHolder;
 import henplus.property.BooleanPropertyHolder;
+import henplus.property.PropertyHolder;
+
+import java.util.Stack;
 
 /**
  * Simple parser that separates SQLStatements. Example.
@@ -36,13 +34,14 @@ import henplus.property.BooleanPropertyHolder;
  *       }
  *  }
  * ----------------------
- *</pre>
+ * </pre>
  * 
  * FIXME: this is a bit rough and accummulated some ideas. Should be cleaned up.
  * 
  * @author Henner Zeller <H.Zeller@acm.org>
  */
 public class SQLStatementSeparator {
+
     private static final byte NEW_STATEMENT = 0;
     private static final byte START = 1; // statement == start
     private static final byte STATEMENT = 1;
@@ -60,6 +59,7 @@ public class SQLStatementSeparator {
     private static final byte POTENTIAL_END_FOUND = 14;
 
     private static class ParseState {
+
         private byte _state;
         private final StringBuilder _inputBuffer;
         private final StringBuilder _commandBuffer;
@@ -112,9 +112,8 @@ public class SQLStatementSeparator {
     }
 
     /**
-     * push the current state and start with a clean one. Use to parse other
-     * files (like includes), and continue then with the old state. like load
-     * foobar.sql ; select * from foobar
+     * push the current state and start with a clean one. Use to parse other files (like includes), and continue then with the old
+     * state. like load foobar.sql ; select * from foobar
      */
     public void push() {
         _stateStack.push(_currentState);
@@ -142,29 +141,26 @@ public class SQLStatementSeparator {
     }
 
     /**
-     * after having called next(), call cont(), if you are not yet pleased with
-     * the result; the parser should read to the next possible end.
+     * after having called next(), call cont(), if you are not yet pleased with the result; the parser should read to the next
+     * possible end.
      */
     public void cont() {
         _currentState.setState(START);
     }
 
     /**
-     * after having called next() and you were pleased with the result call this
-     * method to state, that you consumed it.
+     * after having called next() and you were pleased with the result call this method to state, that you consumed it.
      */
     public void consumed() {
         _currentState.setState(NEW_STATEMENT);
     }
 
     /**
-     * returns true, if the parser can find a complete command that either ends
-     * with newline or with ';'
+     * returns true, if the parser can find a complete command that either ends with newline or with ';'
      */
     public boolean hasNext() throws IllegalStateException {
         if (_currentState.getState() == POTENTIAL_END_FOUND) {
-            throw new IllegalStateException(
-            "call cont() or consumed() before hasNext()");
+            throw new IllegalStateException("call cont() or consumed() before hasNext()");
         }
         if (_currentState.getInputBuffer().length() == 0) {
             return false;
@@ -198,8 +194,7 @@ public class SQLStatementSeparator {
     }
 
     /**
-     * parse partial input and set state to POTENTIAL_END_FOUND if we either
-     * reached end-of-line or a semicolon.
+     * parse partial input and set state to POTENTIAL_END_FOUND if we either reached end-of-line or a semicolon.
      */
     private void parsePartialInput() {
         int pos = 0;
@@ -216,8 +211,7 @@ public class SQLStatementSeparator {
         if (state == NEW_STATEMENT) {
             parsed.setLength(0);
             /* skip leading whitespaces of next statement .. */
-            while (pos < input.length()
-                    && Character.isWhitespace(input.charAt(pos))) {
+            while (pos < input.length() && Character.isWhitespace(input.charAt(pos))) {
                 _currentState.setNewlineSeen(input.charAt(pos) == '\n');
                 ++pos;
             }
@@ -246,156 +240,150 @@ public class SQLStatementSeparator {
             do {
                 reIterate = false;
                 switch (state) {
-                case NEW_STATEMENT:
-                    // case START: START == STATEMENT.
-                case STATEMENT:
-                    if (current == '\n') {
-                        state = POTENTIAL_END_FOUND;
-                        _currentState.setNewlineSeen(true);
-                    }
-
-                    /*
-                     * special handling of the 'first-two-semicolons-after
-                     * a-newline-comment'.
-                     */
-                    else if (_removeComments && lastEoline && current == ';') {
-                        state = FIRST_SEMICOLON_ON_LINE_SEEN;
-                    } else if (!lastEoline && current == ';') {
-                        _currentState.setNewlineSeen(false);
-                        state = POTENTIAL_END_FOUND;
-                    } else if (_removeComments && current == '/') {
-                        state = START_COMMENT;
-                    }
-
-                    /*
-                     * only if '#' this is the first character, make it a
-                     * comment..
-                     */
-                    else if (_removeComments && lastEoline && current == '#') {
-                        state = ENDLINE_COMMENT;
-                    } else if (current == '"') {
+                    case NEW_STATEMENT:
+                        // case START: START == STATEMENT.
+                    case STATEMENT:
+                        if (current == '\n') {
+                            state = POTENTIAL_END_FOUND;
+                            _currentState.setNewlineSeen(true);
+                        } else if (_removeComments && lastEoline && current == ';') {
+                            /*
+                             * special handling of the 'first-two-semicolons-after
+                             * a-newline-comment'.
+                             */
+                            state = FIRST_SEMICOLON_ON_LINE_SEEN;
+                        } else if (!lastEoline && current == ';') {
+                            _currentState.setNewlineSeen(false);
+                            state = POTENTIAL_END_FOUND;
+                        } else if (_removeComments && current == '/') {
+                            state = START_COMMENT;
+                        } else if (_removeComments && lastEoline && current == '#') {
+                            /*
+                             * only if '#' this is the first character, make it a
+                             * comment..
+                             */
+                            state = ENDLINE_COMMENT;
+                        } else if (current == '"') {
+                            state = STRING;
+                        } else if (current == '\'') {
+                            state = SQLSTRING;
+                        } else if (current == '-') {
+                            state = START_ANSI;
+                        } else if (current == '\\') {
+                            state = STATEMENT_QUOTE;
+                        }
+                        break;
+                    case STATEMENT_QUOTE:
+                        state = STATEMENT;
+                        break;
+                    case FIRST_SEMICOLON_ON_LINE_SEEN:
+                        if (current == ';') {
+                            state = ENDLINE_COMMENT;
+                        } else {
+                            state = POTENTIAL_END_FOUND;
+                            current = ';';
+                            /*
+                             * we've read too much. Reset position.
+                             */
+                            --pos;
+                        }
+                        break;
+                    case START_COMMENT:
+                        if (current == '*') {
+                            state = COMMENT;
+                        } else {
+                            parsed.append('/');
+                            state = STATEMENT;
+                            reIterate = true;
+                        }
+                        break;
+                    case COMMENT:
+                        if (current == '*') {
+                            state = PRE_END_COMMENT;
+                        }
+                        break;
+                    case PRE_END_COMMENT:
+                        if (current == '/') {
+                            state = STATEMENT;
+                        } else if (current == '*') {
+                            state = PRE_END_COMMENT;
+                        } else {
+                            state = COMMENT;
+                        }
+                        break;
+                    case START_ANSI:
+                        if (current == '-') {
+                            state = ENDLINE_COMMENT;
+                        } else {
+                            parsed.append('-');
+                            state = STATEMENT;
+                            reIterate = true;
+                        }
+                        break;
+                    case ENDLINE_COMMENT:
+                        if (current == '\n') {
+                            state = POTENTIAL_END_FOUND;
+                        }
+                        break;
+                    case STRING:
+                        if (current == '\\') {
+                            state = STRING_QUOTE;
+                        } else if (current == '"') {
+                            state = STATEMENT;
+                        }
+                        break;
+                    case SQLSTRING:
+                        if (current == '\\') {
+                            state = SQLSTRING_QUOTE;
+                        }
+                        if (current == '\'') {
+                            state = STATEMENT;
+                        }
+                        break;
+                    case STRING_QUOTE:
+                        vetoAppend = current == '\n'; // line continuation
+                        if (current == 'n') {
+                            current = '\n';
+                        } else if (current == 'r') {
+                            current = '\r';
+                        } else if (current == 't') {
+                            current = '\t';
+                        } else if (current == '\\') {
+                            // noop
+                        } else if (current != '\n' && current != '"') {
+                            // if we do not recognize the escape sequence,
+                            // pass it through.
+                            parsed.append("\\");
+                        }
                         state = STRING;
-                    } else if (current == '\'') {
+                        break;
+                    case SQLSTRING_QUOTE:
+                        vetoAppend = current == '\n'; // line continuation
+                        // convert a "\'" to a correct SQL-Quote "''"
+                        if (current == '\'') {
+                            parsed.append("'");
+                        } else if (current == 'n') {
+                            current = '\n';
+                        } else if (current == 'r') {
+                            current = '\r';
+                        } else if (current == 't') {
+                            current = '\t';
+                        } else if (current == '\\') {
+                            // noop
+                        } else if (current != '\n') {
+                            // if we do not recognize the escape sequence,
+                            // pass it through.
+                            parsed.append("\\");
+                        }
                         state = SQLSTRING;
-                    } else if (current == '-') {
-                        state = START_ANSI;
-                    } else if (current == '\\') {
-                        state = STATEMENT_QUOTE;
-                    }
-                    break;
-                case STATEMENT_QUOTE:
-                    state = STATEMENT;
-                    break;
-                case FIRST_SEMICOLON_ON_LINE_SEEN:
-                    if (current == ';') {
-                        state = ENDLINE_COMMENT;
-                    } else {
-                        state = POTENTIAL_END_FOUND;
-                        current = ';';
-                        /*
-                         * we've read too much. Reset position.
-                         */
-                        --pos;
-                    }
-                    break;
-                case START_COMMENT:
-                    if (current == '*') {
-                        state = COMMENT;
-                    } else {
-                        parsed.append('/');
-                        state = STATEMENT;
-                        reIterate = true;
-                    }
-                    break;
-                case COMMENT:
-                    if (current == '*') {
-                        state = PRE_END_COMMENT;
-                    }
-                    break;
-                case PRE_END_COMMENT:
-                    if (current == '/') {
-                        state = STATEMENT;
-                    } else if (current == '*') {
-                        state = PRE_END_COMMENT;
-                    } else {
-                        state = COMMENT;
-                    }
-                    break;
-                case START_ANSI:
-                    if (current == '-') {
-                        state = ENDLINE_COMMENT;
-                    } else {
-                        parsed.append('-');
-                        state = STATEMENT;
-                        reIterate = true;
-                    }
-                    break;
-                case ENDLINE_COMMENT:
-                    if (current == '\n') {
-                        state = POTENTIAL_END_FOUND;
-                    }
-                    break;
-                case STRING:
-                    if (current == '\\') {
-                        state = STRING_QUOTE;
-                    } else if (current == '"') {
-                        state = STATEMENT;
-                    }
-                    break;
-                case SQLSTRING:
-                    if (current == '\\') {
-                        state = SQLSTRING_QUOTE;
-                    }
-                    if (current == '\'') {
-                        state = STATEMENT;
-                    }
-                    break;
-                case STRING_QUOTE:
-                    vetoAppend = current == '\n'; // line continuation
-                    if (current == 'n') {
-                        current = '\n';
-                    } else if (current == 'r') {
-                        current = '\r';
-                    } else if (current == 't') {
-                        current = '\t';
-                    } else if (current == '\\') {
-                        // noop
-                    } else if (current != '\n' && current != '"') {
-                        // if we do not recognize the escape sequence,
-                        // pass it through.
-                        parsed.append("\\");
-                    }
-                    state = STRING;
-                    break;
-                case SQLSTRING_QUOTE:
-                    vetoAppend = current == '\n'; // line continuation
-                    // convert a "\'" to a correct SQL-Quote "''"
-                    if (current == '\'') {
-                        parsed.append("'");
-                    } else if (current == 'n') {
-                        current = '\n';
-                    } else if (current == 'r') {
-                        current = '\r';
-                    } else if (current == 't') {
-                        current = '\t';
-                    } else if (current == '\\') {
-                        // noop
-                    } else if (current != '\n') {
-                        // if we do not recognize the escape sequence,
-                        // pass it through.
-                        parsed.append("\\");
-                    }
-                    state = SQLSTRING;
-                    break;
+                        break;
                 }
             } while (reIterate);
 
             /* append to parsed; ignore comments */
             if (!vetoAppend
-                    && (state == STATEMENT && oldstate != PRE_END_COMMENT
-                            || state == NEW_STATEMENT
-                            || state == STATEMENT_QUOTE || state == STRING
-                            || state == SQLSTRING || state == POTENTIAL_END_FOUND)) {
+                    && (state == STATEMENT && oldstate != PRE_END_COMMENT || state == NEW_STATEMENT || state == STATEMENT_QUOTE
+                            || state == STRING || state == SQLSTRING || state == POTENTIAL_END_FOUND)) {
                 parsed.append(current);
             }
 
@@ -441,22 +429,19 @@ public class SQLStatementSeparator {
         public String getLongDescription() {
             String dsc;
             dsc = "\tSwitch the behaviour to remove all comments\n"
-                + "\tfound in the string sent to the database. Some databases\n"
-                + "\tcan not handle comments in JDBC-Strings.\n\nValues\n"
+                    + "\tfound in the string sent to the database. Some databases\n"
+                    + "\tcan not handle comments in JDBC-Strings.\n\nValues\n"
 
-                + "\ttrue\n"
-                + "\t\tDEFAULT. Remove all SQL92 comments found in the given\n"
-                + "\t\tSQL Strings before sending them to the database.\n\n"
+                    + "\ttrue\n" + "\t\tDEFAULT. Remove all SQL92 comments found in the given\n"
+                    + "\t\tSQL Strings before sending them to the database.\n\n"
 
-                + "\tfalse\n"
-                + "\t\tSwitch off the default behaviour to remove all\n"
-                + "\t\tcomments found in the string sent to the database.\n"
-                + "\t\tUsually, this is not necessary, but there are\n"
-                + "\t\tconditions where comments actually convey a meaning\n"
-                + "\t\tto the database. For instance hinting in oracle works\n"
-                + "\t\twith comments, like\n"
-                + "\t\t   select /*+ index(foo,foo_fk_idx) */ ....\n"
-                + "\t\t..so removing of comments should be off in this case";
+                    + "\tfalse\n" + "\t\tSwitch off the default behaviour to remove all\n"
+                    + "\t\tcomments found in the string sent to the database.\n"
+                    + "\t\tUsually, this is not necessary, but there are\n"
+                    + "\t\tconditions where comments actually convey a meaning\n"
+                    + "\t\tto the database. For instance hinting in oracle works\n" + "\t\twith comments, like\n"
+                    + "\t\t   select /*+ index(foo,foo_fk_idx) */ ....\n"
+                    + "\t\t..so removing of comments should be off in this case";
             return dsc;
         }
     }

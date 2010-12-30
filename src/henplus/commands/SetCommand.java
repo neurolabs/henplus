@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SetCommand.java,v 1.25 2006-11-29 17:57:53 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * SetCommand.java,v 1.25 2006-11-29 17:57:53 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
@@ -30,6 +28,7 @@ import java.util.TreeMap;
  * document me.
  */
 public final class SetCommand extends AbstractCommand {
+
     private static final String SETTINGS_FILENAME = "settings";
     private static final String SPECIAL_LAST_COMMAND = "_HENPLUS_LAST_COMMAND";
     private static final ColumnMetaData[] SET_META;
@@ -48,6 +47,7 @@ public final class SetCommand extends AbstractCommand {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "set-var", "unset-var", "unset-all" };
     }
@@ -63,11 +63,13 @@ public final class SetCommand extends AbstractCommand {
     public void registerLastCommandListener(final CommandDispatcher dispatcher) {
         _specialVariables.add(SPECIAL_LAST_COMMAND);
         dispatcher.addExecutionListener(new ExecutionListener() {
+
+            @Override
             public void beforeExecution(final SQLSession session, final String command) {
             }
 
-            public void afterExecution(final SQLSession session, final String command,
-                    final int result) {
+            @Override
+            public void afterExecution(final SQLSession session, final String command, final int result) {
                 setVariable(SPECIAL_LAST_COMMAND, command.trim());
             }
         });
@@ -85,6 +87,7 @@ public final class SetCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession currentSession, final String cmd, final String param) {
         final StringTokenizer st = new StringTokenizer(param);
         final int argc = st.countTokens();
@@ -109,27 +112,23 @@ public final class SetCommand extends AbstractCommand {
                 }
                 table.closeTable();
                 return SUCCESS;
-            }
-            /*
-             * more than one arg
-             */
-            else if (argc >= 2) {
+            } else if (argc >= 2) {
+                /*
+                 * more than one arg
+                 */
                 final String varname = (String) st.nextElement();
                 int pos = 0;
                 final int paramLength = param.length();
                 // skip whitespace after 'set'
-                while (pos < paramLength
-                        && Character.isWhitespace(param.charAt(pos))) {
+                while (pos < paramLength && Character.isWhitespace(param.charAt(pos))) {
                     ++pos;
                 }
                 // skip non-whitespace after 'set ': variable name
-                while (pos < paramLength
-                        && !Character.isWhitespace(param.charAt(pos))) {
+                while (pos < paramLength && !Character.isWhitespace(param.charAt(pos))) {
                     ++pos;
                 }
                 // skip whitespace before vlue..
-                while (pos < paramLength
-                        && Character.isWhitespace(param.charAt(pos))) {
+                while (pos < paramLength && Character.isWhitespace(param.charAt(pos))) {
                     ++pos;
                 }
                 String value = param.substring(pos);
@@ -147,8 +146,7 @@ public final class SetCommand extends AbstractCommand {
                 while (st.hasMoreElements()) {
                     final String varname = (String) st.nextElement();
                     if (!_variables.containsKey(varname)) {
-                        HenPlus.msg().println(
-                                "unknown variable '" + varname + "'");
+                        HenPlus.msg().println("unknown variable '" + varname + "'");
                     } else {
                         _variables.remove(varname);
                     }
@@ -171,8 +169,8 @@ public final class SetCommand extends AbstractCommand {
     }
 
     /**
-     * used, if the command dispatcher notices the attempt to expand a variable.
-     * This is a partial variable name, that starts with '$' or '${'.
+     * used, if the command dispatcher notices the attempt to expand a variable. This is a partial variable name, that starts with
+     * '$' or '${'.
      */
     public Iterator<String> completeUserVar(final String variable) {
         if (!variable.startsWith("$")) {
@@ -194,8 +192,7 @@ public final class SetCommand extends AbstractCommand {
      * complete variable names.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         final int argc = st.countTokens();
@@ -214,6 +211,7 @@ public final class SetCommand extends AbstractCommand {
             }
         }
         return new SortedMatchIterator(lastWord, _variables) {
+
             @Override
             protected boolean exclude(final String current) {
                 return alreadyGiven.contains(current);
@@ -259,20 +257,18 @@ public final class SetCommand extends AbstractCommand {
         String dsc = null;
         if ("set-var".equals(cmd)) {
             dsc = "\tWithout parameters,  show all  variable settings.  With\n"
-                + "\tparameters, set variable with name <varname> to <value>.\n"
-                + "\tVariables are  expanded in any  command you issue on the\n"
-                + "\tcommandline.  Variable expansion works like on the shell\n"
-                + "\twith the dollarsign. Both forms, $VARNAME and ${VARNAME},\n"
-                + "\tare supported.  If the variable is  _not_  set, then the\n"
-                + "\ttext is  left untouched.  So  if  there  is  no variable\n"
-                + "\t$VARNAME, then it is not replaced by an empty string but\n"
-                + "\tstays '$VARNAME'. This is because some scripts use wierd\n"
-                + "\tidentifiers  containting  dollars  (esp. Oracle scripts)\n"
-                + "\tIf you want to quote the dollarsign explicitly, write\n"
-                + "\ttwo dollars: $$FOO means $FOO";
+                    + "\tparameters, set variable with name <varname> to <value>.\n"
+                    + "\tVariables are  expanded in any  command you issue on the\n"
+                    + "\tcommandline.  Variable expansion works like on the shell\n"
+                    + "\twith the dollarsign. Both forms, $VARNAME and ${VARNAME},\n"
+                    + "\tare supported.  If the variable is  _not_  set, then the\n"
+                    + "\ttext is  left untouched.  So  if  there  is  no variable\n"
+                    + "\t$VARNAME, then it is not replaced by an empty string but\n"
+                    + "\tstays '$VARNAME'. This is because some scripts use wierd\n"
+                    + "\tidentifiers  containting  dollars  (esp. Oracle scripts)\n"
+                    + "\tIf you want to quote the dollarsign explicitly, write\n" + "\ttwo dollars: $$FOO means $FOO";
         } else if ("unset-var".equals(cmd)) {
-            dsc = "\tunset the variable with name <varname>. You may provide\n"
-                + "\tmultiple variables to be unset.";
+            dsc = "\tunset the variable with name <varname>. You may provide\n" + "\tmultiple variables to be unset.";
         } else if ("unset-all".equals(cmd)) {
             dsc = "\tunset all variables.";
         }

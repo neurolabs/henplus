@@ -1,14 +1,12 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: AbstractPropertyCommand.java,v 1.4 2005-06-18 04:58:13 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * AbstractPropertyCommand.java,v 1.4 2005-06-18 04:58:13 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands.properties;
 
-import henplus.HenPlus;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.HenPlus;
 import henplus.PropertyRegistry;
 import henplus.SQLSession;
 import henplus.property.PropertyHolder;
@@ -22,10 +20,10 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
- * The command, that allows to set properties. This abstract command is used for
- * the session specific and global properties.
+ * The command, that allows to set properties. This abstract command is used for the session specific and global properties.
  */
 public abstract class AbstractPropertyCommand extends AbstractCommand {
+
     private static final ColumnMetaData[] PROP_META;
 
     static {
@@ -38,6 +36,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         final String setCmd = getSetCommand();
         return new String[] { setCmd, "re" + setCmd };
@@ -56,6 +55,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession currentSession, final String cmd, final String param) {
         final StringTokenizer st = new StringTokenizer(param);
         final int argc = st.countTokens();
@@ -64,8 +64,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             if (argc == 1) {
                 final String name = st.nextToken();
                 PropertyHolder holder;
-                holder = getRegistry().getPropertyMap()
-                        .get(name);
+                holder = getRegistry().getPropertyMap().get(name);
                 if (holder == null) {
                     return EXEC_FAILED;
                 }
@@ -73,10 +72,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
                 try {
                     holder.setValue(defaultValue);
                 } catch (final Exception e) {
-                    HenPlus.msg()
-                    .println(
-                            "setting to default '" + defaultValue
-                            + "' failed.");
+                    HenPlus.msg().println("setting to default '" + defaultValue + "' failed.");
                     return EXEC_FAILED;
                 }
                 return SUCCESS;
@@ -89,10 +85,8 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             if (argc == 0) {
                 PROP_META[0].resetWidth();
                 PROP_META[1].resetWidth();
-                final TableRenderer table = new TableRenderer(PROP_META, HenPlus
-                        .out());
-                final Iterator propIt = getRegistry().getPropertyMap().entrySet()
-                        .iterator();
+                final TableRenderer table = new TableRenderer(PROP_META, HenPlus.out());
+                final Iterator propIt = getRegistry().getPropertyMap().entrySet().iterator();
                 while (propIt.hasNext()) {
                     final Map.Entry entry = (Map.Entry) propIt.next();
                     final Column[] row = new Column[3];
@@ -102,45 +96,37 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
                     row[2] = new Column(holder.getShortDescription());
                     table.addRow(row);
                 }
-	            table.closeTable();
-	            return SUCCESS;
-	        }
-
-            /*
-             * one arg: show help
-             */
-            else if (argc == 1) {
+                table.closeTable();
+                return SUCCESS;
+            } else if (argc == 1) {
+                /*
+                 * one arg: show help
+                 */
                 final String name = st.nextToken();
                 PropertyHolder holder;
-                holder = getRegistry().getPropertyMap()
-                        .get(name);
+                holder = getRegistry().getPropertyMap().get(name);
                 if (holder == null) {
                     return EXEC_FAILED;
                 }
                 printDescription(name, holder);
                 return SUCCESS;
-            }
-
-            /*
-             * more than one arg
-             */
-            else if (argc >= 2) {
+            } else if (argc >= 2) {
+                /*
+                 * more than one arg
+                 */
                 final String varname = (String) st.nextElement();
                 int pos = 0;
                 final int paramLength = param.length();
                 // skip whitespace after 'set'
-                while (pos < paramLength
-                        && Character.isWhitespace(param.charAt(pos))) {
+                while (pos < paramLength && Character.isWhitespace(param.charAt(pos))) {
                     ++pos;
                 }
                 // skip non-whitespace after 'set ': variable name
-                while (pos < paramLength
-                        && !Character.isWhitespace(param.charAt(pos))) {
+                while (pos < paramLength && !Character.isWhitespace(param.charAt(pos))) {
                     ++pos;
                 }
                 // skip whitespace before vlue..
-                while (pos < paramLength
-                        && Character.isWhitespace(param.charAt(pos))) {
+                while (pos < paramLength && Character.isWhitespace(param.charAt(pos))) {
                     ++pos;
                 }
                 String value = param.substring(pos);
@@ -168,8 +154,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             HenPlus.msg().attributeBold();
             HenPlus.msg().println("PROPERTY");
             HenPlus.msg().attributeReset();
-            HenPlus.msg().println(
-                    "\t" + propName + " : " + prop.getShortDescription());
+            HenPlus.msg().println("\t" + propName + " : " + prop.getShortDescription());
             HenPlus.msg().println();
         }
 
@@ -188,8 +173,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
      * complete property names.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = st.nextToken();
         final int argc = st.countTokens();
@@ -198,8 +182,7 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
             if (getSetCommand().equals(cmd)) {
                 final String name = st.nextToken();
                 PropertyHolder holder;
-                holder = getRegistry().getPropertyMap()
-                        .get(name);
+                holder = getRegistry().getPropertyMap().get(name);
                 if (holder == null) {
                     return null;
                 }
@@ -233,17 +216,12 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
     public String getLongDescription(final String cmd) {
         String dsc = null;
         if (cmd.startsWith("re")) {
-            dsc = "\tReset the given " + getHelpHeader() + " property\n"
-            + "\tto its default value";
+            dsc = "\tReset the given " + getHelpHeader() + " property\n" + "\tto its default value";
         } else {
-            dsc = "\tWithout parameters, show available "
-                + getHelpHeader()
-                + "\n"
-                + "\tproperties and their settings.\n\n"
-                + "\tWith only the property name given as parameter,\n"
-                + "\tshow the long help associated with that property.\n\n"
-                + "\tIs the property name followed by a value, the property is\n"
-                + "\tset to that value.";
+            dsc = "\tWithout parameters, show available " + getHelpHeader() + "\n" + "\tproperties and their settings.\n\n"
+                    + "\tWith only the property name given as parameter,\n"
+                    + "\tshow the long help associated with that property.\n\n"
+                    + "\tIs the property name followed by a value, the property is\n" + "\tset to that value.";
         }
         return dsc;
     }

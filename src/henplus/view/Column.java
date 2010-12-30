@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: Column.java,v 1.6 2005-06-18 04:58:13 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * Column.java,v 1.6 2005-06-18 04:58:13 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
 
@@ -10,10 +8,9 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
- * One column in the table. This column contains both: the actual data to be
- * printed and the state to print it; this state is represented by the
- * 'position', the internal row if this is an multirow column. This is ok, since
- * this Column is only used once to be filled and once to be printed.
+ * One column in the table. This column contains both: the actual data to be printed and the state to print it; this state is
+ * represented by the 'position', the internal row if this is an multirow column. This is ok, since this Column is only used once to
+ * be filled and once to be printed.
  */
 public class Column {
 
@@ -81,11 +78,10 @@ public class Column {
      * replaces a row with multiple other rows.
      */
     private String[] replaceRow(final String[] orig, final int pos, final String[] other) {
-        final String result[] = new String[orig.length + other.length - 1];
+        final String[] result = new String[orig.length + other.length - 1];
         System.arraycopy(orig, 0, result, 0, pos);
         System.arraycopy(other, 0, result, pos, other.length);
-        System.arraycopy(orig, pos + 1, result, pos + other.length, orig.length
-                - pos - 1);
+        System.arraycopy(orig, pos + 1, result, pos + other.length, orig.length - pos - 1);
         return result;
     }
 

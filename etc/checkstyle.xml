@@ -92,11 +92,11 @@
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="LeftCurly">
-      <property name="maxLineLength" value="200"/>
+      <property name="maxLineLength" value="132"/>
     </module>
     <module name="LineLength">
       <property name="ignorePattern" value="^ *\* *[^ ]+$|^ *@.*|^import"/>
-      <property name="max" value="200"/>
+      <property name="max" value="132"/>
       <property name="tabWidth" value="4"/>
     </module>
     <module name="LocalFinalVariableName"/>

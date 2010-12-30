@@ -1,27 +1,24 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: CancelWriter.java,v 1.2 2005-04-27 14:37:15 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * CancelWriter.java,v 1.2 2005-04-27 14:37:15 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
 
 import henplus.OutputDevice;
 
 /**
- * Little utility that allows to write a string to the screen and cancel it
- * afterwards (with Backspaces). Will only write, if the Output is indeed a
- * terminal.
+ * Little utility that allows to write a string to the screen and cancel it afterwards (with Backspaces). Will only write, if the
+ * Output is indeed a terminal.
  */
 public final class CancelWriter {
+
     private static final String BACKSPACE = "\b";
 
     private final OutputDevice _out;
     private final boolean _doWrite;
 
     /**
-     * the string that has been written. 'null', if nothing has been written or
-     * it is cancelled
+     * the string that has been written. 'null', if nothing has been written or it is cancelled
      */
     private String _writtenString;
 
@@ -32,8 +29,7 @@ public final class CancelWriter {
     }
 
     /**
-     * returns, wether this cancel writer will print anything. Depends on the
-     * fact, that the output is a terminal.
+     * returns, wether this cancel writer will print anything. Depends on the fact, that the output is a terminal.
      */
     public boolean isPrinting() {
         return _doWrite;
@@ -47,8 +43,7 @@ public final class CancelWriter {
     }
 
     /**
-     * Print message to screen. Cancel out any previous message. If the output
-     * is no terminal, do not write anything.
+     * Print message to screen. Cancel out any previous message. If the output is no terminal, do not write anything.
      * 
      * @param str
      *            string to print. Must not be null.
@@ -83,9 +78,8 @@ public final class CancelWriter {
      * cancel the output.
      * 
      * @param wipeOut
-     *            'true', if the written characters should be wiped out with
-     *            spaces. Otherwise, the cursor is placed at the beginning of
-     *            the string without wiping.
+     *            'true', if the written characters should be wiped out with spaces. Otherwise, the cursor is placed at the
+     *            beginning of the string without wiping.
      * @return number of characters cancelled.
      */
     public int cancel(final boolean wipeOut) {

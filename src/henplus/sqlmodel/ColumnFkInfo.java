@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  */
 package henplus.sqlmodel;
 
@@ -41,14 +40,11 @@ public final class ColumnFkInfo {
     public boolean equals(final Object other) {
         if (other != null && other instanceof ColumnFkInfo) {
             final ColumnFkInfo o = (ColumnFkInfo) other;
-            if (_fkName != null && !_fkName.equals(o.getFkName())
-                    || _fkName == null && o.getFkName() != null) {
+            if (_fkName != null && !_fkName.equals(o.getFkName()) || _fkName == null && o.getFkName() != null) {
                 return false;
-            } else if (_pkTable != null && !_pkTable.equals(o.getPkTable())
-                    || _pkTable == null && o.getPkTable() != null) {
+            } else if (_pkTable != null && !_pkTable.equals(o.getPkTable()) || _pkTable == null && o.getPkTable() != null) {
                 return false;
-            } else if (_pkColumn != null && !_pkColumn.equals(o.getPkColumn())
-                    || _pkColumn == null && o.getPkColumn() != null) {
+            } else if (_pkColumn != null && !_pkColumn.equals(o.getPkColumn()) || _pkColumn == null && o.getPkColumn() != null) {
                 return false;
             } else {
                 return true;
@@ -59,9 +55,8 @@ public final class ColumnFkInfo {
 
     @Override
     public int hashCode() {
-        return ObjectUtil.nullSafeHashCode(_fkName)
-        ^ ObjectUtil.nullSafeHashCode(_pkTable)
-        ^ ObjectUtil.nullSafeHashCode(_pkColumn);
+        return ObjectUtil.nullSafeHashCode(_fkName) ^ ObjectUtil.nullSafeHashCode(_pkTable)
+                ^ ObjectUtil.nullSafeHashCode(_pkColumn);
     }
 
     /**

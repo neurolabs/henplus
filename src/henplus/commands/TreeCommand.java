@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -10,39 +9,32 @@ import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.Interruptable;
+import henplus.OutputDevice;
 import henplus.SQLSession;
 import henplus.SigIntHandler;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import henplus.OutputDevice;
-
-/*     fop --+
- * abc--+    |
- * xyz--|    |
- *    blub --|
- *           foo
- *             |-- bar
- *             |    |-- blah
- *             |    `-- (foo)            <-- cylic reference
- *             `-- baz
+/*
+ * fop --+ abc--+ | xyz--| | blub --| foo |-- bar | |-- blah | `-- (foo) <-- cylic reference `-- baz
  */
 
 /**
  * creates a dependency graph.
  */
 public class TreeCommand extends AbstractCommand implements Interruptable {
+
     private static final int IMP_PRIMARY_KEY_TABLE = 3;
     /** reference in exported/imported key */
     private static final int EXP_FOREIGN_KEY_TABLE = 7;
@@ -53,7 +45,8 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
     /**
      * A node in a cyclic graph.
      */
-    private static abstract class Node implements Comparable<Node> {
+    private abstract static class Node implements Comparable<Node> {
+
         private final Set<Node> _children;
         private int _displayDepth;
 
@@ -99,14 +92,12 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             print(0, new TreeSet(), new StringBuilder(), indent.toString(), out);
         }
 
-        private void print(final int depth, final SortedSet alreadyPrinted,
-                final StringBuilder currentIndent, final String indentString,
-                final OutputDevice out) {
+        private void print(final int depth, final SortedSet alreadyPrinted, final StringBuilder currentIndent,
+                final String indentString, final OutputDevice out) {
             final String name = getName();
             if (depth != 0) {
                 out.print("-- ");
-                final boolean cyclic = depth != _displayDepth
-                || alreadyPrinted.contains(name);
+                final boolean cyclic = depth != _displayDepth || alreadyPrinted.contains(name);
                 if (cyclic) {
                     out.print("(" + name + ")");
                 } else {
@@ -128,8 +119,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                     final Node n = (Node) it.next();
                     out.print(String.valueOf(currentIndent));
                     out.print(remaining == 1 ? "`" : "|");
-                    n.print(depth + 1, alreadyPrinted, currentIndent,
-                            remaining == 1 ? "    " : "|   ", out);
+                    n.print(depth + 1, alreadyPrinted, currentIndent, remaining == 1 ? "    " : "|   ", out);
                     --remaining;
                 }
                 currentIndent.setLength(previousLength);
@@ -159,11 +149,10 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             return maxLen;
         }
 
-        private int printReverse(final int depth, final SortedSet alreadyPrinted,
-                final List output, final String indentString, final boolean isLast) {
+        private int printReverse(final int depth, final SortedSet alreadyPrinted, final List output, final String indentString,
+                final boolean isLast) {
             final String name = getName();
-            final boolean cyclic = depth != _displayDepth
-            || alreadyPrinted.contains(name);
+            final boolean cyclic = depth != _displayDepth || alreadyPrinted.contains(name);
             final String printName = cyclic ? "(" + name + ")--" : name + "--";
             final int myIndent = indentString.length() + printName.length();
             int maxIndent = myIndent;
@@ -177,9 +166,8 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                     while (it.hasNext()) {
                         final Node n = (Node) it.next();
                         int nIndent;
-                        nIndent = n.printReverse(depth + 1, alreadyPrinted,
-                                output, depth == 0 ? "" : indentString
-                                        + "    |", isFirst);
+                        nIndent = n.printReverse(depth + 1, alreadyPrinted, output, depth == 0 ? "" : indentString + "    |",
+                                isFirst);
                         if (nIndent > maxIndent) {
                             maxIndent = nIndent;
                         }
@@ -190,13 +178,13 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
             }
 
             if (depth != 0) {
-                final String outputString = printName + (isLast ? "\\" : "|")
-                + indentString;
+                final String outputString = printName + (isLast ? "\\" : "|") + indentString;
                 output.add(outputString);
             }
             return maxIndent;
         }
 
+        @Override
         public int compareTo(final Node other) {
             return getName().compareTo(other.getName());
         }
@@ -211,6 +199,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
      * the entity is simply represented as String.
      */
     private static class StringNode extends Node {
+
         private final String _name;
 
         public StringNode(final String s) {
@@ -230,6 +219,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "tree-view" };
     }
@@ -237,6 +227,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         final StringTokenizer st = new StringTokenizer(param);
         final int argc = st.countTokens();
@@ -260,16 +251,16 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
 
         try {
             final long startTime = System.currentTimeMillis();
-            final DatabaseMetaData dbMeta = session.getConnection()
-            .getMetaData();
+            final DatabaseMetaData dbMeta = session.getConnection().getMetaData();
 
             _interrupted = false;
             SigIntHandler.getInstance().pushInterruptable(this);
 
             // build a tree of all tables I depend on..
             final Node myParents = buildTree(new ReferenceMetaDataSource() {
-                public ResultSet getReferenceMetaData(final String schema,
-                        final String table) throws SQLException {
+
+                @Override
+                public ResultSet getReferenceMetaData(final String schema, final String table) throws SQLException {
                     return dbMeta.getImportedKeys(null, schema, table);
                 }
             }, IMP_PRIMARY_KEY_TABLE, new TreeMap(), schema, tabName);
@@ -280,8 +271,9 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
 
             // build a tree of all tables that depend on me ...
             final Node myChilds = buildTree(new ReferenceMetaDataSource() {
-                public ResultSet getReferenceMetaData(final String schema,
-                        final String table) throws SQLException {
+
+                @Override
+                public ResultSet getReferenceMetaData(final String schema, final String table) throws SQLException {
                     return dbMeta.getExportedKeys(null, schema, table);
                 }
             }, EXP_FOREIGN_KEY_TABLE, new TreeMap(), schema, tabName);
@@ -306,32 +298,28 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
 
             myChilds.print(HenPlus.out(), startPos + tabLen / 2);
 
-            TimeRenderer.printTime(System.currentTimeMillis() - startTime,
-                    HenPlus.msg());
+            TimeRenderer.printTime(System.currentTimeMillis() - startTime, HenPlus.msg());
             HenPlus.msg().println();
         } catch (final Exception e) {
-            HenPlus.msg().println(
-                    "problem getting database meta data: " + e.getMessage());
+            HenPlus.msg().println("problem getting database meta data: " + e.getMessage());
             return EXEC_FAILED;
         }
         return SUCCESS;
     }
 
     private interface ReferenceMetaDataSource {
-        ResultSet getReferenceMetaData(String schema, String table)
-        throws SQLException;
+
+        ResultSet getReferenceMetaData(String schema, String table) throws SQLException;
     }
 
     /**
-     * build a subtree from the MetaData for the table with the given name. If
-     * this node already exists (because of a cyclic dependency), return that.
-     * recursively called to build the whole tree. This determines its refernece
-     * data from the ReferenceMetaDataSource 'lambda' that either wraps
-     * getImportedKeys() or getExportedKeys(). The 'sourceColumn' defines the
+     * build a subtree from the MetaData for the table with the given name. If this node already exists (because of a cyclic
+     * dependency), return that. recursively called to build the whole tree. This determines its refernece data from the
+     * ReferenceMetaDataSource 'lambda' that either wraps getImportedKeys() or getExportedKeys(). The 'sourceColumn' defines the
      * column in which the appropriate table name is.
      */
-    private Node buildTree(final ReferenceMetaDataSource source, final int sourceColumn,
-            final Map knownNodes, final String schema, final String tabName) throws SQLException {
+    private Node buildTree(final ReferenceMetaDataSource source, final int sourceColumn, final Map knownNodes, final String schema,
+            final String tabName) throws SQLException {
         if (knownNodes.containsKey(tabName)) {
             return (Node) knownNodes.get(tabName);
         }
@@ -355,8 +343,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
                 if (_interrupted) {
                     return null;
                 }
-                n.add(buildTree(source, sourceColumn, knownNodes, schema,
-                        referencingTable));
+                n.add(buildTree(source, sourceColumn, knownNodes, schema, referencingTable));
             }
         } finally {
             if (rset != null) {
@@ -373,16 +360,14 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
      * complete the table name.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         st.nextElement(); // skip cmd.
         // we accept only one argument.
         if (lastWord.startsWith("\"")) {
             lastWord = lastWord.substring(1);
         }
-        return _tableCompleter.completeTableName(HenPlus.getInstance()
-                .getCurrentSession(), lastWord);
+        return _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
     }
 
     private String stripQuotes(String value) {
@@ -393,6 +378,7 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
     }
 
     /** interrupt interface */
+    @Override
     public void interrupt() {
         _interrupted = true;
     }
@@ -414,25 +400,19 @@ public class TreeCommand extends AbstractCommand implements Interruptable {
     public String getLongDescription(final String cmd) {
         String dsc = null;
         dsc = "\tShow tables, that are connected via foreign keys in a\n"
-            + "\ttree like manner. This is very helpful in exploring\n"
-            + "\tcomplicated data structures or simply check if all\n"
-            + "\tforeign keys are applied. This command works of course\n"
-            + "\tonly with databases that support foreign keys.\n"
-            + "\tInvoke on the toplevel table you are interested in\n"
-            + "\tExample:\n"
-            + "\tConsider tables 'bar' and 'baz' that have a foreign key\n"
-            + "\ton the table 'foo'. Further a table 'blah', that references\n"
-            + "\t'bar'. The table 'foo' in turn references 'bar', thus\n"
-            + "\tcyclicly referencing itself. Invoking tree-view on 'foo'\n"
-            + "\twould be represented as\n"
-            + "\t    foo\n"
-            + "\t    |-- bar\n"
-            + "\t    |   |-- blah\n"
-            + "\t    |   `-- (foo)            <-- cylic/already printed reference\n"
-            + "\t    `-- baz\n"
-            + "\tSo in order to limit the potential cyclic graph in the\n"
-            + "\ttree view from infinite to finite, cyclic nodes or nodes already\n"
-            + "\tdisplayed unfolded are shown in parenthesis.";
+                + "\ttree like manner. This is very helpful in exploring\n"
+                + "\tcomplicated data structures or simply check if all\n"
+                + "\tforeign keys are applied. This command works of course\n"
+                + "\tonly with databases that support foreign keys.\n" + "\tInvoke on the toplevel table you are interested in\n"
+                + "\tExample:\n" + "\tConsider tables 'bar' and 'baz' that have a foreign key\n"
+                + "\ton the table 'foo'. Further a table 'blah', that references\n"
+                + "\t'bar'. The table 'foo' in turn references 'bar', thus\n"
+                + "\tcyclicly referencing itself. Invoking tree-view on 'foo'\n" + "\twould be represented as\n" + "\t    foo\n"
+                + "\t    |-- bar\n" + "\t    |   |-- blah\n"
+                + "\t    |   `-- (foo)            <-- cylic/already printed reference\n" + "\t    `-- baz\n"
+                + "\tSo in order to limit the potential cyclic graph in the\n"
+                + "\ttree view from infinite to finite, cyclic nodes or nodes already\n"
+                + "\tdisplayed unfolded are shown in parenthesis.";
         return dsc;
     }
 }

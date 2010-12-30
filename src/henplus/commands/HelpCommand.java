@@ -1,30 +1,31 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import java.util.StringTokenizer;
-import java.util.Iterator;
-
+import henplus.AbstractCommand;
+import henplus.Command;
+import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.SQLSession;
-import henplus.CommandDispatcher;
-import henplus.Command;
-import henplus.AbstractCommand;
 import henplus.view.util.SortedMatchIterator;
+
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 /**
  * document me.
  */
 public class HelpCommand extends AbstractCommand {
+
     static final int INDENT = 42;
 
     /**
      * returns the command-string this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "help", "?" };
     }
@@ -38,8 +39,7 @@ public class HelpCommand extends AbstractCommand {
      * Returns a list of strings that are possible at this stage.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp,
-            final String partialCommand, final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         // if we already have one arguemnt and try to expand the next: no.
         final int argc = argumentCount(partialCommand);
         if (argc > 2 || argc == 2 && lastWord.length() == 0) {
@@ -48,6 +48,7 @@ public class HelpCommand extends AbstractCommand {
 
         final Iterator it = disp.getRegisteredCommandNames(lastWord);
         return new SortedMatchIterator(lastWord, it) {
+
             @Override
             protected boolean exclude(final String cmdName) {
                 final Command cmd = disp.getCommandFrom(cmdName);
@@ -59,6 +60,7 @@ public class HelpCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmdstr, String param) {
         final StringTokenizer st = new StringTokenizer(param);
         if (st.countTokens() > 1) {
@@ -69,8 +71,7 @@ public class HelpCommand extends AbstractCommand {
          * nothing given: provide generic help.
          */
         if (param == null) {
-            final Iterator it = HenPlus.getInstance().getDispatcher()
-            .getRegisteredCommands();
+            final Iterator it = HenPlus.getInstance().getDispatcher().getRegisteredCommands();
             while (it.hasNext()) {
                 final Command cmd = (Command) it.next();
                 final String description = cmd.getShortDescription();
@@ -93,9 +94,7 @@ public class HelpCommand extends AbstractCommand {
                         cmdPrint.append(cmds[i]);
                     }
                 } else {
-                    cmdPrint
-                    .append(firstSynopsis.length() < INDENT ? firstSynopsis
-                            : cmds[0]);
+                    cmdPrint.append(firstSynopsis.length() < INDENT ? firstSynopsis : cmds[0]);
                 }
                 HenPlus.msg().print(cmdPrint.toString());
                 for (int i = cmdPrint.length(); i < INDENT; ++i) {
@@ -104,12 +103,8 @@ public class HelpCommand extends AbstractCommand {
                 HenPlus.msg().print(": ");
                 HenPlus.msg().println(description);
             }
-            HenPlus.msg().println(
-            "Full documentation at http://henplus.sf.net/");
-            HenPlus.msg().println(
-                    "config read from ["
-                    + HenPlus.getInstance()
-                    .getConfigurationDirectoryInfo() + "]");
+            HenPlus.msg().println("Full documentation at http://henplus.sf.net/");
+            HenPlus.msg().println("config read from [" + HenPlus.getInstance().getConfigurationDirectoryInfo() + "]");
         } else {
             final CommandDispatcher disp = HenPlus.getInstance().getDispatcher();
             final String cmdString = disp.getCommandNameFrom(param);
@@ -170,8 +165,7 @@ public class HelpCommand extends AbstractCommand {
     public String getLongDescription(final String cmd) {
         String dsc;
         dsc = "\tProvides help for the given command.   If invoked without a\n"
-            + "\tcommand name as parameter, a list of all available commands\n"
-            + "\tis shown.";
+                + "\tcommand name as parameter, a list of all available commands\n" + "\tis shown.";
         return dsc;
     }
 }

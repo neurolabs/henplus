@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  */
 package henplus.view;
 
@@ -15,14 +14,13 @@ import henplus.OutputDevice;
  * Created on: 25.07.2003
  * </p>
  * 
- * @version $Id: ExtendedTableRenderer.java,v 1.5 2004-03-05 23:34:38 hzeller
- *          Exp $
+ * @version $Id: ExtendedTableRenderer.java,v 1.5 2004-03-05 23:34:38 hzeller Exp $
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public class ExtendedTableRenderer extends TableRenderer {
 
-    public ExtendedTableRenderer(final ColumnMetaData[] meta, final OutputDevice out,
-            final String separator, final boolean showHeader, final boolean showFooter) {
+    public ExtendedTableRenderer(final ColumnMetaData[] meta, final OutputDevice out, final String separator,
+            final boolean showHeader, final boolean showFooter) {
         super(meta, out, separator, showHeader, showFooter);
     }
 
@@ -31,8 +29,7 @@ public class ExtendedTableRenderer extends TableRenderer {
     }
 
     /**
-     * Checks for each element in the array its type, so can handle
-     * <code>ExtendedColumn</code> correctly.
+     * Checks for each element in the array its type, so can handle <code>ExtendedColumn</code> correctly.
      * 
      * @param row
      */
@@ -40,8 +37,7 @@ public class ExtendedTableRenderer extends TableRenderer {
     protected void updateColumnWidths(final Column[] row) {
         int metaIndex = 0;
         for (int i = 0; i < row.length; ++i) {
-            if (row[i] instanceof ExtendedColumn
-                    && ((ExtendedColumn) row[i]).getColspan() > 1) {
+            if (row[i] instanceof ExtendedColumn && ((ExtendedColumn) row[i]).getColspan() > 1) {
                 final ExtendedColumn col = (ExtendedColumn) row[i];
                 metaIndex = updateMetaWidth(metaIndex, col);
 
@@ -81,8 +77,7 @@ public class ExtendedTableRenderer extends TableRenderer {
     }
 
     /**
-     * Overwrites the <code>TableRenderer</code>s implementation for special
-     * handling of <code>ExtendedColumn</code>s.
+     * Overwrites the <code>TableRenderer</code>s implementation for special handling of <code>ExtendedColumn</code>s.
      */
     @Override
     protected boolean printColumns(final Column[] currentRow, boolean hasMoreLines) {
@@ -97,16 +92,14 @@ public class ExtendedTableRenderer extends TableRenderer {
                 if (!meta[metaIndex].doDisplay()) {
                     continue;
                 }
-                hasMoreLines = printColumn(currentRow[i], hasMoreLines,
-                        metaIndex);
+                hasMoreLines = printColumn(currentRow[i], hasMoreLines, metaIndex);
                 metaIndex++;
             }
         }
         return hasMoreLines;
     }
 
-    protected boolean printColumn(final ExtendedColumn col, boolean hasMoreLines,
-            final int metaIndex) {
+    protected boolean printColumn(final ExtendedColumn col, boolean hasMoreLines, final int metaIndex) {
         String txt;
         out.print(" ");
         // get summarized width of meta cols

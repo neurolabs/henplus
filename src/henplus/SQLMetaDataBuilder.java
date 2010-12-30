@@ -1,7 +1,8 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * 
  * @version $Id: SQLMetaDataBuilder.java,v 1.7 2005-06-18 04:58:13 hzeller Exp $
+ * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus;
@@ -23,8 +24,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public final class SQLMetaDataBuilder {
-    final private static String[] LIST_TABLES = { "TABLE" };
-    private static final boolean VERBOSE = false;
 
     // column description
     public static final int TABLE_NAME = 3; // String
@@ -45,6 +44,9 @@ public final class SQLMetaDataBuilder {
     public static final int PK_DESC_COLUMN_NAME = 4;
     public static final int PK_DESC_KEY_SEQ = 5;
     public static final int PK_DESC_PK_NAME = 6;
+
+    private static final String[] LIST_TABLES = { "TABLE" };
+    private static final boolean VERBOSE = false;
 
     // foreign key description
     private static final int FK_PKTABLE_NAME = 3;
@@ -85,13 +87,11 @@ public final class SQLMetaDataBuilder {
         return getMetaData(session, tableList);
     }
 
-    public SQLMetaData getMetaData(final SQLSession session,
-            final Collection<String> tableNames) {
+    public SQLMetaData getMetaData(final SQLSession session, final Collection<String> tableNames) {
         return getMetaData(session, tableNames.iterator());
     }
 
-    public SQLMetaData getMetaData(final SQLSession session,
-            final Iterator<String> tableNamesIter) {
+    public SQLMetaData getMetaData(final SQLSession session, final Iterator<String> tableNamesIter) {
         final SQLMetaData result = new SQLMetaData();
 
         ResultSet rset = null;
@@ -115,9 +115,7 @@ public final class SQLMetaDataBuilder {
             if (VERBOSE) {
                 e.printStackTrace();
             }
-            HenPlus.msg().println(
-                    "Database problem reading meta data: "
-                    + e.getMessage().trim());
+            HenPlus.msg().println("Database problem reading meta data: " + e.getMessage().trim());
         } finally {
             if (rset != null) {
                 try {
@@ -142,9 +140,7 @@ public final class SQLMetaDataBuilder {
             if (VERBOSE) {
                 e.printStackTrace();
             }
-            HenPlus.msg().println(
-                    "Database problem reading meta data: "
-                    + e.getMessage().trim());
+            HenPlus.msg().println("Database problem reading meta data: " + e.getMessage().trim());
         } finally {
             if (rset != null) {
                 try {
@@ -156,8 +152,8 @@ public final class SQLMetaDataBuilder {
         return table;
     }
 
-    private Table buildTable(final String catalog, final DatabaseMetaData meta,
-            final String tableName, final ResultSet rset) throws SQLException {
+    private Table buildTable(final String catalog, final DatabaseMetaData meta, final String tableName, final ResultSet rset)
+            throws SQLException {
 
         Table table = null;
         if (rset != null) {
@@ -171,12 +167,10 @@ public final class SQLMetaDataBuilder {
                 final Column column = new Column(colname);
                 column.setType(rset.getString(TYPE_NAME));
                 column.setSize(rset.getInt(COLUMN_SIZE));
-                final boolean nullable = rset.getInt(NULLABLE) == DatabaseMetaData.columnNullable ? true
-                        : false;
+                final boolean nullable = rset.getInt(NULLABLE) == DatabaseMetaData.columnNullable ? true : false;
                 column.setNullable(nullable);
                 final String defaultVal = rset.getString(COLUMN_DEF);
-                column.setDefault(defaultVal != null ? defaultVal.trim()
-                        : null);
+                column.setDefault(defaultVal != null ? defaultVal.trim() : null);
                 column.setPosition(rset.getInt(ORDINAL_POSITION));
                 column.setPkInfo(pk.getColumnPkInfo(colname));
                 column.setFkInfo((ColumnFkInfo) fks.get(colname));
@@ -188,8 +182,7 @@ public final class SQLMetaDataBuilder {
         return table;
     }
 
-    private PrimaryKey getPrimaryKey(final DatabaseMetaData meta, final String tabName)
-    throws SQLException {
+    private PrimaryKey getPrimaryKey(final DatabaseMetaData meta, final String tabName) throws SQLException {
         PrimaryKey result = null;
         final ResultSet rset = meta.getPrimaryKeys(null, null, tabName);
         if (rset != null) {
@@ -206,8 +199,7 @@ public final class SQLMetaDataBuilder {
         return result;
     }
 
-    private Map getForeignKeys(final DatabaseMetaData meta, final String tabName)
-    throws SQLException {
+    private Map getForeignKeys(final DatabaseMetaData meta, final String tabName) throws SQLException {
         final Map fks = new HashMap();
 
         ResultSet rset = null;
@@ -217,16 +209,14 @@ public final class SQLMetaDataBuilder {
             rset = meta.getImportedKeys(null, null, tabName);
         } catch (final NoSuchElementException e) {
             if (VERBOSE) {
-                HenPlus.msg().println(
-                        "Database problem reading meta data: " + e);
+                HenPlus.msg().println("Database problem reading meta data: " + e);
             }
         }
 
         if (rset != null) {
             while (rset.next()) {
-                final ColumnFkInfo fk = new ColumnFkInfo(rset.getString(FK_FK_NAME),
-                        rset.getString(FK_PKTABLE_NAME), rset
-                        .getString(FK_PKCOLUMN_NAME));
+                final ColumnFkInfo fk = new ColumnFkInfo(rset.getString(FK_FK_NAME), rset.getString(FK_PKTABLE_NAME),
+                        rset.getString(FK_PKCOLUMN_NAME));
                 final String col = rset.getString(FK_FKCOLUMN_NAME);
                 fks.put(col, fk);
             }

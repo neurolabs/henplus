@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -14,6 +13,7 @@ import java.io.Reader;
  * A Parser for a
  */
 public class ImportParser {
+
     private static final int INIT_SIZE = 8192;
 
     private final TypeParser[] _parsers;
@@ -45,18 +45,16 @@ public class ImportParser {
         int currentColumn = 0;
         int currentRow = 1;
 
-        for (;;) {
+        while (true) {
             if (buffer.length - pos == 0) { // need to adjust buffer
                 if (fieldStart > 0) { // remove unneded stuff in front
-                    System.arraycopy(buffer, fieldStart, buffer, 0,
-                            buffer.length - fieldStart);
+                    System.arraycopy(buffer, fieldStart, buffer, 0, buffer.length - fieldStart);
                     Logger.debug("**shift buffer from %s", fieldStart);
                     pos -= fieldStart;
                     fieldStart = 0;
                 } else { // fieldStart is already at 0, so increase size
                     final char[] newBuffer = new char[buffer.length * 2];
-                    System.arraycopy(buffer, fieldStart, newBuffer, 0,
-                            buffer.length - fieldStart);
+                    System.arraycopy(buffer, fieldStart, newBuffer, 0, buffer.length - fieldStart);
                     buffer = newBuffer;
                     Logger.debug("**larger buffer..");
                 }
@@ -77,9 +75,7 @@ public class ImportParser {
                         if (currentColumn < _parsers.length) {
                             final TypeParser colParser = _parsers[currentColumn];
                             if (colParser != null) {
-                                colParser.parse(buffer, fieldStart, pos
-                                        - fieldStart - colPattern.length,
-                                        recipient);
+                                colParser.parse(buffer, fieldStart, pos - fieldStart - colPattern.length, recipient);
                             }
                         }
                         colPatternPos = 0;
@@ -95,20 +91,13 @@ public class ImportParser {
                     rowPatternPos++;
                     if (rowPatternPos >= rowPattern.length) { // match!
                         if (currentColumn < _parsers.length - 1) {
-                            System.err
-                            .println("less columns than expected in row "
-                                    + currentRow
-                                    + ": expected "
-                                    + _parsers.length
-                                    + " but got "
-                                    + (currentColumn + 1));
+                            System.err.println("less columns than expected in row " + currentRow + ": expected " + _parsers.length
+                                    + " but got " + (currentColumn + 1));
                         }
                         if (currentColumn < _parsers.length) {
                             final TypeParser colParser = _parsers[currentColumn];
                             if (colParser != null) {
-                                colParser.parse(buffer, fieldStart, pos
-                                        - fieldStart - rowPattern.length,
-                                        recipient);
+                                colParser.parse(buffer, fieldStart, pos - fieldStart - rowPattern.length, recipient);
                             }
                         }
                         if (recipient.finishRow()) {
@@ -127,34 +116,34 @@ public class ImportParser {
     }
 
     static int count = 0;
-    
+
     // TODO: move to test
-//    public static void main(final String argv[]) throws Exception {
-//        final Reader r = new java.io.FileReader(argv[0]);
-//        final int cols = Integer.parseInt(argv[1]);
-//        final TypeParser[] parsers = new TypeParser[cols];
-//        for (int i = 0; i < cols; ++i) {
-//            parsers[i] = new StringParser(i + 1);
-//        }
-//        final ValueRecipient v = new ValueRecipient() {
-//            public void setLong(final int fieldNumber, final long value) {
-//            }
-//
-//            public void setString(final int fieldNumber, final String value) {
-//                System.out.println("'" + value + "'");
-//            }
-//
-//            public void setDate(final int fieldNumber, final Calendar cal) {
-//            }
-//
-//            public boolean finishRow() {
-//                System.out.println(">>row done..<<");
-//                count++;
-//                return false;
-//            }
-//        };
-//        final ImportParser parser = new ImportParser(parsers, "\",\"", "\n\"");
-//        parser.parse(r, v);
-//        System.err.println("COUNT: " + count);
-//    }
+    //    public static void main(final String argv[]) throws Exception {
+    //        final Reader r = new java.io.FileReader(argv[0]);
+    //        final int cols = Integer.parseInt(argv[1]);
+    //        final TypeParser[] parsers = new TypeParser[cols];
+    //        for (int i = 0; i < cols; ++i) {
+    //            parsers[i] = new StringParser(i + 1);
+    //        }
+    //        final ValueRecipient v = new ValueRecipient() {
+    //            public void setLong(final int fieldNumber, final long value) {
+    //            }
+    //
+    //            public void setString(final int fieldNumber, final String value) {
+    //                System.out.println("'" + value + "'");
+    //            }
+    //
+    //            public void setDate(final int fieldNumber, final Calendar cal) {
+    //            }
+    //
+    //            public boolean finishRow() {
+    //                System.out.println(">>row done..<<");
+    //                count++;
+    //                return false;
+    //            }
+    //        };
+    //        final ImportParser parser = new ImportParser(parsers, "\",\"", "\n\"");
+    //        parser.parse(r, v);
+    //        System.err.println("COUNT: " + count);
+    //    }
 }

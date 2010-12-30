@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: BooleanPropertyHolder.java,v 1.3 2004-02-03 09:53:07 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * BooleanPropertyHolder.java,v 1.3 2004-02-03 09:53:07 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.property;
 
@@ -10,8 +8,8 @@ package henplus.property;
  * A boolean property.
  */
 public abstract class BooleanPropertyHolder extends EnumeratedPropertyHolder {
-    private static final String[] BOOL_VALUES = { "0", "off", "false", "1",
-        "on", "true" };
+
+    private static final String[] BOOL_VALUES = { "0", "off", "false", "1", "on", "true" };
 
     public BooleanPropertyHolder() {
         super(BOOL_VALUES);
@@ -23,8 +21,7 @@ public abstract class BooleanPropertyHolder extends EnumeratedPropertyHolder {
     }
 
     @Override
-    protected final void enumeratedPropertyChanged(final int index, final String value)
-    throws Exception {
+    protected final void enumeratedPropertyChanged(final int index, final String value) throws Exception {
         /*
          * the upper part of the array contains the 'true' values.
          */
@@ -32,11 +29,9 @@ public abstract class BooleanPropertyHolder extends EnumeratedPropertyHolder {
     }
 
     /**
-     * to be overridden to get informed of the boolean change. Throw an
-     * Exception if this change is not possible.
+     * to be overridden to get informed of the boolean change. Throw an Exception if this change is not possible.
      */
-    public abstract void booleanPropertyChanged(boolean newValue)
-    throws Exception;
+    public abstract void booleanPropertyChanged(boolean newValue) throws Exception;
 }
 /*
  * Local variables: c-basic-offset: 4 compile-command:

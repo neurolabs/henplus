@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -12,16 +11,17 @@ import henplus.Interruptable;
  * A thread to be used to cancel a statement running in another thread.
  */
 final class StatementCanceller implements Runnable, Interruptable {
+
     private final CancelTarget _target;
     private boolean _armed;
     private boolean _running;
     private volatile boolean _cancelStatement;
 
     /**
-     * The target to be cancelled. Must not throw an Execption and may to
-     * whatever it needs to do.
+     * The target to be cancelled. Must not throw an Execption and may to whatever it needs to do.
      */
     public interface CancelTarget {
+
         void cancelRunningStatement();
     }
 
@@ -33,6 +33,7 @@ final class StatementCanceller implements Runnable, Interruptable {
     }
 
     /** inherited: interruptable interface */
+    @Override
     public void interrupt() {
         _cancelStatement = true;
         /*
@@ -58,9 +59,10 @@ final class StatementCanceller implements Runnable, Interruptable {
         notify();
     }
 
+    @Override
     public synchronized void run() {
         try {
-            for (;;) {
+            while (true) {
                 while (_running && !_armed) {
                     wait();
                 }

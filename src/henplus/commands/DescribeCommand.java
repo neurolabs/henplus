@@ -1,7 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL) get a copy from
- * <http://www.gnu.org/licenses/gpl.html>
- *
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
@@ -34,6 +33,7 @@ import java.util.StringTokenizer;
  * document me.
  */
 public class DescribeCommand extends AbstractCommand implements Interruptable {
+
     private static final String[] LIST_TABLES = { "TABLE", "VIEW" };
     private static final ColumnMetaData[] DESC_META;
     static {
@@ -46,8 +46,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
         DESC_META[5] = new ColumnMetaData("default");
         DESC_META[6] = new ColumnMetaData("pk");
         DESC_META[7] = new ColumnMetaData("fk");
-        DESC_META[8] = new ColumnMetaData("remark", ColumnMetaData.ALIGN_LEFT,
-                60);
+        DESC_META[8] = new ColumnMetaData("remark", ColumnMetaData.ALIGN_LEFT, 60);
     }
 
     private volatile boolean _interrupted;
@@ -60,6 +59,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "describe", "idescribe" };
     }
@@ -67,6 +67,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         // make use of properties for these properties?
         // (since the options just toggle, this may be convenient)
@@ -114,13 +115,10 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
 
                 // FIXME: provide correct name as well for schema!
                 if (correctName) {
-                    final String alternative = _tableCompleter
-                    .correctTableName(tabName);
+                    final String alternative = _tableCompleter.correctTableName(tabName);
                     if (alternative != null && !alternative.equals(tabName)) {
                         tabName = alternative;
-                        HenPlus.out().println(
-                                "describing table: '" + tabName
-                                + "' (corrected name)");
+                        HenPlus.out().println("describing table: '" + tabName + "' (corrected name)");
                     }
                 }
 
@@ -140,14 +138,12 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                         return SUCCESS;
                     }
 
-                    final DatabaseMetaData meta = session.getConnection()
-                    .getMetaData();
+                    final DatabaseMetaData meta = session.getConnection().getMetaData();
                     for (int i = 0; i < DESC_META.length; ++i) {
                         DESC_META[i].resetWidth();
                     }
 
-                    rset = meta
-                    .getTables(catalog, schema, tabName, LIST_TABLES);
+                    rset = meta.getTables(catalog, schema, tabName, LIST_TABLES);
                     if (rset != null && rset.next()) {
                         tableType = rset.getString(4);
                         description = rset.getString(5); // remark
@@ -169,9 +165,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             final String pkname = rset.getString(6);
                             String desc = pkname != null ? pkname : "*";
                             if (pkseq > 1) {
-                                desc = new StringBuilder()
-                                .append(desc).append("{").append(pkseq)
-                                .append("}").toString();
+                                desc = new StringBuilder().append(desc).append("{").append(pkseq).append("}").toString();
                             }
                             pks.put(col, desc);
                         }
@@ -190,17 +184,12 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             final String col = rset.getString(4);
                             String fktable = rset.getString(7);
                             final String fkcolumn = rset.getString(8);
-                            fktable = new StringBuilder().append(
-                                    fktable).append("(").append(fkcolumn)
-                                    .append(")").toString();
+                            fktable = new StringBuilder().append(fktable).append("(").append(fkcolumn).append(")").toString();
                             String desc = pks.get(col);
-                            desc = desc == null ? new StringBuilder()
-                                    .append(" <- ").append(fktable).toString()
-                                    : new StringBuilder().append(desc).append(
-                                    "\n <- ").append(fktable)
-                                    .toString();
-                                    anyLeftArrow = true;
-                                    pks.put(col, desc);
+                            desc = desc == null ? new StringBuilder().append(" <- ").append(fktable).toString()
+                                    : new StringBuilder().append(desc).append("\n <- ").append(fktable).toString();
+                            anyLeftArrow = true;
+                            pks.put(col, desc);
                         }
                         rset.close();
                     }
@@ -218,7 +207,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     try {
                         rset = meta.getImportedKeys(null, schema, tabName);
                     } catch (final NoSuchElementException e) {
-                            Logger.debug( "Database problem reading meta data: ", e);
+                        Logger.debug("Database problem reading meta data: ", e);
                     }
                     if (rset != null) {
                         while (!_interrupted && rset.next()) {
@@ -227,19 +216,15 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             table = table + "(" + pkcolumn + ")";
                             final String col = rset.getString(8);
                             final String fkname = rset.getString(12);
-                            String desc = fkname != null ? new StringBuilder()
-                            .append(fkname).append("\n -> ").toString()
-                                    : " -> ";
-                                    desc += table;
-                                    anyRightArrow = true;
-                                    fks.put(col, desc);
+                            String desc = fkname != null ? new StringBuilder().append(fkname).append("\n -> ").toString() : " -> ";
+                            desc += table;
+                            anyRightArrow = true;
+                            fks.put(col, desc);
                         }
                         rset.close();
                     }
 
-                    HenPlus.out().println(
-                            ("VIEW".equals(tableType) ? "View: " : "Table: ")
-                            + tabName);
+                    HenPlus.out().println(("VIEW".equals(tableType) ? "View: " : "Table: ") + tabName);
                     if (description != null) {
                         HenPlus.out().println(description);
                     }
@@ -288,8 +273,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             String type = rset.getString(6);
                             final int colSize = rset.getInt(7);
                             if (colSize > 0) {
-                                type = new StringBuilder().append(type).append("(")
-                                .append(colSize).append(")").toString();
+                                type = new StringBuilder().append(type).append("(").append(colSize).append(")").toString();
                             }
 
                             row[3] = new Column(type);
@@ -297,19 +281,16 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             row[4] = new Column(rset.getString(18));
                             // oracle appends newline to default values for some
                             // reason.
-                            row[5] = new Column(
-                                    (defaultVal != null ? defaultVal.trim()
-                                            : null));
+                            row[5] = new Column((defaultVal != null ? defaultVal.trim() : null));
                             final String pkdesc = pks.get(colname);
                             row[6] = new Column(pkdesc != null ? pkdesc : "");
                             final String fkdesc = fks.get(colname);
                             row[7] = new Column(fkdesc != null ? fkdesc : "");
 
-                            final String colDesc = showDescriptions ? rset
-                                    .getString(12) : null;
-                                    row[8] = new Column(colDesc);
-                                    anyDescription |= colDesc != null;
-                                    rows.add(row);
+                            final String colDesc = showDescriptions ? rset.getString(12) : null;
+                            row[8] = new Column(colDesc);
+                            anyDescription |= colDesc != null;
+                            rows.add(row);
                         }
                     }
                     rset.close();
@@ -321,8 +302,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                      */
                     DESC_META[1].setDisplay(!allSameTableName);
                     DESC_META[8].setDisplay(anyDescription);
-                    final TableRenderer table = new TableRenderer(DESC_META, HenPlus
-                            .out());
+                    final TableRenderer table = new TableRenderer(DESC_META, HenPlus.out());
                     final Iterator it = rows.iterator();
                     while (it.hasNext()) {
                         table.addRow((Column[]) it.next());
@@ -338,16 +318,14 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                     }
 
                     if (showTime) {
-                        TimeRenderer.printTime(System.currentTimeMillis()
-                                - startTime, HenPlus.out());
+                        TimeRenderer.printTime(System.currentTimeMillis() - startTime, HenPlus.out());
                         HenPlus.out().println();
                     }
 
                 } catch (final Exception e) {
-                    final String ex = e.getMessage() != null ? e.getMessage()
-                            .trim() : e.toString();
-                            Logger.error("Database problem reading meta data: ", ex);
-                            return EXEC_FAILED;
+                    final String ex = e.getMessage() != null ? e.getMessage().trim() : e.toString();
+                    Logger.error("Database problem reading meta data: ", ex);
+                    return EXEC_FAILED;
                 } finally {
                     if (rset != null) {
                         try {
@@ -368,8 +346,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
      * @param meta
      * @return @throws SQLException
      */
-    private void showIndexInformation(final String tabName, final String schema,
-            final DatabaseMetaData meta) throws SQLException {
+    private void showIndexInformation(final String tabName, final String schema, final DatabaseMetaData meta) throws SQLException {
         ResultSet rset;
         HenPlus.out().println("index information:");
         boolean anyIndex = false;
@@ -408,15 +385,13 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
      * complete the table name.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         st.nextElement(); // consume first element.
         if (lastWord.startsWith("\"")) {
             lastWord = lastWord.substring(1);
         }
-        return _tableCompleter.completeTableName(HenPlus.getInstance()
-                .getCurrentSession(), lastWord);
+        return _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
     }
 
     private String stripQuotes(String value) {
@@ -427,6 +402,7 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
     }
 
     // -- Interruptable interface
+    @Override
     public synchronized void interrupt() {
         _interrupted = true;
     }
@@ -448,16 +424,13 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
     public String getLongDescription(final String cmd) {
         String dsc;
         dsc = "\tDescribe the meta information of the named user object\n"
-            + "\t(only tables for now). The name you type is case sensitive\n"
-            + "\tbut henplus tries its best to correct it.\n"
-            + "\tThe 'describe' command just describes the table, the\n"
-            + "\t'idescribe' command determines the index information as\n"
-            + "\twell; some databases are really slow in this, so this is\n"
-            + "\tan extra command\n\n"
-            // include the command line options:
-            + super.getLongDescription(cmd)
-            + "\n\tIf an option is positioned between two tablenames, its current state is toggled."
-            + "\n";
+                + "\t(only tables for now). The name you type is case sensitive\n"
+                + "\tbut henplus tries its best to correct it.\n" + "\tThe 'describe' command just describes the table, the\n"
+                + "\t'idescribe' command determines the index information as\n"
+                + "\twell; some databases are really slow in this, so this is\n" + "\tan extra command\n\n"
+                // include the command line options:
+                + super.getLongDescription(cmd)
+                + "\n\tIf an option is positioned between two tablenames, its current state is toggled." + "\n";
         return dsc;
     }
 

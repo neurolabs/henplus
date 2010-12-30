@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TableRenderer.java,v 1.7 2005-06-18 04:58:13 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * TableRenderer.java,v 1.7 2005-06-18 04:58:13 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
 
@@ -27,26 +25,26 @@ public class TableRenderer {
     private final boolean _enableHeader;
     private final boolean _enableFooter;
 
-    protected final ColumnMetaData meta[];
+    protected final ColumnMetaData[] meta;
     protected final OutputDevice out;
     protected final String colSeparator;
 
-    public TableRenderer(final ColumnMetaData[] meta, final OutputDevice out,
-            final String separator, final boolean enableHeader, final boolean enableFooter) {
+    public TableRenderer(final ColumnMetaData[] meta, final OutputDevice out, final String separator, final boolean enableHeader,
+            final boolean enableFooter) {
         this.meta = meta;
         this.out = out;
-        this._enableHeader = enableHeader;
-        this._enableFooter = enableFooter;
+        _enableHeader = enableHeader;
+        _enableFooter = enableFooter;
 
         /*
          * we cache the rows in order to dynamically determine the output width
          * of each column.
          */
-        this._cacheRows = new ArrayList<Column[]>(MAX_CACHE_ELEMENTS);
-        this._alreadyFlushed = false;
-        this._writtenRows = 0;
+        _cacheRows = new ArrayList<Column[]>(MAX_CACHE_ELEMENTS);
+        _alreadyFlushed = false;
+        _writtenRows = 0;
         this.colSeparator = " " + separator;
-        this._separatorWidth = separator.length();
+        _separatorWidth = separator.length();
     }
 
     public TableRenderer(final ColumnMetaData[] meta, final OutputDevice out) {
@@ -128,8 +126,7 @@ public class TableRenderer {
     protected boolean printColumn(final Column col, boolean hasMoreLines, final int i) {
         String txt;
         out.print(" ");
-        txt = formatString(col.getNextLine(), ' ', meta[i].getWidth(), meta[i]
-                                                                            .getAlignment());
+        txt = formatString(col.getNextLine(), ' ', meta[i].getWidth(), meta[i].getAlignment());
         hasMoreLines |= col.hasNextLine();
         if (col.isNull()) {
             out.attributeGrey();
@@ -148,9 +145,7 @@ public class TableRenderer {
                 continue;
             }
             String txt;
-            txt = formatString("", '-',
-                    meta[i].getWidth() + _separatorWidth + 1,
-                    ColumnMetaData.ALIGN_LEFT);
+            txt = formatString("", '-', meta[i].getWidth() + _separatorWidth + 1, ColumnMetaData.ALIGN_LEFT);
             out.print(txt);
             out.print("+");
         }
@@ -164,8 +159,7 @@ public class TableRenderer {
                 continue;
             }
             String txt;
-            txt = formatString(meta[i].getLabel(), ' ', meta[i].getWidth() + 1,
-                    ColumnMetaData.ALIGN_CENTER);
+            txt = formatString(meta[i].getLabel(), ' ', meta[i].getWidth() + 1, ColumnMetaData.ALIGN_CENTER);
             out.attributeBold();
             out.print(txt);
             out.attributeReset();
@@ -175,8 +169,7 @@ public class TableRenderer {
         printHorizontalLine();
     }
 
-    protected String formatString(String text, final char fillchar, int len,
-            final int alignment) {
+    protected String formatString(String text, final char fillchar, int len, final int alignment) {
         //Logger.debug("[formatString] len: %s, text.length: %s",len,text.length());
         final StringBuilder fillstr = new StringBuilder();
 

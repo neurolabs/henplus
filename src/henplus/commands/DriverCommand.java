@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DriverCommand.java,v 1.15 2008-10-19 08:53:25 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * DriverCommand.java,v 1.15 2008-10-19 08:53:25 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
@@ -29,28 +27,18 @@ import java.util.TreeMap;
  * document me.
  */
 public final class DriverCommand extends AbstractCommand {
+
     private static final String[][] KNOWN_DRIVERS = {
-        { "Oracle", "oracle.jdbc.driver.OracleDriver",
-        "jdbc:oracle:thin:@localhost:1521:ORCL" },
-        { "DB2", "COM.ibm.db2.jdbc.net.DB2Driver",
-        "jdbc:db2://localhost:6789/foobar" },
-        { "Postgres", "org.postgresql.Driver",
-        "jdbc:postgresql://localhost/foobar" },
-        { "SAP-DB", "com.sap.dbtech.jdbc.DriverSapDB",
-        "jdbc:sapdb://localhost/foobar" },
-        { "MySQL", "org.gjt.mm.mysql.Driver",
-        "jdbc:mysql://localhost/foobar" },
-        { "Adabas", "de.sag.jdbc.adabasd.ADriver",
-        "jdbc:adabasd://localhost:7200/work" },
-        { "Sybase", "com.internetcds.jdbc.tds.Driver",
-        "jdbc:freetds:sybase://servername:port/database" },
-        { "MSSQL", "com.internetcds.jdbc.tds.Driver",
-        "jdbc:freetds:sqlserver://servername:port/database" },
-        { "HSQLDB", "org.hsqldb.jdbcDriver",
-        "jdbc:hsqldb:db_file_name_prefix" },
-        { "SQLite", "org.sqlite.JDBC",
-         "jdbc:sqlite://dirA/dirB/dbfile" }
-    };
+            { "Oracle", "oracle.jdbc.driver.OracleDriver", "jdbc:oracle:thin:@localhost:1521:ORCL" },
+            { "DB2", "COM.ibm.db2.jdbc.net.DB2Driver", "jdbc:db2://localhost:6789/foobar" },
+            { "Postgres", "org.postgresql.Driver", "jdbc:postgresql://localhost/foobar" },
+            { "SAP-DB", "com.sap.dbtech.jdbc.DriverSapDB", "jdbc:sapdb://localhost/foobar" },
+            { "MySQL", "org.gjt.mm.mysql.Driver", "jdbc:mysql://localhost/foobar" },
+            { "Adabas", "de.sag.jdbc.adabasd.ADriver", "jdbc:adabasd://localhost:7200/work" },
+            { "Sybase", "com.internetcds.jdbc.tds.Driver", "jdbc:freetds:sybase://servername:port/database" },
+            { "MSSQL", "com.internetcds.jdbc.tds.Driver", "jdbc:freetds:sqlserver://servername:port/database" },
+            { "HSQLDB", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:db_file_name_prefix" },
+            { "SQLite", "org.sqlite.JDBC", "jdbc:sqlite://dirA/dirB/dbfile" } };
 
     private static final String DRIVERS_FILENAME = "drivers";
     private static final ColumnMetaData[] DRV_META;
@@ -63,6 +51,7 @@ public final class DriverCommand extends AbstractCommand {
     }
 
     private static final class DriverDescription {
+
         private final String _className;
         private final String _sampleURL;
 
@@ -98,8 +87,7 @@ public final class DriverCommand extends AbstractCommand {
                 Logger.debug(" done.");
                 try {
                     final Driver driver = (Driver) cls.newInstance();
-                    _version = driver.getMajorVersion() + "." + driver
-                            .getMinorVersion();
+                    _version = driver.getMajorVersion() + "." + driver.getMinorVersion();
                 } catch (final Throwable t) {
                     // ign.
                 }
@@ -112,12 +100,13 @@ public final class DriverCommand extends AbstractCommand {
         }
     }
 
-    private final SortedMap<String,DriverDescription> _drivers;
+    private final SortedMap<String, DriverDescription> _drivers;
     private final ConfigurationContainer _config;
 
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "list-drivers", "register", "unregister" };
     }
@@ -130,14 +119,11 @@ public final class DriverCommand extends AbstractCommand {
         while (propNames.hasNext()) {
             final String name = (String) propNames.next();
             if (name.startsWith("driver.") && name.endsWith(".class")) {
-                final String databaseName = name.substring("driver.".length(), name
-                        .length()
-                        - ".class".length());
+                final String databaseName = name.substring("driver.".length(), name.length() - ".class".length());
                 final String exampleName = "driver." + databaseName + ".example";
                 DriverDescription desc;
 
-                desc = new DriverDescription((String) props.get(name),
-                        (String) props.get(exampleName));
+                desc = new DriverDescription((String) props.get(name), (String) props.get(exampleName));
                 _drivers.put(databaseName, desc);
             }
         }
@@ -157,16 +143,14 @@ public final class DriverCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession currentSession, final String cmd, final String param) {
         final StringTokenizer st = new StringTokenizer(param);
         final int argc = st.countTokens();
 
         if ("list-drivers".equals(cmd)) {
             if (argc == 0) {
-                HenPlus
-                .msg()
-                .println(
-                        "loaded drivers are marked with '*' (otherwise not found in CLASSPATH)");
+                HenPlus.msg().println("loaded drivers are marked with '*' (otherwise not found in CLASSPATH)");
                 DRV_META[0].resetWidth();
                 DRV_META[1].resetWidth();
                 DRV_META[2].resetWidth();
@@ -176,11 +160,9 @@ public final class DriverCommand extends AbstractCommand {
                 while (vars.hasNext()) {
                     final Map.Entry entry = (Map.Entry) vars.next();
                     final Column[] row = new Column[4];
-                    final DriverDescription desc = (DriverDescription) entry
-                    .getValue();
+                    final DriverDescription desc = (DriverDescription) entry.getValue();
                     final String dbName = (String) entry.getKey();
-                    row[0] = new Column((desc.isLoaded() ? "* " : "  ")
-                            + dbName);
+                    row[0] = new Column((desc.isLoaded() ? "* " : "  ") + dbName);
                     row[1] = new Column(desc.getClassName());
                     row[2] = new Column(desc.getVersion());
                     row[3] = new Column(desc.getSampleURL());
@@ -204,8 +186,7 @@ public final class DriverCommand extends AbstractCommand {
             DriverDescription drv;
             drv = new DriverDescription(driverClass, sampleURL);
             if (!drv.isLoaded()) {
-                HenPlus.msg().println(
-                        "cannot load driver class '" + driverClass + "'");
+                HenPlus.msg().println("cannot load driver class '" + driverClass + "'");
                 return EXEC_FAILED;
             } else {
                 _drivers.put(shortname, drv);
@@ -226,8 +207,7 @@ public final class DriverCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         final int argc = st.countTokens();
@@ -279,22 +259,21 @@ public final class DriverCommand extends AbstractCommand {
         String dsc = null;
         if ("register".equals(cmd)) {
             dsc = "\tRegister a  new driver.   Basically this  adds the  JDBC\n"
-                + "\tdriver represented by its driver class. You have to give\n"
-                + "\ta short name,  that is used in the user interface.   You\n"
-                + "\tmight  give  a  sample  JDBC-URL  that is shown with the\n"
-                + "\tlist-drivers command.   This  command tries  to load the\n"
-                + "\tdriver from the CLASSPATH;  if it is not found,  then it\n"
-                + "\tis not added to the list of usable drivers.";
+                    + "\tdriver represented by its driver class. You have to give\n"
+                    + "\ta short name,  that is used in the user interface.   You\n"
+                    + "\tmight  give  a  sample  JDBC-URL  that is shown with the\n"
+                    + "\tlist-drivers command.   This  command tries  to load the\n"
+                    + "\tdriver from the CLASSPATH;  if it is not found,  then it\n"
+                    + "\tis not added to the list of usable drivers.";
         } else if ("unregister".equals(cmd)) {
             dsc = "\tUnregister the driver with the given shortname. There\n"
-                + "\tis a command line completion for the shortname, but you\n"
-                + "\tcan list them as well with the list-drivers command.";
+                    + "\tis a command line completion for the shortname, but you\n"
+                    + "\tcan list them as well with the list-drivers command.";
         } else if ("list-drivers".equals(cmd)) {
             dsc = "\tList the drivers that are registered. The drivers, that\n"
-                + "\tare actually loaded have a little star (*) in the first\n"
-                + "\tcolumn. If it is not loaded, than you have to augment your\n"
-                + "\tCLASSPATH in order to be able to connect to some database\n"
-                + "\tof that kind.";
+                    + "\tare actually loaded have a little star (*) in the first\n"
+                    + "\tcolumn. If it is not loaded, than you have to augment your\n"
+                    + "\tCLASSPATH in order to be able to connect to some database\n" + "\tof that kind.";
         }
         return dsc;
     }

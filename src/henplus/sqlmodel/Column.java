@@ -1,7 +1,8 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * 
  * @version $Id: Column.java,v 1.3 2004-03-07 14:22:02 hzeller Exp $
+ * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.sqlmodel;
@@ -15,6 +16,7 @@ import henplus.util.StringUtil;
  * @author Martin Grotzke
  */
 public final class Column implements Comparable<Column> {
+
     private String _name;
     private int _position; // starting at 1
     private String _type;
@@ -110,6 +112,7 @@ public final class Column implements Comparable<Column> {
      * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(final Column other) {
         int result = 1;
         if (other.getPosition() < _position) {
@@ -122,10 +125,10 @@ public final class Column implements Comparable<Column> {
 
     /**
      * 
-     * @param o other object to compare with
+     * @param o
+     *            other object to compare with
      * @param colNameIgnoreCase
-     *            specifies if column names shall be compared in a case
-     *            insensitive way.
+     *            specifies if column names shall be compared in a case insensitive way.
      * @return if the columns are equal
      */
     public boolean equals(final Object o, final boolean colNameIgnoreCase) {

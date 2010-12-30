@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -12,6 +11,7 @@ import java.util.Iterator;
  * Utility class to split Commands into tokens.
  */
 public class CommandTokenizer implements Iterator {
+
     private final char[] _toTokenize;
     private final char[] _separatorBegins;
     private final char[] _separatorEnds;
@@ -21,12 +21,10 @@ public class CommandTokenizer implements Iterator {
     private String _nextToken;
 
     /**
-     * Tokenizes a command string. Strings are separated at any whitespace
-     * character if not within nested element. Handles nesting with the given
-     * separatorPairs; separator pairs have to be given always in pairs, even if
-     * the opening and closing element is the same. Example could be <b>
-     * <code>""()[]{}</code></b>. These separator pairs handle strings and
-     * elements in all kinds of parentheses.
+     * Tokenizes a command string. Strings are separated at any whitespace character if not within nested element. Handles nesting
+     * with the given separatorPairs; separator pairs have to be given always in pairs, even if the opening and closing element is
+     * the same. Example could be <b> <code>""()[]{}</code></b>. These separator pairs handle strings and elements in all kinds of
+     * parentheses.
      */
     public CommandTokenizer(final String cmd, final String separatorPairs) {
         _toTokenize = new char[cmd.length()];
@@ -45,9 +43,9 @@ public class CommandTokenizer implements Iterator {
     }
 
     // -- java.util.Iterator interface implementation
+    @Override
     public boolean hasNext() {
-        while (_pos < _toTokenize.length
-                && Character.isWhitespace(_toTokenize[_pos])) {
+        while (_pos < _toTokenize.length && Character.isWhitespace(_toTokenize[_pos])) {
             _pos++;
         }
         if (_pos >= _toTokenize.length) {
@@ -56,8 +54,7 @@ public class CommandTokenizer implements Iterator {
         final int startToken = _pos;
         final int expectedEndToken = findEndToken(_toTokenize[_pos]);
         if (expectedEndToken < 0) {
-            while (_pos < _toTokenize.length
-                    && !Character.isWhitespace(_toTokenize[_pos])
+            while (_pos < _toTokenize.length && !Character.isWhitespace(_toTokenize[_pos])
                     && !isSpecialSeparator(_toTokenize[_pos])) {
                 _pos++;
             }
@@ -89,8 +86,7 @@ public class CommandTokenizer implements Iterator {
     }
 
     /**
-     * tries to determine appropriate end token if this is a startToken; returns
-     * -1 otherwise.
+     * tries to determine appropriate end token if this is a startToken; returns -1 otherwise.
      */
     private int findEndToken(final char tokenStart) {
         int i = 0;
@@ -106,31 +102,31 @@ public class CommandTokenizer implements Iterator {
         return _nextToken;
     }
 
+    @Override
     public Object next() {
         return _nextToken;
     }
 
     /**
-     * returns, wether the current token is finished. An token is unfinished if
-     * - it is a nested token that has not seen its closing element till the end
-     * of the string. - it is a normal token that is not followed by a
-     * whitespace
+     * returns, wether the current token is finished. An token is unfinished if - it is a nested token that has not seen its closing
+     * element till the end of the string. - it is a normal token that is not followed by a whitespace
      */
     public boolean isCurrentTokenFinished() {
         return _tokenFinished;
     }
 
+    @Override
     public void remove() {
         throw new UnsupportedOperationException("no!");
     }
 
     // TODO: move to test
-//    public static void main(final String argv[]) {
-//        final CommandTokenizer cmdTok = new CommandTokenizer(argv[0], argv[1]);
-//        while (cmdTok.hasNext()) {
-//            final String tok = cmdTok.nextToken();
-//            System.out.println("token: '" + tok + "'; complete="
-//                    + cmdTok.isCurrentTokenFinished());
-//        }
-//    }
+    //    public static void main(final String argv[]) {
+    //        final CommandTokenizer cmdTok = new CommandTokenizer(argv[0], argv[1]);
+    //        while (cmdTok.hasNext()) {
+    //            final String tok = cmdTok.nextToken();
+    //            System.out.println("token: '" + tok + "'; complete="
+    //                    + cmdTok.isCurrentTokenFinished());
+    //        }
+    //    }
 }

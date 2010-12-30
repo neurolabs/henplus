@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ResultSetRenderer.java,v 1.22 2005-06-18 04:58:13 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * ResultSetRenderer.java,v 1.22 2005-06-18 04:58:13 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
@@ -24,6 +22,7 @@ import java.sql.Types;
  * document me.
  */
 public class ResultSetRenderer implements Interruptable {
+
     private final ResultSet _rset;
     private final ResultSetMetaData _meta;
     private final TableRenderer _table;
@@ -36,28 +35,25 @@ public class ResultSetRenderer implements Interruptable {
     private final int _rowLimit;
     private volatile boolean _running;
 
-    public ResultSetRenderer(final ResultSet rset, final String columnDelimiter,
-            final boolean enableHeader, final boolean enableFooter, final int limit,
-            final OutputDevice out, final int[] show) throws SQLException {
-        this._rset = rset;
+    public ResultSetRenderer(final ResultSet rset, final String columnDelimiter, final boolean enableHeader,
+            final boolean enableFooter, final int limit, final OutputDevice out, final int[] show) throws SQLException {
+        _rset = rset;
         _beyondLimit = false;
         _firstRowTime = -1;
         _showColumns = show;
         _rowLimit = limit;
         _meta = rset.getMetaData();
         _columns = show != null ? show.length : _meta.getColumnCount();
-        _table = new TableRenderer(getDisplayMeta(_meta), out, columnDelimiter,
-                enableHeader, enableFooter);
+        _table = new TableRenderer(getDisplayMeta(_meta), out, columnDelimiter, enableHeader, enableFooter);
     }
 
-    public ResultSetRenderer(final ResultSet rset, final String columnDelimiter,
-            final boolean enableHeader, final boolean enableFooter, final int limit,
-            final OutputDevice out) throws SQLException {
-        this(rset, columnDelimiter, enableHeader, enableFooter, limit, out,
-                null);
+    public ResultSetRenderer(final ResultSet rset, final String columnDelimiter, final boolean enableHeader,
+            final boolean enableFooter, final int limit, final OutputDevice out) throws SQLException {
+        this(rset, columnDelimiter, enableHeader, enableFooter, limit, out, null);
     }
 
     // Interruptable interface.
+    @Override
     public synchronized void interrupt() {
         _running = false;
     }
@@ -74,12 +70,10 @@ public class ResultSetRenderer implements Interruptable {
         long restLimit = _clobLimit;
         try {
             final Reader in = c.getCharacterStream();
-            final char buf[] = new char[4096];
+            final char[] buf = new char[4096];
             int r;
 
-            while (restLimit > 0
-                    && (r = in.read(buf, 0, (int) Math.min(buf.length,
-                            restLimit))) > 0) {
+            while (restLimit > 0 && (r = in.read(buf, 0, (int) Math.min(buf.length, restLimit))) > 0) {
                 result.append(buf, 0, r);
                 restLimit -= r;
             }
@@ -127,8 +121,7 @@ public class ResultSetRenderer implements Interruptable {
                 try {
                     _rset.getStatement().cancel();
                 } catch (final Exception e) {
-                    HenPlus.msg().println(
-                            "cancel statement failed: " + e.getMessage());
+                    HenPlus.msg().println("cancel statement failed: " + e.getMessage());
                 }
             }
         } finally {
@@ -148,9 +141,8 @@ public class ResultSetRenderer implements Interruptable {
     /**
      * determine meta data necesary for display.
      */
-    private ColumnMetaData[] getDisplayMeta(final ResultSetMetaData m)
-    throws SQLException {
-        final ColumnMetaData result[] = new ColumnMetaData[_columns];
+    private ColumnMetaData[] getDisplayMeta(final ResultSetMetaData m) throws SQLException {
+        final ColumnMetaData[] result = new ColumnMetaData[_columns];
 
         for (int i = 0; i < result.length; ++i) {
             final int col = _showColumns != null ? _showColumns[i] : i + 1;
@@ -161,13 +153,13 @@ public class ResultSetRenderer implements Interruptable {
              * columnLabel.length());
              */
             switch (m.getColumnType(col)) {
-            case Types.NUMERIC:
-            case Types.INTEGER:
-            case Types.REAL:
-            case Types.SMALLINT:
-            case Types.TINYINT:
-                alignment = ColumnMetaData.ALIGN_RIGHT;
-                break;
+                case Types.NUMERIC:
+                case Types.INTEGER:
+                case Types.REAL:
+                case Types.SMALLINT:
+                case Types.TINYINT:
+                    alignment = ColumnMetaData.ALIGN_RIGHT;
+                    break;
             }
             result[i] = new ColumnMetaData(columnLabel, alignment);
         }

@@ -1,7 +1,8 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * 
  * @version $Id: SessionManager.java,v 1.3 2004-03-05 23:34:38 hzeller Exp $
+ * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus;
@@ -20,11 +21,11 @@ public final class SessionManager {
 
     private static SessionManager instance;
 
-    private final SortedMap<String,SQLSession> _sessions;
+    private final SortedMap<String, SQLSession> _sessions;
     private SQLSession _currentSession;
 
     private SessionManager() {
-        _sessions = new TreeMap<String,SQLSession>();
+        _sessions = new TreeMap<String, SQLSession>();
     }
 
     public static SessionManager getInstance() {
@@ -117,7 +118,7 @@ public final class SessionManager {
     }
 
     public void setCurrentSession(final SQLSession session) {
-        this._currentSession = session;
+        _currentSession = session;
     }
 
     public SQLSession getCurrentSession() {
@@ -133,7 +134,8 @@ public final class SessionManager {
         Iterator result = null;
         if (_sessions != null) {
             final NameCompleter completer = new NameCompleter(getSessionNames());
-            Logger.debug("[SessionManager.completeSessionName] created completer for sessionnames '%s'", getSessionNames().toString());
+            Logger.debug("[SessionManager.completeSessionName] created completer for sessionnames '%s'", getSessionNames()
+                    .toString());
             result = completer.getAlternatives(partialSession);
         }
         return result;

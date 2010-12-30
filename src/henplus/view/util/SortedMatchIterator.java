@@ -1,25 +1,23 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SortedMatchIterator.java,v 1.4 2004-03-07 15:28:28 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * SortedMatchIterator.java,v 1.4 2004-03-07 15:28:28 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
 
 import java.util.Iterator;
-import java.util.SortedSet;
 import java.util.SortedMap;
+import java.util.SortedSet;
 
 /**
  * An Iterator returning end-truncated matching values from a sorted List.
  * <p>
- * This Iterator is initialized with a sorted Set, sorted Map or another
- * Iterator that must be placed at the beginning of the matching area of a
- * sorted set.
+ * This Iterator is initialized with a sorted Set, sorted Map or another Iterator that must be placed at the beginning of the
+ * matching area of a sorted set.
  * </p>
  * This Iterator is commonly used for TAB-completion..
  */
 public class SortedMatchIterator implements Iterator<String> {
+
     private final Iterator _it;
     private final String _partialMatch;
 
@@ -30,9 +28,8 @@ public class SortedMatchIterator implements Iterator<String> {
     private String _current;
 
     /**
-     * Return all Key-Elements from the given Iterator that have the common
-     * prefix given in 'partialMatch'. The Iterator must provide a sorted
-     * sequence of the potential matches that is placed on the first match.
+     * Return all Key-Elements from the given Iterator that have the common prefix given in 'partialMatch'. The Iterator must
+     * provide a sorted sequence of the potential matches that is placed on the first match.
      * 
      * @param partialMatch
      *            the prefix that should match
@@ -45,8 +42,7 @@ public class SortedMatchIterator implements Iterator<String> {
     }
 
     /**
-     * Return all Key-Elements from the given SortedSet that have the common
-     * prefix given in 'partialMatch'.
+     * Return all Key-Elements from the given SortedSet that have the common prefix given in 'partialMatch'.
      * 
      * @param partialMatch
      *            the prefix that should match
@@ -58,44 +54,41 @@ public class SortedMatchIterator implements Iterator<String> {
     }
 
     /**
-     * Return all Key-Elements from the given SortedMap that have the common
-     * prefix given in 'partialMatch'.
+     * Return all Key-Elements from the given SortedMap that have the common prefix given in 'partialMatch'.
      * 
      * @param partialMatch
      *            the prefix that should match
      * @param map
-     *            the SortedMap from its matching keys the matches should be
-     *            iterated.
+     *            the SortedMap from its matching keys the matches should be iterated.
      */
     public SortedMatchIterator(final String partialMatch, final SortedMap<String, ?> map) {
         this(partialMatch, map.tailMap(partialMatch).keySet().iterator());
     }
 
     /**
-     * If a prefix is set, then return the matching element with with this
-     * prefix prepended.
+     * If a prefix is set, then return the matching element with with this prefix prepended.
      */
     public void setPrefix(final String prefix) {
         _prefix = prefix;
     }
 
     /**
-     * If a suffix is set, then return the matching element with with this
-     * suffix appended.
+     * If a suffix is set, then return the matching element with with this suffix appended.
      */
     public void setSuffix(final String suffix) {
         _suffix = suffix;
     }
 
     /**
-     * Override this method if you want to exclude certain values from the
-     * iterated values returned. By default, no value is excluded.
+     * Override this method if you want to exclude certain values from the iterated values returned. By default, no value is
+     * excluded.
      */
     protected boolean exclude(final String current) {
         return false;
     }
 
     // -- java.util.Iterator interface implementation
+    @Override
     public boolean hasNext() {
         while (_it.hasNext()) {
             _current = (String) _it.next();
@@ -113,6 +106,7 @@ public class SortedMatchIterator implements Iterator<String> {
         return false;
     }
 
+    @Override
     public String next() {
         String result = _current;
         if (_prefix != null) {
@@ -124,6 +118,7 @@ public class SortedMatchIterator implements Iterator<String> {
         return result;
     }
 
+    @Override
     public void remove() {
         throw new UnsupportedOperationException("no!");
     }

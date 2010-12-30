@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: HistoryWriter.java,v 1.3 2005-11-27 16:20:27 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * HistoryWriter.java,v 1.3 2005-11-27 16:20:27 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
@@ -18,15 +16,13 @@ import java.io.Reader;
 import org.gnu.readline.Readline;
 
 /**
- * A utility class that writes the history. This especially handles multiline
- * elements. This should be some Reader/Writer, that handles reading/writing of
- * escaped lines. For now, it is just a collection of static methods. Quick hack
- * to make storing of multiline statements work..
+ * A utility class that writes the history. This especially handles multiline elements. This should be some Reader/Writer, that
+ * handles reading/writing of escaped lines. For now, it is just a collection of static methods. Quick hack to make storing of
+ * multiline statements work..
  */
 public class HistoryWriter {
 
-    public static void writeReadlineHistory(final OutputStream out)
-    throws IOException {
+    public static void writeReadlineHistory(final OutputStream out) throws IOException {
         final PrintWriter w = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
         final int len = Readline.getHistorySize();
         for (int i = 0; i < len; ++i) {
@@ -73,14 +69,14 @@ public class HistoryWriter {
             for (int i = 0; i < s.length(); ++i) {
                 final char c = s.charAt(i);
                 switch (c) {
-                case '\\':
-                    out.append("\\\\");
-                    break;
-                case '\n':
-                    out.append("\\\n");
-                    break;
-                default:
-                    out.append(c);
+                    case '\\':
+                        out.append("\\\\");
+                        break;
+                    case '\n':
+                        out.append("\\\n");
+                        break;
+                    default:
+                        out.append(c);
                 }
             }
             return out.toString();

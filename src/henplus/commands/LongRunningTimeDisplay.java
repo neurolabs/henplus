@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -10,15 +9,14 @@ import henplus.HenPlus;
 import henplus.view.util.CancelWriter;
 
 /**
- * After arming, this runnable will display the current time after some timeout.
- * Used in long running SQL-statements to show a) how long it took so far b)
- * keep terminal sessions open that are otherwise being closed by some firewalls
- * :-)
+ * After arming, this runnable will display the current time after some timeout. Used in long running SQL-statements to show a) how
+ * long it took so far b) keep terminal sessions open that are otherwise being closed by some firewalls :-)
  * 
  * @author hzeller
  * @version $Revision: 1.1 $
  */
 public class LongRunningTimeDisplay implements Runnable {
+
     private final long _startTimeDisplayAfter;
     private final String _message;
     private final CancelWriter _timeDisplay;
@@ -53,9 +51,10 @@ public class LongRunningTimeDisplay implements Runnable {
         notify();
     }
 
+    @Override
     public synchronized void run() {
         try {
-            for (;;) {
+            while (true) {
                 while (_running && !_armed) {
                     wait();
                 }

@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -13,10 +12,10 @@ import henplus.PropertyRegistry;
 import henplus.SQLSession;
 import henplus.SigIntHandler;
 import henplus.logging.Logger;
-import henplus.property.PropertyHolder;
 import henplus.property.BooleanPropertyHolder;
-import henplus.view.util.NameCompleter;
+import henplus.property.PropertyHolder;
 import henplus.view.util.CancelWriter;
+import henplus.view.util.NameCompleter;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -25,29 +24,30 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Map.Entry;
 
 /**
  * document me.
  */
 public final class SQLCommand extends AbstractCommand {
-    private static final String[] TABLE_COMPLETER_KEYWORD = { "FROM", "INTO",
-        "UPDATE", "TABLE", "ALIAS", "VIEW", /* create index */"ON" };
+
+    private static final String[] TABLE_COMPLETER_KEYWORD = { "FROM", "INTO", "UPDATE", "TABLE", "ALIAS", "VIEW", /* create index */
+    "ON" };
 
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] {
                 // provide tab-completion at least for these command starts..
-                "select", "insert", "update", "delete", "create", "alter",
-                "drop", "commit", "rollback",
+                "select", "insert", "update", "delete", "create", "alter", "drop", "commit", "rollback",
                 /* "call-procedure", test */
                 // we support _any_ string, that is not part of the
                 // henplus buildin-stuff; the following empty string flags this.
-        "" };
+                "" };
     }
 
     private final ListUserObjectsCommand _tableCompleter;
@@ -73,24 +73,18 @@ public final class SQLCommand extends AbstractCommand {
         _rowLimit = 2000;
         _showHeader = true;
         _showFooter = true;
-        registry.registerProperty("column-delimiter",
-                new SQLColumnDelimiterProperty());
+        registry.registerProperty("column-delimiter", new SQLColumnDelimiterProperty());
         registry.registerProperty("sql-result-limit", new RowLimitProperty());
-        registry.registerProperty("sql-result-showheader",
-                new ShowHeaderProperty());
-        registry.registerProperty("sql-result-showfooter",
-                new ShowFooterProperty());
-        _statementCanceller = new StatementCanceller(
-                new CurrentStatementCancelTarget());
+        registry.registerProperty("sql-result-showheader", new ShowHeaderProperty());
+        registry.registerProperty("sql-result-showfooter", new ShowFooterProperty());
+        _statementCanceller = new StatementCanceller(new CurrentStatementCancelTarget());
         new Thread(_statementCanceller).start();
-        _longRunningDisplay = new LongRunningTimeDisplay("statement running",
-                30000);
+        _longRunningDisplay = new LongRunningTimeDisplay("statement running", 30000);
         new Thread(_longRunningDisplay).start();
     }
 
     /**
-     * don't show the commands available in the toplevel command completion list
-     * ..
+     * don't show the commands available in the toplevel command completion list ..
      */
     @Override
     public boolean participateInCommandCompletion() {
@@ -98,12 +92,10 @@ public final class SQLCommand extends AbstractCommand {
     }
 
     /**
-     * complicated SQL statements are only complete with semicolon. Simple
-     * commands may have no semicolon (like 'commit' and 'rollback'). Yet others
-     * are not complete even if we encounter a semicolon (like triggers and
-     * stored procedures). We support the SQL*PLUS syntax in that we consider
-     * these kind of statements complete with a single slash ('/') at the
-     * beginning of a line.
+     * complicated SQL statements are only complete with semicolon. Simple commands may have no semicolon (like 'commit' and
+     * 'rollback'). Yet others are not complete even if we encounter a semicolon (like triggers and stored procedures). We support
+     * the SQL*PLUS syntax in that we consider these kind of statements complete with a single slash ('/') at the beginning of a
+     * line.
      */
     @Override
     public boolean isComplete(String command) {
@@ -114,12 +106,10 @@ public final class SQLCommand extends AbstractCommand {
         // FIXME: this is a very dumb 'parser'.
         // i.e. string literals are not considered.
         final boolean anyProcedure = command.startsWith("BEGIN")
-                || command.startsWith("DECLARE") || (command
-                        .startsWith("CREATE") || command.startsWith("REPLACE")) && (containsWord(
-                                command, "PROCEDURE")
-                                || containsWord(command, "FUNCTION")
-                                || containsWord(command, "PACKAGE") || containsWord(command,
-                                "TRIGGER"));
+                || command.startsWith("DECLARE")
+                || (command.startsWith("CREATE") || command.startsWith("REPLACE"))
+                && (containsWord(command, "PROCEDURE") || containsWord(command, "FUNCTION") || containsWord(command, "PACKAGE") || containsWord(
+                        command, "TRIGGER"));
 
         if (!anyProcedure && command.endsWith(";")) {
             return true;
@@ -127,9 +117,7 @@ public final class SQLCommand extends AbstractCommand {
         // sqlplus is complete on a single '/' on a line.
         if (command.length() >= 3) {
             final int lastPos = command.length() - 1;
-            if (command.charAt(lastPos) == '\n'
-                && command.charAt(lastPos - 1) == '/'
-                    && command.charAt(lastPos - 2) == '\n') {
+            if (command.charAt(lastPos) == '\n' && command.charAt(lastPos - 1) == '/' && command.charAt(lastPos - 2) == '\n') {
                 return true;
             }
         }
@@ -171,8 +159,9 @@ public final class SQLCommand extends AbstractCommand {
     /**
      * A statement cancel target that accesses the instance wide statement.
      */
-    private final class CurrentStatementCancelTarget implements
-    StatementCanceller.CancelTarget {
+    private final class CurrentStatementCancelTarget implements StatementCanceller.CancelTarget {
+
+        @Override
         public void cancelRunningStatement() {
             try {
                 HenPlus.msg().println("cancel statement...");
@@ -184,26 +173,25 @@ public final class SQLCommand extends AbstractCommand {
                 HenPlus.msg().println("done.");
                 _running = false;
             } catch (final Exception e) {
-            	Logger.debug("Exception while cancelling a statement: ", e);
+                Logger.debug("Exception while cancelling a statement: ", e);
             }
         }
     }
 
     /**
-     * looks, if this word is contained in 'all', preceeded and followed by a
-     * whitespace.
+     * looks, if this word is contained in 'all', preceeded and followed by a whitespace.
      */
     private boolean containsWord(final String all, final String word) {
         final int wordLen = word.length();
         final int index = all.indexOf(word);
-        return index >= 0
-                && (index == 0 || Character.isWhitespace(all.charAt(index - 1))) && Character
-                        .isWhitespace(all.charAt(index + wordLen));
+        return index >= 0 && (index == 0 || Character.isWhitespace(all.charAt(index - 1)))
+                && Character.isWhitespace(all.charAt(index + wordLen));
     }
 
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         String command = cmd + " " + param;
         // boolean background = false;
@@ -255,19 +243,16 @@ public final class SQLCommand extends AbstractCommand {
                 if (hasResultSet) {
                     rset = _stmt.getResultSet();
                     ResultSetRenderer renderer;
-                    renderer = new ResultSetRenderer(rset,
-                            getColumnDelimiter(), isShowHeader(),
-                            isShowFooter(), getRowLimit(), HenPlus.out());
+                    renderer = new ResultSetRenderer(rset, getColumnDelimiter(), isShowHeader(), isShowFooter(), getRowLimit(),
+                            HenPlus.out());
                     SigIntHandler.getInstance().pushInterruptable(renderer);
                     final int rows = renderer.execute();
                     SigIntHandler.getInstance().popInterruptable();
                     if (renderer.limitReached()) {
-                        session.println("limit of " + getRowLimit()
-                                + " rows reached ..");
+                        session.println("limit of " + getRowLimit() + " rows reached ..");
                         session.print("> ");
                     }
-                    session.print(rows + " row" + (rows == 1 ? "" : "s")
-                            + " in result");
+                    session.print(rows + " row" + (rows == 1 ? "" : "s") + " in result");
                     lapTime = renderer.getFirstRowTime() - startTime;
                 } else {
                     final int updateCount = _stmt.getUpdateCount();
@@ -298,22 +283,14 @@ public final class SQLCommand extends AbstractCommand {
             }
 
             return SUCCESS;
-        }
-        /*
-         * catch (InterruptedException ie) {
-         * session.print("interrupted after "); execTime =
-         * System.currentTimeMillis() - startTime;
-         * TimeRenderer.printTime(execTime, HenPlus.msg());
-         * session.println("."); return SUCCESS; }
-         */
-        catch (final Exception e) {
+        } catch (final Exception e) {
             final String msg = e.getMessage();
             if (msg != null) {
                 // oracle appends a newline to the message for some reason.
                 Logger.error("FAILURE: '%s'", e.getMessage());
                 Logger.debug("Exception: ", e);
             }
-                
+
             return EXEC_FAILED;
         } finally {
             _statementCanceller.disarm();
@@ -338,8 +315,7 @@ public final class SQLCommand extends AbstractCommand {
     // table name. that is: if some keyword has been found before, switch to
     // table-completer-mode :-)
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final String canonCmd = partialCommand.toUpperCase();
         /*
          * look for keywords that expect table names
@@ -385,7 +361,7 @@ public final class SQLCommand extends AbstractCommand {
              */
             final String tables = partialCommand.substring(tableMatch, endTabMatch);
             final HashMap<String, Set<String>> tmp = new HashMap<String, Set<String>>();
-            Iterator<Map.Entry<String, String>> it = tableDeclParser(tables).entrySet().iterator();
+            final Iterator<Map.Entry<String, String>> it = tableDeclParser(tables).entrySet().iterator();
             while (it.hasNext()) {
                 final Map.Entry<String, String> entry = it.next();
                 final String alias = entry.getKey();
@@ -407,7 +383,7 @@ public final class SQLCommand extends AbstractCommand {
                 }
             }
             final NameCompleter completer = new NameCompleter();
-            Iterator<Entry<String, Set<String>>> it2 = tmp.entrySet().iterator();
+            final Iterator<Entry<String, Set<String>>> it2 = tmp.entrySet().iterator();
             while (it2.hasNext()) {
                 final Map.Entry<String, Set<String>> entry = (Map.Entry) it.next();
                 final String col = entry.getKey();
@@ -423,18 +399,15 @@ public final class SQLCommand extends AbstractCommand {
             }
             return completer.getAlternatives(lastWord);
         } else { // table completion.
-            return _tableCompleter.completeTableName(HenPlus.getInstance()
-                    .getCurrentSession(), lastWord);
+            return _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
         }
     }
 
     /**
-     * parses 'tablename ((AS)? alias)? [,...]' and returns a map, that maps the
-     * names (or aliases) to the tablenames.
+     * parses 'tablename ((AS)? alias)? [,...]' and returns a map, that maps the names (or aliases) to the tablenames.
      */
     private Map tableDeclParser(final String tableDecl) {
-        final StringTokenizer tokenizer = new StringTokenizer(tableDecl,
-                " \t\n\r\f,", true);
+        final StringTokenizer tokenizer = new StringTokenizer(tableDecl, " \t\n\r\f,", true);
         final Map result = new HashMap();
         String tok;
         String table = null;
@@ -446,40 +419,40 @@ public final class SQLCommand extends AbstractCommand {
                 continue;
             }
             switch (state) {
-            case 0: { // initial/endstate
-                table = tok;
-                alias = tok;
-                state = 1;
-                break;
-            }
-            case 1: { // table seen, waiting for potential alias.
-                if ("AS".equals(tok.toUpperCase())) {
-                    state = 2;
-                } else if (",".equals(tok)) {
-                    state = 0; // we are done.
-                } else {
+                case 0: { // initial/endstate
+                    table = tok;
                     alias = tok;
-                    state = 3;
+                    state = 1;
+                    break;
                 }
-                break;
-            }
-            case 2: { // 'AS' seen, waiting definitly for alias.
-                if (",".equals(tok)) {
-                    // error: alias missing for $table.
+                case 1: { // table seen, waiting for potential alias.
+                    if ("AS".equals(tok.toUpperCase())) {
+                        state = 2;
+                    } else if (",".equals(tok)) {
+                        state = 0; // we are done.
+                    } else {
+                        alias = tok;
+                        state = 3;
+                    }
+                    break;
+                }
+                case 2: { // 'AS' seen, waiting definitly for alias.
+                    if (",".equals(tok)) {
+                        // error: alias missing for $table.
+                        state = 0;
+                    } else {
+                        alias = tok;
+                        state = 3;
+                    }
+                    break;
+                }
+                case 3: { // waiting for ',' at end of 'table (as)? alias'
+                    if (!",".equals(tok)) {
+                        // error: ',' expected.
+                    }
                     state = 0;
-                } else {
-                    alias = tok;
-                    state = 3;
+                    break;
                 }
-                break;
-            }
-            case 3: { // waiting for ',' at end of 'table (as)? alias'
-                if (!",".equals(tok)) {
-                    // error: ',' expected.
-                }
-                state = 0;
-                break;
-            }
             }
 
             if (state == 0) {
@@ -525,13 +498,10 @@ public final class SQLCommand extends AbstractCommand {
     @Override
     public String getLongDescription(String cmd) {
         String dsc;
-        dsc = "\t'"
-            + cmd
-            + "': this is not a build-in command, so would be\n"
-            + "\tconsidered as SQL-command and handed over to the JDBC-driver.\n"
-            + "\tHowever, I don't know anything about its syntax. RTFSQLM.\n"
-            + "\ttry <http://www.google.com/search?q=sql+syntax+" + cmd
-            + ">";
+        dsc = "\t'" + cmd + "': this is not a build-in command, so would be\n"
+                + "\tconsidered as SQL-command and handed over to the JDBC-driver.\n"
+                + "\tHowever, I don't know anything about its syntax. RTFSQLM.\n"
+                + "\ttry <http://www.google.com/search?q=sql+syntax+" + cmd + ">";
         cmd = cmd.toLowerCase();
         if ("select".equals(cmd)) {
             dsc = "\tselect from tables.";
@@ -552,14 +522,14 @@ public final class SQLCommand extends AbstractCommand {
         } else if ("commit".equals(cmd)) {
             dsc = "\tcommit transaction.";
         } else if ("call-procedure".equals(cmd)) {
-            dsc = "\tcall a function that returns exactly one parameter\n"
-                + "\tthat can be gathered as string (EXPERIMENTAL)\n"
-                + "\texample:\n" + "\t  call-procedure foobar(42);\n";
+            dsc = "\tcall a function that returns exactly one parameter\n" + "\tthat can be gathered as string (EXPERIMENTAL)\n"
+                    + "\texample:\n" + "\t  call-procedure foobar(42);\n";
         }
         return dsc;
     }
 
     private class SQLColumnDelimiterProperty extends PropertyHolder {
+
         public SQLColumnDelimiterProperty() {
             super(SQLCommand.this.getColumnDelimiter());
         }
@@ -584,13 +554,13 @@ public final class SQLCommand extends AbstractCommand {
         public String getLongDescription() {
             String dsc;
             dsc = "\tSet another string that is used to separate columns in\n"
-                + "\tSQL result sets. Usually this is a pipe-symbol '|', but\n"
-                + "\tmaybe you want to have an empty string ?";
+                    + "\tSQL result sets. Usually this is a pipe-symbol '|', but\n" + "\tmaybe you want to have an empty string ?";
             return dsc;
         }
     }
 
     private class RowLimitProperty extends PropertyHolder {
+
         public RowLimitProperty() {
             super(String.valueOf(SQLCommand.this.getRowLimit()));
         }
@@ -602,12 +572,10 @@ public final class SQLCommand extends AbstractCommand {
             try {
                 newIntValue = Integer.parseInt(newValue);
             } catch (final NumberFormatException e) {
-                throw new IllegalArgumentException("cannot parse '" + newValue
-                        + "' as integer");
+                throw new IllegalArgumentException("cannot parse '" + newValue + "' as integer");
             }
             if (newIntValue < 1) {
-                throw new IllegalArgumentException(
-                "value cannot be less than 1");
+                throw new IllegalArgumentException("value cannot be less than 1");
             }
             SQLCommand.this.setRowLimit(newIntValue);
             return newValue;

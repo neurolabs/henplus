@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  */
 package henplus.plugins.tablediff;
 
@@ -30,13 +29,10 @@ public final class TableDiffer {
      * @param referenceTable
      * @param diffTable
      * @param colNameIgnoreCase
-     *            specifies if column names shall be compared in a case
-     *            insensitive way.
-     * @return An instance of <code>TableDiffResult</code> if their are
-     *         differences between the tables, otherwise <code>null</code>.
+     *            specifies if column names shall be compared in a case insensitive way.
+     * @return An instance of <code>TableDiffResult</code> if their are differences between the tables, otherwise <code>null</code>.
      */
-    public static TableDiffResult diffTables(final Table referenceTable,
-            final Table diffTable, final boolean colNameIgnoreCase) {
+    public static TableDiffResult diffTables(final Table referenceTable, final Table diffTable, final boolean colNameIgnoreCase) {
         TableDiffResult result = null;
 
         if (referenceTable != null && diffTable != null) {
@@ -47,9 +43,8 @@ public final class TableDiffer {
                 while (refIter.hasNext()) {
                     final Column col = refIter.next();
                     Logger.debug("[TableDiffer.diffTables] querying table for '%s'", col.getName());
-                    final Column diff = diffTable.getColumnByName(col.getName(),
-                            colNameIgnoreCase);
-                    Logger.debug("[TableDiffer.diffTables] got: '%s'",  diff);
+                    final Column diff = diffTable.getColumnByName(col.getName(), colNameIgnoreCase);
+                    Logger.debug("[TableDiffer.diffTables] got: '%s'", diff);
                     if (diff == null) {
                         Logger.debug("missing col: '%s'", col.getName());
                         result.addRemovedColumn(col);
@@ -64,8 +59,7 @@ public final class TableDiffer {
             if (diffIter != null) {
                 while (diffIter.hasNext()) {
                     final Column col = diffIter.next();
-                    final Column ref = referenceTable.getColumnByName(col.getName(),
-                            colNameIgnoreCase);
+                    final Column ref = referenceTable.getColumnByName(col.getName(), colNameIgnoreCase);
                     if (ref == null) {
                         Logger.debug("added col: '%s'", col.getName());
                         result.addAddedColumn(col);

@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: DumpCommand.java,v 1.38 2006-11-02 17:55:14 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * DumpCommand.java,v 1.38 2006-11-02 17:55:14 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
@@ -62,27 +60,23 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Dump out and read that dump of a table; database-independently. This reads
- * directly from the stream, so only needs not much memory, no matter the size
- * of the file. --------------------------- (tabledump 'student' (dump-version 1
- * 1) (henplus-version 0.3.3) (database-info 'MySQL - 3.23.47') (meta ('name',
- * 'sex', 'student_id') ('STRING', 'STRING', 'INTEGER' )) (data ('Megan','F',1)
- * ('Joseph','M',2) ('Kyle','M',3) ('Mac Donald\'s','M',44)) (rows 4))
- * ---------------------------
+ * Dump out and read that dump of a table; database-independently. This reads directly from the stream, so only needs not much
+ * memory, no matter the size of the file. --------------------------- (tabledump 'student' (dump-version 1 1) (henplus-version
+ * 0.3.3) (database-info 'MySQL - 3.23.47') (meta ('name', 'sex', 'student_id') ('STRING', 'STRING', 'INTEGER' )) (data
+ * ('Megan','F',1) ('Joseph','M',2) ('Kyle','M',3) ('Mac Donald\'s','M',44)) (rows 4)) ---------------------------
  * 
- * QUICK AND DIRTY HACK .. NOT YET NICE. Too long. grown. Refactor..! (create an
- * henplus.dump package so that this can be used
+ * QUICK AND DIRTY HACK .. NOT YET NICE. Too long. grown. Refactor..! (create an henplus.dump package so that this can be used
  * 
  * @author Henner Zeller
  */
 public class DumpCommand extends AbstractCommand implements Interruptable {
-    private static final ColumnMetaData META_HEADERS[];
+
+    private static final ColumnMetaData[] META_HEADERS;
     static {
         META_HEADERS = new ColumnMetaData[3];
         META_HEADERS[0] = new ColumnMetaData("Field");
         META_HEADERS[1] = new ColumnMetaData("Type");
-        META_HEADERS[2] = new ColumnMetaData("Max. length found",
-                ColumnMetaData.ALIGN_RIGHT);
+        META_HEADERS[2] = new ColumnMetaData("Max. length found", ColumnMetaData.ALIGN_RIGHT);
     }
 
     private static final String FILE_ENCODING = "UTF-8";
@@ -144,8 +138,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
         JDBCTYPE2TYPENAME.put(new Integer(Types.DATE), TYPES[HP_DATE]);
         JDBCTYPE2TYPENAME.put(new Integer(Types.TIME), TYPES[HP_TIME]);
-        JDBCTYPE2TYPENAME
-        .put(new Integer(Types.TIMESTAMP), TYPES[HP_TIMESTAMP]);
+        JDBCTYPE2TYPENAME.put(new Integer(Types.TIMESTAMP), TYPES[HP_TIMESTAMP]);
     }
 
     private final ListUserObjectsCommand _tableCompleter;
@@ -161,9 +154,9 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
-        return new String[] { "dump-out", "dump-in", "verify-dump",
-                "dump-conditional", "dump-select" };
+        return new String[] { "dump-out", "dump-in", "verify-dump", "dump-conditional", "dump-select" };
     }
 
     /**
@@ -175,8 +168,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     /**
-     * dump-in and verify-dump is complete as single-liner. dump-out and
-     * dump-conditional needs a semicolon.
+     * dump-in and verify-dump is complete as single-liner. dump-out and dump-conditional needs a semicolon.
      */
     @Override
     public boolean isComplete(final String command) {
@@ -189,6 +181,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         // final String FILE_ENCODING = System.getProperty("file.encoding");
         final StringTokenizer st = new StringTokenizer(param);
@@ -217,8 +210,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             beginInterruptableSection();
             try {
                 out = openOutputStream(fileName, FILE_ENCODING);
-                final int result = dumpSelect(session, tabName, statement.toString(),
-                        out, FILE_ENCODING);
+                final int result = dumpSelect(session, tabName, statement.toString(), out, FILE_ENCODING);
                 return result;
             } catch (final Exception e) {
                 Logger.error("failed: ", e);
@@ -229,9 +221,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 }
                 endInterruptableSection();
             }
-        }
-
-        else if ("dump-conditional".equals(cmd)) {
+        } else if ("dump-conditional".equals(cmd)) {
             if (session == null) {
                 Logger.error("not connected.");
                 return EXEC_FAILED;
@@ -254,8 +244,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             beginInterruptableSection();
             try {
                 out = openOutputStream(fileName, FILE_ENCODING);
-                final int result = dumpTable(session, tabName, whereClause, out,
-                        FILE_ENCODING);
+                final int result = dumpTable(session, tabName, whereClause, out, FILE_ENCODING);
                 return result;
             } catch (final Exception e) {
                 Logger.error("failed: ", e);
@@ -267,9 +256,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 }
                 endInterruptableSection();
             }
-        }
-
-        else if ("dump-out".equals(cmd)) {
+        } else if ("dump-out".equals(cmd)) {
             if (session == null) {
                 Logger.error("not connected.");
                 return EXEC_FAILED;
@@ -308,13 +295,10 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         Iterator<String> iter = null;
 
                         if ("*".equals(nextToken)) {
-                            iter = _tableCompleter
-                            .getTableNamesIteratorForSession(session);
+                            iter = _tableCompleter.getTableNamesIteratorForSession(session);
                         } else if (nextToken.indexOf('*') > -1) {
-                            final String tablePrefix = nextToken.substring(0,
-                                    nextToken.length() - 1);
-                            final SortedSet<String> tableNames = _tableCompleter
-                            .getTableNamesForSession(session);
+                            final String tablePrefix = nextToken.substring(0, nextToken.length() - 1);
+                            final SortedSet<String> tableNames = _tableCompleter.getTableNamesForSession(session);
                             final NameCompleter compl = new NameCompleter(tableNames);
                             iter = compl.getAlternatives(tablePrefix);
                         }
@@ -331,14 +315,11 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 List<String> tableSequence;
                 if (needsSort) {
                     tableSequence = new ArrayList<String>();
-                    Logger.info(
-                            "Retrieving and sorting tables. This may take a while, please be patient.");
+                    Logger.info("Retrieving and sorting tables. This may take a while, please be patient.");
 
                     // get sorted tables
-                    final SQLMetaData meta = new SQLMetaDataBuilder().getMetaData(
-                            session, tableSet.iterator());
-                    final DependencyResolver dr = new DependencyResolver(meta
-                            .getTables());
+                    final SQLMetaData meta = new SQLMetaDataBuilder().getMetaData(session, tableSet.iterator());
+                    final DependencyResolver dr = new DependencyResolver(meta.getTables());
                     resolverResult = dr.sortTables();
                     final Collection<Table> tabs = resolverResult.getTables();
                     final Iterator<Table> it = tabs.iterator();
@@ -351,15 +332,13 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
                 /* 3) dump out */
                 if (tableSequence.size() > 1) {
-                    Logger.info(
-                             "%s tables to dump.", tableSequence.size());
+                    Logger.info("%s tables to dump.", tableSequence.size());
                 }
                 final Iterator it = tableSequence.iterator();
                 while (_running && it.hasNext()) {
                     final String table = (String) it.next();
                     if (!alreadyDumped.contains(table)) {
-                        final int result = dumpTable(session, table, null, out,
-                                FILE_ENCODING, alreadyDumped);
+                        final int result = dumpTable(session, table, null, out, FILE_ENCODING, alreadyDumped);
                         if (result != SUCCESS) {
                             dumpResult = result;
                         }
@@ -367,29 +346,20 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 }
 
                 if (tableSequence.size() > 1) {
-                    final long duration = System.currentTimeMillis()
-                    - startTime;
+                    final long duration = System.currentTimeMillis() - startTime;
                     // TODO: move to Logger, timerenderer returns strings.
-                    HenPlus.msg()
-                    .print(
-                            "Dumping " + tableSequence.size()
-                            + " tables took ");
+                    HenPlus.msg().print("Dumping " + tableSequence.size() + " tables took ");
                     TimeRenderer.printTime(duration, HenPlus.msg());
                     HenPlus.msg().println();
                 }
 
                 /* 4) warn about cycles */
-                if (resolverResult != null
-                        && resolverResult.getCyclicDependencies() != null
+                if (resolverResult != null && resolverResult.getCyclicDependencies() != null
                         && resolverResult.getCyclicDependencies().size() > 0) {
-                    HenPlus
-                    .msg()
-                    .println(
-                            "-----------\n"
-                            + "NOTE: There have been cyclic dependencies between several tables detected.\n"
-                            + "These may cause trouble when dumping in the currently dumped data.");
-                    final Iterator iter = resolverResult.getCyclicDependencies()
-                    .iterator();
+                    HenPlus.msg().println(
+                            "-----------\n" + "NOTE: There have been cyclic dependencies between several tables detected.\n"
+                                    + "These may cause trouble when dumping in the currently dumped data.");
+                    final Iterator iter = resolverResult.getCyclicDependencies().iterator();
                     final int count = 0;
                     final StringBuilder sb = new StringBuilder();
                     while (iter.hasNext()) {
@@ -397,8 +367,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         sb.append("Cycle ").append(count).append(": ");
 
                         while (iter2.hasNext()) {
-                            sb.append(((Table) iter2.next()).getName()).append(
-                            " -> ");
+                            sb.append(((Table) iter2.next()).getName()).append(" -> ");
                         }
                         sb.delete(sb.length() - 4, sb.length()).append('\n');
                     }
@@ -408,9 +377,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
                 return dumpResult;
             } catch (final Exception e) {
-                HenPlus.msg().println(
-                        "dump table '" + tabName + "' failed: "
-                        + e.getMessage());
+                HenPlus.msg().println("dump table '" + tabName + "' failed: " + e.getMessage());
                 e.printStackTrace();
                 return EXEC_FAILED;
             } finally {
@@ -419,12 +386,9 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 }
                 endInterruptableSection();
             }
-        }
-
-        else if ("dump-in".equals(cmd)) {
+        } else if ("dump-in".equals(cmd)) {
             if (session == null) {
-                HenPlus.msg().println(
-                "not connected. Only verify-dump possible.");
+                HenPlus.msg().println("not connected. Only verify-dump possible.");
                 return EXEC_FAILED;
             }
             if (argc < 1 || argc > 2) {
@@ -442,9 +406,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 }
             }
             return retryReadDump(fileName, session, commitPoint);
-        }
-
-        else if ("verify-dump".equals(cmd)) {
+        } else if ("verify-dump".equals(cmd)) {
             if (argc != 1) {
                 return SYNTAX_ERROR;
             }
@@ -457,8 +419,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     /**
      * reads a dump and does a retry if the file encoding does not match.
      */
-    private int retryReadDump(final String fileName, final SQLSession session,
-            final int commitPoint) {
+    private int retryReadDump(final String fileName, final SQLSession session, final int commitPoint) {
         LineNumberReader in = null;
         final boolean hot = session != null;
         beginInterruptableSection();
@@ -469,8 +430,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 try {
                     in = openInputReader(fileName, fileEncoding);
                     while (skipWhite(in)) {
-                        final int result = readTableDump(in, fileEncoding, session,
-                                hot, commitPoint);
+                        final int result = readTableDump(in, fileEncoding, session, hot, commitPoint);
                         retryPossible = false;
                         if (!_running) {
                             HenPlus.msg().println("interrupted.");
@@ -486,9 +446,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         throw new Exception("got file encoding problem twice");
                     }
                     fileEncoding = e.getEncoding();
-                    HenPlus.msg().println(
-                            "got a different encoding; retry with "
-                            + fileEncoding);
+                    HenPlus.msg().println("got a different encoding; retry with " + fileEncoding);
                 }
             } while (retryPossible);
             return SUCCESS;
@@ -508,8 +466,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         }
     }
 
-    private PrintStream openOutputStream(final String fileName, final String encoding)
-    throws IOException {
+    private PrintStream openOutputStream(final String fileName, final String encoding) throws IOException {
         final File f = _fileOpener.openFile(fileName);
         OutputStream outStream = new FileOutputStream(f);
         if (fileName.endsWith(".gz")) {
@@ -518,8 +475,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         return new PrintStream(outStream, false, encoding);
     }
 
-    private LineNumberReader openInputReader(final String fileName,
-            final String fileEncoding) throws IOException {
+    private LineNumberReader openInputReader(final String fileName, final String fileEncoding) throws IOException {
         final File f = _fileOpener.openFile(fileName);
         InputStream inStream = new FileInputStream(f);
         if (fileName.endsWith(".gz")) {
@@ -542,25 +498,20 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         }
     }
 
-    private int dumpTable(final SQLSession session, final String tabName,
-            final String whereClause, final PrintStream dumpOut, final String fileEncoding,
-            final Set<String> alreadyDumped) throws Exception {
-        final int result = dumpTable(session, tabName, whereClause, dumpOut,
-                fileEncoding);
+    private int dumpTable(final SQLSession session, final String tabName, final String whereClause, final PrintStream dumpOut,
+            final String fileEncoding, final Set<String> alreadyDumped) throws Exception {
+        final int result = dumpTable(session, tabName, whereClause, dumpOut, fileEncoding);
         alreadyDumped.add(tabName);
         return result;
     }
 
-    private int dumpSelect(final SQLSession session, final String exportTable,
-            final String statement, final PrintStream dumpOut, final String fileEncoding)
-    throws Exception {
-        return dumpTable(session, new SelectDumpSource(session, exportTable,
-                statement), dumpOut, fileEncoding);
+    private int dumpSelect(final SQLSession session, final String exportTable, final String statement, final PrintStream dumpOut,
+            final String fileEncoding) throws Exception {
+        return dumpTable(session, new SelectDumpSource(session, exportTable, statement), dumpOut, fileEncoding);
     }
 
-    private int dumpTable(final SQLSession session, String tabName,
-            final String whereClause, final PrintStream dumpOut, final String fileEncoding)
-    throws Exception {
+    private int dumpTable(final SQLSession session, String tabName, final String whereClause, final PrintStream dumpOut,
+            final String fileEncoding) throws Exception {
 
         // asking for meta data is only possible with the correct
         // table name.
@@ -582,23 +533,20 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             final String alternative = _tableCompleter.correctTableName(tabName);
             if (alternative != null && !alternative.equals(tabName)) {
                 tabName = alternative;
-                HenPlus.out().println(
-                        "dumping table: '" + tabName + "' (corrected name)");
+                HenPlus.out().println("dumping table: '" + tabName + "' (corrected name)");
             }
         }
-        final TableDumpSource tableSource = new TableDumpSource(schema,
-                tabName, session);
+        final TableDumpSource tableSource = new TableDumpSource(schema, tabName, session);
         tableSource.setWhereClause(whereClause);
         return dumpTable(session, tableSource, dumpOut, fileEncoding);
     }
 
-    private int dumpTable(final SQLSession session, final DumpSource dumpSource,
-            final PrintStream dumpOut, final String fileEncoding) throws Exception {
+    private int dumpTable(final SQLSession session, final DumpSource dumpSource, final PrintStream dumpOut,
+            final String fileEncoding) throws Exception {
         final long startTime = System.currentTimeMillis();
         final MetaProperty[] metaProps = dumpSource.getMetaProperties();
         if (metaProps.length == 0) {
-            HenPlus.msg().println(
-                    "No fields in " + dumpSource.getDescription() + " found.");
+            HenPlus.msg().println("No fields in " + dumpSource.getDescription() + " found.");
             return EXEC_FAILED;
         }
 
@@ -606,15 +554,13 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
         dumpOut.println("(tabledump '" + dumpSource.getTableName() + "'");
         dumpOut.println("  (file-encoding '" + fileEncoding + "')");
-        dumpOut.println("  (dump-version " + DUMP_VERSION + " " + DUMP_VERSION
-                + ")");
+        dumpOut.println("  (dump-version " + DUMP_VERSION + " " + DUMP_VERSION + ")");
         /*
          * if (whereClause != null) { dumpOut.print("  (where-clause ");
          * quoteString(dumpOut, whereClause); dumpOut.println(")"); }
          */
         dumpOut.println("  (henplus-version '" + Version.getVersion() + "')");
-        dumpOut.println("  (time '" + new Timestamp(System.currentTimeMillis())
-        + "')");
+        dumpOut.println("  (time '" + new Timestamp(System.currentTimeMillis()) + "')");
         dumpOut.print("  (database-info ");
         quoteString(dumpOut, session.getDatabaseInfo());
         dumpOut.println(")");
@@ -640,8 +586,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         Statement stmt = null;
         try {
             long rows = 0;
-            final ProgressWriter progressWriter = new ProgressWriter(expectedRows,
-                    HenPlus.msg());
+            final ProgressWriter progressWriter = new ProgressWriter(expectedRows, HenPlus.msg());
             rset = dumpSource.getResultSet();
             stmt = dumpSource.getStatement();
             boolean isFirst = true;
@@ -658,63 +603,62 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     final int col = i + 1;
                     final int thisType = metaProps[i].getType();
                     switch (thisType) {
-                    case HP_INTEGER:
-                    case HP_NUMERIC:
-                    case HP_DOUBLE: {
-                        final String val = rset.getString(col);
-                        if (rset.wasNull()) {
-                            dumpOut.print(NULL_STR);
-                        } else {
-                            dumpOut.print(val);
+                        case HP_INTEGER:
+                        case HP_NUMERIC:
+                        case HP_DOUBLE: {
+                            final String val = rset.getString(col);
+                            if (rset.wasNull()) {
+                                dumpOut.print(NULL_STR);
+                            } else {
+                                dumpOut.print(val);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    case HP_TIMESTAMP: {
-                        final Timestamp val = rset.getTimestamp(col);
-                        if (rset.wasNull()) {
-                            dumpOut.print(NULL_STR);
-                        } else {
-                            quoteString(dumpOut, val.toString());
+                        case HP_TIMESTAMP: {
+                            final Timestamp val = rset.getTimestamp(col);
+                            if (rset.wasNull()) {
+                                dumpOut.print(NULL_STR);
+                            } else {
+                                quoteString(dumpOut, val.toString());
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    case HP_TIME: {
-                        final Time val = rset.getTime(col);
-                        if (rset.wasNull()) {
-                            dumpOut.print(NULL_STR);
-                        } else {
-                            quoteString(dumpOut, val.toString());
+                        case HP_TIME: {
+                            final Time val = rset.getTime(col);
+                            if (rset.wasNull()) {
+                                dumpOut.print(NULL_STR);
+                            } else {
+                                quoteString(dumpOut, val.toString());
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    case HP_DATE: {
-                        final java.sql.Date val = rset.getDate(col);
-                        if (rset.wasNull()) {
-                            dumpOut.print(NULL_STR);
-                        } else {
-                            quoteString(dumpOut, val.toString());
+                        case HP_DATE: {
+                            final java.sql.Date val = rset.getDate(col);
+                            if (rset.wasNull()) {
+                                dumpOut.print(NULL_STR);
+                            } else {
+                                quoteString(dumpOut, val.toString());
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    case HP_BLOB: // we try our best by reading BLOB/CLOB
-                    case HP_CLOB: // as String (known not to work on Oracle)
-                    case HP_STRING: {
-                        final String val = rset.getString(col);
-                        if (rset.wasNull()) {
-                            dumpOut.print(NULL_STR);
-                        } else {
-                            quoteString(dumpOut, val);
+                        case HP_BLOB: // we try our best by reading BLOB/CLOB
+                        case HP_CLOB: // as String (known not to work on Oracle)
+                        case HP_STRING: {
+                            final String val = rset.getString(col);
+                            if (rset.wasNull()) {
+                                dumpOut.print(NULL_STR);
+                            } else {
+                                quoteString(dumpOut, val);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    default:
-                        throw new IllegalArgumentException("type "
-                                + TYPES[thisType] + " not supported yet");
+                        default:
+                            throw new IllegalArgumentException("type " + TYPES[thisType] + " not supported yet");
                     }
                     if (metaProps.length > col) {
                         dumpOut.print(",");
@@ -730,23 +674,19 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             HenPlus.msg().print("(" + rows + " rows)\n");
             final long execTime = System.currentTimeMillis() - startTime;
 
-            HenPlus.msg().print(
-                    "dumping '" + dumpSource.getTableName() + "' took ");
+            HenPlus.msg().print("dumping '" + dumpSource.getTableName() + "' took ");
             TimeRenderer.printTime(execTime, HenPlus.msg());
             HenPlus.msg().print(" total; ");
             TimeRenderer.printFraction(execTime, rows, HenPlus.msg());
             HenPlus.msg().println(" / row");
             if (expectedRows >= 0 && rows != expectedRows) {
                 HenPlus.msg().println(
-                        " == Warning: 'select count(*)' in the"
-                        + " beginning resulted in " + expectedRows
-                        + " but the dump exported " + rows
-                        + " rows == ");
+                        " == Warning: 'select count(*)' in the" + " beginning resulted in " + expectedRows
+                                + " but the dump exported " + rows + " rows == ");
             }
 
             if (!_running) {
-                HenPlus.msg().println(
-                " == INTERRUPTED. Wait for statement to cancel.. ==");
+                HenPlus.msg().println(" == INTERRUPTED. Wait for statement to cancel.. ==");
                 if (stmt != null) {
                     stmt.cancel();
                 }
@@ -797,9 +737,8 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         return null;
     }
 
-    private int readTableDump(final LineNumberReader reader, final String fileEncoding,
-            final SQLSession session, final boolean hot, final int commitPoint)
-    throws IOException, SQLException, InterruptedException {
+    private int readTableDump(final LineNumberReader reader, final String fileEncoding, final SQLSession session,
+            final boolean hot, final int commitPoint) throws IOException, SQLException, InterruptedException {
         MetaProperty[] metaProperty = null;
         String tableName = null;
         int dumpVersion = -1;
@@ -853,58 +792,39 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 }
                 checkSupported(compatibleVersion);
                 expect(reader, ')');
-            }
-
-            else if ("file-encoding".equals(token)) {
+            } else if ("file-encoding".equals(token)) {
                 token = readString(reader);
                 if (!token.equals(fileEncoding)) {
                     throw new EncodingMismatchException(token);
                 }
                 expect(reader, ')');
-            }
-
-            else if ("henplus-version".equals(token)) {
+            } else if ("henplus-version".equals(token)) {
                 token = readString(reader);
                 henplusVersion = token;
                 expect(reader, ')');
-            }
-
-            else if ("rows".equals(token)) {
+            } else if ("rows".equals(token)) {
                 token = readToken(reader);
                 expectedRows = Integer.valueOf(token).intValue();
                 expect(reader, ')');
-            }
-
-            else if ("estimated-rows".equals(token)) {
+            } else if ("estimated-rows".equals(token)) {
                 token = readString(reader);
                 estimatedRows = Integer.valueOf(token).intValue();
                 expect(reader, ')');
-            }
-
-            else if ("database-info".equals(token)) {
+            } else if ("database-info".equals(token)) {
                 databaseInfo = readString(reader);
                 expect(reader, ')');
-            }
-
-            else if ("where-clause".equals(token)) {
+            } else if ("where-clause".equals(token)) {
                 whereClause = readString(reader);
                 expect(reader, ')');
-            }
-
-            else if ("time".equals(token)) {
+            } else if ("time".equals(token)) {
                 dumpTime = readString(reader);
                 expect(reader, ')');
-            }
-
-            else if ("meta".equals(token)) {
+            } else if ("meta".equals(token)) {
                 if (dumpVersion < 0 || compatibleVersion < 0) {
-                    raiseException(reader,
-                    "cannot read meta data without dump-version information");
+                    raiseException(reader, "cannot read meta data without dump-version information");
                 }
                 metaProperty = parseMetaData(reader);
-            }
-
-            else if ("data".equals(token)) {
+            } else if ("data".equals(token)) {
                 if (metaProperty == null) {
                     raiseException(reader, "no meta-data available");
                 }
@@ -935,20 +855,14 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 }
 
                 HenPlus.msg().println(
-                        (hot ? "importing" : "verifying")
-                        + " table dump created with HenPlus "
-                        + henplusVersion + "\nfor table           : "
-                        + tableName + "\nfrom database       : "
-                        + databaseInfo + "\nat                  : "
-                        + dumpTime + "\ndump format version : "
-                        + dumpVersion);
+                        (hot ? "importing" : "verifying") + " table dump created with HenPlus " + henplusVersion
+                                + "\nfor table           : " + tableName + "\nfrom database       : " + databaseInfo
+                                + "\nat                  : " + dumpTime + "\ndump format version : " + dumpVersion);
                 if (whereClause != null) {
-                    HenPlus.msg().println(
-                            "projection          : " + whereClause);
+                    HenPlus.msg().println("projection          : " + whereClause);
                 }
 
-                final ProgressWriter progressWriter = new ProgressWriter(
-                        estimatedRows, HenPlus.msg());
+                final ProgressWriter progressWriter = new ProgressWriter(estimatedRows, HenPlus.msg());
                 importedRows = 0;
                 problemRows = 0;
                 _running = true;
@@ -968,95 +882,88 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         final int col = i + 1;
                         final int type = metaProperty[i].type;
                         switch (type) {
-                        case HP_NUMERIC:
-                        case HP_DOUBLE:
-                        case HP_INTEGER: {
-                            final Number number = readNumber(reader);
-                            if (stmt != null) {
-                                if (number == null) {
-                                    if (type == HP_NUMERIC) {
-                                        stmt.setNull(col, Types.NUMERIC);
-                                    } else if (type == HP_INTEGER) {
-                                        stmt.setNull(col, Types.INTEGER);
-                                    } else if (type == HP_DOUBLE) {
-                                        stmt.setNull(col, Types.DOUBLE);
+                            case HP_NUMERIC:
+                            case HP_DOUBLE:
+                            case HP_INTEGER: {
+                                final Number number = readNumber(reader);
+                                if (stmt != null) {
+                                    if (number == null) {
+                                        if (type == HP_NUMERIC) {
+                                            stmt.setNull(col, Types.NUMERIC);
+                                        } else if (type == HP_INTEGER) {
+                                            stmt.setNull(col, Types.INTEGER);
+                                        } else if (type == HP_DOUBLE) {
+                                            stmt.setNull(col, Types.DOUBLE);
+                                        }
+                                    } else {
+                                        if (number instanceof Integer) {
+                                            stmt.setInt(col, number.intValue());
+                                        } else if (number instanceof Long) {
+                                            stmt.setLong(col, number.longValue());
+                                        } else if (number instanceof Double) {
+                                            stmt.setDouble(col, number.doubleValue());
+                                        } else if (number instanceof BigDecimal) {
+                                            stmt.setBigDecimal(col, (BigDecimal) number);
+                                        }
                                     }
-                                } else {
-                                    if (number instanceof Integer) {
-                                        stmt.setInt(col, number.intValue());
-                                    } else if (number instanceof Long) {
-                                        stmt.setLong(col, number.longValue());
-                                    } else if (number instanceof Double) {
-                                        stmt.setDouble(col, number
-                                                .doubleValue());
-                                    } else if (number instanceof BigDecimal) {
-                                        stmt.setBigDecimal(col,
-                                                (BigDecimal) number);
+                                }
+                                break;
+                            }
+
+                            case HP_TIMESTAMP: {
+                                final String val = readString(reader);
+                                metaProperty[i].updateMaxLength(val);
+                                if (stmt != null) {
+                                    if (val == null) {
+                                        stmt.setTimestamp(col, null);
+                                    } else {
+                                        stmt.setTimestamp(col, Timestamp.valueOf(val));
                                     }
                                 }
+                                break;
                             }
-                            break;
-                        }
 
-                        case HP_TIMESTAMP: {
-                            final String val = readString(reader);
-                            metaProperty[i].updateMaxLength(val);
-                            if (stmt != null) {
-                                if (val == null) {
-                                    stmt.setTimestamp(col, null);
-                                } else {
-                                    stmt.setTimestamp(col, Timestamp
-                                            .valueOf(val));
+                            case HP_TIME: {
+                                final String val = readString(reader);
+                                metaProperty[i].updateMaxLength(val);
+                                if (stmt != null) {
+                                    if (val == null) {
+                                        stmt.setTime(col, null);
+                                    } else {
+                                        stmt.setTime(col, Time.valueOf(val));
+                                    }
                                 }
+                                break;
                             }
-                            break;
-                        }
 
-                        case HP_TIME: {
-                            final String val = readString(reader);
-                            metaProperty[i].updateMaxLength(val);
-                            if (stmt != null) {
-                                if (val == null) {
-                                    stmt.setTime(col, null);
-                                } else {
-                                    stmt.setTime(col, Time.valueOf(val));
+                            case HP_DATE: {
+                                final String val = readString(reader);
+                                metaProperty[i].updateMaxLength(val);
+                                if (stmt != null) {
+                                    if (val == null) {
+                                        stmt.setDate(col, null);
+                                    } else {
+                                        stmt.setDate(col, java.sql.Date.valueOf(val));
+                                    }
                                 }
+                                break;
                             }
-                            break;
-                        }
 
-                        case HP_DATE: {
-                            final String val = readString(reader);
-                            metaProperty[i].updateMaxLength(val);
-                            if (stmt != null) {
-                                if (val == null) {
-                                    stmt.setDate(col, null);
-                                } else {
-                                    stmt.setDate(col, java.sql.Date
-                                            .valueOf(val));
+                            case HP_BLOB: // we try our best by reading BLOB/CLOB
+                            case HP_CLOB: // as String (known not to work on Oracle
+                            case HP_STRING: {
+                                final String val = readString(reader);
+                                metaProperty[i].updateMaxLength(val);
+                                if (stmt != null) {
+                                    stmt.setString(col, val);
                                 }
+                                break;
                             }
-                            break;
-                        }
 
-                        case HP_BLOB: // we try our best by reading BLOB/CLOB
-                        case HP_CLOB: // as String (known not to work on Oracle
-                        case HP_STRING: {
-                            final String val = readString(reader);
-                            metaProperty[i].updateMaxLength(val);
-                            if (stmt != null) {
-                                stmt.setString(col, val);
-                            }
-                            break;
+                            default:
+                                throw new IllegalArgumentException("type " + TYPES[metaProperty[i].type] + " not supported yet");
                         }
-
-                        default:
-                            throw new IllegalArgumentException("type "
-                                    + TYPES[metaProperty[i].type]
-                                            + " not supported yet");
-                        }
-                        expect(reader, i + 1 < metaProperty.length ? ','
-                                : ')');
+                        expect(reader, i + 1 < metaProperty.length ? ',' : ')');
                     }
                     try {
                         if (stmt != null) {
@@ -1073,15 +980,12 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     }
 
                     // commit every once in a while.
-                    if (hot && commitPoint >= 0
-                            && importedRows % commitPoint == 0) {
+                    if (hot && commitPoint >= 0 && importedRows % commitPoint == 0) {
                         conn.commit();
                     }
                 }
                 progressWriter.finish();
-            }
-
-            else {
+            } else {
                 HenPlus.msg().println("ignoring unknown token " + token);
                 dumpTime = readString(reader);
                 expect(reader, ')');
@@ -1109,9 +1013,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         }
 
         if (expectedRows >= 0 && expectedRows != importedRows) {
-            HenPlus.msg().println(
-                    "WARNING: expected " + expectedRows + " but got "
-                    + importedRows + " rows");
+            HenPlus.msg().println("WARNING: expected " + expectedRows + " but got " + importedRows + " rows");
         } else {
             HenPlus.msg().println("ok. ");
         }
@@ -1131,7 +1033,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     public MetaProperty[] parseMetaData(final LineNumberReader in) throws IOException {
         final List<MetaProperty> metaList = new ArrayList<MetaProperty>();
         expect(in, '(');
-        for (;;) {
+        while (true) {
             final String colName = readString(in);
             metaList.add(new MetaProperty(colName));
             skipWhite(in);
@@ -1234,8 +1136,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         int c;
         while ((c = in.read()) > 0) {
             final char ch = (char) c;
-            if (Character.isWhitespace(ch) || ch == ';' || ch == ','
-                || ch == '(' || ch == ')') {
+            if (Character.isWhitespace(ch) || ch == ';' || ch == ',' || ch == '(' || ch == ')') {
                 in.reset();
                 break;
             }
@@ -1276,8 +1177,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             if (c == '\\') {
                 c = in.read();
                 if (c < 0) {
-                    raiseException(in,
-                    "excpected character after backslash escape");
+                    raiseException(in, "excpected character after backslash escape");
                 }
                 result.append((char) c);
                 continue;
@@ -1294,8 +1194,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     /**
      * convenience method to throw Exceptions containing the line number.
      */
-    private void raiseException(final LineNumberReader in, final String msg)
-    throws IOException {
+    private void raiseException(final LineNumberReader in, final String msg) throws IOException {
         throw new IOException("line " + (in.getLineNumber() + 1) + ": " + msg);
     }
 
@@ -1315,6 +1214,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     // -- Interruptable interface
+    @Override
     public synchronized void interrupt() {
         _running = false;
     }
@@ -1332,8 +1232,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
      * complete the table name.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         int argc = st.countTokens();
@@ -1348,8 +1247,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                 if (lastWord.startsWith("\"")) {
                     lastWord = lastWord.substring(1);
                 }
-                return _tableCompleter.completeTableName(HenPlus.getInstance()
-                        .getCurrentSession(), lastWord);
+                return _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
             } else if (argc > 1) {
                 st.nextElement(); // discard filename.
                 final String table = (String) st.nextElement();
@@ -1375,11 +1273,12 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                     alreadyGiven.add(st.nextElement());
                 }
 
-                final Iterator it = _tableCompleter.completeTableName(HenPlus
-                        .getInstance().getCurrentSession(), lastWord);
+                final Iterator it = _tableCompleter.completeTableName(HenPlus.getInstance().getCurrentSession(), lastWord);
                 return new Iterator() {
+
                     String table = null;
 
+                    @Override
                     public boolean hasNext() {
                         while (it.hasNext()) {
                             table = (String) it.next();
@@ -1391,10 +1290,12 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                         return false;
                     }
 
+                    @Override
                     public Object next() {
                         return table;
                     }
 
+                    @Override
                     public void remove() {
                         throw new UnsupportedOperationException("no!");
                     }
@@ -1437,77 +1338,53 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         String dsc = null;
         if ("dump-out".equals(cmd)) {
             dsc = "\tDump out the contents of the table(s) given to the file\n"
-                + "\twith the given name. If the filename ends with '.gz', the\n"
-                + "\tcontent is gzip'ed automatically .. that saves space.\n"
-                + "\n"
-                + "\tFor the selection of the tables you want to dump-out,\n"
-                + "\tyou are able to use wildcards (*) to match all tables or\n"
-                + "\ta specific set of tables.\n"
-                + "\tE.g. you might specify \"*\" to match all tables, or\"tb_*\"\n"
-                + "\tto match all tables starting with \"tb_\".\n"
-                + "\n"
-                + "\tThe dump-format allows to read in the data back into\n"
-                + "\tthe database ('dump-in' command). And unlike pure SQL-insert\n"
-                + "\tstatements, this works even across databases.\n"
-                + "\tSo you can make a dump of your MySQL database and read it\n"
-                + "\tback into Oracle, for instance. To achive this database\n"
-                + "\tindependence, the data is stored in a canonical form\n"
-                + "\t(e.g. the Time/Date). The file itself is human readable\n"
-                + "\tand uses less space than simple SQL-inserts:\n"
-                + "\t----------------\n"
-                + "\t  (tabledump 'student'\n"
-                + "\t    (dump-version 1 1)\n"
-                + "\t    (henplus-version 0.3.3)\n"
-                + "\t    (database-info 'MySQL - 3.23.47')\n"
-                + "\t    (meta ('name',   'sex',    'student_id')\n"
-                + "\t          ('STRING', 'STRING', 'INTEGER'   ))\n"
-                + "\t    (data ('Megan','F',1)\n"
-                + "\t          ('Joseph','M',2)\n"
-                + "\t          ('Kyle','M',3)\n"
-                + "\t          ('Mac Donald\\'s','M',4))\n"
-                + "\t    (rows 4))\n"
-                + "\t----------------\n\n"
-                + "\tTODOs\n"
-                + "\tThis format contains only the data, no\n"
-                + "\tcanonical 'create table' statement - so the table must\n"
-                + "\talready exist at import time. Both these features will\n"
-                + "\tbe in later versions of HenPlus.";
-        }
-
-        else if ("dump-conditional".equals(cmd)) {
-            dsc = "\tLike dump-out, but dump only the rows of a single table\n"
-                + "\tthat match the where clause.";
-        }
-
-        else if ("dump-in".equals(cmd)) {
+                    + "\twith the given name. If the filename ends with '.gz', the\n"
+                    + "\tcontent is gzip'ed automatically .. that saves space.\n" + "\n"
+                    + "\tFor the selection of the tables you want to dump-out,\n"
+                    + "\tyou are able to use wildcards (*) to match all tables or\n" + "\ta specific set of tables.\n"
+                    + "\tE.g. you might specify \"*\" to match all tables, or\"tb_*\"\n"
+                    + "\tto match all tables starting with \"tb_\".\n" + "\n"
+                    + "\tThe dump-format allows to read in the data back into\n"
+                    + "\tthe database ('dump-in' command). And unlike pure SQL-insert\n"
+                    + "\tstatements, this works even across databases.\n"
+                    + "\tSo you can make a dump of your MySQL database and read it\n"
+                    + "\tback into Oracle, for instance. To achive this database\n"
+                    + "\tindependence, the data is stored in a canonical form\n"
+                    + "\t(e.g. the Time/Date). The file itself is human readable\n"
+                    + "\tand uses less space than simple SQL-inserts:\n" + "\t----------------\n" + "\t  (tabledump 'student'\n"
+                    + "\t    (dump-version 1 1)\n" + "\t    (henplus-version 0.3.3)\n"
+                    + "\t    (database-info 'MySQL - 3.23.47')\n" + "\t    (meta ('name',   'sex',    'student_id')\n"
+                    + "\t          ('STRING', 'STRING', 'INTEGER'   ))\n" + "\t    (data ('Megan','F',1)\n"
+                    + "\t          ('Joseph','M',2)\n" + "\t          ('Kyle','M',3)\n" + "\t          ('Mac Donald\\'s','M',4))\n"
+                    + "\t    (rows 4))\n" + "\t----------------\n\n" + "\tTODOs\n" + "\tThis format contains only the data, no\n"
+                    + "\tcanonical 'create table' statement - so the table must\n"
+                    + "\talready exist at import time. Both these features will\n" + "\tbe in later versions of HenPlus.";
+        } else if ("dump-conditional".equals(cmd)) {
+            dsc = "\tLike dump-out, but dump only the rows of a single table\n" + "\tthat match the where clause.";
+        } else if ("dump-in".equals(cmd)) {
             dsc = "\tRead back in the data that has been dumped out with the\n"
-                + "\t'dump-out' command. If the filename ends with '.gz',\n"
-                + "\tthen the content is assumed to be gzipped and is\n"
-                + "\tunpacked on the fly. The 'dump-in' command fills\n"
-                + "\texisting tables, it does not create missing ones!\n\n"
-                + "\tExisting content ist not deleted before, dump-in just\n"
-                + "\tinserts all data found in the dump.\n\n"
-                + "\tInternally, the import uses a prepared statement that is\n"
-                + "\tfed with the typed data according to the meta data (see\n"
-                + "\tdump-out for the file format). This evens out differences\n"
-                + "\tbetween databases and of course enhances speed compared\n"
-                + "\tto non-prepared statements.\n\n"
-                + "\tThe import is done in the current transaction, unless\n"
-                + "\tyou specify the commit-interval. The commit-interval specify\n"
-                + "\tthe number of inserts, that are executed before an commit\n"
-                + "\tis done. For a large amount of data this option is\n"
-                + "\tnecessary, since otherwise your rollback-segments\n"
-                + "\tmight get a problem ;-)";
-        }
-
-        else if ("verify-dump".equals(cmd)) {
+                    + "\t'dump-out' command. If the filename ends with '.gz',\n"
+                    + "\tthen the content is assumed to be gzipped and is\n"
+                    + "\tunpacked on the fly. The 'dump-in' command fills\n"
+                    + "\texisting tables, it does not create missing ones!\n\n"
+                    + "\tExisting content ist not deleted before, dump-in just\n" + "\tinserts all data found in the dump.\n\n"
+                    + "\tInternally, the import uses a prepared statement that is\n"
+                    + "\tfed with the typed data according to the meta data (see\n"
+                    + "\tdump-out for the file format). This evens out differences\n"
+                    + "\tbetween databases and of course enhances speed compared\n" + "\tto non-prepared statements.\n\n"
+                    + "\tThe import is done in the current transaction, unless\n"
+                    + "\tyou specify the commit-interval. The commit-interval specify\n"
+                    + "\tthe number of inserts, that are executed before an commit\n"
+                    + "\tis done. For a large amount of data this option is\n"
+                    + "\tnecessary, since otherwise your rollback-segments\n" + "\tmight get a problem ;-)";
+        } else if ("verify-dump".equals(cmd)) {
             dsc = "\tLike dump-in, but a 'dry run'. Won't change anything\n"
-                + "\tbut parses the whole file to determine whether it has\n"
-                + "\tsyntax errors or is damaged. Any syntax errors are\n"
-                + "\treported as it were a 'dump-in'. Problems that might\n"
-                + "\toccur in a 'real' import in the database (that might\n"
-                + "\tdetect, that the import would create duplicate keys for\n"
-                + "\tinstance) can not be determined, of course.";
+                    + "\tbut parses the whole file to determine whether it has\n"
+                    + "\tsyntax errors or is damaged. Any syntax errors are\n"
+                    + "\treported as it were a 'dump-in'. Problems that might\n"
+                    + "\toccur in a 'real' import in the database (that might\n"
+                    + "\tdetect, that the import would create duplicate keys for\n"
+                    + "\tinstance) can not be determined, of course.";
         }
         return dsc;
     }
@@ -1516,6 +1393,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
      * A source for dumps.
      */
     private interface DumpSource {
+
         MetaProperty[] getMetaProperties() throws SQLException;
 
         String getDescription();
@@ -1530,6 +1408,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     private static class SelectDumpSource implements DumpSource {
+
         private final SQLSession _session;
         private final String _sqlStat;
         private final String _exportTable;
@@ -1543,6 +1422,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             _exportTable = exportTable;
         }
 
+        @Override
         public MetaProperty[] getMetaProperties() throws SQLException {
             if (_meta != null) {
                 return _meta;
@@ -1553,24 +1433,27 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             final int cols = rsMeta.getColumnCount();
             _meta = new MetaProperty[cols];
             for (int i = 0; i < cols; ++i) {
-                _meta[i] = new MetaProperty(rsMeta.getColumnName(i + 1), rsMeta
-                        .getColumnType(i + 1));
+                _meta[i] = new MetaProperty(rsMeta.getColumnName(i + 1), rsMeta.getColumnType(i + 1));
             }
             return _meta;
         }
 
+        @Override
         public String getDescription() {
             return _sqlStat;
         }
 
+        @Override
         public String getTableName() {
             return _exportTable;
         }
 
+        @Override
         public Statement getStatement() throws SQLException {
             return _workingStatement;
         }
 
+        @Override
         public ResultSet getResultSet() throws SQLException {
             if (_resultSet != null) {
                 return _resultSet;
@@ -1585,12 +1468,14 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             return _resultSet;
         }
 
+        @Override
         public long getExpectedRows() {
             return -1;
         }
     }
 
     private static class TableDumpSource implements DumpSource {
+
         private final SQLSession _session;
         private final String _table;
         private final String _schema;
@@ -1598,17 +1483,18 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         private Statement _workingStatement;
         private String _whereClause;
 
-        TableDumpSource(final String schema, final String table,
-                final SQLSession session) {
+        TableDumpSource(final String schema, final String table, final SQLSession session) {
             _session = session;
             _schema = schema;
             _table = table;
         }
 
+        @Override
         public String getDescription() {
             return "table '" + _table + "'";
         }
 
+        @Override
         public String getTableName() {
             return _table;
         }
@@ -1617,10 +1503,12 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             _whereClause = whereClause;
         }
 
+        @Override
         public Statement getStatement() {
             return _workingStatement;
         }
 
+        @Override
         public MetaProperty[] getMetaProperties() throws SQLException {
             if (_meta != null) {
                 return _meta;
@@ -1636,8 +1524,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                  */
                 final Set doubleCheck = new HashSet();
                 final DatabaseMetaData meta = conn.getMetaData();
-                rset = meta
-                .getColumns(conn.getCatalog(), _schema, _table, null);
+                rset = meta.getColumns(conn.getCatalog(), _schema, _table, null);
                 while (rset.next()) {
                     final String columnName = rset.getString(4);
                     if (doubleCheck.contains(columnName)) {
@@ -1658,6 +1545,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             return _meta;
         }
 
+        @Override
         public ResultSet getResultSet() throws SQLException {
             final StringBuilder selectStmt = new StringBuilder("SELECT ");
             for (int i = 0; i < _meta.length; ++i) {
@@ -1681,6 +1569,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             return _workingStatement.executeQuery(selectStmt.toString());
         }
 
+        @Override
         public long getExpectedRows() {
             final CancelWriter selectInfo = new CancelWriter(HenPlus.msg());
             Statement stmt = null;
@@ -1688,8 +1577,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             try {
                 selectInfo.print("determining number of rows...");
                 stmt = _session.createStatement();
-                final StringBuilder countStmt = new StringBuilder(
-                "SELECT count(*) from ");
+                final StringBuilder countStmt = new StringBuilder("SELECT count(*) from ");
                 countStmt.append(_table);
                 if (_whereClause != null) {
                     countStmt.append(" WHERE ");
@@ -1719,6 +1607,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     private static class MetaProperty {
+
         private int _maxLen;
         public final String fieldName;
         public int type;
@@ -1733,9 +1622,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             this.fieldName = fieldName;
             this.typeName = JDBCTYPE2TYPENAME.get(new Integer(jdbcType));
             if (this.typeName == null) {
-                HenPlus.msg().println(
-                        "cannot handle type '" + type + "' for field '"
-                        + this.fieldName + "'; trying String..");
+                HenPlus.msg().println("cannot handle type '" + type + "' for field '" + this.fieldName + "'; trying String..");
                 this.type = HP_STRING;
                 this.typeName = TYPES[this.type];
             } else {
@@ -1764,18 +1651,17 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         }
 
         public void updateMaxLength(final int maxLen) {
-            if (maxLen > this._maxLen) {
-                this._maxLen = maxLen;
+            if (maxLen > _maxLen) {
+                _maxLen = maxLen;
             }
         }
 
         public int getMaxLength() {
-            return this._maxLen;
+            return _maxLen;
         }
 
         /**
-         * find the type in the array. uses linear search, but this is only a
-         * small list.
+         * find the type in the array. uses linear search, but this is only a small list.
          */
         private int findType(String typeNameArg) {
             if (typeNameArg == null) {
@@ -1800,6 +1686,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     }
 
     private static class EncodingMismatchException extends IOException {
+
         private static final long serialVersionUID = 1;
         private final String _encoding;
 

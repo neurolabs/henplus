@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ProgressWriter.java,v 1.2 2005-03-25 15:39:44 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * ProgressWriter.java,v 1.2 2005-03-25 15:39:44 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
 
@@ -13,6 +11,7 @@ import henplus.commands.TimeRenderer;
  * A utility class that can write the progress of an operation to the screen.
  */
 public class ProgressWriter {
+
     private static final int DEFAULT_SCREEN_WIDTH = 65;
 
     /** min time before presenting an eta */
@@ -77,8 +76,7 @@ public class ProgressWriter {
             return;
         }
         final long lastUpdateDiff = now - _lastEtaUpdate;
-        if (!_etaWriter.hasCancellableOutput()
-                || lastUpdateDiff > MIN_ETA_DIFF_TIME) {
+        if (!_etaWriter.hasCancellableOutput() || lastUpdateDiff > MIN_ETA_DIFF_TIME) {
             final long etaTime = _expectedTargetValue * runningTime / value;
             final long rest = etaTime - runningTime;
             _etaWriter.print("ETA: " + TimeRenderer.renderTime(rest));

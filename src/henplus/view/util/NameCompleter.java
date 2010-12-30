@@ -1,23 +1,21 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: NameCompleter.java,v 1.5 2004-03-23 11:05:38 magrokosmos Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * NameCompleter.java,v 1.5 2004-03-23 11:05:38 magrokosmos Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view.util;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.SortedSet;
 import java.util.SortedMap;
-import java.util.TreeSet;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
- * a Completer for names that are only given partially. This is used for
- * tab-completion or to automatically correct names.
+ * a Completer for names that are only given partially. This is used for tab-completion or to automatically correct names.
  */
 public class NameCompleter {
+
     private final SortedSet<String> _nameSet;
     private final SortedMap<String, String> _canonicalNames;
 
@@ -37,7 +35,7 @@ public class NameCompleter {
         this(c.iterator());
     }
 
-    public NameCompleter(final String names[]) {
+    public NameCompleter(final String[] names) {
         this();
         for (int i = 0; i < names.length; ++i) {
             addName(names[i]);
@@ -57,7 +55,7 @@ public class NameCompleter {
         return _nameSet;
     }
 
-    public String findCaseInsensitive(String name) {
+    public String findCaseInsensitive(final String name) {
         if (name == null) {
             return null;
         }
@@ -65,8 +63,7 @@ public class NameCompleter {
     }
 
     /**
-     * returns an iterator with alternatives that match the partial name given
-     * or 'null' if there is no alternative.
+     * returns an iterator with alternatives that match the partial name given or 'null' if there is no alternative.
      */
     public Iterator<String> getAlternatives(String partialName) {
         // first test, if we find the name directly

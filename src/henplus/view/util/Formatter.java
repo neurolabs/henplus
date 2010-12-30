@@ -1,7 +1,8 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * 
  * @version $Id: Formatter.java,v 1.1 2004-03-23 11:06:40 magrokosmos Exp $
+ * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.view.util;
@@ -15,8 +16,7 @@ import java.util.Locale;
  */
 public final class Formatter {
 
-    private static final NumberFormat NUMBER_FORMAT = NumberFormat
-    .getNumberInstance(Locale.GERMANY);
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance(Locale.GERMANY);
 
     private Formatter() {
     }

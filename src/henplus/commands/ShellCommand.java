@@ -1,33 +1,33 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.util.Iterator;
-
-import henplus.HenPlus;
-import henplus.OutputDevice;
-import henplus.Interruptable;
-import henplus.SQLSession;
 import henplus.AbstractCommand;
 import henplus.CommandDispatcher;
+import henplus.HenPlus;
+import henplus.Interruptable;
+import henplus.OutputDevice;
+import henplus.SQLSession;
 import henplus.SigIntHandler;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+
 /**
- * This command executes stuff on the shell. Supports the most common shell
- * commands for convenience.
+ * This command executes stuff on the shell. Supports the most common shell commands for convenience.
  */
 public final class ShellCommand extends AbstractCommand implements Interruptable {
+
     private Thread _myThread;
 
     /**
      * @return the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "system", "!" };
     }
@@ -49,11 +49,11 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
      * filename completion by default.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         return new FileCompletionIterator(partialCommand, lastWord);
     }
 
+    @Override
     public void interrupt() {
         _myThread.interrupt();
     }
@@ -61,6 +61,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         if (param.trim().length() == 0) {
             return SYNTAX_ERROR;
@@ -72,8 +73,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
         SigIntHandler.getInstance().pushInterruptable(this);
         try {
             try {
-                p = Runtime.getRuntime().exec(
-                        new String[] { "sh", "-c", param });
+                p = Runtime.getRuntime().exec(new String[] { "sh", "-c", param });
                 ioHandler = new IOHandler(p);
             } catch (final IOException e) {
                 return EXEC_FAILED;
@@ -108,13 +108,12 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
     @Override
     public String getLongDescription(final String cmd) {
         return "\tExecute a system command in the shell. You can only invoke\n"
-        + "\tcommands,  that do  not expect  anything  from  stdin: the\n"
-        + "\tinteractive  input  from HenPlus  is disconnected from the\n"
-        + "\tsubprocess' stdin. But this is useful to call some small\n"
-        + "\tcommands in the middle of the session. There are two syntaxes\n"
-        + "\tsupported: system <command> or even shorter with the\n"
-        + "\texclamation mark: !<command>.\n" + "\tExample:\n"
-        + "\t!ls";
+                + "\tcommands,  that do  not expect  anything  from  stdin: the\n"
+                + "\tinteractive  input  from HenPlus  is disconnected from the\n"
+                + "\tsubprocess' stdin. But this is useful to call some small\n"
+                + "\tcommands in the middle of the session. There are two syntaxes\n"
+                + "\tsupported: system <command> or even shorter with the\n" + "\texclamation mark: !<command>.\n" + "\tExample:\n"
+                + "\t!ls";
     }
 
     // -------- Helper class to handle the output of an process.
@@ -123,6 +122,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
      * The output handler handles the output streams from the process.
      */
     private static class IOHandler {
+
         // private final Thread stdinThread;
         private final Thread _stdoutThread;
         private final Thread _stderrThread;
@@ -130,12 +130,10 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
         private volatile boolean _running;
 
         public IOHandler(final Process p) throws IOException {
-            this._process = p;
-            _stdoutThread = new Thread(new CopyWorker(p.getInputStream(),
-                    HenPlus.out()));
+            _process = p;
+            _stdoutThread = new Thread(new CopyWorker(p.getInputStream(), HenPlus.out()));
             _stdoutThread.setDaemon(true);
-            _stderrThread = new Thread(new CopyWorker(p.getErrorStream(),
-                    HenPlus.msg()));
+            _stderrThread = new Thread(new CopyWorker(p.getErrorStream(), HenPlus.msg()));
             _stderrThread.setDaemon(true);
             /*
              * stdinThread = new Thread(new CopyWorker(System.in,
@@ -177,10 +175,10 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
         }
 
         /**
-         * Thread, that copies from an input stream to an output stream until
-         * EOF is reached.
+         * Thread, that copies from an input stream to an output stream until EOF is reached.
          */
         private class CopyWorker implements Runnable {
+
             InputStream source;
             OutputDevice dest;
 
@@ -189,6 +187,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
                 this.dest = dest;
             }
 
+            @Override
             public void run() {
                 final byte[] buf = new byte[256];
                 int r;
@@ -196,8 +195,7 @@ public final class ShellCommand extends AbstractCommand implements Interruptable
                     /*
                      * some sort of 'select' would be good here.
                      */
-                    while ((_running || source.available() > 0)
-                            && (r = source.read(buf)) > 0) {
+                    while ((_running || source.available() > 0) && (r = source.read(buf)) > 0) {
                         dest.write(buf, 0, r);
                     }
                     dest.flush();

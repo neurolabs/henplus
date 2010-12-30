@@ -1,7 +1,8 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * 
  * @version $Id: TableDiffCommand.java,v 1.10 2005-11-27 16:20:28 hzeller Exp $
+ * 
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 package henplus.plugins.tablediff;
@@ -26,6 +27,7 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 
 public final class TableDiffCommand extends AbstractCommand {
+
     protected static final String COMMAND = "tablediff";
     protected static final String COMMAND_DELIMITER = ";";
     protected static final String OPTION_SINGLE_DB = "-singledb";
@@ -41,6 +43,7 @@ public final class TableDiffCommand extends AbstractCommand {
      * 
      * @see henplus.Command#getCommandList()
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { COMMAND };
     }
@@ -61,12 +64,13 @@ public final class TableDiffCommand extends AbstractCommand {
      * @see henplus.Command#execute(henplus.SQLSession, java.lang.String,
      * java.lang.String)
      */
+    @Override
     public int execute(final SQLSession session, final String command, final String parameters) {
         // first set the option for case sensitive comparison of column names
         final boolean colNameIgnoreCase = true;
         final StringTokenizer st = new StringTokenizer(parameters);
 
-        Logger.debug( "[execute] command: '%s', parameters: '%s'", command, parameters );
+        Logger.debug("[execute] command: '%s', parameters: '%s'", command, parameters);
 
         int result = SUCCESS;
 
@@ -94,10 +98,8 @@ public final class TableDiffCommand extends AbstractCommand {
                 diffTable(session, table1, table2, colNameIgnoreCase);
 
                 final StringBuilder msg = new StringBuilder();
-                msg.append("Diffing ").append(" tables ").append(table1)
-                .append(" and ").append(table2).append(" took ")
-                .append(System.currentTimeMillis() - start).append(
-                " ms.");
+                msg.append("Diffing ").append(" tables ").append(table1).append(" and ").append(table2).append(" took ")
+                        .append(System.currentTimeMillis() - start).append(" ms.");
 
                 Logger.info(msg.toString());
 
@@ -117,8 +119,7 @@ public final class TableDiffCommand extends AbstractCommand {
             return SYNTAX_ERROR;
         }
 
-        final SessionManager sessionManager = HenPlus.getInstance()
-        .getSessionManager();
+        final SessionManager sessionManager = HenPlus.getInstance().getSessionManager();
 
         if (sessionManager.getSessionCount() < 2) {
             Logger.error("You need two valid sessions for this command.");
@@ -129,15 +130,13 @@ public final class TableDiffCommand extends AbstractCommand {
         final SQLSession second = sessionManager.getSessionByName(st.nextToken());
 
         if (first == null || second == null) {
-        	Logger.error(
-            "You need two valid sessions for this command.");
+            Logger.error("You need two valid sessions for this command.");
             return EXEC_FAILED;
         } else if (first == second) {
-        	Logger.error(
-                    "You should specify two different sessions for this command.");
+            Logger.error("You should specify two different sessions for this command.");
             return EXEC_FAILED;
         } else if (!st.hasMoreTokens()) {
-        	Logger.error("You should specify at least one table.");
+            Logger.error("You should specify at least one table.");
             return EXEC_FAILED;
         }
 
@@ -145,8 +144,7 @@ public final class TableDiffCommand extends AbstractCommand {
             final long start = System.currentTimeMillis();
             int count = 0;
 
-            final ListUserObjectsCommand objectLister = HenPlus.getInstance()
-            .getObjectLister();
+            final ListUserObjectsCommand objectLister = HenPlus.getInstance().getObjectLister();
             final SortedSet tablesOne = objectLister.getTableNamesForSession(first);
             final SortedSet tablesTwo = objectLister.getTableNamesForSession(second);
 
@@ -167,20 +165,17 @@ public final class TableDiffCommand extends AbstractCommand {
                     Iterator iter = null;
 
                     if ("*".equals(nextToken)) {
-                        iter = objectLister
-                        .getTableNamesIteratorForSession(first);
+                        iter = objectLister.getTableNamesIteratorForSession(first);
                     } else if (nextToken.indexOf('*') > -1) {
-                        final String tablePrefix = nextToken.substring(0, nextToken
-                                .length() - 1);
+                        final String tablePrefix = nextToken.substring(0, nextToken.length() - 1);
                         final NameCompleter compl = new NameCompleter(tablesOne);
                         iter = compl.getAlternatives(tablePrefix);
                     }
 
                     while (iter.hasNext()) {
                         final Object objTableName = iter.next();
-                        count = diffConditionally(objTableName,
-                                colNameIgnoreCase, first, second, tablesTwo,
-                                alreadyDiffed, missedFromWildcards, count);
+                        count = diffConditionally(objTableName, colNameIgnoreCase, first, second, tablesTwo, alreadyDiffed,
+                                missedFromWildcards, count);
                     }
                 } else if (!alreadyDiffed.contains(nextToken)) {
                     diffTable(first, second, nextToken, colNameIgnoreCase);
@@ -191,16 +186,14 @@ public final class TableDiffCommand extends AbstractCommand {
             }
 
             final StringBuilder msg = new StringBuilder();
-            msg.append("Diffing ").append(count).append(
-                    count == 1 ? " table took " : " tables took ").append(
-                            System.currentTimeMillis() - start).append(" ms.");
+            msg.append("Diffing ").append(count).append(count == 1 ? " table took " : " tables took ")
+                    .append(System.currentTimeMillis() - start).append(" ms.");
 
             // if there were tables found via wildcards but not contained in
             // both sessions then let
             // the user know this.
             if (missedFromWildcards.size() > 0) {
-                msg
-                .append("\nTables which matched a given wildcard in your first\n"
+                msg.append("\nTables which matched a given wildcard in your first\n"
                         + "session but were not found in your second session:\n");
                 final Iterator iter = missedFromWildcards.iterator();
                 while (iter.hasNext()) {
@@ -219,10 +212,8 @@ public final class TableDiffCommand extends AbstractCommand {
         return SUCCESS;
     }
 
-    private int diffConditionally(final Object objTableName,
-            final boolean colNameIgnoreCase, final SQLSession first, final SQLSession second,
-            final SortedSet tablesTwo, final Set alreadyDiffed, final List missedFromWildcards,
-            int count) {
+    private int diffConditionally(final Object objTableName, final boolean colNameIgnoreCase, final SQLSession first,
+            final SQLSession second, final SortedSet tablesTwo, final Set alreadyDiffed, final List missedFromWildcards, int count) {
         if (tablesTwo.contains(objTableName)) {
             if (!alreadyDiffed.contains(objTableName)) {
                 final String tableName = (String) objTableName;
@@ -236,12 +227,10 @@ public final class TableDiffCommand extends AbstractCommand {
         return count;
     }
 
-    private void diffTable(final SQLSession first, final SQLSession second,
-            final String tableName, final boolean colNameIgnoreCase) {
+    private void diffTable(final SQLSession first, final SQLSession second, final String tableName, final boolean colNameIgnoreCase) {
         final Table ref = first.getTable(tableName);
         final Table diff = second.getTable(tableName);
-        final TableDiffResult diffResult = TableDiffer.diffTables(ref, diff,
-                colNameIgnoreCase);
+        final TableDiffResult diffResult = TableDiffer.diffTables(ref, diff, colNameIgnoreCase);
         if (diffResult == null) {
             Logger.info("No diff for table " + tableName);
         } else {
@@ -250,20 +239,15 @@ public final class TableDiffCommand extends AbstractCommand {
         }
     }
 
-    private void diffTable(final SQLSession session, final String tableName1,
-            final String tableName2, final boolean colNameIgnoreCase) {
+    private void diffTable(final SQLSession session, final String tableName1, final String tableName2,
+            final boolean colNameIgnoreCase) {
         final Table ref = session.getTable(tableName1);
         final Table diff = session.getTable(tableName2);
-        final TableDiffResult diffResult = TableDiffer.diffTables(ref, diff,
-                colNameIgnoreCase);
+        final TableDiffResult diffResult = TableDiffer.diffTables(ref, diff, colNameIgnoreCase);
         if (diffResult == null) {
-            Logger.info(
-                    "No diff for tables " + tableName1 + " and " + tableName2
-                    + ".");
+            Logger.info("No diff for tables " + tableName1 + " and " + tableName2 + ".");
         } else {
-            Logger.info(
-                    "Diff result for tables " + tableName1 + " and "
-                    + tableName2 + ":");
+            Logger.info("Diff result for tables " + tableName1 + " and " + tableName2 + ":");
             ResultTablePrinter.printResult(diffResult);
         }
     }
@@ -314,8 +298,7 @@ public final class TableDiffCommand extends AbstractCommand {
      * java.lang.String, java.lang.String)
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
 
         final StringTokenizer st = new StringTokenizer(partialCommand);
         st.nextToken(); // skip cmd.
@@ -338,43 +321,44 @@ public final class TableDiffCommand extends AbstractCommand {
         // check completion for --singledb
         if (argIndex == 0 && lastWord.startsWith("-")) {
             return new Iterator() {
+
                 private boolean _next = true;
 
+                @Override
                 public boolean hasNext() {
                     return _next;
                 }
 
+                @Override
                 public Object next() {
                     _next = false;
                     return OPTION_SINGLE_DB;
                 }
 
+                @Override
                 public void remove() { /* do nothing */
                 }
             };
-        } else if (partialCommand.indexOf(OPTION_SINGLE_DB) != -1
-                && argIndex > 0) {
+        } else if (partialCommand.indexOf(OPTION_SINGLE_DB) != -1 && argIndex > 0) {
 
-            final SessionManager sessionManager = HenPlus.getInstance()
-            .getSessionManager();
+            final SessionManager sessionManager = HenPlus.getInstance().getSessionManager();
             final SQLSession session = sessionManager.getCurrentSession();
 
             final HashSet alreadyGiven = new HashSet();
             while (st.hasMoreElements()) {
                 alreadyGiven.add(st.nextToken());
             }
-            final ListUserObjectsCommand objectList = HenPlus.getInstance()
-            .getObjectLister();
-            final Iterator iter = objectList.completeTableName(session,
-                    lastWord);
+            final ListUserObjectsCommand objectList = HenPlus.getInstance().getObjectLister();
+            final Iterator iter = objectList.completeTableName(session, lastWord);
             return new Iterator() {
+
                 String table = null;
 
+                @Override
                 public boolean hasNext() {
                     while (iter.hasNext()) {
                         table = (String) iter.next();
-                        if (alreadyGiven.contains(table)
-                                && !lastWord.equals(table)) {
+                        if (alreadyGiven.contains(table) && !lastWord.equals(table)) {
                             continue;
                         }
                         return true;
@@ -382,35 +366,27 @@ public final class TableDiffCommand extends AbstractCommand {
                     return false;
                 }
 
+                @Override
                 public Object next() {
                     return table;
                 }
 
+                @Override
                 public void remove() {
                     throw new UnsupportedOperationException("no!");
                 }
             };
 
-        }
-
-        // ========================= !singledb =======================
-
-        // !singledb && process the first session
-        else if (partialCommand.indexOf(OPTION_SINGLE_DB) == -1
-                && argIndex == 0) {
-            return HenPlus.getInstance().getSessionManager()
-            .completeSessionName(lastWord);
-        }
-        // !singledb && process the second session
-        else if (partialCommand.indexOf(OPTION_SINGLE_DB) == -1
-                && argIndex == 1) {
+        } else if (partialCommand.indexOf(OPTION_SINGLE_DB) == -1 && argIndex == 0) {
+            // !singledb && process the first session
+            return HenPlus.getInstance().getSessionManager().completeSessionName(lastWord);
+        } else if (partialCommand.indexOf(OPTION_SINGLE_DB) == -1 && argIndex == 1) {
+            // !singledb && process the second session
             final String firstSession = st.nextToken();
             return getSecondSessionCompleter(lastWord, firstSession);
-        }
-        // process tables
-        else if (argIndex > 1) {
-            final SessionManager sessionManager = HenPlus.getInstance()
-            .getSessionManager();
+        } else if (argIndex > 1) {
+            // process tables
+            final SessionManager sessionManager = HenPlus.getInstance().getSessionManager();
             final SQLSession first = sessionManager.getSessionByName(st.nextToken());
             final SQLSession second = sessionManager.getSessionByName(st.nextToken());
 
@@ -418,21 +394,19 @@ public final class TableDiffCommand extends AbstractCommand {
             while (st.hasMoreElements()) {
                 alreadyGiven.add(st.nextToken());
             }
-            final ListUserObjectsCommand objectList = HenPlus.getInstance()
-            .getObjectLister();
-            final Iterator firstIter = objectList.completeTableName(first,
-                    lastWord);
-            final Iterator secondIter = objectList.completeTableName(second,
-                    lastWord);
+            final ListUserObjectsCommand objectList = HenPlus.getInstance().getObjectLister();
+            final Iterator firstIter = objectList.completeTableName(first, lastWord);
+            final Iterator secondIter = objectList.completeTableName(second, lastWord);
             final Iterator iter = getIntersection(firstIter, secondIter);
             return new Iterator() {
+
                 String table = null;
 
+                @Override
                 public boolean hasNext() {
                     while (iter.hasNext()) {
                         table = (String) iter.next();
-                        if (alreadyGiven.contains(table)
-                                && !lastWord.equals(table)) {
+                        if (alreadyGiven.contains(table) && !lastWord.equals(table)) {
                             continue;
                         }
                         return true;
@@ -440,10 +414,12 @@ public final class TableDiffCommand extends AbstractCommand {
                     return false;
                 }
 
+                @Override
                 public Object next() {
                     return table;
                 }
 
+                @Override
                 public void remove() {
                     throw new UnsupportedOperationException("no!");
                 }
@@ -470,13 +446,13 @@ public final class TableDiffCommand extends AbstractCommand {
         return inter.iterator();
     }
 
-    private Iterator<String> getSecondSessionCompleter(final String lastWord,
-            final String firstSession) {
-        final Iterator<String> it = HenPlus.getInstance().getSessionManager()
-        .completeSessionName(lastWord);
+    private Iterator<String> getSecondSessionCompleter(final String lastWord, final String firstSession) {
+        final Iterator<String> it = HenPlus.getInstance().getSessionManager().completeSessionName(lastWord);
         return new Iterator<String>() {
+
             String session = null;
 
+            @Override
             public boolean hasNext() {
                 while (it.hasNext()) {
                     session = it.next();
@@ -488,10 +464,12 @@ public final class TableDiffCommand extends AbstractCommand {
                 return false;
             }
 
+            @Override
             public String next() {
                 return session;
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("no!");
             }
@@ -552,11 +530,8 @@ public final class TableDiffCommand extends AbstractCommand {
      */
     @Override
     public String getSynopsis(final String cmd) {
-        return "\n"
-        + COMMAND
-        + " <sessionname-1> <sessionname-2> (<tablename> | <prefix>* | *)+;\n"
-        + "or\n" + COMMAND + " " + OPTION_SINGLE_DB
-        + " <table1> <table2>;\n";
+        return "\n" + COMMAND + " <sessionname-1> <sessionname-2> (<tablename> | <prefix>* | *)+;\n" + "or\n" + COMMAND + " "
+                + OPTION_SINGLE_DB + " <table1> <table2>;\n";
     }
 
     /*
@@ -566,41 +541,24 @@ public final class TableDiffCommand extends AbstractCommand {
      */
     @Override
     public String getLongDescription(final String cmd) {
-        return "\tCompare one or more tables by their meta data.\n"
-        + "\n"
-        + "\tThere are basically two use cases for comparing tables:\n"
-        + "\t1. Compare tables with equal names from different databases and\n"
-        + "\t2. Compare two tables with different names in the same database.\n"
-        + "\n"
-        + "\tFor the first use case you must specify two session names and one\n"
-        + "\tor more tables that exist in both sessions.\n"
-        + "\tYou are able to use wildcards (*) to match all tables or\n"
-        + "\ta specific set of tables.\n"
-        + "\tE.g. you might specify \"*\" to match all tables which are contained\n"
-        + "\tin both sessions, or\"tb_*\" to match all tables from your sessions\n"
-        + "\tstarting with \"tb_\".\n"
-        + "\n"
-        + "\tFor the second use case you must specifiy the option "
-        + OPTION_SINGLE_DB
-        + "\n"
-        + "\tand two tables.\n"
-        + "\n"
-        + "\tThe following is a list of compared column related\n"
-        + "\tproperties, with a \"c\" for a case sensitive and an \"i\" for\n"
-        + "\ta case insensitive comparision by default. If you\n"
-        + "\twonder what this is for, because you know that sql\n"
-        + "\tshould behave case insensitive, then ask your\n"
-        + "\tdatabase provider or the developer of the driver you use.\n"
-        + "\n"
-        + "\t - column name (i)\n"
-        + "\t - type (c)\n"
-        + "\t - nullable (-)\n"
-        + "\t - default value (c)\n"
-        + "\t - primary key definition (c)\n"
-        + "\t - foreign key definition (c).\n"
-        + "\n"
-        + "\tIn the future indices migth be added to the comparison,\n"
-        + "\tmoreover, an option \"o\" would be nice to get automatically\n"
-        + "\t\"ALTER TABLE ...\" scripts generated to a given output file.";
+        return "\tCompare one or more tables by their meta data.\n" + "\n"
+                + "\tThere are basically two use cases for comparing tables:\n"
+                + "\t1. Compare tables with equal names from different databases and\n"
+                + "\t2. Compare two tables with different names in the same database.\n" + "\n"
+                + "\tFor the first use case you must specify two session names and one\n"
+                + "\tor more tables that exist in both sessions.\n"
+                + "\tYou are able to use wildcards (*) to match all tables or\n" + "\ta specific set of tables.\n"
+                + "\tE.g. you might specify \"*\" to match all tables which are contained\n"
+                + "\tin both sessions, or\"tb_*\" to match all tables from your sessions\n" + "\tstarting with \"tb_\".\n" + "\n"
+                + "\tFor the second use case you must specifiy the option " + OPTION_SINGLE_DB + "\n" + "\tand two tables.\n"
+                + "\n" + "\tThe following is a list of compared column related\n"
+                + "\tproperties, with a \"c\" for a case sensitive and an \"i\" for\n"
+                + "\ta case insensitive comparision by default. If you\n"
+                + "\twonder what this is for, because you know that sql\n" + "\tshould behave case insensitive, then ask your\n"
+                + "\tdatabase provider or the developer of the driver you use.\n" + "\n" + "\t - column name (i)\n"
+                + "\t - type (c)\n" + "\t - nullable (-)\n" + "\t - default value (c)\n" + "\t - primary key definition (c)\n"
+                + "\t - foreign key definition (c).\n" + "\n" + "\tIn the future indices migth be added to the comparison,\n"
+                + "\tmoreover, an option \"o\" would be nice to get automatically\n"
+                + "\t\"ALTER TABLE ...\" scripts generated to a given output file.";
     }
 }

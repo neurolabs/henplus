@@ -1,42 +1,40 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
+import henplus.AbstractCommand;
+import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.Interruptable;
 import henplus.SQLSession;
-import henplus.AbstractCommand;
-import henplus.CommandDispatcher;
 import henplus.SigIntHandler;
 
-import java.util.StringTokenizer;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
-import java.util.HashSet;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 /**
- * The Load command loads scripts; it implemnts the commands 'load', 'start',
- * '@' and '@@'.
+ * The Load command loads scripts; it implemnts the commands 'load', 'start', '@' and '@@'.
  */
 public class LoadCommand extends AbstractCommand implements Interruptable {
+
     /**
      * to determine recursively loaded files, we remember all open files.
      */
     private final Set<File> _openFiles;
 
     /**
-     * current working directory stack - to always open files relative to the
-     * currently open file.
+     * current working directory stack - to always open files relative to the currently open file.
      */
     private final Stack<File> _cwdStack;
 
@@ -45,6 +43,7 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "load", "start", "@", "@@" };
     }
@@ -56,8 +55,7 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
             final File cwd = new File(".");
             _cwdStack.push(cwd.getCanonicalFile());
         } catch (final IOException e) {
-            HenPlus.msg().println(
-                    "cannot determine current working directory: " + e);
+            HenPlus.msg().println("cannot determine current working directory: " + e);
         }
     }
 
@@ -65,14 +63,12 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
      * filename completion by default.
      */
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         return new FileCompletionIterator(partialCommand, lastWord);
     }
 
     /**
-     * open a file. If this is a relative filename, then open according to
-     * current working directory.
+     * open a file. If this is a relative filename, then open according to current working directory.
      * 
      * @param filename
      *            the filename to open
@@ -89,6 +85,7 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         final StringTokenizer st = new StringTokenizer(param);
         final int argc = st.countTokens();
@@ -107,18 +104,15 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
                 File f = openFile(filename);
                 f = f.getCanonicalFile();
                 if (_openFiles.contains(f)) {
-                    throw new IOException(
-                            "recursive inclusion alert: skipping file "
-                            + f.getName());
+                    throw new IOException("recursive inclusion alert: skipping file " + f.getName());
                 }
                 HenPlus.msg().println(f.getName());
                 currentFile = f;
                 _openFiles.add(currentFile);
                 _cwdStack.push(currentFile.getParentFile());
-                final String encoding = System.getProperty("file.encoding");//"UTF-8";
+                final String encoding = System.getProperty("file.encoding"); //"UTF-8"
                 final FileInputStream is = new FileInputStream(currentFile);
-                final BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(is, encoding));
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(is, encoding));
                 _running = true;
                 SigIntHandler.getInstance().pushInterruptable(this);
                 String line;
@@ -154,20 +148,17 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
             TimeRenderer.printTime(execTime, HenPlus.msg());
             if (commandCount != 0) {
                 HenPlus.msg().print("; avg. time ");
-                TimeRenderer.printFraction(execTime, commandCount, HenPlus
-                        .msg());
+                TimeRenderer.printFraction(execTime, commandCount, HenPlus.msg());
             }
             if (execTime != 0 && commandCount > 0) {
-                HenPlus.msg()
-                .print(
-                        "; " + 1000 * commandCount / execTime
-                        + " per second");
+                HenPlus.msg().print("; " + 1000 * commandCount / execTime + " per second");
             }
             HenPlus.msg().println(" (" + filename + ")");
         }
         return SUCCESS;
     }
 
+    @Override
     public void interrupt() {
         _running = false;
     }
@@ -193,16 +184,15 @@ public class LoadCommand extends AbstractCommand implements Interruptable {
     @Override
     public String getLongDescription(final String cmd) {
         return "\tOpens one file or a sequence of files and reads the\n"
-        + "\tcontained sql-commands line by line. If the path of the\n"
-        + "\tfilename is not absolute, it is interpreted relative to\n"
-        + "\tthe current working directory. If the load command itself\n"
-        + "\tis executed in some loaded file, then the current working\n"
-        + "\tdirectory is the directory that file is in.\n"
-        + "\tThe commands 'load' and 'start' do exactly the same;\n"
-        + "\t'start', '@' and '@@' are provided for compatibility \n"
-        + "\twith oracle SQLPLUS scripts. However, there is no\n"
-        + "\tdistinction between '@' and '@@' as in SQLPLUS; henplus\n"
-        + "\talways reads subfiles relative to the contained file.\n";
+                + "\tcontained sql-commands line by line. If the path of the\n"
+                + "\tfilename is not absolute, it is interpreted relative to\n"
+                + "\tthe current working directory. If the load command itself\n"
+                + "\tis executed in some loaded file, then the current working\n"
+                + "\tdirectory is the directory that file is in.\n" + "\tThe commands 'load' and 'start' do exactly the same;\n"
+                + "\t'start', '@' and '@@' are provided for compatibility \n"
+                + "\twith oracle SQLPLUS scripts. However, there is no\n"
+                + "\tdistinction between '@' and '@@' as in SQLPLUS; henplus\n"
+                + "\talways reads subfiles relative to the contained file.\n";
     }
 }
 

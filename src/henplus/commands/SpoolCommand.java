@@ -1,40 +1,40 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: SpoolCommand.java,v 1.6 2005-06-18 04:58:13 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * SpoolCommand.java,v 1.6 2005-06-18 04:58:13 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import henplus.SQLSession;
-import henplus.HenPlus;
 import henplus.AbstractCommand;
+import henplus.HenPlus;
 import henplus.OutputDevice;
 import henplus.PrintStreamOutputDevice;
+import henplus.SQLSession;
 
-import java.util.Stack;
-import java.util.Date;
-import java.io.PrintStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Date;
+import java.util.Stack;
 
 /**
  * prepared ..
  */
 public final class SpoolCommand extends AbstractCommand {
+
     private final Stack<OutputDevice> _outStack;
     private final Stack<OutputDevice> _msgStack;
 
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "spool" };
     }
 
     public SpoolCommand(final HenPlus hp) {
-        _outStack = new Stack<OutputDevice> ();
-        _msgStack = new Stack<OutputDevice> ();
+        _outStack = new Stack<OutputDevice>();
+        _msgStack = new Stack<OutputDevice>();
         _outStack.push(hp.getOutputDevice());
         _msgStack.push(hp.getMessageDevice());
     }
@@ -47,6 +47,7 @@ public final class SpoolCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession currentSession, final String cmd, String param) {
         param = param.trim();
         try {
@@ -65,11 +66,9 @@ public final class SpoolCommand extends AbstractCommand {
     }
 
     /**
-     * combine the current output from the stack with the given output, use this
-     * as current output and return it.
+     * combine the current output from the stack with the given output, use this as current output and return it.
      */
-    private OutputDevice openStackedDevice(final Stack<OutputDevice> stack,
-            final OutputDevice newOut) {
+    private OutputDevice openStackedDevice(final Stack<OutputDevice> stack, final OutputDevice newOut) {
         final OutputDevice origOut = stack.peek();
         final OutputDevice outDevice = new StackedDevice(origOut, newOut);
         stack.push(outDevice);
@@ -87,10 +86,8 @@ public final class SpoolCommand extends AbstractCommand {
 
     private void openSpool(final String filename) throws IOException {
         // open file
-        final OutputDevice spool = new PrintStreamOutputDevice(new PrintStream(
-                new FileOutputStream(filename)));
-        HenPlus.getInstance().setOutput(openStackedDevice(_outStack, spool),
-                openStackedDevice(_msgStack, spool));
+        final OutputDevice spool = new PrintStreamOutputDevice(new PrintStream(new FileOutputStream(filename)));
+        HenPlus.getInstance().setOutput(openStackedDevice(_outStack, spool), openStackedDevice(_msgStack, spool));
         HenPlus.msg().println("-- open spool at " + new Date());
     }
 
@@ -100,8 +97,7 @@ public final class SpoolCommand extends AbstractCommand {
             return false;
         }
         HenPlus.msg().println("-- close spool at " + new Date());
-        HenPlus.getInstance().setOutput(closeStackedDevice(_outStack),
-                closeStackedDevice(_msgStack));
+        HenPlus.getInstance().setOutput(closeStackedDevice(_outStack), closeStackedDevice(_msgStack));
         return true;
     }
 
@@ -119,20 +115,18 @@ public final class SpoolCommand extends AbstractCommand {
     public String getLongDescription(final String cmd) {
         String dsc;
         dsc = "\tIf command is followed by a filename, opens a file\n"
-            + "\tand writes all subsequent output not only to the terminal\n"
-            + "\tbut as well to this file. With\n"
-            + "\t spool off\n"
-            + "\tspooling is stopped and the file is closed. The spool\n"
-            + "\tcommand works recursivly, i.e. you can open more than one \n"
-            + "\tfile, and you have to close each of them with 'spool off'\n";
+                + "\tand writes all subsequent output not only to the terminal\n" + "\tbut as well to this file. With\n"
+                + "\t spool off\n" + "\tspooling is stopped and the file is closed. The spool\n"
+                + "\tcommand works recursivly, i.e. you can open more than one \n"
+                + "\tfile, and you have to close each of them with 'spool off'\n";
         return dsc;
     }
 
     /**
-     * A stream that writes to two output streams. On close, only the second,
-     * stacked stream is closed.
+     * A stream that writes to two output streams. On close, only the second, stacked stream is closed.
      */
     private static class StackedDevice implements OutputDevice {
+
         private final OutputDevice _a;
         private final OutputDevice _b;
 
@@ -141,51 +135,61 @@ public final class SpoolCommand extends AbstractCommand {
             _b = b;
         }
 
+        @Override
         public void flush() {
             _a.flush();
             _b.flush();
         }
 
+        @Override
         public void write(final byte[] buffer, final int off, final int len) {
             _a.write(buffer, off, len);
             _b.write(buffer, off, len);
         }
 
+        @Override
         public void print(final String s) {
             _a.print(s);
             _b.print(s);
         }
 
+        @Override
         public void println(final String s) {
             _a.println(s);
             _b.println(s);
         }
 
+        @Override
         public void println() {
             _a.println();
             _b.println();
         }
 
+        @Override
         public void attributeBold() {
             _a.attributeBold();
             _b.attributeBold();
         }
 
+        @Override
         public void attributeGrey() {
             _a.attributeGrey();
             _b.attributeGrey();
         }
 
+        @Override
         public void attributeReset() {
             _a.attributeReset();
             _b.attributeReset();
         }
 
         /** closes _only_ the (stacked) second stream */
+        @Override
         public void close() {
             _b.close();
         }
 
+        @Override
         public boolean isTerminal() {
             return _a.isTerminal() && _b.isTerminal();
         }

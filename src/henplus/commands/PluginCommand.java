@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: PluginCommand.java,v 1.8 2005-11-27 16:20:28 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * PluginCommand.java,v 1.8 2005-11-27 16:20:28 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
@@ -33,6 +31,7 @@ import java.util.TreeMap;
  * A Command that handles Plugins.
  */
 public final class PluginCommand extends AbstractCommand {
+
     private static final String PLUGINS_FILENAME = "plugins";
     private static final ColumnMetaData[] DRV_META;
     static {
@@ -48,6 +47,7 @@ public final class PluginCommand extends AbstractCommand {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "list-plugins", "plug-in", "plug-out" };
     }
@@ -63,13 +63,13 @@ public final class PluginCommand extends AbstractCommand {
      */
     public void load() {
         _config.read(new ConfigurationContainer.ReadAction() {
-            public void readConfiguration(final InputStream inStream)
-            throws Exception {
+
+            @Override
+            public void readConfiguration(final InputStream inStream) throws Exception {
                 if (inStream == null) {
                     return;
                 }
-                final BufferedReader in = new BufferedReader(new InputStreamReader(
-                        inStream, "UTF-8"));
+                final BufferedReader in = new BufferedReader(new InputStreamReader(inStream, "UTF-8"));
                 String line;
                 while ((line = in.readLine()) != null) {
                     line = line.trim();
@@ -80,9 +80,7 @@ public final class PluginCommand extends AbstractCommand {
                     try {
                         plugin = loadPlugin(line);
                     } catch (final Exception e) {
-                        HenPlus.msg().println(
-                                "couldn't load plugin '" + line + "' "
-                                + e.getMessage());
+                        HenPlus.msg().println("couldn't load plugin '" + line + "' " + e.getMessage());
                     }
                     _plugins.put(line, plugin);
                 }
@@ -99,8 +97,8 @@ public final class PluginCommand extends AbstractCommand {
     /**
      * load a plugin and register it at HenPlus.
      */
-    private Command loadPlugin(final String className) throws ClassNotFoundException,
-    ClassCastException, InstantiationException, IllegalAccessException {
+    private Command loadPlugin(final String className) throws ClassNotFoundException, ClassCastException, InstantiationException,
+            IllegalAccessException {
         Command plugin = null;
         final Class<?> pluginClass = Class.forName(className);
         plugin = (Command) pluginClass.newInstance();
@@ -111,6 +109,7 @@ public final class PluginCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession currentSession, final String cmd, final String param) {
         final StringTokenizer st = new StringTokenizer(param);
         final int argc = st.countTokens();
@@ -150,16 +149,14 @@ public final class PluginCommand extends AbstractCommand {
             }
             final String pluginClass = (String) st.nextElement();
             if (_plugins.containsKey(pluginClass)) {
-                HenPlus.msg().println(
-                        "plugin '" + pluginClass + "' already loaded");
+                HenPlus.msg().println("plugin '" + pluginClass + "' already loaded");
                 return EXEC_FAILED;
             }
             Command plugin = null;
             try {
                 plugin = loadPlugin(pluginClass);
             } catch (final Exception e) {
-                HenPlus.msg()
-                .println("couldn't load plugin: " + e.getMessage());
+                HenPlus.msg().println("couldn't load plugin: " + e.getMessage());
                 return EXEC_FAILED;
             }
             if (plugin != null) {
@@ -191,8 +188,7 @@ public final class PluginCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         final StringTokenizer st = new StringTokenizer(partialCommand);
         final String cmd = (String) st.nextElement();
         final int argc = st.countTokens();
@@ -210,10 +206,10 @@ public final class PluginCommand extends AbstractCommand {
     @Override
     public void shutdown() {
         _config.write(new ConfigurationContainer.WriteAction() {
-            public void writeConfiguration(final OutputStream outStream)
-            throws Exception {
-                final PrintWriter out = new PrintWriter(new OutputStreamWriter(
-                        outStream, "UTF-8"));
+
+            @Override
+            public void writeConfiguration(final OutputStream outStream) throws Exception {
+                final PrintWriter out = new PrintWriter(new OutputStreamWriter(outStream, "UTF-8"));
                 final Iterator it = _plugins.keySet().iterator();
                 while (it.hasNext()) {
                     out.println((String) it.next());
@@ -244,27 +240,23 @@ public final class PluginCommand extends AbstractCommand {
         String dsc = null;
         if ("plug-in".equals(cmd)) {
             dsc = "\tLoad plugin. This command takes as argument the name of\n"
-                + "\tthe  class  that  implements  the  plugin, that is then\n"
-                + "\tloaded from your classpath. The plugin then behaves like\n"
-                + "\tany other built-in command (including help and completion).\n\n"
-                + "\tWriting a  plugin is  simple: Just  write a  class that\n"
-                + "\timplements the well documented henplus.Command interface.\n"
-                + "\tYou can just simply derive from henplus.AbstractCommand\n"
-                + "\tthat already implements the default behaviour. An example\n"
-                + "\tof a plugin is the henplus.SamplePlugin that does nothing\n"
-                + "\tbut shows how it works; try it:\n\n"
-                + "\tplug-in henplus.SamplePlugin\n\n"
-                + "\tOn exit of HenPlus, all names of the plugin-classes are\n"
-                + "\tstored, so that  they are automatically  loaded on next\n"
-                + "\tstartup.";
+                    + "\tthe  class  that  implements  the  plugin, that is then\n"
+                    + "\tloaded from your classpath. The plugin then behaves like\n"
+                    + "\tany other built-in command (including help and completion).\n\n"
+                    + "\tWriting a  plugin is  simple: Just  write a  class that\n"
+                    + "\timplements the well documented henplus.Command interface.\n"
+                    + "\tYou can just simply derive from henplus.AbstractCommand\n"
+                    + "\tthat already implements the default behaviour. An example\n"
+                    + "\tof a plugin is the henplus.SamplePlugin that does nothing\n" + "\tbut shows how it works; try it:\n\n"
+                    + "\tplug-in henplus.SamplePlugin\n\n" + "\tOn exit of HenPlus, all names of the plugin-classes are\n"
+                    + "\tstored, so that  they are automatically  loaded on next\n" + "\tstartup.";
         } else if ("plug-out".equals(cmd)) {
             dsc = "\tUnload plugin. Unload a previously loaded plugin. This\n"
-                + "\tcommand provides completion for the class name.\n";
+                    + "\tcommand provides completion for the class name.\n";
         } else if ("list-plugins".equals(cmd)) {
             dsc = "\tList the plugins loaded. The plugins, that are actually\n"
-                + "\tloaded have a little star (*) in the first column. If it\n"
-                + "\tis not loaded, then you have to extend your CLASSPATH to\n"
-                + "\taccess the plugins class.";
+                    + "\tloaded have a little star (*) in the first column. If it\n"
+                    + "\tis not loaded, then you have to extend your CLASSPATH to\n" + "\taccess the plugins class.";
         }
         return dsc;
     }

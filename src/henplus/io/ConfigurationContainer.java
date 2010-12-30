@@ -18,14 +18,14 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Helper class to write the configuration. Focus is to avoid half-written
- * configuration files if IO-Errors occur (full harddisk ..) and to merge
- * properties.
+ * Helper class to write the configuration. Focus is to avoid half-written configuration files if IO-Errors occur (full harddisk ..)
+ * and to merge properties.
  * 
  * @author hzeller
  * @version $Revision: 1.1 $
  */
 public final class ConfigurationContainer {
+
     /** configuration file name. */
     private final File _configFile;
 
@@ -40,12 +40,12 @@ public final class ConfigurationContainer {
     }
 
     public interface ReadAction {
+
         void readConfiguration(InputStream in) throws Exception;
     }
 
     /**
-     * Execute the read action with the InputStream from the corresponding
-     * configuration file.
+     * Execute the read action with the InputStream from the corresponding configuration file.
      */
     public void read(final ReadAction action) {
         try {
@@ -62,9 +62,8 @@ public final class ConfigurationContainer {
     }
 
     /**
-     * get the input stream for this configuration container. If no
-     * configuration file exists, 'null' is returned. Remember content digest on
-     * close().
+     * get the input stream for this configuration container. If no configuration file exists, 'null' is returned. Remember content
+     * digest on close().
      */
     private InputStream getInput() {
         if (!_configFile.canRead()) {
@@ -74,6 +73,7 @@ public final class ConfigurationContainer {
             final InputStream in = new FileInputStream(_configFile);
             final MessageDigest inputDigest = MessageDigest.getInstance("MD5");
             return new DigestInputStream(in, inputDigest) {
+
                 boolean isClosed = false;
 
                 @Override
@@ -91,35 +91,29 @@ public final class ConfigurationContainer {
     }
 
     public interface WriteAction {
+
         /**
-         * Write configuration. If any Exception is thrown, the original file is
-         * not overwritten.
+         * Write configuration. If any Exception is thrown, the original file is not overwritten.
          */
         void writeConfiguration(OutputStream out) throws Exception;
     }
 
     /**
-     * Write configuration. The configuration is first written to a temporary
-     * file. Does not overwrite the original file if any Exception occurs in the
-     * course of this or the resulting file is no different.
+     * Write configuration. The configuration is first written to a temporary file. Does not overwrite the original file if any
+     * Exception occurs in the course of this or the resulting file is no different.
      */
     public void write(final WriteAction action) {
         File tmpFile = null;
         try {
-            tmpFile = File.createTempFile("config-", ".tmp", _configFile
-                    .getParentFile());
+            tmpFile = File.createTempFile("config-", ".tmp", _configFile.getParentFile());
             final MessageDigest outputDigest = MessageDigest.getInstance("MD5");
-            final OutputStream out = new DigestOutputStream(new FileOutputStream(
-                    tmpFile), outputDigest);
+            final OutputStream out = new DigestOutputStream(new FileOutputStream(tmpFile), outputDigest);
             try {
                 action.writeConfiguration(out);
             } finally {
                 out.close();
             }
-            if (_inputDigest == null
-                    || !_configFile.exists()
-                    || !MessageDigest.isEqual(_inputDigest, outputDigest
-                            .digest())) {
+            if (_inputDigest == null || !_configFile.exists() || !MessageDigest.isEqual(_inputDigest, outputDigest.digest())) {
                 Logger.debug("non equal.. write file '%s'", _configFile);
                 tmpFile.renameTo(_configFile);
             }
@@ -137,9 +131,8 @@ public final class ConfigurationContainer {
     }
 
     /**
-     * convenience-method to read properties. If you handle simple properties
-     * within your command, then use this method so that versioning and merging
-     * is handled.
+     * convenience-method to read properties. If you handle simple properties within your command, then use this method so that
+     * versioning and merging is handled.
      */
     public Map readProperties(final Map prefill) {
         _readProperties = new Properties();
@@ -160,15 +153,12 @@ public final class ConfigurationContainer {
     }
 
     /**
-     * convenience-method to write properties. Properties must have been read
-     * before.
+     * convenience-method to write properties. Properties must have been read before.
      * 
      * @param allowMerge
-     *            allow merging of properties that have been added by another
-     *            instance of henplus.
+     *            allow merging of properties that have been added by another instance of henplus.
      */
-    public void storeProperties(final Map props, final boolean allowMerge,
-            final String comment) {
+    public void storeProperties(final Map props, final boolean allowMerge, final String comment) {
         if (_readProperties == null) {
             throw new IllegalStateException("properties not read before");
         }
@@ -206,6 +196,8 @@ public final class ConfigurationContainer {
         }
 
         write(new WriteAction() {
+
+            @Override
             public void writeConfiguration(final OutputStream out) throws Exception {
                 outputProperties.store(out, comment);
                 out.close();

@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -27,8 +26,8 @@ import java.util.SortedSet;
 /**
  * FIXME: use SQLMetaData stuff instead.
  */
-public class ListUserObjectsCommand extends AbstractCommand implements
-Interruptable {
+public class ListUserObjectsCommand extends AbstractCommand implements Interruptable {
+
     private static final String[] LIST_TABLES_VIEWS = { "TABLE", "VIEW" };
     private static final String[] LIST_TABLES = { "TABLE" };
     private static final String[] LIST_VIEWS = { "VIEW" };
@@ -45,8 +44,8 @@ Interruptable {
     private boolean _interrupted;
 
     public ListUserObjectsCommand(final HenPlus hp) {
-        _sessionTables = new HashMap<SQLSession,NameCompleter>();
-        _sessionColumns = new HashMap<SQLSession,NameCompleter>();
+        _sessionTables = new HashMap<SQLSession, NameCompleter>();
+        _sessionColumns = new HashMap<SQLSession, NameCompleter>();
         _henplus = hp;
         _interrupted = false;
     }
@@ -54,6 +53,7 @@ Interruptable {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "tables", "views", "procedures", "rehash" };
     }
@@ -61,6 +61,7 @@ Interruptable {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         if (cmd.equals("rehash")) {
             rehash(session);
@@ -88,22 +89,18 @@ Interruptable {
                     final boolean showViews = "views".equals(cmd);
                     objectType = showViews ? "Views" : "Tables";
                     HenPlus.msg().println(objectType);
-                    rset = meta.getTables(catalog, null, null,
-                            showViews ? LIST_VIEWS : LIST_TABLES);
+                    rset = meta.getTables(catalog, null, null, showViews ? LIST_VIEWS : LIST_TABLES);
                     columnDef = TABLE_DISP_COLS;
                 }
 
-                renderer = new ResultSetRenderer(rset, "|", true, true, 10000,
-                        HenPlus.out(), columnDef);
+                renderer = new ResultSetRenderer(rset, "|", true, true, 10000, HenPlus.out(), columnDef);
                 renderer.getDisplayMetaData()[2].setAutoWrap(78);
 
                 final int tables = renderer.execute();
                 if (tables > 0) {
-                    HenPlus.msg()
-                    .println(tables + " " + objectType + " found.");
+                    HenPlus.msg().println(tables + " " + objectType + " found.");
                     if (renderer.limitReached()) {
-                        HenPlus.msg().println(
-                        "..and probably more; reached display limit");
+                        HenPlus.msg().println("..and probably more; reached display limit");
                     }
                 }
             } catch (final Exception e) {
@@ -220,13 +217,11 @@ Interruptable {
     }
 
     /**
-     * see, if we find exactly one alternative, that is spelled correctly. If we
-     * have more than one alternative but one, that has the same length of the
-     * requested tablename, return this.
+     * see, if we find exactly one alternative, that is spelled correctly. If we have more than one alternative but one, that has
+     * the same length of the requested tablename, return this.
      */
     public String correctTableName(final String tabName) {
-        final Iterator it = completeTableName(HenPlus.getInstance()
-                .getCurrentSession(), tabName);
+        final Iterator it = completeTableName(HenPlus.getInstance().getCurrentSession(), tabName);
         if (it == null) {
             return null;
         }
@@ -235,8 +230,7 @@ Interruptable {
         String correctedName = null;
         if (it.hasNext()) {
             final String alternative = (String) it.next();
-            final boolean sameLength = alternative != null && alternative.length() == tabName
-                    .length();
+            final boolean sameLength = alternative != null && alternative.length() == tabName.length();
 
             foundSameLengthMatch |= sameLength;
             ++count;
@@ -299,6 +293,7 @@ Interruptable {
         return dsc;
     }
 
+    @Override
     public void interrupt() {
         _interrupted = true;
     }

@@ -1,14 +1,13 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus;
 
+import henplus.commands.SetCommand;
 import henplus.event.ExecutionListener;
 import henplus.logging.Logger;
-import henplus.commands.SetCommand;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,6 +23,7 @@ import org.gnu.readline.ReadlineCompleter;
  * The Command Dispatcher for all commands.
  */
 public class CommandDispatcher implements ReadlineCompleter {
+
     private static final boolean VERBOSE = false; // debug
     private final List<Command> _commands; // commands in seq. of addition.
     private final SortedMap<String, Command> _commandMap;
@@ -56,8 +56,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     /**
-     * returns a sorted list of command names, starting with the first entry
-     * matching the key.
+     * returns a sorted list of command names, starting with the first entry matching the key.
      */
     public Iterator getRegisteredCommandNames(final String key) {
         return _commandMap.tailMap(key).keySet().iterator();
@@ -84,9 +83,7 @@ public class CommandDispatcher implements ReadlineCompleter {
         final String[] cmdStrings = c.getCommandList();
         for (int i = 0; i < cmdStrings.length; ++i) {
             if (_commandMap.containsKey(cmdStrings[i])) {
-                throw new IllegalArgumentException(
-                        "attempt to register command '" + cmdStrings[i]
-                                                                     + "', that is already used");
+                throw new IllegalArgumentException("attempt to register command '" + cmdStrings[i] + "', that is already used");
             }
             _commandMap.put(cmdStrings[i], c);
         }
@@ -106,10 +103,9 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     /**
-     * unregister command. This is an 'expensive' operation, since we go through
-     * the internal list until we find the command and remove it. But since the
-     * number of commands is low and this is a rare operation (the
-     * plugin-mechanism does this) .. we don't care.
+     * unregister command. This is an 'expensive' operation, since we go through the internal list until we find the command and
+     * remove it. But since the number of commands is low and this is a rare operation (the plugin-mechanism does this) .. we don't
+     * care.
      */
     public void unregister(final Command c) {
         _commands.remove(c);
@@ -123,9 +119,8 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     /**
-     * extracts the command from the commandstring. This even works, if there is
-     * not delimiter between the command and its arguments (this is esp. needed
-     * for the commands '?', '!', '@' and '@@').
+     * extracts the command from the commandstring. This even works, if there is not delimiter between the command and its arguments
+     * (this is esp. needed for the commands '?', '!', '@' and '@@').
      */
     public String getCommandNameFrom(final String completeCmd) {
         if (completeCmd == null || completeCmd.length() == 0) {
@@ -183,8 +178,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     /**
-     * Add an execution listener that is informed whenever a command is
-     * executed.
+     * Add an execution listener that is informed whenever a command is executed.
      * 
      * @param listener
      *            an Execution Listener
@@ -223,8 +217,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     }
 
     /**
-     * execute the command given. This strips whitespaces and trailing
-     * semicolons and calls the Command class.
+     * execute the command given. This strips whitespaces and trailing semicolons and calls the Command class.
      */
     public void execute(final SQLSession session, final String givenCommand) {
         if (givenCommand == null) {
@@ -261,30 +254,30 @@ public class CommandDispatcher implements ReadlineCompleter {
                 informAfterListeners(session, givenCommand, result);
 
                 switch (result) {
-                case Command.SYNTAX_ERROR: {
-                    final String synopsis = c.getSynopsis(cmdStr);
-                    if (synopsis != null) {
-                        Logger.error("usage: " + synopsis);
-                    } else {
-                        Logger.error("syntax error.");
+                    case Command.SYNTAX_ERROR: {
+                        final String synopsis = c.getSynopsis(cmdStr);
+                        if (synopsis != null) {
+                            Logger.error("usage: " + synopsis);
+                        } else {
+                            Logger.error("syntax error.");
+                        }
                     }
-                }
-                break;
-                case Command.EXEC_FAILED: {
-                    /*
-                     * if we are in batch mode, then no message is written to
-                     * the screen by default. Thus we don't know, _what_ command
-                     * actually failed. So in this case, write out the offending
-                     * command.
-                     */
-                    if (isInBatch()) {
-                        Logger.error("-- failed command: ");
-                        Logger.error(givenCommand);
+                        break;
+                    case Command.EXEC_FAILED: {
+                        /*
+                         * if we are in batch mode, then no message is written to
+                         * the screen by default. Thus we don't know, _what_ command
+                         * actually failed. So in this case, write out the offending
+                         * command.
+                         */
+                        if (isInBatch()) {
+                            Logger.error("-- failed command: ");
+                            Logger.error(givenCommand);
+                        }
                     }
-                }
-                break;
-                default:
-                    /* nope */
+                        break;
+                    default:
+                        /* nope */
                 }
             } catch (final Throwable e) {
                 Logger.error("Error in command execution: ", e);
@@ -297,6 +290,7 @@ public class CommandDispatcher implements ReadlineCompleter {
     private String _variablePrefix;
 
     // -- Readline completer ..
+    @Override
     public String completer(String text, final int state) {
         final HenPlus henplus = HenPlus.getInstance();
         final String completeCommandString = henplus.getPartialLine().trim();
@@ -306,15 +300,13 @@ public class CommandDispatcher implements ReadlineCompleter {
          * ok, do we have a variable expansion ?
          */
         int pos = text.length() - 1;
-        while (pos > 0 && text.charAt(pos) != '$'
-                && Character.isJavaIdentifierPart(text.charAt(pos))) {
+        while (pos > 0 && text.charAt(pos) != '$' && Character.isJavaIdentifierPart(text.charAt(pos))) {
             --pos;
         }
         // either $... or ${...
         if (pos >= 0 && text.charAt(pos) == '$') {
             variableExpansion = true;
-        } else if (pos >= 1 && text.charAt(pos - 1) == '$'
-            && text.charAt(pos) == '{') {
+        } else if (pos >= 1 && text.charAt(pos - 1) == '$' && text.charAt(pos) == '{') {
             variableExpansion = true;
             --pos;
         }
@@ -329,11 +321,10 @@ public class CommandDispatcher implements ReadlineCompleter {
                 return _variablePrefix + _possibleValues.next();
             }
             return null;
-        }
-        /*
-         * the first word.. the command.
-         */
-        else if (completeCommandString.equals(text)) {
+        } else if (completeCommandString.equals(text)) {
+            /*
+             * the first word.. the command.
+             */
             text = text.toLowerCase();
             if (state == 0) {
                 _possibleValues = getRegisteredCommandNames(text);
@@ -348,8 +339,7 @@ public class CommandDispatcher implements ReadlineCompleter {
                     if (!c.participateInCommandCompletion()) {
                         continue;
                     }
-                    if (c.requiresValidSession(nextKey)
-                            && henplus.getCurrentSession() == null) {
+                    if (c.requiresValidSession(nextKey) && henplus.getCurrentSession() == null) {
                         continue;
                     }
                 }
@@ -359,18 +349,16 @@ public class CommandDispatcher implements ReadlineCompleter {
                 return null;
             }
             return null;
-        }
-        /*
-         * .. otherwise get completion from the specific command.
-         */
-        else {
+        } else {
+            /*
+             * .. otherwise get completion from the specific command.
+             */
             if (state == 0) {
                 final Command cmd = getCommandFrom(completeCommandString);
                 if (cmd == null) {
                     return null;
                 }
-                _possibleValues = cmd
-                .complete(this, completeCommandString, text);
+                _possibleValues = cmd.complete(this, completeCommandString, text);
             }
             if (_possibleValues != null && _possibleValues.hasNext()) {
                 return _possibleValues.next();

@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  */
 package henplus.plugins.tablediff;
 
@@ -23,9 +22,11 @@ import java.util.TreeSet;
  * @author <a href="mailto:martin.grotzke@javakaffee.de">Martin Grotzke</a>
  */
 public final class TableDiffResult {
+
     private SortedSet<Column> _removedColumns;
     private SortedSet<Column> _addedColumns;
     private LinkedHashMap<Column, Column> _modifiedColumns; // key: reference,
+
     // value: modified
 
     public TableDiffResult() {

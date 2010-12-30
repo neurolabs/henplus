@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -15,61 +14,66 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 /**
- * Implementation of a Command with default settings. Override what is necessary
- * in your Command. It makes sense to derive plug-ins from this AbstractCommand
- * - this makes the plug-in more robust with regard to newly added methods.
+ * Implementation of a Command with default settings. Override what is necessary in your Command. It makes sense to derive plug-ins
+ * from this AbstractCommand - this makes the plug-in more robust with regard to newly added methods.
  * 
  * @author Henner Zeller
  */
 public abstract class AbstractCommand implements Command {
 
     // no description by default.
+    @Override
     public String getShortDescription() {
         return null;
     }
 
+    @Override
     public String getLongDescription(final String cmd) {
-        Collection<Option> handledCommandLineOptions = getHandledCommandLineOptions();
+        final Collection<Option> handledCommandLineOptions = getHandledCommandLineOptions();
         if (handledCommandLineOptions != null && handledCommandLineOptions.size() > 0) {
-            StringBuilder sb = new StringBuilder("\tRecognized options are:\n");
-            for (Option option : handledCommandLineOptions) {
-            	sb.append(String.format("\t -%s %s\n", option.getOpt(), option.getDescription()));
-			}
+            final StringBuilder sb = new StringBuilder("\tRecognized options are:\n");
+            for (final Option option : handledCommandLineOptions) {
+                sb.append(String.format("\t -%s %s\n", option.getOpt(), option.getDescription()));
+            }
             return sb.toString();
         }
         return null;
     }
 
+    @Override
     public String getSynopsis(final String cmd) {
         return null;
     }
 
     // All commands are completed by default.
+    @Override
     public boolean participateInCommandCompletion() {
         return true;
     }
 
     // no completion support by the commmand
-    public Iterator complete(final CommandDispatcher disp, final String partialCommand,
-            final String lastWord) {
+    @Override
+    public Iterator complete(final CommandDispatcher disp, final String partialCommand, final String lastWord) {
         return null;
     }
 
+    @Override
     public void shutdown() { /* don't care */
     }
 
     // the simple commands are always complete on newline or semicolon
+    @Override
     public boolean isComplete(final String command) {
         return true;
     }
 
+    @Override
     public boolean requiresValidSession(final String cmd) {
         return true;
     }
 
     /**
-     * convenience method: returns the number of elements in this string,
-     * separated by whitespace.
+     * convenience method: returns the number of elements in this string, separated by whitespace.
      */
     protected int argumentCount(final String command) {
         return new StringTokenizer(command).countTokens();
@@ -80,10 +84,12 @@ public abstract class AbstractCommand implements Command {
      * 
      * @param r
      */
+    @Override
     public Collection<Option> getHandledCommandLineOptions() {
-    	return Collections.emptyList();
+        return Collections.emptyList();
     }
 
+    @Override
     public void handleCommandline(final CommandLine line) {
 
     }

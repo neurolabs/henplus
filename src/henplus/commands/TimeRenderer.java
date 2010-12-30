@@ -1,24 +1,22 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: TimeRenderer.java,v 1.8 2005-11-27 16:20:28 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * TimeRenderer.java,v 1.8 2005-11-27 16:20:28 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
-import henplus.OutputDevice;
 import henplus.AbstractOutputDevice;
+import henplus.OutputDevice;
 
 /**
  * document me.
  */
 public class TimeRenderer {
+
     private static final long SECOND_MILLIS = 1000;
     private static final long MINUTE_MILLIS = 60 * SECOND_MILLIS;
     private static final long HOUR_MILLIS = 60 * MINUTE_MILLIS;
 
-    public static void printFraction(final long execTime, final long number,
-            final OutputDevice out) {
+    public static void printFraction(final long execTime, final long number, final OutputDevice out) {
         if (number == 0) {
             out.print(" -- ");
             return;
@@ -37,6 +35,7 @@ public class TimeRenderer {
     public static String renderTime(final long execTimeInMs, final long usec) {
         final StringBuilder result = new StringBuilder();
         printTime(execTimeInMs, usec, new AbstractOutputDevice() {
+
             @Override
             public void print(final String s) {
                 result.append(s);
@@ -118,7 +117,7 @@ public class TimeRenderer {
         } else if (totalTime > 0 && totalTime < SECOND_MILLIS) {
             out.print(" m");
         } else if (totalTime == 0 && usec > 0) {
-            out.print(" µ");
+            out.print(" ï¿½");
         }
         out.print("sec");
     }

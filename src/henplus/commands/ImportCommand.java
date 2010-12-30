@@ -1,6 +1,5 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
@@ -36,15 +35,14 @@ import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
 
 /*
- Todo:
- - where clause with regexp
- - fix quoting handling
+ * Todo: - where clause with regexp - fix quoting handling
  */
 
 /**
  * document me.
  */
 public class ImportCommand extends AbstractCommand {
+
     private static final String DEFAULT_ROW_DELIM = "\n";
     private static final String DEFAULT_COL_DELIM = "\t";
     private static final String COMMAND_QUOTES = "\"\"''()";
@@ -54,6 +52,7 @@ public class ImportCommand extends AbstractCommand {
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "import", "import-check", "import-print" };
     }
@@ -68,8 +67,7 @@ public class ImportCommand extends AbstractCommand {
     }
 
     @Override
-    public Iterator complete(final CommandDispatcher disp, String partialCommand,
-            final String lastWord) {
+    public Iterator complete(final CommandDispatcher disp, String partialCommand, final String lastWord) {
         final ConfigurationParser parser = new ConfigurationParser(_tableCompleter);
         if ("".equals(lastWord)) {
             partialCommand += " ";
@@ -92,6 +90,7 @@ public class ImportCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         /*
          * HenPlus.msg().println("cmd='" + cmd + "';" + "param='" + param +
@@ -122,8 +121,7 @@ public class ImportCommand extends AbstractCommand {
                 innerRecipient = new SqlImportProcessor(session, config);
             }
 
-            final FilterRecipient filterRecipient = new FilterRecipient(startRow,
-                    endRow, innerRecipient);
+            final FilterRecipient filterRecipient = new FilterRecipient(startRow, endRow, innerRecipient);
             SigIntHandler.getInstance().pushInterruptable(filterRecipient);
             importFile(config, filterRecipient);
             final long readRows = filterRecipient.getRowCount();
@@ -131,9 +129,7 @@ public class ImportCommand extends AbstractCommand {
 
             final long execTime = System.currentTimeMillis() - startTime;
 
-            HenPlus.msg().print(
-                    "reading " + readRows + " rows from '"
-                    + config.getFilename() + "' took ");
+            HenPlus.msg().print("reading " + readRows + " rows from '" + config.getFilename() + "' took ");
             TimeRenderer.printTime(execTime, HenPlus.msg());
             HenPlus.msg().print(" total; ");
             TimeRenderer.printFraction(execTime, readRows, HenPlus.msg());
@@ -146,11 +142,9 @@ public class ImportCommand extends AbstractCommand {
         return SUCCESS;
     }
 
-    private void importFile(final ImportConfiguration config, final ValueRecipient recipient)
-    throws Exception {
+    private void importFile(final ImportConfiguration config, final ValueRecipient recipient) throws Exception {
         final File file = new File(config.getFilename());
-        final String encoding = config.getEncoding() != null ? config
-                .getEncoding() : "ISO-8859-1";
+        final String encoding = config.getEncoding() != null ? config.getEncoding() : "ISO-8859-1";
         InputStream fileIn = new FileInputStream(file);
         if (config.getFilename().endsWith(".gz")) {
             fileIn = new GZIPInputStream(fileIn);
@@ -163,16 +157,12 @@ public class ImportCommand extends AbstractCommand {
         int colIndex = 0;
         for (int i = 0; i < colCount; ++i) {
             final String colName = config.getColumns()[i];
-            colParser[i] = colName == null ? (TypeParser) new IgnoreTypeParser()
-            : (TypeParser) new QuotedStringParser(colIndex++);
+            colParser[i] = colName == null ? (TypeParser) new IgnoreTypeParser() : (TypeParser) new QuotedStringParser(colIndex++);
         }
         try {
-            final String colDelim = config.getColDelimiter() != null ? config
-                    .getColDelimiter() : DEFAULT_COL_DELIM;
-            final String rowDelim = config.getRowDelimiter() != null ? config
-                    .getRowDelimiter() : DEFAULT_ROW_DELIM;
-            final ImportParser parser = new ImportParser(colParser, colDelim,
-                    rowDelim);
+            final String colDelim = config.getColDelimiter() != null ? config.getColDelimiter() : DEFAULT_COL_DELIM;
+            final String rowDelim = config.getRowDelimiter() != null ? config.getRowDelimiter() : DEFAULT_ROW_DELIM;
+            final ImportParser parser = new ImportParser(colParser, colDelim, rowDelim);
             parser.parse(reader, recipient);
         } finally {
             reader.close();
@@ -180,11 +170,12 @@ public class ImportCommand extends AbstractCommand {
     }
 
     private interface RowCountingRecipient extends ValueRecipient {
+
         long getRowCount();
     }
 
-    private static class FilterRecipient implements RowCountingRecipient,
-    Interruptable {
+    private static class FilterRecipient implements RowCountingRecipient, Interruptable {
+
         private final long _startRow;
         private final long _endRow;
         private final ValueRecipient _target;
@@ -216,70 +207,82 @@ public class ImportCommand extends AbstractCommand {
             return true;
         }
 
+        @Override
         public void setLong(final int fieldNumber, final long value) throws Exception {
             if (rangeValid()) {
                 _target.setLong(fieldNumber, value);
             }
         }
 
+        @Override
         public void setString(final int fieldNumber, final String value) throws Exception {
             if (rangeValid()) {
                 _target.setString(fieldNumber, value);
             }
         }
 
+        @Override
         public void setDate(final int fieldNumber, final Calendar cal) throws Exception {
             if (rangeValid()) {
                 _target.setDate(fieldNumber, cal);
             }
         }
 
+        @Override
         public void interrupt() {
             _finished = true;
         }
 
+        @Override
         public long getRowCount() {
             return _rows;
         }
 
+        @Override
         public boolean finishRow() throws Exception {
             boolean deligeeFinish = false;
             if (rangeValid() && expressionMatches()) {
                 deligeeFinish = _target.finishRow();
             }
             _rows++;
-            return deligeeFinish || _finished
-            || _endRow >= 0 && _rows >= _endRow;
+            return deligeeFinish || _finished || _endRow >= 0 && _rows >= _endRow;
         }
     }
 
     private static final class CountRecipient implements RowCountingRecipient {
+
         private long _rows;
 
         CountRecipient() {
             _rows = 0;
         }
 
+        @Override
         public void setLong(final int fieldNumber, final long value) {
         }
 
+        @Override
         public void setString(final int fieldNumber, final String value) {
         }
 
+        @Override
         public void setDate(final int fieldNumber, final Calendar cal) {
         }
 
+        @Override
         public boolean finishRow() {
             ++_rows;
             return false;
         }
 
+        @Override
         public long getRowCount() {
             return _rows;
         }
     }
 
     private static final class PrintRecipient implements RowCountingRecipient {
+
         private final String[] _paddedNames;
         private long _rows;
         private boolean _colWritten;
@@ -326,8 +329,7 @@ public class ImportCommand extends AbstractCommand {
             }
             if (!_colWritten) {
                 HenPlus.msg().attributeBold();
-                HenPlus.msg().println(
-                        "----------------------- row " + _rows + " :");
+                HenPlus.msg().println("----------------------- row " + _rows + " :");
                 HenPlus.msg().attributeReset();
                 _colWritten = true;
             }
@@ -337,29 +339,33 @@ public class ImportCommand extends AbstractCommand {
             return true;
         }
 
+        @Override
         public void setLong(final int fieldNumber, final long value) {
             if (printColName(fieldNumber)) {
                 HenPlus.msg().println(String.valueOf(value));
             }
         }
 
+        @Override
         public void setString(final int fieldNumber, final String value) {
             if (printColName(fieldNumber)) {
                 HenPlus.msg().println(value);
             }
         }
 
+        @Override
         public void setDate(final int fieldNumber, final Calendar cal) {
             if (printColName(fieldNumber)) {
-                HenPlus.msg().println(
-                        cal != null ? cal.getTime().toString() : null);
+                HenPlus.msg().println(cal != null ? cal.getTime().toString() : null);
             }
         }
 
+        @Override
         public long getRowCount() {
             return _rows;
         }
 
+        @Override
         public boolean finishRow() throws Exception {
             _rows++;
             _colWritten = false;
@@ -367,13 +373,12 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private static final class SqlImportProcessor implements
-    RowCountingRecipient {
+    private static final class SqlImportProcessor implements RowCountingRecipient {
+
         private long _rows;
         private final PreparedStatement _stmt;
 
-        public SqlImportProcessor(final SQLSession session, final ImportConfiguration config)
-        throws Exception {
+        public SqlImportProcessor(final SQLSession session, final ImportConfiguration config) throws Exception {
             _rows = 0;
             final StringBuilder cmd = new StringBuilder("insert into ");
             cmd.append(config.getTable()).append(" (");
@@ -404,22 +409,27 @@ public class ImportCommand extends AbstractCommand {
             _stmt = session.getConnection().prepareStatement(stmtString);
         }
 
+        @Override
         public void setLong(final int fieldNumber, final long value) throws Exception {
             _stmt.setLong(fieldNumber + 1, value);
         }
 
+        @Override
         public void setString(final int fieldNumber, final String value) throws Exception {
             _stmt.setString(fieldNumber + 1, value);
         }
 
+        @Override
         public void setDate(final int fieldNumber, final Calendar cal) throws Exception {
             throw new UnsupportedOperationException("not yet.");
         }
 
+        @Override
         public long getRowCount() {
             return _rows;
         }
 
+        @Override
         public boolean finishRow() throws Exception {
             _rows++;
             _stmt.execute();
@@ -437,10 +447,10 @@ public class ImportCommand extends AbstractCommand {
 
     @Override
     public String getSynopsis(final String cmd) {
-        return cmd
-        + " from <filename> into <tablename> columns (col1[:type][,col2[:type]]) [column-delim \"\\t\"] [row-delim \"\\n\"] [encoding <encoding>] [start-row <number>] [row-count|end-row <number>]\n"
-        + "\tcol could be a column name or '-' if the column is to be ignored\n"
-        + "\tthe optional type can be one of [string,number,date]";
+        return cmd + " from <filename> into <tablename> columns (col1[:type][,col2[:type]]) [column-delim \"\\t\"]"
+                + " [row-delim \"\\n\"] [encoding <encoding>] [start-row <number>] [row-count|end-row <number>]\n"
+                + "\tcol could be a column name or '-' if the column is to be ignored\n"
+                + "\tthe optional type can be one of [string,number,date]";
     }
 
     @Override
@@ -451,32 +461,32 @@ public class ImportCommand extends AbstractCommand {
         } else {
             dsc = "\tImport the content of the file into table according to the format\n";
         }
-        dsc += "\tIf the filename ends with '.gz', the\n"
-            + "\tcontent is unzipped automatically\n\n";
+        dsc += "\tIf the filename ends with '.gz', the\n" + "\tcontent is unzipped automatically\n\n";
         return dsc;
     }
 
     private interface CompleterFactory {
-        Iterator getCompleter(ConfigurationParser parser,
-                String partialValue);
+
+        Iterator getCompleter(ConfigurationParser parser, String partialValue);
     }
 
     private static final class ConfigurationParser {
+
         private static final Object[][] KEYWORDS = {
-            /* (+) means: completable */
-            { "from", new FilenameCompleterFactory() }, /* (+) filename */
-            { "into", new TableCompleterFactory() }, /* (+) table */
-            { "columns", new ColumnCompleterFactory() }, /* (+) (...) */
-            /* { "filter", null }, */
-            { "column-delim", null }, /* string */
-            { "row-delim", null }, /* string */
-            { "encoding", new EncodingCompleterFactory() },/*
-             * (+) any supported
-             * encoding
-             */
-            { "start-row", null }, /* integer */
-            { "row-count", null }, /* integer */
-            // { "end-row", null } /* integer */
+        /* (+) means: completable */
+        { "from", new FilenameCompleterFactory() }, /* (+) filename */
+        { "into", new TableCompleterFactory() }, /* (+) table */
+        { "columns", new ColumnCompleterFactory() }, /* (+) (...) */
+        /* { "filter", null }, */
+        { "column-delim", null }, /* string */
+        { "row-delim", null }, /* string */
+        { "encoding", new EncodingCompleterFactory() },/*
+                                                       * (+) any supported
+                                                       * encoding
+                                                       */
+        { "start-row", null }, /* integer */
+        { "row-count", null }, /* integer */
+        // { "end-row", null } /* integer */
         };
 
         private String _parseError;
@@ -522,8 +532,7 @@ public class ImportCommand extends AbstractCommand {
         private Iterator complete(final String partial) {
             Logger.debug("tok: '%s'", partial);
             resetError();
-            final CommandTokenizer cmdTok = new CommandTokenizer(partial,
-                    COMMAND_QUOTES);
+            final CommandTokenizer cmdTok = new CommandTokenizer(partial, COMMAND_QUOTES);
             while (cmdTok.hasNext()) {
                 final String commandName = cmdTok.nextToken();
                 if (!cmdTok.isCurrentTokenFinished()) {
@@ -554,13 +563,11 @@ public class ImportCommand extends AbstractCommand {
          */
         private void parseConfig(final String complete) {
             resetError();
-            final CommandTokenizer cmdTok = new CommandTokenizer(complete,
-                    COMMAND_QUOTES);
+            final CommandTokenizer cmdTok = new CommandTokenizer(complete, COMMAND_QUOTES);
             while (cmdTok.hasNext()) {
                 final String commandName = cmdTok.nextToken();
                 if (!cmdTok.isCurrentTokenFinished()) {
-                    addError("command ends prematurely at '" + commandName
-                            + "'");
+                    addError("command ends prematurely at '" + commandName + "'");
                     return;
                 }
                 String commandValue = "";
@@ -602,14 +609,12 @@ public class ImportCommand extends AbstractCommand {
                     _config.setStartRow(Long.parseLong(commandValue));
                 } else if ("row-count".equals(commandName)) {
                     _config.setRowCount(Long.parseLong(commandValue));
-                }
-                // end-row missing.
-                else {
+                } else {
+                    // end-row missing.
                     addError("unknown option '" + commandName + "'");
                 }
             } catch (final Exception e) {
-                addError("invalid value for " + commandName + " : "
-                        + e.getMessage());
+                addError("invalid value for " + commandName + " : " + e.getMessage());
             }
         }
 
@@ -663,6 +668,7 @@ public class ImportCommand extends AbstractCommand {
     }
 
     private static final class ImportConfiguration {
+
         private String _filename;
         private String _schema;
         private String _table;
@@ -746,12 +752,10 @@ public class ImportCommand extends AbstractCommand {
 
         public void setRawColumns(final String commaDelimColumns) {
             if (!commaDelimColumns.startsWith("(")) {
-                throw new IllegalArgumentException(
-                "columns must start with '('");
+                throw new IllegalArgumentException("columns must start with '('");
             }
-            final StringTokenizer tok = new StringTokenizer(commaDelimColumns,
-            " \t,()");
-            final String result[] = new String[tok.countTokens()];
+            final StringTokenizer tok = new StringTokenizer(commaDelimColumns, " \t,()");
+            final String[] result = new String[tok.countTokens()];
             for (int i = 0; tok.hasMoreElements(); ++i) {
                 final String token = tok.nextToken();
                 result[i] = "-".equals(token) ? null : token;
@@ -772,27 +776,26 @@ public class ImportCommand extends AbstractCommand {
 
     }
 
-    private static final class FilenameCompleterFactory implements
-    CompleterFactory {
-        public Iterator getCompleter(final ConfigurationParser parser,
-                final String lastCommand) {
+    private static final class FilenameCompleterFactory implements CompleterFactory {
+
+        @Override
+        public Iterator getCompleter(final ConfigurationParser parser, final String lastCommand) {
             return new FileCompletionIterator(" " + lastCommand, "");
         }
     }
 
-    private static final class TableCompleterFactory implements
-    CompleterFactory {
-        public Iterator getCompleter(final ConfigurationParser parser,
-                final String partialName) {
-            return parser.getTableCompleter().completeTableName(
-                    HenPlus.getInstance().getCurrentSession(), partialName);
+    private static final class TableCompleterFactory implements CompleterFactory {
+
+        @Override
+        public Iterator getCompleter(final ConfigurationParser parser, final String partialName) {
+            return parser.getTableCompleter().completeTableName(HenPlus.getInstance().getCurrentSession(), partialName);
         }
     }
 
-    private static final class ColumnCompleterFactory implements
-    CompleterFactory {
-        public Iterator getCompleter(final ConfigurationParser parser,
-                final String lastCommand) {
+    private static final class ColumnCompleterFactory implements CompleterFactory {
+
+        @Override
+        public Iterator getCompleter(final ConfigurationParser parser, final String lastCommand) {
             if ("".equals(lastCommand)) {
                 final List<String> paren = new ArrayList<String>();
                 paren.add("(");
@@ -807,10 +810,10 @@ public class ImportCommand extends AbstractCommand {
         }
     }
 
-    private static final class EncodingCompleterFactory implements
-    CompleterFactory {
-        public Iterator getCompleter(final ConfigurationParser parser,
-                final String partialName) {
+    private static final class EncodingCompleterFactory implements CompleterFactory {
+
+        @Override
+        public Iterator getCompleter(final ConfigurationParser parser, final String partialName) {
             final Collection<String> allEncodings = Charset.availableCharsets().keySet();
             final NameCompleter completer = new NameCompleter(allEncodings);
             return completer.getAlternatives(partialName);

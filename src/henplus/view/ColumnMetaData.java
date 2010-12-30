@@ -1,8 +1,6 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
- * $Id: ColumnMetaData.java,v 1.3 2004-06-07 08:31:56 hzeller Exp $
- * author: Henner Zeller <H.Zeller@acm.org>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html> $Id:
+ * ColumnMetaData.java,v 1.3 2004-06-07 08:31:56 hzeller Exp $ author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.view;
 
@@ -10,6 +8,7 @@ package henplus.view;
  * own wrapper for the column meta data.
  */
 public final class ColumnMetaData {
+
     public static final int ALIGN_LEFT = 1;
     public static final int ALIGN_CENTER = 2;
     public static final int ALIGN_RIGHT = 3;

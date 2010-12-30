@@ -1,22 +1,23 @@
 /*
- * This is free software, licensed under the Gnu Public License (GPL)
- * get a copy from <http://www.gnu.org/licenses/gpl.html>
+ * This is free software, licensed under the Gnu Public License (GPL) get a copy from <http://www.gnu.org/licenses/gpl.html>
  * 
  * author: Henner Zeller <H.Zeller@acm.org>
  */
 package henplus.commands;
 
+import henplus.AbstractCommand;
 import henplus.HenPlus;
 import henplus.SQLSession;
-import henplus.AbstractCommand;
 
 /**
  * document me.
  */
 public class ExitCommand extends AbstractCommand {
+
     /**
      * returns the command-strings this command can handle.
      */
+    @Override
     public String[] getCommandList() {
         return new String[] { "exit", "quit" };
     }
@@ -29,6 +30,7 @@ public class ExitCommand extends AbstractCommand {
     /**
      * execute the command given.
      */
+    @Override
     public int execute(final SQLSession session, final String cmd, final String param) {
         HenPlus.getInstance().terminate();
         return SUCCESS;
