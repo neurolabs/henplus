@@ -20,12 +20,12 @@ public class ReadlineCompleterAdapter implements Completor {
     public int complete(final String buffer, final int cursor, final List candidates) {
 
         // need to find the last incomplete word
-        int lastBreak = buffer.length() - 1;
-        while ((lastBreak > 0) && (wordBreakCharacters.indexOf(buffer.charAt(lastBreak)) == -1)) {
-            lastBreak--;
+        int wordStart = buffer.length();
+        while ((wordStart > 1) && (wordBreakCharacters.indexOf(buffer.charAt(wordStart - 1)) == -1)) {
+            wordStart--;
         }
 
-        final String lastWord = buffer.substring(lastBreak, buffer.length());
+        final String lastWord = buffer.substring(wordStart, buffer.length());
 
         String nextCompletion = null;
         int state = 0;
@@ -34,6 +34,6 @@ public class ReadlineCompleterAdapter implements Completor {
             state++;
         }
 
-        return lastBreak;
+        return wordStart;
     }
 }
