@@ -199,7 +199,7 @@ public class KeyBindCommand extends AbstractCommand {
     private void load() {
         final Map<String,String> bindings = _config.readProperties(_bindings);
         for (Entry<String,String> entry : bindings.entrySet()) {
-            bindKey((String) entry.getKey(), (String) entry.getValue());
+            bindKey(entry.getKey(), entry.getValue());
         }
     }
 
@@ -209,8 +209,8 @@ public class KeyBindCommand extends AbstractCommand {
         final TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
         for (Entry<String,String> entry : _bindings.entrySet()) {
             final Column[] row = new Column[2];
-            row[0] = new Column((String) entry.getKey());
-            row[1] = new Column((String) entry.getValue());
+            row[0] = new Column(entry.getKey());
+            row[1] = new Column(entry.getValue());
             table.addRow(row);
         }
         table.closeTable();

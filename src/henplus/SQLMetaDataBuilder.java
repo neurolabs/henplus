@@ -173,7 +173,7 @@ public final class SQLMetaDataBuilder {
                 column.setDefault(defaultVal != null ? defaultVal.trim() : null);
                 column.setPosition(rset.getInt(ORDINAL_POSITION));
                 column.setPkInfo(pk.getColumnPkInfo(colname));
-                column.setFkInfo((ColumnFkInfo) fks.get(colname));
+                column.setFkInfo(fks.get(colname));
 
                 table.addColumn(column);
             }

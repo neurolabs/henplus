@@ -425,9 +425,9 @@ public class SQLSession implements Interruptable {
             // sequential search .. doesn't matter, not much do do
             String initValue = null;
             for (Entry<String,Integer> entry : availableValues.entrySet()) {
-                final Integer isolationLevel = (Integer) entry.getValue();
+                final Integer isolationLevel = entry.getValue();
                 if (isolationLevel.intValue() == currentValue) {
-                    initValue = (String) entry.getKey();
+                    initValue = entry.getKey();
                     break;
                 }
             }

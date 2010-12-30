@@ -103,8 +103,8 @@ public final class SetCommand extends AbstractCommand {
                 final TableRenderer table = new TableRenderer(SET_META, HenPlus.out());
                 for (Entry<String,String> entry : _variables.entrySet()) {
                     final Column[] row = new Column[4];
-                    row[0] = new Column((String) entry.getKey());
-                    row[1] = new Column((String) entry.getValue());
+                    row[0] = new Column(entry.getKey());
+                    row[1] = new Column(entry.getValue());
                     // row[2] = new Column("");
                     // row[3] = new Column("X");
                     table.addRow(row);

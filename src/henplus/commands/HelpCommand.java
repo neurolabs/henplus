@@ -73,7 +73,7 @@ public class HelpCommand extends AbstractCommand {
         if (param == null) {
             final Iterator<Command> it = HenPlus.getInstance().getDispatcher().getRegisteredCommands();
             while (it.hasNext()) {
-                final Command cmd = (Command) it.next();
+                final Command cmd = it.next();
                 final String description = cmd.getShortDescription();
                 if (description == null) {
                     continue;

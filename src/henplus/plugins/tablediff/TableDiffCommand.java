@@ -355,7 +355,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 @Override
                 public boolean hasNext() {
                     while (iter.hasNext()) {
-                        table = (String) iter.next();
+                        table = iter.next();
                         if (alreadyGiven.contains(table) && !lastWord.equals(table)) {
                             continue;
                         }
@@ -403,7 +403,7 @@ public final class TableDiffCommand extends AbstractCommand {
                 @Override
                 public boolean hasNext() {
                     while (intersectionIter.hasNext()) {
-                        table = (String) intersectionIter.next();
+                        table = intersectionIter.next();
                         if (alreadyGiven.contains(table) && !lastWord.equals(table)) {
                             continue;
                         }

@@ -248,8 +248,8 @@ public class ConnectCommand extends AbstractCommand {
             public void writeConfiguration(final OutputStream out) throws Exception {
                 final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
                 for (Map.Entry<String,String> entry : _knownUrls.entrySet()) {
-                    final String alias = (String) entry.getKey();
-                    final String url = (String) entry.getValue();
+                    final String alias = entry.getKey();
+                    final String url = entry.getValue();
                     if (alias.equals(url)) {
                         writer.println(url);
                     } else {
@@ -325,7 +325,7 @@ public class ConnectCommand extends AbstractCommand {
                  */
                 if (_knownUrls.containsKey(url)) {
                     final String possibleAlias = url;
-                    url = (String) _knownUrls.get(url);
+                    url = _knownUrls.get(url);
                     if (!possibleAlias.equals(url)) {
                         alias = possibleAlias;
                     }
@@ -352,7 +352,7 @@ public class ConnectCommand extends AbstractCommand {
             if (argc == 0 && _sessionManager.getSessionCount() == 2) {
                 final Iterator<String> it = _sessionManager.getSessionNames().iterator();
                 while (it.hasNext()) {
-                    sessionName = (String) it.next();
+                    sessionName = it.next();
                     if (!sessionName.equals(_currentSessionName)) {
                         break;
                     }

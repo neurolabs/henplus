@@ -157,8 +157,8 @@ public final class DriverCommand extends AbstractCommand {
                 final TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
                 for (Entry<String,DriverDescription> entry : _drivers.entrySet()) {
                     final Column[] row = new Column[4];
-                    final DriverDescription desc = (DriverDescription) entry.getValue();
-                    final String dbName = (String) entry.getKey();
+                    final DriverDescription desc = entry.getValue();
+                    final String dbName = entry.getKey();
                     row[0] = new Column((desc.isLoaded() ? "* " : "  ") + dbName);
                     row[1] = new Column(desc.getClassName());
                     row[2] = new Column(desc.getVersion());

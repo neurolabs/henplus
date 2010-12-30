@@ -54,7 +54,7 @@ public class PropertyCommand extends AbstractPropertyCommand {
         
         for (Entry<String,String> entry : props.entrySet()) {
             try {
-                _registry.setProperty((String) entry.getKey(), (String) entry.getValue());
+                _registry.setProperty(entry.getKey(), entry.getValue());
             } catch (final Exception e) {
                 // don't care. silently ignore errornous entries.
             }
@@ -65,7 +65,7 @@ public class PropertyCommand extends AbstractPropertyCommand {
     public void shutdown() {
         final Map<String,String> writeMap = new HashMap<String,String>();
         for (Map.Entry<String, PropertyHolder> entry : _registry.getPropertyMap().entrySet()) {
-            final PropertyHolder holder = (PropertyHolder) entry.getValue();
+            final PropertyHolder holder = entry.getValue();
             writeMap.put(entry.getKey(), holder.getValue());
         }
         _config.storeProperties(writeMap, true, "user properties");

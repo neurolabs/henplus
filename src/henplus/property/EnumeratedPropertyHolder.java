@@ -57,12 +57,12 @@ public abstract class EnumeratedPropertyHolder extends PropertyHolder {
             throw new Exception("'" + newValue + "' does not match any of [" + expected.toString() + "]");
         }
 
-        final String value = (String) possibleValues.next();
+        final String value = possibleValues.next();
         if (possibleValues.hasNext()) {
             final StringBuilder matching = new StringBuilder(value);
             do {
                 matching.append(", ");
-                matching.append((String) possibleValues.next());
+                matching.append(possibleValues.next());
             } while (possibleValues.hasNext());
 
             throw new Exception("'" + newValue + "' ambiguous. Matches [" + matching.toString() + "]");

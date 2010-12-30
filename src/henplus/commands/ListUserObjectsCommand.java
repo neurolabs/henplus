@@ -229,7 +229,7 @@ public class ListUserObjectsCommand extends AbstractCommand implements Interrupt
         int count = 0;
         String correctedName = null;
         if (it.hasNext()) {
-            final String alternative = (String) it.next();
+            final String alternative = it.next();
             final boolean sameLength = alternative != null && alternative.length() == tabName.length();
 
             foundSameLengthMatch |= sameLength;

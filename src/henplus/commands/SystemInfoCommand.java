@@ -162,7 +162,7 @@ public final class SystemInfoCommand extends AbstractCommand {
             final Column[] row = new Column[2];
             row[0] = new Column(key);
             // don't call toString() on the value as it might be null
-            row[1] = new Column((String) value);
+            row[1] = new Column(value);
 
             table.addRow(row);
         }

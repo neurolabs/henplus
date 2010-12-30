@@ -74,7 +74,7 @@ public final class DependencyResolver {
                 boolean nodep = true;
                 final Iterator<ColumnFkInfo> iter2 = fks.iterator();
                 while (iter2.hasNext() && nodep) {
-                    final ColumnFkInfo fk = (ColumnFkInfo) iter2.next();
+                    final ColumnFkInfo fk = iter2.next();
                     if (!resolved.containsKey(fk.getPkTable())) {
                         nodep = false;
                     }

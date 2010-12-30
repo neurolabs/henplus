@@ -278,7 +278,7 @@ public final class HenPlus implements Interruptable {
      */
     private void handleCommandOptions(final CommandLine line) {
         for (final Iterator<Command> it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
-            final Command element = (Command) it.next();
+            final Command element = it.next();
             element.handleCommandline(line);
         }
     }
@@ -288,7 +288,7 @@ public final class HenPlus implements Interruptable {
      */
     private void registerCommandOptions(final Options availableOptions) {
         for (final Iterator<Command> it = _dispatcher.getRegisteredCommands(); it.hasNext();) {
-            final Command element = (Command) it.next();
+            final Command element = it.next();
             try {
                 for (final Option option : element.getHandledCommandLineOptions()) {
                     availableOptions.addOption(option);

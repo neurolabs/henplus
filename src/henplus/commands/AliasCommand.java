@@ -66,7 +66,7 @@ public final class AliasCommand extends AbstractCommand {
     public void load() {
         final Map<String,String> props = _config.readProperties();
         for (Map.Entry<String,String> entry : props.entrySet()) {
-            putAlias((String) entry.getKey(), (String) entry.getValue());
+            putAlias(entry.getKey(), entry.getValue());
         }
     }
 
@@ -137,7 +137,7 @@ public final class AliasCommand extends AbstractCommand {
             }
             return SYNTAX_ERROR;
         } else {
-            final String toExecute = (String) _aliases.get(cmd);
+            final String toExecute = _aliases.get(cmd);
             // HenPlus.msg().println("key: '" + cmd + "' - exec: " + toExecute);
             if (toExecute == null) {
                 return EXEC_FAILED;
@@ -162,8 +162,8 @@ public final class AliasCommand extends AbstractCommand {
         final TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
         for(Map.Entry<String,String> entry : _aliases.entrySet()) {
             final Column[] row = new Column[2];
-            row[0] = new Column((String) entry.getKey());
-            row[1] = new Column((String) entry.getValue());
+            row[0] = new Column(entry.getKey());
+            row[1] = new Column(entry.getValue());
             table.addRow(row);
         }
         table.closeTable();
@@ -224,7 +224,7 @@ public final class AliasCommand extends AbstractCommand {
          * ok, someone tries to complete something that is a command. try to
          * find the actual command and ask that command to do the completion.
          */
-        final String toExecute = (String) _aliases.get(cmd);
+        final String toExecute = _aliases.get(cmd);
         if (toExecute != null) {
             final Command c = disp.getCommandFrom(toExecute);
             if (c != null) {
@@ -298,7 +298,7 @@ public final class AliasCommand extends AbstractCommand {
                 _currentExecutedAliases.add(cmd);
                 dsc = "\tThis is an alias for the command\n" + "\t   " + _aliases.get(cmd);
 
-                String actualCmdStr = (String) _aliases.get(cmd);
+                String actualCmdStr = _aliases.get(cmd);
                 if (actualCmdStr != null) {
                     final StringTokenizer st = new StringTokenizer(actualCmdStr);
                     actualCmdStr = st.nextToken();

@@ -88,8 +88,8 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
                 final TableRenderer table = new TableRenderer(PROP_META, HenPlus.out());
                 for (Map.Entry<String, PropertyHolder> entry : getRegistry().getPropertyMap().entrySet()) {
                     final Column[] row = new Column[3];
-                    final PropertyHolder holder = (PropertyHolder) entry.getValue();
-                    row[0] = new Column((String) entry.getKey());
+                    final PropertyHolder holder = entry.getValue();
+                    row[0] = new Column(entry.getKey());
                     row[1] = new Column(holder.getValue());
                     row[2] = new Column(holder.getShortDescription());
                     table.addRow(row);

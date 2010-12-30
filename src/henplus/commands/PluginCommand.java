@@ -124,8 +124,8 @@ public final class PluginCommand extends AbstractCommand {
             final TableRenderer table = new TableRenderer(DRV_META, HenPlus.out());
             for (Entry<String,Command> entry : _plugins.entrySet()) {
                 final Column[] row = new Column[2];
-                final Command c = (Command) entry.getValue();
-                final String clsName = (String) entry.getKey();
+                final Command c = entry.getValue();
+                final String clsName = entry.getKey();
                 row[0] = new Column((c != null ? "* " : "  ") + clsName);
                 if (c != null) {
                     final StringBuilder cmds = new StringBuilder();

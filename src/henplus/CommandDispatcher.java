@@ -131,7 +131,7 @@ public class CommandDispatcher implements ReadlineCompleter {
         final Iterator<String> it = getRegisteredCommandNames(startChar);
         String longestMatch = null;
         while (it.hasNext()) {
-            final String testMatch = (String) it.next();
+            final String testMatch = it.next();
             if (cmd.startsWith(testMatch)) {
                 longestMatch = testMatch;
             } else if (!testMatch.startsWith(startChar)) {
