@@ -20,7 +20,7 @@ public class Column {
     private static final String NULL_TEXT = "[NULL]";
     private static final int NULL_LENGTH = NULL_TEXT.length();
 
-    private String _columnText[]; // multi-rows
+    private String[] _columnText; // multi-rows
     private int _width;
 
     /** This holds a state for the renderer. */

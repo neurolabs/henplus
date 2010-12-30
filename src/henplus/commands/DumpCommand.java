@@ -587,7 +587,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
             }
         }
         final TableDumpSource tableSource = new TableDumpSource(schema,
-                tabName, !correctName, session);
+                tabName, session);
         tableSource.setWhereClause(whereClause);
         return dumpTable(session, tableSource, dumpOut, fileEncoding);
     }
@@ -1594,17 +1594,15 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         private final SQLSession _session;
         private final String _table;
         private final String _schema;
-        private final boolean _caseSensitive;
         private MetaProperty[] _meta;
         private Statement _workingStatement;
         private String _whereClause;
 
-        TableDumpSource(final String schema, final String table, final boolean caseSensitive,
+        TableDumpSource(final String schema, final String table,
                 final SQLSession session) {
             _session = session;
             _schema = schema;
             _table = table;
-            _caseSensitive = caseSensitive;
         }
 
         public String getDescription() {

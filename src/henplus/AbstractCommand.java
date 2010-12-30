@@ -13,7 +13,6 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 
 /**
  * Implementation of a Command with default settings. Override what is necessary
@@ -23,8 +22,6 @@ import org.apache.commons.cli.Options;
  * @author Henner Zeller
  */
 public abstract class AbstractCommand implements Command {
-
-    private Options _options;
 
     // no description by default.
     public String getShortDescription() {

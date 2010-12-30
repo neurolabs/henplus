@@ -102,9 +102,9 @@ public abstract class AbstractPropertyCommand extends AbstractCommand {
                     row[2] = new Column(holder.getShortDescription());
                     table.addRow(row);
                 }
-                table.closeTable();
-                return SUCCESS;
-            }
+	            table.closeTable();
+	            return SUCCESS;
+	        }
 
             /*
              * one arg: show help
