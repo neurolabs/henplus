@@ -2,9 +2,9 @@ package henplus.jline;
 
 import java.util.List;
 
-import jline.Completor;
+import jline.console.completer.Completer;
 
-public class ReadlineCompleterAdapter implements Completor {
+public class ReadlineCompleterAdapter implements Completer {
 
     private final String wordBreakCharacters;
 
@@ -21,7 +21,7 @@ public class ReadlineCompleterAdapter implements Completor {
 
         // need to find the last incomplete word
         int wordStart = buffer.length();
-        while ((wordStart > 1) && (wordBreakCharacters.indexOf(buffer.charAt(wordStart - 1)) == -1)) {
+        while ((wordStart > 0) && (wordBreakCharacters.indexOf(buffer.charAt(wordStart - 1)) == -1)) {
             wordStart--;
         }
 

@@ -43,7 +43,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 
-import jline.ConsoleReader;
+import jline.console.ConsoleReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -68,7 +68,7 @@ public final class HenPlus implements Interruptable {
         try {
             CONSOLE_READER = new ConsoleReader();
             // avoid automatically adding to the history
-            CONSOLE_READER.setUseHistory(false);
+            CONSOLE_READER.setHistoryEnabled(false);
         } catch (final IOException e) {
             throw new RuntimeException("Counld not initialize console reader", e);
         }
@@ -220,7 +220,7 @@ public final class HenPlus implements Interruptable {
         aliasCommand.load();
         propertyCommand.load();
 
-        CONSOLE_READER.addCompletor(new ReadlineCompleterAdapter(" ,/()<>=\t\n", _dispatcher));
+        CONSOLE_READER.addCompleter(new ReadlineCompleterAdapter(" ,/()<>=\t\n", _dispatcher));
 
         /* FIXME: do this platform independently */
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -352,7 +352,7 @@ public final class HenPlus implements Interruptable {
     private void storeLineInHistory() {
         final String line = _historyLine.toString();
         if (!"".equals(line) && !line.equals(_previousHistoryLine)) {
-            CONSOLE_READER.getHistory().addToHistory(line);
+            CONSOLE_READER.getHistory().add(line);
             _previousHistoryLine = line;
         }
         _historyLine.setLength(0);
@@ -410,8 +410,7 @@ public final class HenPlus implements Interruptable {
     }
 
     public String getPartialLine() {
-        return _historyLine.toString() + CONSOLE_READER.getCursorBuffer().getBuffer().toString();
-
+        return _historyLine.toString() + CONSOLE_READER.getCursorBuffer().toString();
     }
 
     public void run() {
@@ -430,15 +429,6 @@ public final class HenPlus implements Interruptable {
 
             try {
                 cmdLine = _fromTerminal ? CONSOLE_READER.readLine(displayPrompt) : readlineFromFile();
-            } catch (final EOFException e) {
-                // EOF on CTRL-D
-                if (_sessionManager.getCurrentSession() != null) {
-                    _dispatcher.execute(_sessionManager.getCurrentSession(), "disconnect");
-                    displayPrompt = _prompt;
-                    continue;
-                } else {
-                    break; // last session closed -> exit.
-                }
             } catch (final Exception e) {
                 if (_verbose) {
                     e.printStackTrace();
@@ -456,7 +446,14 @@ public final class HenPlus implements Interruptable {
             }
 
             if (cmdLine == null) {
-                continue;
+                // EOF on CTRL-D
+                if (_sessionManager.getCurrentSession() != null) {
+                    _dispatcher.execute(_sessionManager.getCurrentSession(), "disconnect");
+                    displayPrompt = _prompt;
+                    continue;
+                } else {
+                    break; // last session closed -> exit.
+                }
             }
 
             /*

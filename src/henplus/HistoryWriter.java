@@ -24,7 +24,7 @@ public class HistoryWriter {
         final PrintWriter w = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
         final int len = HenPlus.getConsoleReader().getHistory().size();
         for (int i = 0; i < len; ++i) {
-            String line = (String) HenPlus.getConsoleReader().getHistory().getHistoryList().get(i);
+            String line = (String) HenPlus.getConsoleReader().getHistory().get(i);
             if (line == null) {
                 continue;
             }
@@ -54,7 +54,7 @@ public class HistoryWriter {
                 }
             }
             if (line.length() > 0) {
-                HenPlus.getConsoleReader().getHistory().addToHistory(line.toString());
+                HenPlus.getConsoleReader().getHistory().add(line.toString());
                 line.setLength(0);
             }
         } while (c >= 0);
