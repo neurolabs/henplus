@@ -107,38 +107,38 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         TYPES[HP_BLOB] = "BLOB";
         TYPES[HP_CLOB] = "CLOB";
 
-        JDBCTYPE2TYPENAME.put(new Integer(Types.CHAR), TYPES[HP_STRING]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.VARCHAR), TYPES[HP_STRING]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.CHAR)), TYPES[HP_STRING]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.VARCHAR)), TYPES[HP_STRING]);
 
         // hope that, 'OTHER' can be read/written as String..
-        JDBCTYPE2TYPENAME.put(new Integer(Types.OTHER), TYPES[HP_STRING]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.OTHER)), TYPES[HP_STRING]);
 
-        JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARBINARY), TYPES[HP_BLOB]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.LONGVARBINARY)), TYPES[HP_BLOB]);
         // CLOB not supported .. try string.
-        JDBCTYPE2TYPENAME.put(new Integer(Types.LONGVARCHAR), TYPES[HP_STRING]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.LONGVARCHAR)), TYPES[HP_STRING]);
 
         // not supported yet.
-        JDBCTYPE2TYPENAME.put(new Integer(Types.BLOB), TYPES[HP_BLOB]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.BLOB)), TYPES[HP_BLOB]);
         // CLOB not supported .. try string.
-        JDBCTYPE2TYPENAME.put(new Integer(Types.CLOB), TYPES[HP_STRING]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.CLOB)), TYPES[HP_STRING]);
 
         // generic float.
-        JDBCTYPE2TYPENAME.put(new Integer(Types.DOUBLE), TYPES[HP_DOUBLE]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.FLOAT), TYPES[HP_DOUBLE]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.DOUBLE)), TYPES[HP_DOUBLE]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.FLOAT)), TYPES[HP_DOUBLE]);
 
         // generic numeric. could be integer or double
-        JDBCTYPE2TYPENAME.put(new Integer(Types.BIGINT), TYPES[HP_NUMERIC]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.NUMERIC), TYPES[HP_NUMERIC]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.DECIMAL), TYPES[HP_NUMERIC]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.BOOLEAN), TYPES[HP_NUMERIC]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.BIGINT)), TYPES[HP_NUMERIC]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.NUMERIC)), TYPES[HP_NUMERIC]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.DECIMAL)), TYPES[HP_NUMERIC]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.BOOLEAN)), TYPES[HP_NUMERIC]);
         // generic integer.
-        JDBCTYPE2TYPENAME.put(new Integer(Types.INTEGER), TYPES[HP_INTEGER]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.SMALLINT), TYPES[HP_INTEGER]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.TINYINT), TYPES[HP_INTEGER]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.INTEGER)), TYPES[HP_INTEGER]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.SMALLINT)), TYPES[HP_INTEGER]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.TINYINT)), TYPES[HP_INTEGER]);
 
-        JDBCTYPE2TYPENAME.put(new Integer(Types.DATE), TYPES[HP_DATE]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.TIME), TYPES[HP_TIME]);
-        JDBCTYPE2TYPENAME.put(new Integer(Types.TIMESTAMP), TYPES[HP_TIMESTAMP]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.DATE)), TYPES[HP_DATE]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.TIME)), TYPES[HP_TIME]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.TIMESTAMP)), TYPES[HP_TIMESTAMP]);
     }
 
     private final ListUserObjectsCommand _tableCompleter;
@@ -1620,9 +1620,9 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
         public MetaProperty(final String fieldName, final int jdbcType) {
             this.fieldName = fieldName;
-            this.typeName = JDBCTYPE2TYPENAME.get(new Integer(jdbcType));
+            this.typeName = JDBCTYPE2TYPENAME.get(Integer.valueOf(jdbcType));
             if (this.typeName == null) {
-                HenPlus.msg().println("cannot handle type '" + type + "' for field '" + this.fieldName + "'; trying String..");
+                HenPlus.msg().println("cannot handle type '" + jdbcType + "' for field '" + this.fieldName + "'; trying String..");
                 this.type = HP_STRING;
                 this.typeName = TYPES[this.type];
             } else {

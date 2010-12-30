@@ -722,7 +722,9 @@ public final class HenPlus implements Interruptable {
             _configDir = new File(homeDir + File.separator + HENPLUSDIR);
             if (!_configDir.exists()) {
                 Logger.debug("creating henplus config dir.");
-                _configDir.mkdir();
+                if (!_configDir.mkdir()) {
+                    Logger.error("henplus config dir at '%s' could not be created.", _configDir.getAbsolutePath());
+                }
             }
             try {
                 /*
