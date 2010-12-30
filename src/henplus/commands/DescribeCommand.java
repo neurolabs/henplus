@@ -272,8 +272,13 @@ public class DescribeCommand extends AbstractCommand implements Interruptable {
                             row[2] = new Column(colname);
                             String type = rset.getString(6);
                             final int colSize = rset.getInt(7);
+                            final int colDp = rset.getInt(9);
                             if (colSize > 0) {
-                                type = new StringBuilder().append(type).append("(").append(colSize).append(")").toString();
+                                if (colDp == 0) {
+                                    type = type + "(" + colSize +")";
+                                } else {
+                                    type = type + "(" + colSize + "," + colDp + ")";
+                                }
                             }
 
                             row[3] = new Column(type);
