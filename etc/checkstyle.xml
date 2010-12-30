@@ -32,7 +32,6 @@
         <module name="EqualsHashCode"/>
         <module name="EmptyStatement"/>
         <module name="FallThrough"/>
-        <module name="FileLength"/>
         <module name="HiddenField">
             <property name="ignoreConstructorParameter" value="true"/>
             <property name="ignoreSetter" value="true"/>
@@ -101,7 +100,6 @@
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
         <module name="StaticVariableName"/>
-        <module name="TabCharacter"/>
         <module name="TypeName"/>
         <module name="UnusedImports"/>
         <module name="UpperEll"/>
@@ -120,4 +118,8 @@
         <module name="ParameterAssignment"/>
         <module name="RedundantModifier"/>
     </module>
+    <module name="FileLength">
+        <property name="max" value="2060"/>
+    </module>
+    <module name="FileTabCharacter"/>
 </module>
