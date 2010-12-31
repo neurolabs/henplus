@@ -85,7 +85,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     private static final Map<Integer, String> JDBCTYPE2TYPENAME = new HashMap<Integer, String>();
 
     // differentiated types by dump
-    private static final String[] TYPES = new String[9];
+    private static final String[] TYPES = new String[10];
     private static final int HP_STRING = 0;
     private static final int HP_INTEGER = 1;
     private static final int HP_NUMERIC = 2;
@@ -95,6 +95,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
     private static final int HP_TIMESTAMP = 6;
     private static final int HP_BLOB = 7;
     private static final int HP_CLOB = 8;
+    private static final int HP_BOOLEAN = 9;
 
     static {
         TYPES[HP_STRING] = "STRING";
@@ -106,6 +107,7 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
         TYPES[HP_TIMESTAMP] = "TIMESTAMP";
         TYPES[HP_BLOB] = "BLOB";
         TYPES[HP_CLOB] = "CLOB";
+        TYPES[HP_BOOLEAN] = "BOOLEAN";
 
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.CHAR)), TYPES[HP_STRING]);
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.VARCHAR)), TYPES[HP_STRING]);
@@ -119,18 +121,28 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
 
         // not supported yet.
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.BLOB)), TYPES[HP_BLOB]);
+        // just guessing, could be string maybe?
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.BINARY)), TYPES[HP_BLOB]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.VARBINARY)), TYPES[HP_BLOB]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.JAVA_OBJECT)), TYPES[HP_BLOB]);
+
         // CLOB not supported .. try string.
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.CLOB)), TYPES[HP_STRING]);
 
         // generic float.
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.DOUBLE)), TYPES[HP_DOUBLE]);
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.FLOAT)), TYPES[HP_DOUBLE]);
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.REAL)), TYPES[HP_DOUBLE]);
 
         // generic numeric. could be integer or double
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.BIGINT)), TYPES[HP_NUMERIC]);
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.NUMERIC)), TYPES[HP_NUMERIC]);
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.DECIMAL)), TYPES[HP_NUMERIC]);
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.BOOLEAN)), TYPES[HP_NUMERIC]);
+
+        // BITS (at least in postgresql) are read and written as true|false
+        JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.BIT)), TYPES[HP_BOOLEAN]);
+
         // generic integer.
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.INTEGER)), TYPES[HP_INTEGER]);
         JDBCTYPE2TYPENAME.put(Integer.valueOf((Types.SMALLINT)), TYPES[HP_INTEGER]);
@@ -655,6 +667,14 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                             }
                             break;
                         }
+                        case HP_BOOLEAN:
+                            final boolean val = rset.getBoolean(col);
+                            if (rset.wasNull()) {
+                                dumpOut.print(NULL_STR);
+                            } else {
+                                dumpOut.print(val);
+                            }
+                            break;
 
                         default:
                             throw new IllegalArgumentException("type " + TYPES[thisType] + " not supported yet");
@@ -958,6 +978,13 @@ public class DumpCommand extends AbstractCommand implements Interruptable {
                                 }
                                 break;
                             }
+                            case HP_BOOLEAN:
+                                final String val = readToken(reader);
+                                metaProperty[i].updateMaxLength(1);
+                                if (stmt != null) {
+                                    stmt.setBoolean(col, Boolean.valueOf(val));
+                                }
+                                break;
 
                             default:
                                 throw new IllegalArgumentException("type " + TYPES[metaProperty[i].type] + " not supported yet");
