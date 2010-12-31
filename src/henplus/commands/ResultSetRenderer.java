@@ -96,10 +96,17 @@ public class ResultSetRenderer implements Interruptable {
                 for (int i = 0; i < _columns; ++i) {
                     final int col = _showColumns != null ? _showColumns[i] : i + 1;
                     String colString;
-                    if (_meta.getColumnType(col) == Types.CLOB) {
-                        colString = readClob(_rset.getClob(col));
-                    } else {
-                        colString = _rset.getString(col);
+                    switch (_meta.getColumnType(col)) {
+                        case Types.CLOB:
+                            colString = readClob(_rset.getClob(col));
+                            break;
+                        case Types.BIT:
+                        case Types.BOOLEAN:
+                            colString = _rset.getObject(col) == null ? null : Boolean.toString(_rset.getBoolean(col));
+                            break;
+                        default:
+                            colString = _rset.getString(col);
+                            break;
                     }
                     final Column thisCol = new Column(colString);
                     currentRow[i] = thisCol;
