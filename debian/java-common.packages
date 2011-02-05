@@ -1,0 +1,15 @@
+%if %{with_javac}
+ export JAVA_HOME
+ export JAVA JAVAC JAVACMD CLASSPATH
+%else
+ export JAVA_HOME=%{java_home}
+ unset JAVA JAVAC JAVACMD CLASSPATH
+%endif
+ .
+%if %{with_sun_java4}%{with_sun_java5}%{with_sun_java6}
+ ANT_OPTS="-Dbuild.compiler=modern"
+%else
+ ANT_OPTS="-Dbuild.compiler=extJavac"
+%endif
+ .
+ ANT="ant $ANT_OPTS"

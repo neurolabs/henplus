@@ -1,0 +1,51 @@
+# If the debian/rules or debian/control file is missing, rebuild the file:
+#
+#   $ yada rebuild
+
+%define java_pkg java-compiler
+%define java_home $JAVA_HOME
+
+Source: henplus
+Section: utils
+Priority: optional
+Maintainer: Jan Burkhardt <henplus@bjrke.de>
+Standards-Version: 3.8.0
+Upstream-Source: http://github.com/neurolabs/henplus
+%if %`dpkg --compare-versions %{YADA_VERSION} ge 0.54 && echo 1`
+Homepage: http://github.com/neurolabs/henplus
+%endif
+Upstream-Authors: Henner Zeller <H.Zeller@acm.org>, Ole Langbehn
+Description: JDBC SQL commandline frontend with TAB-completion
+Copyright: GPL
+ src/henplus/HenPlus.java:
+ .
+  * This is free software, licensed under the Gnu Public License (GPL)
+  * get a copy from <http://www.gnu.org/licenses/gpl.html>
+  * author: Henner Zeller <H.Zeller@acm.org>
+ .
+Build-Depends: %{java_pkg}
+Build-Depends: ant
+Build: bash
+%include java-common.packages
+ .
+ jdk_version=`dpkg -s %{java_pkg} | grep ^Version: | sed 's/.*: //'`
+ LC_ALL=C $ANT -Ddebian.version=${VERSION##*-} -Ddebian.jdk=%{java_pkg} -Ddebian.jdk.version=$jdk_version jar
+ .
+Clean: bash
+%include java-common.packages
+ .
+ LC_ALL=C $ANT clean
+
+Package: henplus
+Architecture: all
+Depends: kaffe | java-virtual-machine, kaffe | java1-runtime | java2-runtime
+Description: JDBC SQL commandline frontend with TAB-completion
+ HenPlus is an SQL shell written in Java that works for any database that 
+ has JDBC support. It provides commandline history, commandline completion,
+ and can handle multiple connects to different databases at once.
+ Database-independent table dumps, aliases, and variables are also supported.
+Install: bash
+%include java-common.packages
+ .
+ LC_ALL=C $ANT install -DDESTDIR=$ROOT
+ .

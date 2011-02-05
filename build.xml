@@ -117,8 +117,7 @@
        </javadoc>
      </target>
 
-     <target name="dist" depends="clean,henplus.spec"
-	     description="create distribution tar and spec file">
+     <target name="dist" depends="clean,henplus.spec,yada" description="create distribution tar and spec file">
        <mkdir dir="${tarbase}" />
        <copy todir="${tarbase}">
           <fileset dir=".">
@@ -184,6 +183,12 @@
         </exec>
      </target>
 
+    <target name="yada" description="generate debian packaging specific files">
+        <exec executable="yada">
+            <arg line="rebuild" />
+        </exec>
+    </target>
+
      <target name="deb" depends="dist" description="create distribution debian package">
         <echo>
 	  ** Make sure, that the current version is written to the
@@ -210,6 +215,10 @@
         <delete file="${tarbase}.tar.gz" />
         <delete file="${src}/henplus/Version.java" />
         <delete file="henplus.spec" />
+        <delete file="debian/control" />
+        <delete file="debian/packages-tmp" />
+        <delete file="debian/packages-tmp-include" />
+        <delete file="debian/rules" />
         <delete dir="${tarbase}"/>
         <delete dir="${classes}"/>
         <delete dir="${build}"/>

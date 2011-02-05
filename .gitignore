@@ -3,3 +3,9 @@ src/henplus/Version.java
 /build
 /.settings
 .ant-targets-build.xml
+debian/control
+debian/packages-tmp
+debian/packages-tmp-include
+debian/rules
+henplus-*.tar.gz
+henplus.spec
