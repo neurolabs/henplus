@@ -99,8 +99,6 @@ features of the GNU-readline library and therefore needs the JNI java wrapper li
 ( <a href="http://toonetown.blogspot.com/2006/07/java-readline-on-mac-os-x-update.html">compilation on Mac OS X</a> )
 
 To build HenPlus the <a href="http://jakarta.apache.org/ant">ant build tool</a> (Version >= 1.4) is required. 
-To compile HenPlus, make sure that the `libreadline-java.jar` is in the classpath (RedHat and Debian installs the 
-java-readline package in `/usr/share/java/libreadline-java.jar`).
 
 Now, just type
 
@@ -147,12 +145,14 @@ then, the JNI-part of the readline library could not be found, so command line e
 from stdin as fallback. This happens if the `LD_LIBRARY_PATH` does not point to the JNI library; edit the `/usr/bin/henplus`
 shellscript so that the `LD_LIBRARY_PATH` contains the directory where `libJavaReadline.so` resides.
 
+For RedHat and Debian you can just install the `libreadline-java` package.
+
 ### First steps
 
 The important commands you need to know to get it running are `help` and `connect`. The help command gives an overview, 
 what commands are supported:
 
-    Hen*Plus&gt; help
+    Hen*Plus> help
      help | ?                                 : provides help for commands
      about | version | license                : about HenPlus
      exit | quit                              : exits HenPlus
@@ -203,8 +203,8 @@ the following example:
             interactive  input  from HenPlus  is disconnected from the
             subprocess' stdin. But this is useful to call some small
             commands in the middle of the session. There are two syntaxes
-            supported: system &lt;command&gt; or even shorter with the
-            exclamation mark: !&lt;command&gt;.
+            supported: system <command> or even shorter with the
+            exclamation mark: !<command>.
             Example:
             !ls
 
