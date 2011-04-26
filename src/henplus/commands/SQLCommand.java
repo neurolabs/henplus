@@ -241,19 +241,21 @@ public final class SQLCommand extends AbstractCommand {
                 }
 
                 if (hasResultSet) {
-                    rset = _stmt.getResultSet();
-                    ResultSetRenderer renderer;
-                    renderer = new ResultSetRenderer(rset, getColumnDelimiter(), isShowHeader(), isShowFooter(), getRowLimit(),
-                            HenPlus.out());
-                    SigIntHandler.getInstance().pushInterruptable(renderer);
-                    final int rows = renderer.execute();
-                    SigIntHandler.getInstance().popInterruptable();
-                    if (renderer.limitReached()) {
-                        session.println("limit of " + getRowLimit() + " rows reached ..");
-                        session.print("> ");
-                    }
-                    session.print(rows + " row" + (rows == 1 ? "" : "s") + " in result");
-                    lapTime = renderer.getFirstRowTime() - startTime;
+                    do {
+                        rset = _stmt.getResultSet();
+                        ResultSetRenderer renderer;
+                        renderer = new ResultSetRenderer(rset, getColumnDelimiter(), isShowHeader(), isShowFooter(), getRowLimit(),
+                                HenPlus.out());
+                        SigIntHandler.getInstance().pushInterruptable(renderer);
+                        final int rows = renderer.execute();
+                        SigIntHandler.getInstance().popInterruptable();
+                        if (renderer.limitReached()) {
+                            session.println("limit of " + getRowLimit() + " rows reached ..");
+                            session.print("> ");
+                        }
+                        session.print(rows + " row" + (rows == 1 ? "" : "s") + " in result");
+                        lapTime = renderer.getFirstRowTime() - startTime;
+                    } while (_stmt.getMoreResults());
                 } else {
                     final int updateCount = _stmt.getUpdateCount();
                     if (updateCount >= 0) {
@@ -387,9 +389,9 @@ public final class SQLCommand extends AbstractCommand {
                 if (aliases.size() == 1) {
                     completer.addName(col);
                 } else {
-                	for (String name : aliases) {
-                		completer.addName(name);
-                	}
+                    for (String name : aliases) {
+                        completer.addName(name);
+                    }
                 }
             }
             return completer.getAlternatives(lastWord);
