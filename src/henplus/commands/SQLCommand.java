@@ -253,7 +253,7 @@ public final class SQLCommand extends AbstractCommand {
                             session.println("limit of " + getRowLimit() + " rows reached ..");
                             session.print("> ");
                         }
-                        session.print(rows + " row" + (rows == 1 ? "" : "s") + " in result");
+                        session.println(rows + " row" + (rows == 1 ? "" : "s") + " in result");
                         lapTime = renderer.getFirstRowTime() - startTime;
                     } while (_stmt.getMoreResults());
                 } else {
