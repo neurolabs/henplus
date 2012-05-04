@@ -205,8 +205,10 @@
 	        <include name="${tarbase}/debian/rules" />
             </fileset>
         </chmod>
-	<exec dir="${build}/debian/${tarbase}" executable="dpkg-buildpackage">
-	   <arg line="-rfakeroot"/>
+	<exec dir="${build}/debian/${tarbase}" executable="dpkg-buildpackage" failonerror="true">
+	    <arg value="-rfakeroot" />
+	    <arg value="-us" />
+	    <arg value="-uc" />
 	</exec>
      </target>
 
@@ -218,7 +220,7 @@
         <delete file="debian/control" />
         <delete file="debian/packages-tmp" />
         <delete file="debian/packages-tmp-include" />
-        <delete file="debian/rules" />
+        <!-- delete file="debian/rules" /-->
         <delete dir="${tarbase}"/>
         <delete dir="${classes}"/>
         <delete dir="${build}"/>
