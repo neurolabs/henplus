@@ -38,7 +38,7 @@ Clean: bash
 
 Package: henplus
 Architecture: all
-Depends: kaffe | java-virtual-machine, kaffe | java1-runtime | java2-runtime
+Depends: kaffe | java-virtual-machine | java5-runtime | java6-runtime
 Description: JDBC SQL commandline frontend with TAB-completion
  HenPlus is an SQL shell written in Java that works for any database that 
  has JDBC support. It provides commandline history, commandline completion,
