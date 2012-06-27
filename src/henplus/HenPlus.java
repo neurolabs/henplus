@@ -123,7 +123,7 @@ public final class HenPlus implements Interruptable {
      * @throws UnsupportedEncodingException
      */
     private void init(final String[] argv) throws UnsupportedEncodingException {
-        final String noReadlineMsg = null;
+        final String noReadlineMsg = "using JLine 2.x library (Jason Dillon, Guillaume Nodet, Marc Prud'hommeaux)";
 
         // TODO: jline terminal detection
         _fromTerminal = true;
