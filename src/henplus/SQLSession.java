@@ -8,9 +8,7 @@ import henplus.property.BooleanPropertyHolder;
 import henplus.property.EnumeratedPropertyHolder;
 import henplus.sqlmodel.Table;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -26,7 +24,7 @@ import java.util.SortedSet;
 /**
  * a SQL session.
  */
-public class SQLSession implements Interruptable {
+public class SQLSession {
 
     private long _connectTime;
     private long _statementCount;
@@ -38,7 +36,6 @@ public class SQLSession implements Interruptable {
     private SQLMetaData _metaData;
 
     private final PropertyRegistry _propertyRegistry;
-    private volatile boolean _interrupted;
 
     /**
      * creates a new SQL session. Open the database connection, initializes the readline library
@@ -206,77 +203,9 @@ public class SQLSession implements Interruptable {
 
     private void promptUserPassword() throws IOException {
         HenPlus.msg().println("============ authorization required ===");
-        final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-        _interrupted = false;
-        try {
-            SigIntHandler.getInstance().pushInterruptable(this);
-            HenPlus.getInstance();
-            HenPlus.msg().print("Username: ");
-            _username = input.readLine();
-            if (_interrupted) {
-                throw new IOException("connect interrupted ..");
-            }
-            _password = promptPassword("Password: ");
-            if (_interrupted) {
-                throw new IOException("connect interrupted ..");
-            }
-        } finally {
-            SigIntHandler.getInstance().popInterruptable();
-        }
-    }
-
-    /**
-     * This is after a hack found in http://java.sun.com/features/2002/09/pword_mask.html
-     */
-    private String promptPassword(final String prompt) throws IOException {
-        String password = "";
-        final PasswordEraserThread maskingthread = new PasswordEraserThread(prompt);
-        try {
-            final byte[] lineBuffer = new byte[64];
-            maskingthread.start();
-            while (true) {
-                if (_interrupted) {
-                    break;
-                }
-
-                maskingthread.goOn();
-                final int byteCount = System.in.read(lineBuffer);
-                /*
-                 * hold on as soon as the system call returnes. Usually, this is
-                 * because we read the newline.
-                 */
-                maskingthread.holdOn();
-
-                for (int i = 0; i < byteCount; ++i) {
-                    char c = (char) lineBuffer[i];
-                    if (c == '\r') {
-                        c = (char) lineBuffer[++i];
-                        if (c == '\n') {
-                            return password;
-                        } else {
-                            continue;
-                        }
-                    } else if (c == '\n') {
-                        return password;
-                    } else {
-                        password += c;
-                    }
-                }
-            }
-        } finally {
-            maskingthread.done();
-        }
-
-        return password;
-    }
-
-    // -- Interruptable interface
-    @Override
-    public void interrupt() {
-        _interrupted = true;
-        HenPlus.msg().attributeBold();
-        HenPlus.msg().println(" interrupted; press [RETURN]");
-        HenPlus.msg().attributeReset();
+        HenPlus.getInstance();
+        _username = HenPlus.getConsoleReader().readLine("Username: ");
+        _password = HenPlus.getConsoleReader().readLine("Password: ", new Character('.'));
     }
 
     /**

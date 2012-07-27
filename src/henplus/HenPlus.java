@@ -51,6 +51,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.fusesource.jansi.AnsiConsole;
 
 public final class HenPlus implements Interruptable {
 
@@ -123,13 +124,16 @@ public final class HenPlus implements Interruptable {
      * @throws UnsupportedEncodingException
      */
     private void init(final String[] argv) throws UnsupportedEncodingException {
-        final String noReadlineMsg = null;
+        final String noReadlineMsg = "using JLine 2.x library (Jason Dillon, Guillaume Nodet, Marc Prud'hommeaux)";
 
         // TODO: jline terminal detection
         _fromTerminal = true;
         _quiet |= !_fromTerminal; // not from terminal: always quiet.
 
         if (_fromTerminal) {
+            AnsiConsole.systemInstall();
+            // TODO for JLine 2.7: setOutput(new TerminalOutputDevice(CONSOLE_READER.getTerminal().wrapOutIfNeeded(System.out)), 
+            // new TerminalOutputDevice(CONSOLE_READER.getTerminal().wrapOutIfNeeded(System.err)));
             setOutput(new TerminalOutputDevice(System.out), new TerminalOutputDevice(System.err));
         } else {
             setOutput(new PrintStreamOutputDevice(System.out), new PrintStreamOutputDevice(System.err));
