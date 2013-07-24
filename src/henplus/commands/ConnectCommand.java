@@ -129,6 +129,12 @@ public class ConnectCommand extends AbstractCommand {
         }
         if (url != null) {
             try {
+                String newUrl = _knownUrls.get(url);
+                if (newUrl != null) {
+                    HenPlus.msg().println("Using alias " + url);
+                    url = newUrl;
+                }
+
                 connect(url, username, password);
             } catch (final Exception e) {
                 // e.printStackTrace();
