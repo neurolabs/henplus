@@ -32,7 +32,7 @@ fi
 # position.
 LD_LIBRARY_PATH_EXT=$THISDIR/../lib:/usr/lib/jni
 
-if [ ! -n "$LD_LIBRARY_PATH" ]; then
+if [ -n "$LD_LIBRARY_PATH" ]; then
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH_EXT:$LD_LIBRARY_PATH
 else
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH_EXT
