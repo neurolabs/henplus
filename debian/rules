@@ -22,3 +22,10 @@ override_dh_installdocs:
 	mkdir -p ./debian/henplus/usr/share/doc/henplus/
 	cp README.md ./debian/henplus/usr/share/doc/henplus/README
 	cp debian/copyright ./debian/henplus/usr/share/doc/henplus/copyright
+
+# this is ... unorthodox: it assumes a full local repository clone
+# however, since this ./debian is in-tree in the source, it would be utterly
+# pointless to download something again rather than keep using the existing checkout.
+get-orig-source:
+	git -C $(DEBIANDIR).. archive --prefix=$(SOURCEPKG_NAME)-$(UPSTREAM_VERSION)/ HEAD| \
+		xz > $(SOURCEPKG_NAME)_$(UPSTREAM_VERSION).orig.tar.xz
