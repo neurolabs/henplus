@@ -3,7 +3,7 @@ Maintainer: Piotr Roszatycki <dexter@debian.org>
 Section: utils
 Priority: optional
 Standards-Version: 3.8.0
-Build-Depends: java-gcj-compat-dev, ant, libreadline-java (>= 0.8.0), libcommons-cli-java (>= 1.0), yada (>= 0.54)
+Build-Depends: gcj-jdk, ant, libreadline-java (>= 0.8.0), libcommons-cli-java (>= 1.0), debhelper, javahelper
 Homepage: http://henplus.sourceforge.net/
 Vcs-Browser: http://svn.debian.org/wsvn/cvsdebuild/trunk/debian/dists/henplus/
 Vcs-Svn: svn://svn.debian.org/cvsdebuild/trunk/debian/dists/henplus
