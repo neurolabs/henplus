@@ -10,7 +10,7 @@ Vcs-Svn: svn://svn.debian.org/cvsdebuild/trunk/debian/dists/henplus
 
 Package: henplus
 Architecture: all
-Depends: kaffe | java-virtual-machine, kaffe | java1-runtime | java2-runtime, libreadline-java (>= 0.8.0), libcommons-cli-java (>= 1.0)
+Depends: kaffe | java-virtual-machine, kaffe | java1-runtime | java2-runtime, libreadline-java (>= 0.8.0), libcommons-cli-java (>= 1.0), ${misc:Depends}
 Description: JDBC SQL commandline frontend with TAB-completion
  HenPlus is an SQL shell written in Java that works for any database that
  has JDBC support. It provides commandline history, commandline completion,
