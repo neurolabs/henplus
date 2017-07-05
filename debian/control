@@ -2,7 +2,7 @@ Source: henplus
 Maintainer: Piotr Roszatycki <dexter@debian.org>
 Section: utils
 Priority: optional
-Standards-Version: 3.8.0
+Standards-Version: 3.9.7
 Build-Depends: gcj-jdk, ant, libreadline-java (>= 0.8.0), libcommons-cli-java (>= 1.0), debhelper, javahelper
 Homepage: http://henplus.sourceforge.net/
 Vcs-Browser: http://svn.debian.org/wsvn/cvsdebuild/trunk/debian/dists/henplus/
