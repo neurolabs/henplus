@@ -77,9 +77,14 @@ Getting started
 
 You can download source and binary packages of HenPlus from the github page at http://github.com/neurolabs/henplus
 
-As of March 2005, HenPlus is included in some distributions, for example 
-<a href="http://www.debian.org/">Debian</a> testing and unstable, <a href="http://www.ubuntulinux.org/">Ubuntu</a> and 
-<a href="http://www.gentoo.org/">Gentoo</a>.
+As of July 2017, HenPlus is included in some distributions, for example
+<a href="http://www.gentoo.org/">Gentoo</a>. On Debian and derivatives can try
+the included build and install script. If you have all dependencies installed,
+a simple:
+
+    $ ./debian-install.sh
+
+should build and install HenPlus (or complain about missing dependencies).
 
 Use the respective package management tool to install HenPlus on these distributions.
 
