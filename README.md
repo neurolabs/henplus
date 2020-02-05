@@ -383,7 +383,7 @@ command is then completed with a single slash at the beginning of a new line (th
     ok. (320 msec)
     oracle:localhost>
 
-(The current keywords that trigger requiering the `/` as command separator are CREATE followed by PROCEDURE, TRIGGER, 
+(The current keywords that trigger requiring the `/` as command separator are CREATE followed by PROCEDURE, TRIGGER, 
 FUNCTION or PACKAGE later. If this  is not enough, please let us know).
 
 ### SQL-Comments
